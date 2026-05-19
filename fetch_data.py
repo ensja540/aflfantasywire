@@ -46,10 +46,10 @@ OUTPUT_PATH = BASE_DIR.parent / "players.json"
 FW = "https://www.footywire.com/afl/footy"
 
 URLS = {
-    "sc_stats":       f"{FW}/ft_player_rankings?year=2026&rt=LA&st=SU",
-    "dt_stats":       f"{FW}/ft_player_rankings?year=2026&rt=LA&st=DT",
-    "sc_prices":      f"{FW}/ft_player_rankings?year=2026&rt=LA&st=SU",
-    "dt_prices":      f"{FW}/ft_player_rankings?year=2026&rt=LA&st=DT",
+    "sc_stats":       f"{FW}/supercoach_season",
+    "dt_stats":       f"{FW}/dream_team_season",
+    "sc_prices":      f"{FW}/supercoach_prices",
+    "dt_prices":      f"{FW}/dream_team_prices",
     "injury_list":    f"{FW}/injury_list",
     "selection":      f"{FW}/selection_changes",
     "afl_selections": "https://www.afl.com.au/news/team-selection",
@@ -142,8 +142,9 @@ def parse_sc_stats(html):
     i_price   = col_idx("price","cost","salary","value")
     i_avg     = col_idx("avg","average")
     i_be      = col_idx("be","break","b/e")
-    i_last    = col_idx("last","pts","r10","rnd")
+    i_last    = col_idx("last","pts","r10","rnd","last game","score for")
     i_owned   = col_idx("own","%","sel")
+    i_games   = col_idx("games","gms","played")
 
     # Round score columns (R1 through R23 typically)
     round_cols = [i for i, h in enumerate(headers) if re.match(r"r\d+$", h)]
