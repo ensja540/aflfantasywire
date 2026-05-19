@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 """
-AFLFantasyWire - Data Fetcher
+AFLFantasyWire — Data Fetcher
 ==============================
-DATA SOURCES (all Footywire)
-  supercoach_breakevens   -> SC price, games, avg, breakeven, position
-  supercoach_scores       -> SC avg, 3-round avg, consistency, total
-  supercoach_round        -> SC rank, current round's score (last)
-  supercoach_prices       -> SC last price change (priceDelta)
-  dream_team_*            -> AFL Fantasy equivalents (same 4 pages)
-  injury_list             -> active injury notes
-  afl_team_selections     -> stub (page is team-grouped, not flat)
+DATA SOURCES
+  - Footywire       → SC/DT prices, averages, break-evens, last scores,
+                      round-by-round scores, disposals, injury status
+  - AFL.com.au      → Official team selections, confirmed injuries
+  - SuperCoach API  → Ownership %, real-time price changes (optional)
+  - AFL Fantasy API → DT-specific ownership (optional)
 
 HOW TO RUN
   pip install requests beautifulsoup4 lxml
   python fetch_data.py
 
-  This MUST run from a home/office machine - Footywire blocks cloud IPs.
+  This MUST run from a home/office machine — Footywire blocks cloud IPs.
+
+SCHEDULE (Mac/Linux crontab)
+  crontab -e
+  0,15,30,45 * * * * cd /path/to/this/folder && python fetch_data.py >> fetch.log 2>&1
 
 OUTPUT
-  players.json - written next to fetch_data.py.
-  Override the path via config.json "output_path" (relative to fetch_data.py).
+  players.json — drop this next to aflfantasywire.html and reload the app
 """
 
 import json, re, time, logging, sys
@@ -38,38 +39,23 @@ log = logging.getLogger("afw")
 
 BASE_DIR    = Path(__file__).parent
 CONFIG_PATH = BASE_DIR / "config.json"
+OUTPUT_PATH = BASE_DIR.parent / "players.json"
 
-def _load_output_path():
-    out = BASE_DIR / "players.json"
-    if CONFIG_PATH.exists():
-        try:
-            cfg = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
-            if cfg.get("output_path"):
-                out = (BASE_DIR / cfg["output_path"]).resolve()
-        except Exception as e:
-            log.warning(f"Could not read config.json: {e}")
-    return out
-
-OUTPUT_PATH = _load_output_path()
-
-# -- FOOTYWIRE URLS ----------------------------------------------------------
+# ── FOOTYWIRE URLS ──────────────────────────────────────────────────────────
 
 FW = "https://www.footywire.com/afl/footy"
 
 URLS = {
-    "sc_breakevens": f"{FW}/supercoach_breakevens",
-    "sc_scores":     f"{FW}/supercoach_scores",
-    "sc_round":      f"{FW}/supercoach_round",
-    "sc_prices":     f"{FW}/supercoach_prices",
-    "dt_breakevens": f"{FW}/dream_team_breakevens",
-    "dt_scores":     f"{FW}/dream_team_scores",
-    "dt_round":      f"{FW}/dream_team_round",
-    "dt_prices":     f"{FW}/dream_team_prices",
-    "injury_list":   f"{FW}/injury_list",
-    "selections":    f"{FW}/afl_team_selections",
+    "sc_stats":       f"{FW}/ft_supercoach_statistics",
+    "dt_stats":       f"{FW}/dream_team_statistics",
+    "sc_prices":      f"{FW}/sc_prices",
+    "dt_prices":      f"{FW}/dream_team_prices",
+    "injury_list":    f"{FW}/injury_list",
+    "selection":      f"{FW}/selection_changes",
+    "afl_selections": "https://www.afl.com.au/news/team-selection",
 }
 
-# -- SESSION -----------------------------------------------------------------
+# ── SESSION ─────────────────────────────────────────────────────────────────
 
 def make_session():
     """Browser-like session that passes Footywire's bot checks."""
@@ -85,24 +71,25 @@ def make_session():
         "Accept-Encoding": "gzip, deflate, br",
         "Connection": "keep-alive",
         "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
         "DNT": "1",
     })
     return s
 
 def get(session, url, retries=3, delay=2):
-    """Fetch URL with retries, polite rate limit, and clear error messages."""
+    """Fetch URL with retries and rate limiting."""
     for attempt in range(retries):
         try:
-            time.sleep(0.8)
+            time.sleep(0.8)  # polite delay between requests
             r = session.get(url, timeout=15)
             if r.status_code == 200:
                 return r
             elif r.status_code == 403:
                 log.error(f"403 Forbidden: {url}")
-                log.error("  -> Footywire is blocking this IP. Run from a residential connection.")
-                return None
-            elif r.status_code == 404:
-                log.error(f"404 Not Found: {url}  (URL may have changed)")
+                log.error("  → Footywire is blocking this request.")
+                log.error("  → Make sure you're running this on a home/office machine, not a server.")
                 return None
             elif r.status_code == 429:
                 log.warning(f"Rate limited. Waiting {delay*3}s...")
@@ -117,321 +104,379 @@ def get(session, url, retries=3, delay=2):
             time.sleep(delay)
     return None
 
-# -- TABLE / CELL HELPERS ----------------------------------------------------
+# ── FOOTYWIRE PARSERS ────────────────────────────────────────────────────────
 
-def find_data_tables(soup, *needles):
+def parse_sc_stats(html):
     """
-    Return all LEAF tables (no nested <table>) whose first row contains one of
-    the needle words. Sorted by row count (biggest first).
-    """
-    leaf = [t for t in soup.find_all("table") if not t.find("table")]
-    leaf.sort(key=lambda t: -len(t.find_all("tr")))
-    needles = [n.lower() for n in (needles or ("player",))]
-    out = []
-    for t in leaf:
-        rows = t.find_all("tr")
-        if len(rows) < 2:
-            continue
-        first = " ".join(c.get_text(" ", strip=True) for c in rows[0].find_all(["th","td"])).lower()
-        if any(n in first for n in needles):
-            out.append(t)
-    return out
+    Parse the SuperCoach statistics page.
+    Returns list of player dicts with SC-specific data.
 
-def find_data_table(soup, *needles):
-    """First (biggest) leaf table matching the needles, or None."""
-    tables = find_data_tables(soup, *needles)
-    return tables[0] if tables else None
-
-def cell_text(cell):
-    return cell.get_text(" ", strip=True)
-
-POS_RE = re.compile(r"\b(DEF|MID|RUC|FWD)(?:\s*,\s*(?:DEF|MID|RUC|FWD))?\s*$")
-
-def parse_player_cell(cell):
-    """
-    Extract (name, position, profile_url) from a Footywire player cell.
-
-    Footywire is inconsistent: breakevens/prices pages put the FULL name as
-    text before the <a> tag (anchor has the short name), but scores/round/
-    injury pages put the FULL name inside the anchor. Prefer text-before-anchor
-    when present; fall back to anchor text otherwise.
-
-      "Reilly O'Brien R. O'Brien RUC"  -> ("Reilly O'Brien", "RUC", url)
-      "Connor Rozee C. Rozee DEF, MID" -> ("Connor Rozee",   "DEF", url)
-      "Brodie Grundy RUC"              -> ("Brodie Grundy",  "RUC", url)
-      "Brodie Grundy B Grundy Swans"   -> ("Brodie Grundy",  "",    url)
-      "Dion Prestia"                   -> ("Dion Prestia",   "",    url)
-    """
-    from bs4 import NavigableString
-    a = cell.find("a")
-    href = a.get("href", "") if a else ""
-
-    if a is not None:
-        before = []
-        for child in cell.children:
-            if child is a:
-                break
-            s = str(child).strip() if isinstance(child, NavigableString) else child.get_text(strip=True)
-            if s:
-                before.append(s)
-        before_text = " ".join(before).strip()
-        name = before_text or a.get_text(strip=True)
-    else:
-        name = cell_text(cell)
-
-    full = cell_text(cell)
-    m = POS_RE.search(full)
-    pos = m.group(1) if m else ""
-
-    profile_url = ""
-    if href:
-        if href.startswith("http"):
-            profile_url = href
-        elif href.startswith("/"):
-            profile_url = f"https://www.footywire.com{href}"
-        else:
-            profile_url = f"https://www.footywire.com/afl/footy/{href}"
-    return name, pos, profile_url
-
-def to_int(s, default=0):
-    if s is None: return default
-    s = str(s).replace(",", "").replace("$", "").replace("%", "").strip()
-    try: return int(float(s))
-    except: return default
-
-def to_float(s, default=0.0):
-    if s is None: return default
-    s = str(s).replace(",", "").replace("$", "").replace("%", "").strip()
-    try: return float(s)
-    except: return default
-
-def to_money(s, default=0):
-    if s is None: return default
-    s = str(s).replace("$", "").replace(",", "").replace(" ", "").strip()
-    if s.endswith("k"):
-        try: return int(float(s[:-1]) * 1000)
-        except: return default
-    try: return int(float(s))
-    except: return default
-
-def to_signed_money(s, default=0):
-    """Parse '+$7,500' / '-$56,000' / '+$0' as a signed int."""
-    if s is None: return default
-    s = str(s).replace("$", "").replace(",", "").replace(" ", "").strip()
-    try: return int(float(s))
-    except: return default
-
-# -- FOOTYWIRE PARSERS -------------------------------------------------------
-
-def parse_breakevens(html):
-    """Player | Team | Price | G | Avg | Breakeven | Likelihood %"""
-    soup = BeautifulSoup(html, "lxml")
-    t = find_data_table(soup, "player")
-    if not t:
-        log.warning("breakevens: no data table found")
-        return []
-    out = []
-    for row in t.find_all("tr")[1:]:
-        cells = row.find_all("td")
-        if len(cells) < 7:
-            continue
-        name, pos, href = parse_player_cell(cells[0])
-        if not name:
-            continue
-        out.append({
-            "name":        name,
-            "pos":         pos or "MID",
-            "team_raw":    cell_text(cells[1]),
-            "price":       to_money(cell_text(cells[2])),
-            "games":       to_int(cell_text(cells[3])),
-            "avg":         to_float(cell_text(cells[4])),
-            "be":          to_int(cell_text(cells[5])),
-            "likelihood":  to_int(cell_text(cells[6])),
-            "profile_url": href,
-        })
-    return out
-
-def parse_scores(html):
-    """Player | Team | Price | G | Total | Average | 3-Rnd Average | $/Average | $/3-Rnd Avg | Consistency"""
-    soup = BeautifulSoup(html, "lxml")
-    t = find_data_table(soup, "player")
-    if not t:
-        log.warning("scores: no data table found")
-        return []
-    out = []
-    for row in t.find_all("tr")[1:]:
-        cells = row.find_all("td")
-        if len(cells) < 10:
-            continue
-        name, pos, _ = parse_player_cell(cells[0])
-        if not name:
-            continue
-        out.append({
-            "name":        name,
-            "pos":         pos,
-            "team_raw":    cell_text(cells[1]),
-            "total":       to_int(cell_text(cells[4])),
-            "avg":         to_float(cell_text(cells[5])),
-            "avg3":        to_float(cell_text(cells[6])),
-            "consistency": to_float(cell_text(cells[9])),
-        })
-    return out
-
-def parse_round(html):
-    """Rank | Player | Team | Current Salary | YYYY R# Salary | YYYY R# Score | *Value"""
-    soup = BeautifulSoup(html, "lxml")
-    t = find_data_table(soup, "rank", "player")
-    if not t:
-        log.warning("round: no data table found")
-        return []
-    out = []
-    for row in t.find_all("tr")[1:]:
-        cells = row.find_all("td")
-        if len(cells) < 7:
-            continue
-        name, _, _ = parse_player_cell(cells[1])
-        if not name:
-            continue
-        out.append({
-            "name":       name,
-            "team_raw":   cell_text(cells[2]),
-            "rank":       to_int(cell_text(cells[0])),
-            "last_score": to_int(cell_text(cells[5])),
-        })
-    return out
-
-def parse_prices(html):
-    """Player | Current | Total Change | Change % | Last Change | Expected Price | ..."""
-    soup = BeautifulSoup(html, "lxml")
-    t = find_data_table(soup, "player")
-    if not t:
-        log.warning("prices: no data table found")
-        return []
-    out = []
-    for row in t.find_all("tr")[1:]:
-        cells = row.find_all("td")
-        if len(cells) < 5:
-            continue
-        name, _, _ = parse_player_cell(cells[0])
-        if not name:
-            continue
-        out.append({
-            "name":         name,
-            "price_delta":  to_signed_money(cell_text(cells[4])),  # Last Change
-            "total_change": to_signed_money(cell_text(cells[2])),
-        })
-    return out
-
-def parse_injuries(html):
-    """
-    Footywire's injury_list page has one table PER TEAM (~18 tables).
-    Parse all of them. Returns {name_key: {status, detail, eta}}.
+    Table columns (typical Footywire layout):
+    Rank | Player | Team | Pos | Price | Avg | BE | Last | Owned | R1 | R2 ... R23
     """
     soup = BeautifulSoup(html, "lxml")
-    tables = find_data_tables(soup, "player")
-    # Filter to injury tables (header contains 'injur')
-    injury_tables = []
-    for t in tables:
-        first = " ".join(c.get_text(" ", strip=True) for c in t.find_all("tr")[0].find_all(["th","td"])).lower()
-        if "injur" in first:
-            injury_tables.append(t)
-    out = {}
-    for t in injury_tables:
-        for row in t.find_all("tr")[1:]:
-            cells = row.find_all("td")
-            if len(cells) < 3:
-                continue
-            name, _, _ = parse_player_cell(cells[0])
-            if not name:
-                continue
-            injury    = cell_text(cells[1])
-            returning = cell_text(cells[2])
-            rl = returning.lower()
-            if any(x in rl for x in ("test", "tbc", "managed", "uncertain", "doubtful")):
-                status = "tbc"
+    players = []
+
+    table = (
+        soup.find("table", id=re.compile("supercoach|sc.stats", re.I)) or
+        soup.find("table", class_=re.compile("data|stats|player", re.I)) or
+        _largest_table(soup)
+    )
+    if not table:
+        log.warning("SC stats: no table found")
+        return players
+
+    headers = [th.get_text(strip=True).lower() for th in table.find_all("th")]
+    log.info(f"SC stats columns: {headers[:12]}")
+
+    # Column index helpers
+    def col_idx(*names):
+        for name in names:
+            for i, h in enumerate(headers):
+                if name in h: return i
+        return None
+
+    i_player  = col_idx("player","name")
+    i_team    = col_idx("team","club")
+    i_pos     = col_idx("pos","position")
+    i_price   = col_idx("price","cost","salary","value")
+    i_avg     = col_idx("avg","average")
+    i_be      = col_idx("be","break","b/e")
+    i_last    = col_idx("last","pts","r10","rnd")
+    i_owned   = col_idx("own","%","sel")
+
+    # Round score columns (R1 through R23 typically)
+    round_cols = [i for i, h in enumerate(headers) if re.match(r"r\d+$", h)]
+
+    for row in table.find_all("tr")[1:]:
+        cells = row.find_all(["td","th"])
+        if len(cells) < 5: continue
+        txt = [c.get_text(strip=True) for c in cells]
+
+        def v(idx, default=""):
+            return txt[idx] if idx is not None and idx < len(txt) else default
+
+        def num(idx, default=0):
+            try: return float(re.sub(r"[^\d.]", "", v(idx) or "0") or 0)
+            except: return default
+
+        def money(idx, default=0):
+            # "$850,400" or "850400" or "850k"
+            raw = v(idx, "0")
+            raw = raw.replace("$","").replace(",","").replace(" ","")
+            if raw.endswith("k"): return int(float(raw[:-1]) * 1000)
+            try: return int(float(raw))
+            except: return default
+
+        player_cell = cells[i_player] if i_player is not None else cells[1]
+        name_tag = player_cell.find("a") or player_cell
+        name = name_tag.get_text(strip=True)
+        if not name or name.lower() in ("player","name",""): continue
+
+        # Extract player profile URL slug for later detailed fetches
+        profile_url = ""
+        if player_cell.find("a"):
+            href = player_cell.find("a").get("href","")
+            profile_url = f"https://www.footywire.com{href}" if href.startswith("/") else href
+
+        round_scores = []
+        for ci in round_cols:
+            raw = v(ci,"")
+            if raw == "" or raw == "-" or raw == "DNP": 
+                round_scores.append(None)
             else:
-                # Anyone on the injury list is at least "out" for this round.
-                status = "out"
-            out[name_key(name)] = {
-                "status": status,
-                "detail": injury,
-                "eta":    returning,
-            }
-    return out
+                try: round_scores.append(int(re.sub(r"[^\d]","",raw) or 0))
+                except: round_scores.append(None)
 
-def parse_selections(html):
-    """
-    afl_team_selections is grouped per-team with sub-headers like 'Interchange',
-    not a flat 'name | change' table. Skipping in v1 - selection news layered
-    on by the app instead.
-    """
-    return {}
+        # Last 7 non-None scores for the sparkline
+        played = [s for s in round_scores if s is not None]
+        last7  = played[-7:] if len(played) >= 7 else (played + [0] * (7 - len(played)))
 
-# -- TEAM NAME / POSITION NORMALISATION --------------------------------------
+        price   = money(i_price) or 500000
+        avg     = num(i_avg)
+        be      = int(num(i_be))
+        last    = int(num(i_last))
+        owned   = num(i_owned)
+
+        # 3-round average from last 3 played scores
+        last3 = [s for s in played[-3:] if s is not None]
+        avg3  = round(sum(last3)/len(last3), 1) if last3 else avg
+
+        players.append({
+            "name":        name,
+            "team":        v(i_team, ""),
+            "pos":         v(i_pos, "MID"),
+            "sc_price":    price,
+            "sc_avg":      avg,
+            "sc_avg3":     avg3,
+            "sc_last":     last,
+            "sc_be":       be,
+            "sc_owned":    owned,
+            "sc_scores":   last7,
+            "sc_all_scores": played,
+            "profile_url": profile_url,
+            "sc_rank":     len(players) + 1,
+        })
+
+    log.info(f"SC stats: parsed {len(players)} players")
+    return players
+
+
+def parse_dt_stats(html):
+    """
+    Parse the AFL Fantasy (Dream Team) statistics page.
+    Same structure as SC stats but DT-specific values.
+    """
+    soup = BeautifulSoup(html, "lxml")
+    players = []
+    table = (
+        soup.find("table", id=re.compile("dream|dt|fantasy", re.I)) or
+        _largest_table(soup)
+    )
+    if not table:
+        log.warning("DT stats: no table found")
+        return players
+
+    headers = [th.get_text(strip=True).lower() for th in table.find_all("th")]
+
+    def col_idx(*names):
+        for name in names:
+            for i, h in enumerate(headers):
+                if name in h: return i
+        return None
+
+    i_player = col_idx("player","name")
+    i_price  = col_idx("price","cost","value")
+    i_avg    = col_idx("avg","average")
+    i_be     = col_idx("be","break")
+    i_last   = col_idx("last","pts")
+    i_owned  = col_idx("own","%")
+    round_cols = [i for i, h in enumerate(headers) if re.match(r"r\d+$", h)]
+
+    for row in table.find_all("tr")[1:]:
+        cells = row.find_all(["td","th"])
+        if len(cells) < 5: continue
+        txt = [c.get_text(strip=True) for c in cells]
+        def v(i, d=""): return txt[i] if i is not None and i < len(txt) else d
+        def num(i,d=0):
+            try: return float(re.sub(r"[^\d.]","",v(i) or "0") or 0)
+            except: return d
+        def money(i,d=0):
+            raw=(v(i,"0")).replace("$","").replace(",","")
+            if raw.endswith("k"): return int(float(raw[:-1])*1000)
+            try: return int(float(raw))
+            except: return d
+
+        player_cell = cells[i_player] if i_player is not None else cells[1]
+        name = (player_cell.find("a") or player_cell).get_text(strip=True)
+        if not name or name.lower() in ("player","name",""): continue
+
+        played = []
+        for ci in round_cols:
+            raw = v(ci,"")
+            if raw and raw not in ("-","DNP",""):
+                try: played.append(int(re.sub(r"[^\d]","",raw) or 0))
+                except: pass
+
+        last7 = played[-7:] if len(played) >= 7 else (played + [0]*(7-len(played)))
+        last3_scores = played[-3:] if played else []
+        avg3  = round(sum(last3_scores)/len(last3_scores), 1) if last3_scores else num(i_avg)
+
+        players.append({
+            "name":     name,
+            "dt_price": money(i_price) or 500000,
+            "dt_avg":   num(i_avg),
+            "dt_avg3":  avg3,
+            "dt_last":  int(num(i_last)),
+            "dt_be":    int(num(i_be)),
+            "dt_owned": num(i_owned),
+            "dt_scores": last7,
+            "dt_rank":  len(players) + 1,
+        })
+
+    log.info(f"DT stats: parsed {len(players)} players")
+    return players
+
+
+def parse_player_detail(html, player_name):
+    """
+    Parse individual player page for detailed season stats:
+    disposals, clearances, tackles, goals, marks per game.
+    """
+    soup = BeautifulSoup(html, "lxml")
+    stats = {"disposals":25.0,"clearances":5.0,"tackles":4.0,"goals":0.5,"marks":5.0}
+
+    # Look for the season stats table
+    tables = soup.find_all("table")
+    for table in tables:
+        headers = [th.get_text(strip=True).lower() for th in table.find_all("th")]
+        # Check if this looks like a stats table
+        if not any(k in " ".join(headers) for k in ("disp","disposal","clr","tackle")): 
+            continue
+
+        def ci(*names):
+            for n in names:
+                for i,h in enumerate(headers):
+                    if n in h: return i
+            return None
+
+        i_d  = ci("disp","de")
+        i_cl = ci("clr","clearance")
+        i_tk = ci("tkl","tackle")
+        i_g  = ci("goal","gls","g")
+        i_m  = ci("mark","mks","m")
+
+        # Average the last column of data rows (season totals row or averages row)
+        rows = table.find_all("tr")
+        data_rows = [r for r in rows[1:] if r.find_all("td")]
+        if not data_rows: continue
+
+        # Try to find the "averages" row or use season total
+        avg_row = None
+        for row in data_rows:
+            if "avg" in row.get_text(strip=True).lower():
+                avg_row = row; break
+        target_row = avg_row or data_rows[-1]
+        cells_txt = [td.get_text(strip=True) for td in target_row.find_all("td")]
+
+        def n(i,d=0):
+            if i is None or i >= len(cells_txt): return d
+            try: return float(re.sub(r"[^\d.]","",cells_txt[i]) or d)
+            except: return d
+
+        if i_d:  stats["disposals"]   = n(i_d, 25.0)
+        if i_cl: stats["clearances"]  = n(i_cl, 5.0)
+        if i_tk: stats["tackles"]     = n(i_tk, 4.0)
+        if i_g:  stats["goals"]       = n(i_g, 0.5)
+        if i_m:  stats["marks"]       = n(i_m, 5.0)
+        break
+
+    return stats
+
+
+def parse_injury_list(html):
+    """
+    Parse Footywire injury list page.
+    Returns dict of {player_name: {"status": "out|tbc|fit", "detail": "...", "eta": "..."}}
+    """
+    soup = BeautifulSoup(html, "lxml")
+    injuries = {}
+
+    table = _largest_table(soup)
+    if not table: return injuries
+
+    for row in table.find_all("tr")[1:]:
+        cells = row.find_all(["td","th"])
+        if len(cells) < 3: continue
+        txt = [c.get_text(strip=True) for c in cells]
+
+        name   = txt[0] if txt else ""
+        detail = txt[2] if len(txt) > 2 else ""
+        eta    = txt[3] if len(txt) > 3 else ""
+
+        if not name: continue
+
+        detail_lower = detail.lower() + eta.lower()
+        if any(x in detail_lower for x in ("out","omit","test","season")):
+            status = "out"
+        elif any(x in detail_lower for x in ("tbc","test","managed","uncertain","doubtful")):
+            status = "tbc"
+        else:
+            status = "fit"
+
+        injuries[name.lower()] = {
+            "status": status,
+            "detail": detail,
+            "eta": eta,
+        }
+
+    log.info(f"Injuries: found {len(injuries)} players with injury notes")
+    return injuries
+
+
+def parse_selection_changes(html):
+    """
+    Parse selection changes page for role changes, ins/outs.
+    Returns dict of {player_name: {"change": "in|out|emergency|sub", "note": "..."}}
+    """
+    soup = BeautifulSoup(html, "lxml")
+    changes = {}
+
+    for section in soup.find_all(["div","section"], class_=re.compile("selection|change|team", re.I)):
+        for row in section.find_all("li"):
+            text = row.get_text(strip=True)
+            # Try to extract player name (usually first words before -)
+            m = re.match(r"([A-Z][a-z]+ [A-Z][a-z]+)\s*[-–]\s*(.+)", text)
+            if m:
+                name = m.group(1)
+                note = m.group(2)
+                change = "in" if "in" in note.lower() else ("out" if "out" in note.lower() else "change")
+                changes[name.lower()] = {"change": change, "note": note}
+
+    log.info(f"Selections: found {len(changes)} change notes")
+    return changes
+
+
+def _largest_table(soup):
+    """Return the largest table in the page by row count."""
+    tables = soup.find_all("table")
+    if not tables: return None
+    return max(tables, key=lambda t: len(t.find_all("tr")))
+
+
+# ── DATA MERGING ─────────────────────────────────────────────────────────────
 
 TEAM_COLOURS = {
-    "Adelaide":         {"tc":"#002b5c","tb":"rgba(0,43,92,0.12)"},
-    "Brisbane":         {"tc":"#e8a040","tb":"rgba(160,90,0,0.12)"},
-    "Carlton":          {"tc":"#6090d8","tb":"rgba(0,60,140,0.12)"},
-    "Collingwood":      {"tc":"#e0e0e0","tb":"rgba(255,255,255,0.07)"},
-    "Essendon":         {"tc":"#cc3333","tb":"rgba(180,30,30,0.12)"},
-    "Fremantle":        {"tc":"#7b3d9e","tb":"rgba(100,30,130,0.12)"},
-    "Geelong":          {"tc":"#1a4e8c","tb":"rgba(0,50,120,0.12)"},
-    "Gold Coast":       {"tc":"#e8b840","tb":"rgba(200,150,0,0.12)"},
-    "GWS Giants":       {"tc":"#e07030","tb":"rgba(220,80,0,0.12)"},
-    "Hawthorn":         {"tc":"#c89020","tb":"rgba(160,110,0,0.12)"},
-    "Melbourne":        {"tc":"#1a6fd8","tb":"rgba(0,80,200,0.12)"},
-    "North Melbourne":  {"tc":"#1a3a8c","tb":"rgba(0,30,100,0.12)"},
-    "Port Adelaide":    {"tc":"#888888","tb":"rgba(100,100,100,0.10)"},
-    "Richmond":         {"tc":"#f0c040","tb":"rgba(240,192,64,0.10)"},
-    "St Kilda":         {"tc":"#e03030","tb":"rgba(200,0,0,0.12)"},
-    "Sydney":           {"tc":"#e04040","tb":"rgba(180,30,30,0.12)"},
-    "West Coast":       {"tc":"#1a3d8c","tb":"rgba(0,40,120,0.12)"},
-    "Western Bulldogs": {"tc":"#4080c8","tb":"rgba(0,60,160,0.12)"},
+    "Adelaide":{"tc":"#002b5c","tb":"rgba(0,43,92,0.12)"},
+    "Brisbane":{"tc":"#e8a040","tb":"rgba(160,90,0,0.12)"},
+    "Carlton":{"tc":"#6090d8","tb":"rgba(0,60,140,0.12)"},
+    "Collingwood":{"tc":"#e0e0e0","tb":"rgba(255,255,255,0.07)"},
+    "Essendon":{"tc":"#cc3333","tb":"rgba(180,30,30,0.12)"},
+    "Fremantle":{"tc":"#7b3d9e","tb":"rgba(100,30,130,0.12)"},
+    "Geelong":{"tc":"#1a4e8c","tb":"rgba(0,50,120,0.12)"},
+    "Gold Coast":{"tc":"#e8b840","tb":"rgba(200,150,0,0.12)"},
+    "GWS Giants":{"tc":"#e07030","tb":"rgba(220,80,0,0.12)"},
+    "Hawthorn":{"tc":"#c89020","tb":"rgba(160,110,0,0.12)"},
+    "Melbourne":{"tc":"#1a6fd8","tb":"rgba(0,80,200,0.12)"},
+    "North Melbourne":{"tc":"#1a3a8c","tb":"rgba(0,30,100,0.12)"},
+    "Port Adelaide":{"tc":"#888888","tb":"rgba(100,100,100,0.10)"},
+    "Richmond":{"tc":"#f0c040","tb":"rgba(240,192,64,0.10)"},
+    "St Kilda":{"tc":"#e03030","tb":"rgba(200,0,0,0.12)"},
+    "Sydney":{"tc":"#e04040","tb":"rgba(180,30,30,0.12)"},
+    "West Coast":{"tc":"#1a3d8c","tb":"rgba(0,40,120,0.12)"},
+    "Western Bulldogs":{"tc":"#4080c8","tb":"rgba(0,60,160,0.12)"},
 }
 
-# Footywire uses nicknames in its 'Team' column. Map them to canonical names.
 TEAM_ALIASES = {
-    "CROWS":"Adelaide", "ADELAIDE":"Adelaide", "ADELAIDE CROWS":"Adelaide",
-    "LIONS":"Brisbane", "BRISBANE":"Brisbane", "BRISBANE LIONS":"Brisbane",
-    "BLUES":"Carlton", "CARLTON":"Carlton",
-    "MAGPIES":"Collingwood", "COLLINGWOOD":"Collingwood", "PIES":"Collingwood",
-    "BOMBERS":"Essendon", "ESSENDON":"Essendon", "DONS":"Essendon",
-    "DOCKERS":"Fremantle", "FREMANTLE":"Fremantle", "FREO":"Fremantle",
-    "CATS":"Geelong", "GEELONG":"Geelong", "GEELONG CATS":"Geelong",
-    "SUNS":"Gold Coast", "GOLD COAST":"Gold Coast", "GOLD COAST SUNS":"Gold Coast",
-    "GIANTS":"GWS Giants", "GWS":"GWS Giants", "GWS GIANTS":"GWS Giants", "GREATER WESTERN SYDNEY":"GWS Giants",
-    "HAWKS":"Hawthorn", "HAWTHORN":"Hawthorn",
-    "DEMONS":"Melbourne", "MELBOURNE":"Melbourne", "DEES":"Melbourne",
-    "KANGAROOS":"North Melbourne", "ROOS":"North Melbourne", "NORTH":"North Melbourne", "NORTH MELBOURNE":"North Melbourne",
-    "POWER":"Port Adelaide", "PORT":"Port Adelaide", "PORT ADELAIDE":"Port Adelaide", "PORT ADELAIDE POWER":"Port Adelaide",
-    "TIGERS":"Richmond", "RICHMOND":"Richmond",
-    "SAINTS":"St Kilda", "ST KILDA":"St Kilda", "ST.KILDA":"St Kilda",
-    "SWANS":"Sydney", "SYDNEY":"Sydney", "SYDNEY SWANS":"Sydney",
-    "EAGLES":"West Coast", "WEST COAST":"West Coast", "WEST COAST EAGLES":"West Coast",
-    "BULLDOGS":"Western Bulldogs", "DOGS":"Western Bulldogs", "WESTERN BULLDOGS":"Western Bulldogs",
+    "GWS":"GWS Giants","GREATER WESTERN SYDNEY":"GWS Giants",
+    "WESTERN BULLDOGS":"Western Bulldogs","DOGS":"Western Bulldogs",
+    "PORT":"Port Adelaide","PORT ADELAIDE":"Port Adelaide",
+    "NORTH":"North Melbourne","NORTH MELBOURNE":"North Melbourne",
+    "GOLD COAST":"Gold Coast","SUNS":"Gold Coast",
+    "BRISBANE":"Brisbane","LIONS":"Brisbane",
+    "ST KILDA":"St Kilda","SAINTS":"St Kilda",
+    "WEST COAST":"West Coast","EAGLES":"West Coast",
 }
 
 def normalise_team(raw):
     if not raw: return "Unknown"
     clean = raw.strip().upper()
     if clean in TEAM_ALIASES: return TEAM_ALIASES[clean]
-    for k in TEAM_COLOURS:
+    # Try title case match
+    for k,v in TEAM_COLOURS.items():
         if k.upper() == clean: return k
+    # Partial match
     for k in TEAM_COLOURS:
         if k.upper() in clean or clean in k.upper(): return k
     return raw.strip()
 
 def normalise_pos(raw):
     if not raw: return "MID"
-    p = re.split(r"[/,]", str(raw).upper())[0].strip()
-    return {"DEF":"DEF","MID":"MID","RUC":"RUC","FWD":"FWD",
-            "D":"DEF","M":"MID","R":"RUC","F":"FWD"}.get(p, "MID")
+    p = str(raw).upper().split("/")[0].strip()
+    return {"DEF":"DEF","MID":"MID","RUC":"RUC","FWD":"FWD","D":"DEF","M":"MID","R":"RUC","F":"FWD"}.get(p,"MID")
 
 def name_key(name):
-    return re.sub(r"[^a-z]", "", name.lower())
-
-# -- SIGNAL / TAGS / PRICE-HISTORY -------------------------------------------
+    return re.sub(r"[^a-z]","",name.lower())
 
 def build_signal(avg3, be, inj, price_delta):
     s = 0
@@ -449,14 +494,14 @@ def build_signal(avg3, be, inj, price_delta):
 
 def auto_tags(p):
     t = []
-    inj = p.get("injuryStatus", "fit")
+    inj = p.get("injuryStatus","fit")
     if inj == "out": t.append("OUT")
     elif inj == "tbc": t.append("TBC")
-    avg3 = p.get("scAvg3", 0) or 0
-    be   = p.get("breakeven", 0) or 0
-    pd   = p.get("priceDelta", 0) or 0
-    own  = p.get("owned", 0) or 0
-    sig  = p.get("signal", "hold")
+    avg3 = p.get("scAvg3",0) or 0
+    be   = p.get("breakeven",0) or 0
+    pd   = p.get("priceDelta",0) or 0
+    own  = p.get("owned",0) or 0
+    sig  = p.get("signal","hold")
     if avg3 >= 120: t.append("Premium")
     elif avg3 >= 108: t.append("Top 30")
     if pd > 15000: t.append("Price rising")
@@ -467,302 +512,359 @@ def auto_tags(p):
     return t[:5]
 
 def estimate_price_history(current_price, avg3, be, num_rounds=7):
-    """Estimate a price-history sparkline from current price + trajectory."""
+    """Estimate a price history sparkline from current price + trajectory."""
     history = []
+    # Work backwards: if avg3 > be, price was rising
     diff = (avg3 or 0) - (be or 0)
-    weekly_change = round(diff * 800)
+    weekly_change = round(diff * 800)  # rough $-per-round
     for i in range(num_rounds, 0, -1):
         price = max(100000, round(current_price - (weekly_change * i * 0.7)))
         history.append(price)
     history.append(current_price)
     return history[-7:]
 
-# -- PLAYER RECORD BUILDER ---------------------------------------------------
+def build_player(sc, dt, injuries, selections, rank):
+    """Merge SC stats + DT stats + injury/selection data into the app schema."""
 
-def build_player(sc, dt, injuries, rank):
-    """Merge SC + DT stats with injury data into the app's player schema."""
-    name = sc.get("name", "")
-    team = normalise_team(sc.get("team_raw", "") or (dt.get("team_raw", "") if dt else ""))
-    pos  = normalise_pos(sc.get("pos", "") or (dt.get("pos", "") if dt else ""))
-    col  = TEAM_COLOURS.get(team, {"tc":"#888","tb":"rgba(100,100,100,0.1)"})
+    name  = sc.get("name","") or dt.get("name","")
+    team  = normalise_team(sc.get("team","") or dt.get("team",""))
+    pos   = normalise_pos(sc.get("pos","") or dt.get("pos",""))
+    col   = TEAM_COLOURS.get(team, {"tc":"#888","tb":"rgba(100,100,100,0.1)"})
 
-    sc_price       = sc.get("price", 500000) or 500000
-    sc_avg         = sc.get("avg", 0) or 0
-    sc_avg3        = sc.get("avg3", sc_avg) or sc_avg
-    sc_last        = sc.get("last_score", 0) or 0
-    sc_be          = sc.get("be", 0) or 0
-    sc_consistency = sc.get("consistency", 75) or 75
-    sc_owned       = 0  # not available without SC API
+    sc_avg   = sc.get("sc_avg", 0) or 0
+    sc_avg3  = sc.get("sc_avg3", sc_avg) or sc_avg
+    sc_last  = sc.get("sc_last", 0) or 0
+    sc_price = sc.get("sc_price", 500000) or 500000
+    sc_be    = sc.get("sc_be", 0) or 0
+    sc_owned = sc.get("sc_owned", 0) or 0
+    sc_scores = sc.get("sc_scores", [sc_last]*7) or [sc_last]*7
 
-    if dt:
-        dt_price = dt.get("price", sc_price) or sc_price
-        dt_avg   = dt.get("avg", 0) or round(sc_avg * 1.03)
-        dt_avg3  = dt.get("avg3", 0) or round(sc_avg3 * 1.03)
-        dt_last  = dt.get("last_score", 0) or round(sc_last * 1.03)
-        dt_be    = dt.get("be", 0) or round(sc_be * 0.97)
-    else:
-        dt_price = sc_price
-        dt_avg   = round(sc_avg * 1.03)
-        dt_avg3  = round(sc_avg3 * 1.03)
-        dt_last  = round(sc_last * 1.03)
-        dt_be    = round(sc_be * 0.97)
+    dt_avg   = dt.get("dt_avg", round(sc_avg  * 1.03)) if dt else round(sc_avg  * 1.03)
+    dt_avg3  = dt.get("dt_avg3",round(sc_avg3 * 1.03)) if dt else round(sc_avg3 * 1.03)
+    dt_last  = dt.get("dt_last",round(sc_last * 1.03)) if dt else round(sc_last * 1.03)
+    dt_be    = dt.get("dt_be",  round(sc_be   * 0.97)) if dt else round(sc_be   * 0.97)
+    dt_owned = dt.get("dt_owned", sc_owned) if dt else sc_owned
+    dt_scores= dt.get("dt_scores",[dt_last]*7) if dt else [dt_last]*7
 
+    # Injury status from injury list
     nk = name_key(name)
     inj_data   = injuries.get(nk) or injuries.get(name_key(name.split()[-1])) or {}
-    inj_status = inj_data.get("status", "fit")
-    inj_detail = inj_data.get("detail", "")
-    inj_eta    = inj_data.get("eta", "")
+    sel_data   = selections.get(nk) or {}
+    inj_status = inj_data.get("status","fit")
+    inj_detail = inj_data.get("detail","")
+    inj_eta    = inj_data.get("eta","")
 
-    # SC priceDelta - prefer real Last Change from prices page; estimate as fallback.
-    price_delta = sc.get("price_delta")
-    if price_delta is None:
-        price_delta = round((sc_avg3 - sc_be) * 800) if sc_avg3 and sc_be else 0
-    price_hist = estimate_price_history(sc_price, sc_avg3, sc_be)
+    # Price delta estimate
+    price_delta = round((sc_avg3 - sc_be) * 800) if sc_avg3 and sc_be else 0
+    price_hist  = estimate_price_history(sc_price, sc_avg3, sc_be)
 
-    # DT priceDelta + sparkline (AFL Fantasy mode)
-    dt_price_delta = (dt.get("price_delta") if dt else None)
-    if dt_price_delta is None:
-        dt_price_delta = round((dt_avg3 - dt_be) * 800) if dt_avg3 and dt_be else 0
-    dt_price_hist  = estimate_price_history(dt_price, dt_avg3, dt_be)
-    dt_consistency = (dt.get("consistency") if dt else None) or sc_consistency
+    sig, conf = build_signal(sc_avg3, sc_be, inj_status, price_delta)
 
-    # Per-league signals - SC for Classic mode, DT for AFL Fantasy mode.
-    sig,    conf    = build_signal(sc_avg3, sc_be, inj_status, price_delta)
-    dt_sig, dt_conf = build_signal(dt_avg3, dt_be, inj_status, dt_price_delta)
+    # Consistency: % of scores >= 90% of average
+    threshold = sc_avg * 0.9
+    all_sc = sc.get("sc_all_scores", sc_scores)
+    played = [s for s in all_sc if s and s > 0]
+    consistency = round(len([s for s in played if s >= threshold]) / len(played) * 100) if played else 75
 
-    # Tags - classic-flavoured (price/BE oriented).
-    tag_input = {
-        "injuryStatus": inj_status, "signal": sig,
-        "scAvg3": round(sc_avg3, 1), "breakeven": sc_be,
-        "priceDelta": price_delta, "owned": sc_owned,
+    # Build tags and reason
+    p = {
+        "injuryStatus": inj_status,
+        "signal": sig,
+        "scAvg3": round(sc_avg3, 1),
+        "breakeven": sc_be,
+        "priceDelta": price_delta,
+        "owned": round(sc_owned, 1),
     }
-    tags = auto_tags(tag_input)
+    tag_list = auto_tags(p)
 
-    parts = [f"{name} - {sig.upper()} signal."]
+    parts = [f"{name} — {sig.upper()} signal."]
     if sc_avg3 and sc_be:
         diff = round(sc_avg3 - sc_be)
-        parts.append(f"3-round avg {round(sc_avg3)} is {abs(diff)} {'above' if diff > 0 else 'below'} break-even ({sc_be}).")
-    if inj_status == "out":
-        parts.append(f"OUT - {inj_detail or 'injury'}.")
-    elif inj_status == "tbc":
-        parts.append(f"TBC - {inj_detail or 'managed'}.")
+        parts.append(f"3-round avg {round(sc_avg3)} is {abs(diff)} {'above' if diff>0 else 'below'} break-even ({sc_be}).")
+    if inj_status == "out": parts.append(f"OUT — {inj_detail or 'injury'}.")
+    elif inj_status == "tbc": parts.append(f"TBC — {inj_detail or 'managed'}.")
 
-    dt_parts = [f"{name} - {dt_sig.upper()} signal (AFL Fantasy)."]
-    if dt_avg3 and dt_be:
-        d = round(dt_avg3 - dt_be)
-        dt_parts.append(f"DT 3-round avg {round(dt_avg3)} is {abs(d)} {'above' if d > 0 else 'below'} DT break-even ({dt_be}).")
-    if inj_status == "out":
-        dt_parts.append(f"OUT - {inj_detail or 'injury'}.")
-    elif inj_status == "tbc":
-        dt_parts.append(f"TBC - {inj_detail or 'managed'}.")
-
+    # Build news items from injury/selection data
     news = []
-    if inj_status in ("out", "tbc") and inj_detail:
+    if inj_status in ("out","tbc") and inj_detail:
         news.append({
-            "id": 1, "type": "injury", "source": "Footywire", "time": "latest",
-            "title": f"{name} - {inj_status.upper()}: {inj_detail}",
-            "body":  f"Status: {inj_status.upper()}. {inj_detail}. ETA: {inj_eta or 'unknown'}.",
+            "id":1, "type":"injury", "source":"Footywire",
+            "time":"latest",
+            "title": f"{name} — {inj_status.upper()}: {inj_detail}",
+            "body": f"Status: {inj_status.upper()}. {inj_detail}. ETA: {inj_eta or 'unknown'}.",
             "tags": [inj_status.upper(), inj_detail[:30], inj_eta or ""],
         })
-
-    # No per-round data on the consolidated pages; use a flat sparkline.
-    sc_scores = [sc_last] * 7 if sc_last else [round(sc_avg)] * 7
-    dt_scores = [dt_last] * 7 if dt_last else [round(dt_avg)] * 7
-
-    name_parts = name.split()
-    init = (name_parts[0][0] + name_parts[-1][0]).upper() if len(name_parts) >= 2 else name[:2].upper()
+    if sel_data.get("note"):
+        news.append({
+            "id":2, "type":"selection", "source":"Footywire",
+            "time":"latest",
+            "title": f"Selection update: {name}",
+            "body": sel_data["note"],
+            "tags": ["Selection", sel_data.get("change","").title()],
+        })
 
     return {
-        "id":   rank,
+        "id": rank,
         "name": name,
-        "init": init,
+        "init": (name.split()[0][0] + name.split()[-1][0]).upper() if len(name.split())>=2 else name[:2].upper(),
         "team": team,
-        "pos":  pos,
-        "tc":   col["tc"],
-        "tb":   col["tb"],
+        "pos": pos,
+        "tc": col["tc"],
+        "tb": col["tb"],
 
-        "signal":     sig,
+        "signal": sig,
         "signalConf": conf,
-        "rank":       sc.get("rank") or rank,
-        "afRank":     (dt.get("rank") if dt else None) or rank,
+        "rank": sc.get("sc_rank", rank),
+        "afRank": dt.get("dt_rank", rank) if dt else rank,
 
-        "owned":      sc_owned,
-        "ownedDelta": 0,
+        "owned": round(sc_owned, 1),
+        "ownedDelta": 0,   # requires two fetches to compute delta
 
-        "scAvg":     round(sc_avg, 1),
-        "scAvg3":    round(sc_avg3, 1),
+        "scAvg":   round(sc_avg,  1),
+        "scAvg3":  round(sc_avg3, 1),
         "lastScore": sc_last,
 
-        "dtAvg":  round(dt_avg, 1),
+        "dtAvg":  round(dt_avg,  1),
         "dtAvg3": round(dt_avg3, 1),
         "dtLast": dt_last,
 
         "price":      sc_price,
         "priceDelta": price_delta,
         "breakeven":  sc_be,
+        "dtBe":       dt_be,
 
-        "dtPrice":      dt_price,
-        "dtPriceDelta": dt_price_delta,
-        "dtBe":         dt_be,
+        "disposals":  sc.get("detail",{}).get("disposals",  25.0),
+        "clearances": sc.get("detail",{}).get("clearances", 5.0),
+        "tackles":    sc.get("detail",{}).get("tackles",    4.0),
+        "goals":      sc.get("detail",{}).get("goals",      0.5),
 
-        "dtSignal":     dt_sig,
-        "dtSignalConf": dt_conf,
-        "dtBshReason":  " ".join(dt_parts),
-
-        "disposals":  25.0,
-        "clearances": 5.0,
-        "tackles":    4.0,
-        "goals":      0.5,
-
-        "scores":   sc_scores,
-        "dtScores": dt_scores,
+        "scores":   [s or 0 for s in sc_scores[-7:]],
+        "dtScores": [s or 0 for s in dt_scores[-7:]],
         "prices":   price_hist,
-        "dtPrices": dt_price_hist,
 
-        "ceiling": round(max(sc_avg * 1.3, sc_last) or sc_avg or 0),
-        "floor":   round(max(0, min(sc_avg * 0.7, sc_last or sc_avg))),
-        "consistency":   round(sc_consistency),
-        "dtConsistency": round(dt_consistency),
+        "ceiling": round(max(sc_scores[-7:] or [sc_avg*1.2])),
+        "floor":   round(min([s for s in sc_scores[-7:] if s and s>0] or [sc_avg*0.75])),
+        "consistency": consistency,
 
         "bshCommunity": {
-            "buy":  60 if sig == "buy"  else (15 if sig == "sell" else 35),
-            "hold": 30 if sig == "hold" else (20 if sig == "buy"  else 25),
-            "sell": 10 if sig == "buy"  else (60 if sig == "sell" else 40),
+            "buy":  60 if sig=="buy" else (15 if sig=="sell" else 35),
+            "hold": 30 if sig=="hold" else (20 if sig=="buy" else 25),
+            "sell": 10 if sig=="buy" else (60 if sig=="sell" else 40),
         },
         "injuryStatus": inj_status,
         "injuryDetail": inj_detail,
-        "tags":         tags,
-        "bshReason":    " ".join(parts),
-        "scheduleRating": [7, 7, 7, 7, 7],
-        "news":          news,
-        "profileUrl":    sc.get("profile_url", ""),
-        "_source":       "footywire",
-        "_scraped_at":   datetime.now().isoformat(),
+        "tags": tag_list,
+        "bshReason": " ".join(parts),
+        "scheduleRating": [7,7,7,7,7],
+        "news": news,
+        "_source": "footywire",
+        "_scraped_at": datetime.now().isoformat(),
     }
 
-# -- LEAGUE FETCHER ----------------------------------------------------------
 
-def fetch_league(session, prefix, label):
-    """Fetch all 4 pages for one league (SC or DT) and merge per player."""
-    log.info(f"Fetching {label} breakevens...")
-    r = get(session, URLS[f"{prefix}_breakevens"])
-    if not r:
-        return {}
-    by_name = {}
-    for p in parse_breakevens(r.text):
-        by_name[name_key(p["name"])] = p
-    log.info(f"  {label} breakevens: {len(by_name)} players")
-
-    time.sleep(1)
-    log.info(f"Fetching {label} scores (avg3, consistency)...")
-    r = get(session, URLS[f"{prefix}_scores"])
-    if r:
-        merged = 0
-        for p in parse_scores(r.text):
-            nk = name_key(p["name"])
-            if nk in by_name:
-                by_name[nk]["avg3"]        = p["avg3"]
-                by_name[nk]["consistency"] = p["consistency"]
-                by_name[nk]["total"]       = p["total"]
-                if not by_name[nk].get("avg"):
-                    by_name[nk]["avg"] = p["avg"]
-                merged += 1
-        log.info(f"  {label} scores: merged {merged} players")
-
-    time.sleep(1)
-    log.info(f"Fetching {label} round (last score, rank)...")
-    r = get(session, URLS[f"{prefix}_round"])
-    if r:
-        merged = 0
-        for p in parse_round(r.text):
-            nk = name_key(p["name"])
-            if nk in by_name:
-                by_name[nk]["last_score"] = p["last_score"]
-                by_name[nk]["rank"]       = p["rank"]
-                merged += 1
-        log.info(f"  {label} round: merged {merged} players")
-
-    time.sleep(1)
-    log.info(f"Fetching {label} prices (priceDelta)...")
-    r = get(session, URLS[f"{prefix}_prices"])
-    if r:
-        merged = 0
-        for p in parse_prices(r.text):
-            nk = name_key(p["name"])
-            if nk in by_name:
-                by_name[nk]["price_delta"]  = p["price_delta"]
-                by_name[nk]["total_change"] = p["total_change"]
-                merged += 1
-        log.info(f"  {label} prices: merged {merged} players")
-
-    return by_name
-
-# -- MAIN --------------------------------------------------------------------
+# ── MAIN ─────────────────────────────────────────────────────────────────────
 
 def main():
     print("=" * 60)
-    print("  AFLFantasyWire - Footywire Data Fetcher")
+    print("  AFLFantasyWire — Footywire Data Fetcher")
     print("=" * 60)
-    print(f"  {datetime.now().strftime('%H:%M:%S  %d %b %Y')}")
-    print(f"  Output: {OUTPUT_PATH}\n")
+    print(f"  {datetime.now().strftime('%H:%M:%S  %d %b %Y')}\n")
 
     session = make_session()
 
-    sc_by_name = fetch_league(session, "sc", "SuperCoach")
-    if not sc_by_name:
-        log.error("No SC players parsed. Exiting.")
+    # ── 1. Fetch SC stats (primary) ──
+    log.info("Fetching SuperCoach stats from Footywire...")
+    r = get(session, URLS["sc_stats"])
+    if not r:
+        log.error("Could not fetch SC stats. Exiting.")
         log.error("Make sure you are running this from a home/office machine.")
         sys.exit(1)
+    sc_players = parse_sc_stats(r.text)
+    if not sc_players:
+        log.error("SC stats page parsed 0 players — layout may have changed. Check the URL.")
+        sys.exit(1)
 
-    time.sleep(1)
-    dt_by_name = fetch_league(session, "dt", "AFL Fantasy")
+    time.sleep(1.5)
 
-    time.sleep(1)
+    # ── 2. Fetch DT stats (secondary) ──
+    log.info("Fetching AFL Fantasy stats from Footywire...")
+    r2 = get(session, URLS["dt_stats"])
+    dt_players = parse_dt_stats(r2.text) if r2 else []
+
+    # Build DT lookup by name
+    dt_lookup = {name_key(p["name"]): p for p in dt_players}
+    # Also by last name
+    for p in dt_players:
+        last = name_key(p["name"].split()[-1])
+        if last not in dt_lookup:
+            dt_lookup[last] = p
+
+    time.sleep(1.5)
+
+    # ── 3. Fetch injury list ──
     log.info("Fetching injury list...")
-    r = get(session, URLS["injury_list"])
-    injuries = parse_injuries(r.text) if r else {}
-    log.info(f"  Injuries: {len(injuries)} players")
+    r3 = get(session, URLS["injury_list"])
+    injuries = parse_injury_list(r3.text) if r3 else {}
 
-    # Selections deliberately stubbed - see parse_selections() docstring.
-    selections = {}
+    time.sleep(1)
 
-    log.info("Merging SC + DT and building player records...")
-    sc_list = list(sc_by_name.items())
-    # Sort by SC rank (when known) then by season avg desc so injured/unplayed
-    # premiums still appear in a sensible position.
-    sc_list.sort(key=lambda kv: (
-        kv[1].get("rank") or 9999,
-        -(kv[1].get("avg3") or 0),
-        -(kv[1].get("avg") or 0),
-    ))
+    # ── 4. Fetch selection changes ──
+    log.info("Fetching selection changes...")
+    r4 = get(session, URLS["selection"])
+    selections = parse_selection_changes(r4.text) if r4 else {}
 
+    time.sleep(1)
+
+    # ── 5. Fetch detailed stats for top 50 players (disposals, clearances etc) ──
+    log.info("Fetching detailed stats for top 50 players...")
+    for i, p in enumerate(sc_players[:50]):
+        url = p.get("profile_url","")
+        if not url:
+            continue
+        # Convert to SC scores subpage
+        sc_scores_url = url.replace("/th-","/pp-") + "--supercoach-scores"
+        r5 = get(session, sc_scores_url)
+        if r5:
+            p["detail"] = parse_player_detail(r5.text, p["name"])
+        else:
+            p["detail"] = {}
+        if i % 10 == 9:
+            log.info(f"  {i+1}/50 detailed profiles fetched")
+        time.sleep(0.5)
+
+    # ── 6. Merge and build final player list ──
+    log.info("Merging data sources...")
     players = []
-    for i, (nk, sc) in enumerate(sc_list, 1):
-        dt = dt_by_name.get(nk) or dt_by_name.get(name_key(sc["name"].split()[-1]))
-        players.append(build_player(sc, dt, injuries, i))
+    for i, sc in enumerate(sc_players[:200], 1):
+        nk  = name_key(sc["name"])
+        nk_last = name_key(sc["name"].split()[-1])
+        dt  = dt_lookup.get(nk) or dt_lookup.get(nk_last)
+        player = build_player(sc, dt, injuries, selections, i)
+        players.append(player)
 
+    # Sort by SC rank
+    players.sort(key=lambda p: p["rank"])
+
+    # ── 7. Write output ──
     output = {
         "scraped_at":   datetime.now().isoformat(),
         "round":        "Current",
         "season":       datetime.now().year,
         "player_count": len(players),
         "sources": {
-            "sc_players": len(sc_by_name),
-            "dt_players": len(dt_by_name),
-            "injuries":   len(injuries),
-            "selections": len(selections),
+            "sc_players":  len(sc_players),
+            "dt_players":  len(dt_players),
+            "injuries":    len(injuries),
+            "selections":  len(selections),
         },
         "players": players,
     }
 
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+    with open(OUTPUT_PATH, "w") as f:
         json.dump(output, f, indent=2)
 
-    print(f"\nWrote {len(players)} players -> {OUTPUT_PATH}")
-    print(f"  SC: {len(sc_by_name)}  DT: {len(dt_by_name)}  Injuries: {len(injuries)}")
-    print(f"\n  Drop players.json next to aflfantasywire.html and reload the browser.\n")
+    print(f"\n✓  Wrote {len(players)} players → {OUTPUT_PATH}")
+    print(f"   SC: {len(sc_players)}  DT: {len(dt_players)}  Injuries: {len(injuries)}")
+    print(f"\n   Drop players.json next to aflfantasywire.html and reload the browser.\n")
 
 
 if __name__ == "__main__":
     main()
+
+# ── NEWS SCRAPING ─────────────────────────────────────────────────────────────
+
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
+from news_filter import classify_item, is_relevant
+
+AFL_RSS_FEEDS = [
+    "https://www.afl.com.au/news/rss",
+    "https://www.footywire.com/rss/afl_news.xml",
+]
+
+def fetch_afl_news(session, players_list):
+    """
+    Scrape AFL.com.au and Footywire for news.
+    Filter using news_filter.py — only fantasy-relevant items make it through.
+    Tag each item with the player it mentions.
+    """
+    import xml.etree.ElementTree as ET
+    news_items = []
+    player_names = {p["name"].lower(): p["id"] for p in players_list}
+    # Also index by last name
+    for p in players_list:
+        last = p["name"].split()[-1].lower()
+        if last not in player_names:
+            player_names[last] = p["id"]
+
+    for feed_url in AFL_RSS_FEEDS:
+        try:
+            r = session.get(feed_url, timeout=10)
+            if not r or r.status_code != 200:
+                continue
+            root = ET.fromstring(r.text)
+            items = root.findall(".//item")
+            log.info(f"RSS {feed_url}: {len(items)} items")
+
+            for item in items:
+                title = (item.findtext("title") or "").strip()
+                desc  = (item.findtext("description") or "").strip()
+                link  = (item.findtext("link") or "").strip()
+                pub   = (item.findtext("pubDate") or "").strip()
+                text  = title + " " + desc
+
+                # Run through fantasy relevance filter
+                result = classify_item(text, title)
+                if not result["relevant"]:
+                    continue
+
+                # Find which player this is about
+                pid = None
+                mentioned_player = None
+                for name, player_id in player_names.items():
+                    if name in text.lower():
+                        pid = player_id
+                        mentioned_player = name.title()
+                        break
+
+                news_items.append({
+                    "id":        len(news_items) + 1,
+                    "type":      result["type"],
+                    "source":    "AFL.com.au" if "afl.com.au" in feed_url else "Footywire",
+                    "title":     title,
+                    "body":      desc[:300],
+                    "link":      link,
+                    "time":      pub[:20] if pub else "recent",
+                    "pid":       pid,
+                    "player":    mentioned_player,
+                    "relevance": result["score"],
+                    "category":  result["category"],
+                })
+        except Exception as e:
+            log.error(f"News fetch failed for {feed_url}: {e}")
+            continue
+
+    # Sort by relevance score descending
+    news_items.sort(key=lambda x: x["relevance"], reverse=True)
+    log.info(f"News: {len(news_items)} relevant items after filtering")
+    return news_items[:50]  # top 50 most relevant
+
+
+def attach_news_to_players(players, news_items):
+    """Attach relevant news items to each player's news array."""
+    news_by_pid = {}
+    for item in news_items:
+        if item.get("pid"):
+            if item["pid"] not in news_by_pid:
+                news_by_pid[item["pid"]] = []
+            news_by_pid[item["pid"]].append(item)
+
+    for p in players:
+        existing = p.get("news", [])
+        new_items = news_by_pid.get(p["id"], [])
+        # Merge, dedup by title, scraped items first
+        all_news = new_items + [e for e in existing if e.get("source") != "AFL.com.au"]
+        p["news"] = all_news[:10]
+
+    return players
