@@ -370,17 +370,27 @@ def parse_sc_breakevens(html):
     return result
 
 
-def parse_player_rounds(html):
+def parse_player_games(html):
     """
-    Parse a player profile page (/afl/footy/pu-{team}--{player}) for:
-      - Position (from "Position: Ruck" / "Position: Midfielder" etc. in header)
-      - Round-by-round SuperCoach scores table: Round | Price | Score | Value
-        (Round 0 = AFL Opening Round; missing/DNP scores shown as "-")
+    Parse a Footywire player games log (/afl/footy/pg-{team}--{player}) for the
+    richer per-game stats line:
+      Round | Date | Opponent | Result | K | HB | D | M | G | B | T | HO | GA | I50 | CL | CG | R50 | FF | FA | AF | SC
+    where AF = AFL Fantasy score and SC = SuperCoach score.
 
-    Returns: {pos, rounds: [int|None per round], prices: [int per round]}
+    Headers are <td class="bnorm">, data rows class="darkcolor"/"lightcolor".
+    Trailing None SC entries (the in-progress round) are trimmed so they don't
+    skew last-score, 3-round average, or Top Improvers.
+
+    Returns: {pos, sc_rounds, sc_scores, af_scores, disposals, marks, goals,
+              tackles, hitouts, clearances} — parallel lists keyed on sc_rounds.
     """
     soup = BeautifulSoup(html, "lxml")
-    result = {"pos": "", "rounds": [], "prices": []}
+    result = {
+        "pos": "",
+        "sc_rounds":  [], "sc_scores":  [], "af_scores":  [],
+        "disposals":  [], "marks":      [], "goals":      [],
+        "tackles":    [], "hitouts":    [], "clearances": [],
+    }
 
     page_text = soup.get_text(" ", strip=True)
     m = re.search(
@@ -395,52 +405,75 @@ def parse_player_rounds(html):
             "FORWARD":"FWD","FORWARDS":"FWD","ATTACK":"FWD",
         }.get(pos_raw, pos_raw[:3])
 
-    # Find the first SuperCoach round-by-round table. Same Footywire trick
-    # as the other pages — header cells are <td class="bnorm">, not <th> —
-    # so detect headers from the first row's text instead of tag name.
     for table in soup.find_all("table"):
         rows = table.find_all("tr", recursive=False)
         if not rows: continue
         header_cells = [c.get_text(strip=True).lower()
                         for c in rows[0].find_all(["td","th"], recursive=False)]
-        if "round" not in header_cells or "score" not in header_cells:
+        # The games-log table's first header is "Description" (cell holds
+        # text like "Round 10") and it has a trailing "sc" column.
+        if "sc" not in header_cells: continue
+        if "description" not in header_cells and "round" not in header_cells:
             continue
-        try:
-            i_round = header_cells.index("round")
-            i_score = header_cells.index("score")
-        except ValueError:
-            continue
-        i_price = header_cells.index("price") if "price" in header_cells else 1
+
+        def ci(name):
+            try: return header_cells.index(name)
+            except ValueError: return None
+
+        # Round number is in the "Description" column ("Round 10") or a
+        # dedicated "Round" column on older seasons
+        i_round = ci("description")
+        if i_round is None: i_round = ci("round")
+        i_sc    = ci("sc")
+        i_af    = ci("af")
+        i_d     = ci("d")
+        i_m     = ci("m")
+        i_g     = ci("g")
+        i_t     = ci("t")
+        i_ho    = ci("ho")
+        i_cl    = ci("cl")
 
         for tr in rows[1:]:
             cells = [c.get_text(strip=True)
                      for c in tr.find_all(["td","th"], recursive=False)]
-            if len(cells) <= i_score: continue
+            if i_sc is None or len(cells) <= i_sc: continue
 
             try: rnd = int(re.sub(r"[^\d\-]", "", cells[i_round]) or "-99")
             except: continue
             if rnd < 0 or rnd > 30: continue
 
-            score_raw = cells[i_score]
-            if score_raw in ("", "-", "DNP", "BYE", "—"):
-                result["rounds"].append(None)
-            else:
-                try: result["rounds"].append(int(re.sub(r"[^\d]", "", score_raw) or 0))
-                except: result["rounds"].append(None)
+            def parse_int(idx):
+                if idx is None or idx >= len(cells): return None
+                raw = cells[idx]
+                if raw in ("", "-", "DNP", "BYE", "—"): return None
+                try: return int(re.sub(r"[^\d\-]", "", raw) or 0)
+                except: return None
 
-            price_raw = cells[i_price].replace("$","").replace(",","")
-            try: result["prices"].append(int(float(price_raw)))
-            except: result["prices"].append(0)
+            result["sc_rounds"].append(rnd)
+            result["sc_scores"].append(parse_int(i_sc))
+            result["af_scores"].append(parse_int(i_af))
+            result["disposals"].append(parse_int(i_d))
+            result["marks"].append(parse_int(i_m))
+            result["goals"].append(parse_int(i_g))
+            result["tackles"].append(parse_int(i_t))
+            result["hitouts"].append(parse_int(i_ho))
+            result["clearances"].append(parse_int(i_cl))
 
-        if result["rounds"]: break
+        if result["sc_scores"]: break
 
-    # Drop trailing None scores — the most recent listed round is usually the
-    # upcoming/in-progress round the player hasn't played yet, and including
-    # it would dilute "last score" / "last 3 avg" / Top Improvers calculations.
-    while result["rounds"] and result["rounds"][-1] is None:
-        result["rounds"].pop()
-        if result["prices"]:
-            result["prices"].pop()
+    # Footywire lists most-recent first. Reverse every parallel list so the
+    # latest round sits at the end, matching the rest of the pipeline (which
+    # treats [-1] as "most recent").
+    parallel = ("sc_rounds","sc_scores","af_scores","disposals","marks",
+                "goals","tackles","hitouts","clearances")
+    for k in parallel:
+        result[k].reverse()
+
+    # Drop trailing None SC rounds — the most recent listed round is usually
+    # the in-progress one the player hasn't played yet.
+    while result["sc_scores"] and result["sc_scores"][-1] is None:
+        for k in parallel:
+            if result[k]: result[k].pop()
 
     return result
 
@@ -938,12 +971,15 @@ def build_player(sc, dt, injuries, selections, rank):
     classic_proj  = float(sc.get("classic_proj",  0) or 0)
     classic_price = int(sc.get("classic_price", 0) or 0)
 
-    dt_avg   = dt.get("dt_avg", round(sc_avg  * 1.03)) if dt else round(sc_avg  * 1.03)
-    dt_avg3  = dt.get("dt_avg3",round(sc_avg3 * 1.03)) if dt else round(sc_avg3 * 1.03)
-    dt_last  = dt.get("dt_last",round(sc_last * 1.03)) if dt else round(sc_last * 1.03)
+    # Prefer real per-round AF data harvested from the pg- page (now stored on
+    # the sc dict) over synthesized SC*1.03 fallbacks; only fall back when the
+    # pg fetch failed or the player wasn't in the top-N processed set.
+    dt_avg   = sc.get("dt_avg")   or (dt.get("dt_avg", round(sc_avg  * 1.03)) if dt else round(sc_avg  * 1.03))
+    dt_avg3  = sc.get("dt_avg3")  or (dt.get("dt_avg3",round(sc_avg3 * 1.03)) if dt else round(sc_avg3 * 1.03))
+    dt_last  = sc.get("dt_last")  or (dt.get("dt_last",round(sc_last * 1.03)) if dt else round(sc_last * 1.03))
     dt_be    = dt.get("dt_be",  round(sc_be   * 0.97)) if dt else round(sc_be   * 0.97)
     dt_owned = dt.get("dt_owned", sc_owned) if dt else sc_owned
-    dt_scores= dt.get("dt_scores",[dt_last]*7) if dt else [dt_last]*7
+    dt_scores= sc.get("dt_scores") or (dt.get("dt_scores",[dt_last]*7) if dt else [dt_last]*7)
 
     # Injury status from injury list
     nk = name_key(name)
@@ -992,16 +1028,21 @@ def build_player(sc, dt, injuries, selections, rank):
     if inj_status in ("out","test") and (inj_body_part or inj_detail):
         news.append({
             "id":1, "type":"injury", "source":"Footywire",
-            "time":"latest",
+            "time":"latest", "timeLabel":"latest",
+            "pid":  rank,           # frontend keys on pid to find the player record
+            "player": name, "team": team, "pos": pos,
             "title": f"{name} — {inj_status.upper()}: {inj_body_part or inj_detail}",
-            "body": f"Status: {inj_status.upper()}. {inj_body_part or inj_detail}. ETA: {inj_eta or 'TBC'}.",
+            "headline": f"{name} — {inj_status.upper()}: {inj_body_part or inj_detail}",
+            "body":  f"Status: {inj_status.upper()}. {inj_body_part or inj_detail}. ETA: {inj_eta or 'TBC'}.",
             "tags": [inj_status.upper(), inj_body_part or inj_detail, inj_eta or "TBC"],
         })
     if sel_data.get("note"):
         news.append({
             "id":2, "type":"selection", "source":"Footywire",
-            "time":"latest",
+            "time":"latest", "timeLabel":"latest",
+            "pid": rank, "player": name, "team": team, "pos": pos,
             "title": f"Selection update: {name}",
+            "headline": f"Selection update: {name}",
             "body": sel_data["note"],
             "tags": ["Selection", sel_data.get("change","").title()],
         })
@@ -1041,10 +1082,12 @@ def build_player(sc, dt, injuries, selections, rank):
         "breakeven":  sc_be,
         "dtBe":       dt_be,
 
-        "disposals":  sc.get("detail",{}).get("disposals",  25.0),
-        "clearances": sc.get("detail",{}).get("clearances", 5.0),
-        "tackles":    sc.get("detail",{}).get("tackles",    4.0),
-        "goals":      sc.get("detail",{}).get("goals",      0.5),
+        "disposals":  sc.get("disposals",  sc.get("detail",{}).get("disposals",  0)),
+        "clearances": sc.get("clearances", sc.get("detail",{}).get("clearances", 0)),
+        "tackles":    sc.get("tackles",    sc.get("detail",{}).get("tackles",    0)),
+        "goals":      sc.get("goals",      sc.get("detail",{}).get("goals",      0)),
+        "marks":      sc.get("marks",      0),
+        "hitouts":    sc.get("hitouts",    0),
 
         "scores":   [s or 0 for s in sc_scores[-7:]],
         "dtScores": [s or 0 for s in dt_scores[-7:]],
@@ -1142,42 +1185,70 @@ def main():
 
     time.sleep(1)
 
-    # ── 6. Fetch per-player profile pages for round-by-round scores ──
+    # ── 6. Fetch per-player game-log pages for round-by-round SC/AF scores ──
+    # Footywire's "pg-" page (Player Games) is richer than the "pu-" profile —
+    # it gives BOTH the SuperCoach and AFL Fantasy score per round, plus full
+    # disposals/marks/goals/tackles/clearances per game.
     TOP_N = 200
-    log.info(f"Fetching round-by-round scores for top {TOP_N} players...")
+    log.info(f"Fetching games log for top {TOP_N} players (pg- URL)...")
     for i, p in enumerate(sc_players[:TOP_N]):
-        url = p.get("profile_url", "")
-        if not url:
+        pu_url = p.get("profile_url", "")
+        if not pu_url:
             continue
-        r5 = get(session, url)
+        # Swap the /pu- prefix for /pg- to hit the games-log page
+        pg_url = pu_url.replace("/pu-", "/pg-")
+        r5 = get(session, pg_url)
         if not r5:
             continue
 
-        rounds_data = parse_player_rounds(r5.text)
+        games = parse_player_games(r5.text)
 
-        # Profile-page position overrides breakevens (more specific)
-        if rounds_data["pos"]:
-            p["pos"] = rounds_data["pos"]
+        if games["pos"]:
+            p["pos"] = games["pos"]
 
-        all_scores = rounds_data["rounds"]
-        played = [s for s in all_scores if s is not None and s > 0]
-        p["sc_all_scores"] = played
+        sc_played = [s for s in games["sc_scores"] if s is not None and s > 0]
+        af_played = [s for s in games["af_scores"] if s is not None and s > 0]
+        p["sc_all_scores"] = sc_played
+        p["dt_all_scores"] = af_played
 
-        # Last 7 played scores (right-pad with 0s if fewer)
-        if len(played) >= 7:
-            p["sc_scores"] = played[-7:]
-        elif played:
-            p["sc_scores"] = played + [0] * (7 - len(played))
+        # Last 7 SC scores (right-pad with 0s if fewer played games)
+        if len(sc_played) >= 7:
+            p["sc_scores"] = sc_played[-7:]
+        elif sc_played:
+            p["sc_scores"] = sc_played + [0] * (7 - len(sc_played))
         else:
             p["sc_scores"] = [0] * 7
 
-        p["sc_last"] = played[-1] if played else 0
+        if len(af_played) >= 7:
+            p["dt_scores"] = af_played[-7:]
+        elif af_played:
+            p["dt_scores"] = af_played + [0] * (7 - len(af_played))
+        else:
+            p["dt_scores"] = [0] * 7
 
-        last3 = played[-3:]
-        p["sc_avg3"] = round(sum(last3) / len(last3), 1) if last3 else p["sc_avg"]
+        p["sc_last"] = sc_played[-1] if sc_played else 0
+        p["dt_last"] = af_played[-1] if af_played else 0
+
+        sc_last3 = sc_played[-3:]
+        p["sc_avg3"] = round(sum(sc_last3) / len(sc_last3), 1) if sc_last3 else p["sc_avg"]
+        if af_played:
+            p["dt_avg"]  = round(sum(af_played) / len(af_played), 1)
+            af_last3 = af_played[-3:]
+            p["dt_avg3"] = round(sum(af_last3) / len(af_last3), 1)
+
+        # Per-game stat averages over actual played rounds
+        def avg_of(key):
+            vals = [v for v in games[key] if v is not None]
+            return round(sum(vals) / len(vals), 1) if vals else 0
+        p["disposals"]  = avg_of("disposals")
+        p["marks"]      = avg_of("marks")
+        p["goals"]      = avg_of("goals")
+        p["tackles"]    = avg_of("tackles")
+        p["hitouts"]    = avg_of("hitouts")
+        p["clearances"] = avg_of("clearances")
 
         if i % 25 == 24:
-            log.info(f"  {i+1}/{TOP_N} player profiles fetched")
+            log.info(f"  {i+1}/{TOP_N} games-log pages fetched")
         time.sleep(0.5)
 
     # ── 6b. Fetch AFL Fantasy Classic ownership ──
@@ -1224,7 +1295,36 @@ def main():
     with open(OUTPUT_PATH, "w") as f:
         json.dump(output, f, indent=2)
 
+    # ── 8. Flatten each player's news[] into news.json for the frontend feed ──
+    # The frontend's T7() loads ./news.json — without this, structured injury
+    # items (with [STATUS, BODY_PART, ETA] tags) never reach the news feed
+    # because they live inside per-player records.
+    NEWS_PATH = BASE_DIR / "news.json"
+    news_items = []
+    for player in players:
+        for n in player.get("news", []):
+            news_items.append({
+                **n,
+                "id":       len(news_items) + 1,
+                "pid":      n.get("pid", player["id"]),
+                "player":   n.get("player", player["name"]),
+                "team":     n.get("team",   player["team"]),
+                "pos":      n.get("pos",    player["pos"]),
+                "headline": n.get("headline", n.get("title", "")),
+            })
+    # Injury items first, then everything else, so the OUT/TEST chips lead the feed.
+    news_items.sort(key=lambda x: (0 if x.get("type") == "injury" else 1,
+                                   x.get("id", 0)))
+    # Renumber after sort so ids are dense & ordered
+    for i, n in enumerate(news_items, 1):
+        n["id"] = i
+
+    with open(NEWS_PATH, "w") as f:
+        json.dump({"news": news_items, "generated_at": datetime.now().isoformat(),
+                   "count": len(news_items)}, f, indent=2)
+
     print(f"\n✓  Wrote {len(players)} players → {OUTPUT_PATH}")
+    print(f"✓  Wrote {len(news_items)} news items → {NEWS_PATH}")
     print(f"   SC: {len(sc_players)}  DT: {len(dt_players)}  Injuries: {len(injuries)}")
     print(f"\n   Drop players.json next to aflfantasywire.html and reload the browser.\n")
 

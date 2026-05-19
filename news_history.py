@@ -81,11 +81,45 @@ def _status_changed(old, new):
         return True
 
     # Key tag changes
-    key_tags = {"out","tbc","fit","named","omitted","vest","role change","suspended"}
+    key_tags = {"out","tbc","fit","named","omitted","vest","role change","suspended","available","test"}
     if (old_tags & key_tags) != (new_tags & key_tags):
         return True
 
+    # ETA wording change ("2-3 weeks" -> "Season") is a real update too
+    eta_old = _eta_from_item(old)
+    eta_new = _eta_from_item(new)
+    if eta_old and eta_new and eta_old != eta_new:
+        return True
+
     return False
+
+
+def _eta_from_item(item):
+    """Pull the ETA tag (3rd tag slot or 'eta' chip)."""
+    tags = item.get("tags") or []
+    if len(tags) >= 3:
+        return (tags[2] or "").strip().lower()
+    for s in item.get("stats", []) or []:
+        if (s.get("l","").strip().lower() in ("eta","return")):
+            return (s.get("v","") or "").strip().lower()
+    return ""
+
+
+# Coarse per-player status used for cross-category change detection
+# (e.g. yesterday "named", today "dropped" — different category, same player).
+def _player_status_from_item(item):
+    cat  = (item.get("category") or "").lower()
+    tags = {(t or "").lower() for t in (item.get("tags") or [])}
+
+    if cat == "injury_out"  or "out" in tags:                      return "out"
+    if cat == "injury_tbc"  or {"tbc","test","managed"} & tags:    return "test"
+    if cat == "vest_risk"   or "vest" in tags or "sub" in tags:    return "vest"
+    if cat == "dropped"     or {"omitted","dropped"} & tags:       return "omitted"
+    if cat == "role_change" or "role change" in tags:              return "role"
+    if cat == "named"       or "named" in tags:                    return "named"
+    if cat == "suspension"  or "suspended" in tags:                return "suspended"
+    if cat == "injury_available" or {"available","cleared","fit"} & tags: return "available"
+    return ""
 
 
 class NewsHistory:
@@ -97,14 +131,20 @@ class NewsHistory:
     def _load(self):
         if HISTORY_PATH.exists():
             try:
-                return json.loads(HISTORY_PATH.read_text())
+                data = json.loads(HISTORY_PATH.read_text())
+                # Backfill new top-level keys on older history files
+                data.setdefault("player_status",   {})
+                data.setdefault("team_selections", {})
+                return data
             except Exception:
                 pass
         return {
-            "version":  1,
-            "updated":  None,
-            "items":    {},   # key → {first_seen, last_seen, last_fp, last_item, seen_count}
-            "resolved": [],   # items that were flagged then cleared
+            "version":         2,
+            "updated":         None,
+            "items":           {},   # key → {first_seen, last_seen, last_fp, last_status, last_item, seen_count}
+            "resolved":        [],   # items that were flagged then cleared
+            "player_status":   {},   # pid_str → {status, prev_status, last_seen, source, team}
+            "team_selections": {},   # club_name → {pid_str: {named, role, last_seen}}
         }
 
     def save(self):
@@ -114,29 +154,41 @@ class NewsHistory:
     def process(self, items):
         """
         Takes a list of new scraped items.
-        Adds status, age_label, and first_seen fields to each.
-        Returns the enriched list.
+        Adds status, age_label, first_seen, last_status, status_changed fields
+        to each. Returns the enriched list (sorted; ongoing items still present
+        — call filter_real_time to drop them).
         """
         now     = datetime.now(timezone.utc)
         now_str = now.isoformat()
         result  = []
 
         for item in items:
-            key = _key(item)
-            fp  = _fingerprint(item)
+            key       = _key(item)
+            fp        = _fingerprint(item)
+            new_pstat = _player_status_from_item(item)
+            pid_str   = str(item.get("pid") or "") or None
+
+            # Cross-category player-level status lookup (e.g. yesterday "named",
+            # today "dropped" — different (pid,cat) key but same player).
+            prev_pstat = ""
+            if pid_str and pid_str in self.data.get("player_status", {}):
+                prev_pstat = self.data["player_status"][pid_str].get("status", "")
 
             if key not in self.data["items"]:
-                # ── NEW ──
-                item["status"]      = "new"
-                item["status_label"]= "🔴 New"
-                item["first_seen"]  = now_str
-                item["age_label"]   = "Just in"
-                item["seen_count"]  = 1
+                # ── NEW (or first sighting of this category for the player) ──
+                item["status"]         = "new"
+                item["status_label"]   = "🔴 New"
+                item["first_seen"]     = now_str
+                item["age_label"]      = "Just in"
+                item["seen_count"]     = 1
+                item["last_status"]    = prev_pstat or None
+                item["status_changed"] = bool(new_pstat) and new_pstat != prev_pstat
 
                 self.data["items"][key] = {
                     "first_seen": now_str,
                     "last_seen":  now_str,
                     "last_fp":    fp,
+                    "last_status": new_pstat,
                     "last_item":  item,
                     "seen_count": 1,
                 }
@@ -147,8 +199,8 @@ class NewsHistory:
                 age_hrs  = (now - first_dt).total_seconds() / 3600
                 age_days = age_hrs / 24
                 seen_ct  = existing.get("seen_count", 1) + 1
+                old_pstat = existing.get("last_status", "") or _player_status_from_item(existing.get("last_item", {}))
 
-                # Build age label
                 if age_hrs < 1:
                     age_label = f"{int(age_hrs*60)}m ago"
                 elif age_hrs < 24:
@@ -158,25 +210,55 @@ class NewsHistory:
                 else:
                     age_label = f"{int(age_days//7)}w ongoing"
 
-                item["first_seen"]  = existing["first_seen"]
-                item["age_label"]   = age_label
-                item["seen_count"]  = seen_ct
+                item["first_seen"] = existing["first_seen"]
+                item["age_label"]  = age_label
+                item["seen_count"] = seen_ct
+                item["last_status"] = old_pstat or None
 
-                if existing["last_fp"] != fp and _status_changed(existing["last_item"], item):
+                content_changed = existing["last_fp"] != fp and _status_changed(existing["last_item"], item)
+                player_status_changed = bool(new_pstat) and bool(old_pstat) and new_pstat != old_pstat
+                item["status_changed"] = content_changed or player_status_changed
+
+                if content_changed or player_status_changed:
                     # ── UPDATE ──
                     item["status"]       = "update"
                     item["status_label"] = "🟡 Updated"
-                    item["prev_status"]  = existing["last_item"].get("category","")
+                    item["prev_status"]  = old_pstat or existing["last_item"].get("category","")
                 else:
-                    # ── ONGOING ──
+                    # ── ONGOING (no material change) ──
                     item["status"]       = "ongoing"
                     item["status_label"] = f"🔁 Ongoing · {age_label}"
 
-                # Update history record
-                existing["last_seen"]  = now_str
-                existing["last_fp"]    = fp
-                existing["last_item"]  = item
-                existing["seen_count"] = seen_ct
+                existing["last_seen"]   = now_str
+                existing["last_fp"]     = fp
+                existing["last_status"] = new_pstat or old_pstat
+                existing["last_item"]   = item
+                existing["seen_count"]  = seen_ct
+
+            # Maintain the cross-category per-player status map so the next
+            # scrape can spot transitions like "named" -> "dropped"
+            if pid_str and new_pstat:
+                ps = self.data.setdefault("player_status", {})
+                old_record = ps.get(pid_str, {})
+                ps[pid_str] = {
+                    "status":      new_pstat,
+                    "prev_status": old_record.get("status", "") if old_record.get("status") != new_pstat else old_record.get("prev_status", ""),
+                    "team":        item.get("team", "") or old_record.get("team", ""),
+                    "last_seen":   now_str,
+                    "source":      item.get("source", ""),
+                }
+
+            # Track per-club lineup state when we see a definite named/dropped event
+            club = item.get("team") or ""
+            if pid_str and club and new_pstat in ("named", "omitted", "dropped", "vest", "role"):
+                ts = self.data.setdefault("team_selections", {})
+                club_book = ts.setdefault(club, {})
+                club_book[pid_str] = {
+                    "named":     new_pstat == "named",
+                    "status":    new_pstat,
+                    "role":      item.get("pos", "") or "",
+                    "last_seen": now_str,
+                }
 
             result.append(item)
 
@@ -217,6 +299,45 @@ class NewsHistory:
 
         result.sort(key=sort_key)
         return result
+
+    def filter_real_time(self, items):
+        """
+        Drop items with status="ongoing" (already-seen story with no material
+        change). Keep "new", "update", and "resolved" — those represent
+        real-time movement that warrants a feed slot.
+
+        Also drops same-player same-coarse-status duplicates within this batch
+        (e.g. two AFL/Footywire scrapers each emitting the same "Cripps TBC"
+        once). Higher-reliability source wins; AFL.com.au beats Footywire beats
+        the rest, ties broken by item relevance score.
+        """
+        kept = [i for i in items if i.get("status") in ("new", "update", "resolved")]
+
+        # Dedupe by (pid, coarse_status) within the kept set
+        def src_rank(item):
+            src = (item.get("source") or "").lower()
+            if "afl.com" in src or src == "afl.com.au": return 3
+            if "footywire" in src:                       return 2
+            return 1
+
+        best = {}
+        for item in kept:
+            pid    = str(item.get("pid") or "")
+            pstat  = _player_status_from_item(item) or item.get("category","")
+            if not pid:
+                # No-pid items (general news) keyed by headline hash
+                pstat = f"{pstat}_{hashlib.md5((item.get('headline') or '').encode()).hexdigest()[:8]}"
+            key = f"{pid}|{pstat}"
+            existing = best.get(key)
+            if existing is None:
+                best[key] = item
+                continue
+            score_new = (src_rank(item),     item.get("reliability", 0), item.get("relevance", 0))
+            score_old = (src_rank(existing), existing.get("reliability", 0), existing.get("relevance", 0))
+            if score_new > score_old:
+                best[key] = item
+
+        return list(best.values())
 
     def summary(self):
         """Print a summary of tracked items."""

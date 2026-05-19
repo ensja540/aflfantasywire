@@ -110,6 +110,11 @@ AFL_RSS_FEEDS = [
 AFL_INJURY_PAGE = "https://www.afl.com.au/matches/injury-list"
 # AFL team selections page
 AFL_TEAMS_PAGE  = "https://www.afl.com.au/matches/team-selection"
+# AFL "Medical Room" weekly article — author + ETA + body part per club, table-formatted.
+# The article ID and round suffix change weekly; _find_latest_medical_room() probes
+# the AFL news listing for the freshest URL and falls back to this seed.
+AFL_MEDICAL_ROOM_URL = "https://www.afl.com.au/news/1522891/medical-room-the-full-afl-injury-list-r11"
+AFL_NEWS_LIST_URL    = "https://www.afl.com.au/news"
 
 # Footywire pages
 FW_BASE        = "https://www.footywire.com/afl/footy"
@@ -666,6 +671,306 @@ def scrape_afl_injury_page(session, player_idx):
     return items
 
 
+# Body parts the AFL Medical Room article commonly uses, listed priority-first
+# so "Foot/Achilles" -> "Achilles", "Leg/Calf" -> "Calf".
+_INJURY_BODY_PARTS = [
+    "achilles","concussion","hamstring","shoulder","collarbone",
+    "ankle","knee","groin","quad","calf","thigh","shin","hip",
+    "back","ribs","chest","abdomen","elbow","wrist","hand","finger",
+    "thumb","foot","toe","leg","arm","neck","head","jaw","nose",
+    "eye","face","illness","suspension","personal","managed","rest",
+]
+
+def _injury_body_part(text):
+    if not text: return ""
+    lt = text.lower()
+    for bp in _INJURY_BODY_PARTS:
+        if bp in lt:
+            return bp.capitalize()
+    tokens = re.split(r"[\s/]+", text.strip())
+    tokens = [t for t in tokens if t.lower() not in ("left","right","lower","upper")]
+    return tokens[-1].capitalize() if tokens else text.strip().capitalize()
+
+
+def _classify_returning(text):
+    """Same shape as fetch_data._classify_injury_returning — returns (status, eta_display).
+    status ∈ {out, test, available}; eta is a tidy display string."""
+    if not text:
+        return "test", "TBC"
+    raw   = text.strip()
+    lower = raw.lower()
+    if lower in ("test","tbc","managed","rested"):
+        return "test", "TBC" if lower == "tbc" else raw.title()
+    if "season" in lower or "indef" in lower or "career" in lower:
+        return "out", "Season"
+    if re.search(r"\d+\s*\+?\s*(?:-\s*\d+\s*)?week", lower):
+        return "out", re.sub(r"\s+", " ", raw)
+    if re.search(r"\d+\s*\+?\s*(?:-\s*\d+\s*)?month", lower):
+        return "out", re.sub(r"\s+", " ", raw)
+    if re.match(r"round\s*\d+", lower):
+        return "out", raw
+    if "avail" in lower or "clear" in lower or "fit" in lower:
+        return "available", raw
+    return "test", raw or "TBC"
+
+
+def _find_latest_medical_room(session):
+    """Discover the most recent AFL Medical Room article URL by scanning the
+    AFL news listing for any link containing 'medical-room'. Falls back to
+    the hardcoded AFL_MEDICAL_ROOM_URL when discovery fails."""
+    try:
+        r = fetch(session, AFL_NEWS_LIST_URL)
+        if r:
+            soup = BeautifulSoup(r.text, "lxml")
+            for a in soup.find_all("a", href=re.compile(r"medical-room.*injury-list", re.I)):
+                href = a.get("href","")
+                if href.startswith("/"):
+                    return "https://www.afl.com.au" + href
+                if href.startswith("http"):
+                    return href
+    except Exception as e:
+        log.debug(f"Medical Room discovery failed: {e}")
+    return AFL_MEDICAL_ROOM_URL
+
+
+def scrape_afl_medical_room(session, player_idx):
+    """
+    Scrape AFL.com.au's weekly Medical Room article — the official, hand-curated
+    injury list with status, body part, and ETA per player, grouped by club.
+    Each club section is a 3-column table:
+        PLAYER | INJURY | ESTIMATED RETURN
+    The same article also has "In the mix" prose with managed/available updates,
+    but we only parse the structured table for now.
+
+    Returns one item per listed player. Source priority is high (96) — second
+    only to the official AFL team-selection page.
+    """
+    items = []
+    url = _find_latest_medical_room(session)
+    log.info(f"Scraping AFL Medical Room: {url}")
+    r = fetch(session, url)
+    if not r:
+        log.info("AFL Medical Room: article unavailable, skipping")
+        return items
+
+    soup = BeautifulSoup(r.text, "lxml")
+    seen = set()   # (pid_or_name, bp) — dedupe within the article
+
+    # The article body has exactly one 3-column injury table per club, in
+    # alphabetical order. The DOM has no club headings (the visual cue is the
+    # promo-image preceding each table), so we identify clubs by table order.
+    AFL_CLUB_ORDER = [
+        "Adelaide", "Brisbane", "Carlton", "Collingwood", "Essendon",
+        "Fremantle", "Geelong", "Gold Coast", "GWS Giants", "Hawthorn",
+        "Melbourne", "North Melbourne", "Port Adelaide", "Richmond",
+        "St Kilda", "Sydney", "West Coast", "Western Bulldogs",
+    ]
+    injury_tables = [
+        t for t in soup.find_all("table")
+        if {"player","injury","return"}.issubset(
+            set(" ".join(th.get_text(strip=True).lower()
+                         for th in t.find_all("th")).split()
+            ))
+    ]
+
+    # Also build a fallback map keyed on a leading promo-image filename so we
+    # can verify alphabetical order is still intact (Indigenous names appear at
+    # specific alphabetical slots — kuwarna=Adelaide, walyalup=Fremantle,
+    # narrm=Melbourne, yartapuulti=Port Adelaide, euro-yroke=St Kilda,
+    # waalitj-marawar=West Coast).
+    IMAGE_TO_CLUB = {
+        "kuwarna": "Adelaide", "walyalup": "Fremantle", "narrm": "Melbourne",
+        "yartapuulti": "Port Adelaide", "euro-yroke": "St Kilda",
+        "waalitj-marawar": "West Coast",
+    }
+    img_pat = re.compile(r"/photo-resources/[^/]+/[^/]+/(\w[\w\-]+?)\.jpg", re.I)
+    def club_from_preceding_image(table):
+        cursor = table
+        for _ in range(8):
+            cursor = cursor.find_previous("section", class_=re.compile("promo-image", re.I))
+            if not cursor: break
+            blob = cursor.decode() if hasattr(cursor,"decode") else str(cursor)
+            for m in img_pat.finditer(blob):
+                fn = m.group(1).lower()
+                for key, club in IMAGE_TO_CLUB.items():
+                    if key in fn:
+                        return club
+        return ""
+
+    for table_idx, table in enumerate(injury_tables):
+        # Primary: position in the alphabetical 18-club sequence. The article
+        # body has no club headings, but its tables ARE in alphabetical order
+        # (verified against the Indigenous-name promo images at positions
+        # 1/6/11/13/15/17, which match Adelaide/Fremantle/Melbourne/
+        # Port Adelaide/St Kilda/West Coast).
+        club_name = AFL_CLUB_ORDER[table_idx] if table_idx < len(AFL_CLUB_ORDER) else ""
+
+        # Defensive cross-check: if the promo-image filename preceding the
+        # table identifies a known club AND it disagrees with our position
+        # guess, prefer the image (article reorderings happen).
+        img_club = club_from_preceding_image(table)
+        if img_club and club_name and img_club != club_name:
+            log.debug(f"Medical Room: image says {img_club!r}, "
+                      f"position says {club_name!r} (table {table_idx}) — going with image")
+            club_name = img_club
+
+        for row in table.find_all("tr"):
+            cells = row.find_all("td")
+            if len(cells) < 3: continue
+            name   = cells[0].get_text(strip=True)
+            injury = cells[1].get_text(strip=True)
+            eta    = cells[2].get_text(strip=True)
+            if not name or len(name) < 3: continue
+            if name.lower().startswith("updated"): continue
+            if name.lower() == "player": continue   # repeated header row
+
+            status, eta_disp = _classify_returning(eta)
+            body_part = _injury_body_part(injury)
+            pid, pname = find_player(name, player_idx)
+
+            dedupe_key = (pid or name.lower(), body_part or injury.lower())
+            if dedupe_key in seen: continue
+            seen.add(dedupe_key)
+
+            cat = "injury_out" if status == "out" else "injury_tbc" if status == "test" else "injury_available"
+            display_name = pname or name
+            headline = f"{display_name} — {status.upper()}: {body_part or injury}"
+            if eta_disp: headline += f" ({eta_disp})"
+
+            items.append({
+                "id":          None,
+                "type":        "injury",
+                "category":    cat,
+                "urgent":      status == "out",
+                "player":      display_name,
+                "pid":         pid,
+                "team":        club_name,
+                "pos":         None,
+                "source":      "AFL.com.au",
+                "sourceHandle":"@aflcomau",
+                "reliability": 96,
+                "time":        "latest",
+                "timeLabel":   "Latest",
+                "headline":    headline,
+                "body":        (f"Official AFL Medical Room update for {club_name}: "
+                                f"{display_name} ({body_part or injury}). Estimated return: {eta_disp}."),
+                "signal":      "sell" if status == "out" else "hold" if status == "test" else "buy",
+                "signalConf":  88,
+                "tags":        [status.upper(), body_part or injury, eta_disp],
+                "stats":       [
+                    {"l":"Status",  "v": status.upper()},
+                    {"l":"Injury",  "v": body_part or injury[:20]},
+                    {"l":"ETA",     "v": eta_disp or "Unknown"},
+                    {"l":"Club",    "v": club_name},
+                ],
+                "relevance":   80,   # weekly official article = high signal
+                "_source":     "afl_medical_room",
+            })
+
+    log.info(f"AFL Medical Room: {len(items)} player items across clubs")
+    return items
+
+
+def scrape_afl_team_selections(session, player_idx):
+    """
+    Scrape the official AFL.com.au team-selection page for the current round.
+    This is the source of truth for "named" / "omitted" / "late out" events,
+    so it leads the scraper pipeline per source-priority spec #4.
+
+    Emits one item per player whose selection state we can identify on the page
+    (named in starting 22, named on extended bench, omitted, late out, sub).
+    Downstream NewsHistory.filter_real_time then drops items that haven't
+    changed since the previous scrape — so we don't re-emit "Daicos named"
+    every 15 minutes.
+    """
+    items = []
+    log.info("Scraping AFL.com.au team selection page...")
+    r = fetch(session, AFL_TEAMS_PAGE)
+    if not r:
+        log.info("AFL team selections: page unavailable, skipping")
+        return items
+
+    soup = BeautifulSoup(r.text, "lxml")
+
+    # AFL.com.au groups each match into a card with two club sections, each
+    # listing named/emergency/omitted players. The DOM uses kebab-case classes
+    # that have rotated over the years, so probe a few patterns.
+    match_cards = (
+        soup.find_all(["section","div"], class_=re.compile("team-selection|team-?announcement|match-?selection", re.I)) or
+        soup.find_all(["section","div"], class_=re.compile("matches?-team|round-?team", re.I))
+    )
+    if not match_cards:
+        # Fallback: parse all club blocks on the page
+        match_cards = soup.find_all(["section","div"], class_=re.compile("club|team", re.I))
+
+    seen_keys = set()
+    for card in match_cards:
+        club_el = card.find(["h2","h3","h4","span","div"], class_=re.compile("club|team|squad|name", re.I))
+        club_name = club_el.get_text(strip=True) if club_el else ""
+
+        # Each player block in the lineup
+        for slot in card.find_all(["li","div","tr"], class_=re.compile("player|lineup|name", re.I)):
+            text = slot.get_text(" ", strip=True)
+            if len(text) < 3 or len(text) > 200:
+                continue
+
+            pid, pname = find_player(text, player_idx)
+            if not pname:
+                continue
+
+            # Figure out the selection event from the slot context
+            slot_text = text.lower()
+            parent_cls = " ".join((slot.get("class") or [])).lower()
+            section_cls = " ".join((card.get("class") or [])).lower()
+            blob = slot_text + " " + parent_cls + " " + section_cls
+
+            if any(k in blob for k in ("late out","late-out","late withdrawal","withdrawn")):
+                cat, signal, urgent, label = "dropped", "sell", True,  "Late out"
+            elif "sub" in blob or "vest" in blob or "medsub" in blob or "medical sub" in blob:
+                cat, signal, urgent, label = "vest_risk", "hold", False, "Medical sub"
+            elif any(k in blob for k in ("emergenc",)):
+                cat, signal, urgent, label = "named", None, False, "Emergency"
+            elif any(k in blob for k in ("omit","dropped","out of side","not selected")):
+                cat, signal, urgent, label = "dropped", "sell", False, "Omitted"
+            elif any(k in blob for k in ("named","selected","in for","replaces","starting","interchange")):
+                cat, signal, urgent, label = "named", None, False, "Named"
+            else:
+                continue   # not a recognisable selection event
+
+            # Dedupe within this page (player can appear in multiple list slots)
+            key = f"{pid}|{cat}"
+            if key in seen_keys: continue
+            seen_keys.add(key)
+
+            headline = f"{pname} — {label} ({club_name})" if club_name else f"{pname} — {label}"
+            items.append({
+                "id":          None,
+                "type":        "selection",
+                "category":    cat,
+                "urgent":      urgent,
+                "player":      pname,
+                "pid":         pid,
+                "team":        club_name,
+                "pos":         None,
+                "source":      "AFL.com.au",
+                "sourceHandle":"@aflcomau",
+                "reliability": 96,
+                "time":        "latest",
+                "timeLabel":   "Latest",
+                "headline":    headline,
+                "body":        f"Official AFL.com.au team selection: {pname} {label.lower()} for {club_name}.",
+                "signal":      signal,
+                "signalConf":  85,
+                "tags":        [label, club_name],
+                "stats":       [],
+                "relevance":   75,   # selection events are high-value
+                "_source":     "afl_team_selections",
+            })
+
+    log.info(f"AFL team selections: {len(items)} candidate items (history filter will drop unchanged)")
+    return items
+
+
 def scrape_club_news(session, player_idx):
     """
     Scrape news from all 18 AFL club pages via AFL.com.au.
@@ -902,7 +1207,14 @@ def scrape_all_news(players=None):
     all_items  = []
 
     # ── Run all scrapers ──
-    # Priority order: official > reliable > social
+    # Source priority for real-time info (per spec #4):
+    #   AFL.com.au official > Footywire > RSS > Twitter
+    # AFL.com.au team selections lead because they are the source of truth
+    # for named/omitted/late-out events.
+    all_items += scrape_afl_team_selections(session, player_idx)
+    time.sleep(1)
+    all_items += scrape_afl_medical_room(session, player_idx)
+    time.sleep(1)
     all_items += scrape_afl_injury_page(session, player_idx)
     time.sleep(1)
     all_items += scrape_fw_injuries(session, player_idx)
@@ -924,11 +1236,21 @@ def scrape_all_news(players=None):
     # ── Apply history tracking (NEW / ONGOING / UPDATE / RESOLVED) ──
     history = NewsHistory()
     all_items = history.process(all_items)
+
+    # ── Real-time-only filter (per spec): drop ongoing items where the player's
+    # status and the item content haven't changed since the previous scrape.
+    # This is what stops the feed re-emitting the same "Cripps TBC" 24×/day.
+    before = len(all_items)
+    all_items = history.filter_real_time(all_items)
+    log.info(f"Real-time filter: kept {len(all_items)}/{before} items (dropped ongoing/no-change)")
+
     history.save()
 
-    # ── Sort: urgent first, then by relevance score ──
+    # ── Sort: urgent first, then NEW > UPDATE > RESOLVED, then by relevance ──
+    status_rank = {"new": 0, "update": 1, "resolved": 2, "ongoing": 3}
     all_items.sort(key=lambda x: (
         0 if x.get("urgent") else 1,
+        status_rank.get(x.get("status",""), 4),
         -x.get("relevance", 0)
     ))
 
