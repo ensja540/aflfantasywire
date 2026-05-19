@@ -47,12 +47,16 @@ FW = "https://www.footywire.com/afl/footy"
 
 URLS = {
     "sc_stats":       f"{FW}/supercoach_season",
+    "sc_breakevens":  f"{FW}/supercoach_breakevens",
     "dt_stats":       f"{FW}/dream_team_season",
+    "dt_breakevens":  f"{FW}/dream_team_breakevens",
     "sc_prices":      f"{FW}/supercoach_prices",
     "dt_prices":      f"{FW}/dream_team_prices",
     "injury_list":    f"{FW}/injury_list",
     "selection":      f"{FW}/selection_changes",
     "afl_selections": "https://www.afl.com.au/news/team-selection",
+    # AFL Fantasy Classic — public JSON, gives Classic ownership %
+    "afl_classic":    "https://fantasy.afl.com.au/data/afl/players.json",
 }
 
 # ── SESSION ─────────────────────────────────────────────────────────────────
@@ -108,119 +112,299 @@ def get(session, url, retries=3, delay=2):
 
 def parse_sc_stats(html):
     """
-    Parse the SuperCoach statistics page.
-    Returns list of player dicts with SC-specific data.
+    Parse Footywire SuperCoach season rankings page.
 
-    Table columns (typical Footywire layout):
-    Rank | Player | Team | Pos | Price | Avg | BE | Last | Owned | R1 | R2 ... R23
+    Actual table columns (as of 2026):
+      Rank | Player | Team | Games | Price | Total Score | Average Score | *Value
+
+    - Player and Team are each wrapped in <a> tags. Team is a nickname ("Swans",
+      "Kangaroos") not the full club name.
+    - Player name may carry an inline status flag, e.g. "Errol Gulden INJ".
+    - This page has NO Position, Break-Even, Last Score, Ownership, or per-round
+      columns — those are loaded from supercoach_breakevens and per-player
+      profile pages and merged in main().
     """
     soup = BeautifulSoup(html, "lxml")
     players = []
 
-    table = (
-        soup.find("table", id=re.compile("supercoach|sc.stats", re.I)) or
-        soup.find("table", class_=re.compile("data|stats|player", re.I)) or
-        _largest_table(soup)
-    )
+    table = _largest_table(soup)
     if not table:
         log.warning("SC stats: no table found")
         return players
 
     headers = [th.get_text(strip=True).lower() for th in table.find_all("th")]
-    log.info(f"SC stats columns: {headers[:12]}")
+    log.info(f"SC stats columns: {headers[:10]}")
 
-    # Column index helpers
     def col_idx(*names):
         for name in names:
             for i, h in enumerate(headers):
                 if name in h: return i
         return None
 
-    i_player  = col_idx("player","name")
-    i_team    = col_idx("team","club")
-    i_pos     = col_idx("pos","position")
-    i_price   = col_idx("price","cost","salary","value")
-    i_avg     = col_idx("avg","average")
-    i_be      = col_idx("be","break","b/e")
-    i_last    = col_idx("last","pts","r10","rnd","last game","score for")
-    i_owned   = col_idx("own","%","sel")
-    i_games   = col_idx("games","gms","played")
+    i_rank   = col_idx("rank")
+    i_player = col_idx("player","name")
+    i_team   = col_idx("team","club")
+    i_games  = col_idx("games","gms","played")
+    i_price  = col_idx("price","cost")
+    i_total  = col_idx("total")
+    i_avg    = col_idx("avg","average")
 
-    # Round score columns (R1 through R23 typically)
-    round_cols = [i for i, h in enumerate(headers) if re.match(r"r\d+$", h)]
-
-    for row in table.find_all("tr")[1:]:
+    for row in table.find_all("tr"):
         cells = row.find_all(["td","th"])
-        if len(cells) < 5: continue
+        if len(cells) < 6: continue
+        if all(c.name == "th" for c in cells): continue
         txt = [c.get_text(strip=True) for c in cells]
 
         def v(idx, default=""):
-            return txt[idx] if idx is not None and idx < len(txt) else default
+            return txt[idx] if idx is not None and 0 <= idx < len(txt) else default
 
         def num(idx, default=0):
-            try: return float(re.sub(r"[^\d.]", "", v(idx) or "0") or 0)
+            try: return float(re.sub(r"[^\d.\-]", "", v(idx) or "0") or 0)
             except: return default
 
         def money(idx, default=0):
-            # "$850,400" or "850400" or "850k"
-            raw = v(idx, "0")
-            raw = raw.replace("$","").replace(",","").replace(" ","")
-            if raw.endswith("k"): return int(float(raw[:-1]) * 1000)
+            raw = v(idx, "0").replace("$","").replace(",","").replace(" ","")
+            if raw.endswith("k"):
+                try: return int(float(raw[:-1]) * 1000)
+                except: return default
             try: return int(float(raw))
             except: return default
 
-        player_cell = cells[i_player] if i_player is not None else cells[1]
-        name_tag = player_cell.find("a") or player_cell
-        name = name_tag.get_text(strip=True)
+        player_cell = cells[i_player] if i_player is not None and i_player < len(cells) else cells[1]
+        name_link = player_cell.find("a")
+        raw_name = (name_link.get_text(strip=True) if name_link else player_cell.get_text(strip=True))
+        name = re.sub(r"\s+(INJ|SUS|TBC|EMG)\s*$", "", raw_name).strip()
         if not name or name.lower() in ("player","name",""): continue
 
-        # Extract player profile URL slug for later detailed fetches
         profile_url = ""
-        if player_cell.find("a"):
-            href = player_cell.find("a").get("href","")
+        if name_link and name_link.get("href"):
+            href = name_link["href"]
             profile_url = f"https://www.footywire.com{href}" if href.startswith("/") else href
 
-        round_scores = []
-        for ci in round_cols:
-            raw = v(ci,"")
-            if raw == "" or raw == "-" or raw == "DNP": 
-                round_scores.append(None)
-            else:
-                try: round_scores.append(int(re.sub(r"[^\d]","",raw) or 0))
-                except: round_scores.append(None)
+        team_raw = ""
+        if i_team is not None and i_team < len(cells):
+            team_cell = cells[i_team]
+            team_link = team_cell.find("a")
+            team_raw = (team_link.get_text(strip=True) if team_link else team_cell.get_text(strip=True))
 
-        # Last 7 non-None scores for the sparkline
-        played = [s for s in round_scores if s is not None]
-        last7  = played[-7:] if len(played) >= 7 else (played + [0] * (7 - len(played)))
-
-        price   = money(i_price) or 500000
-        avg     = num(i_avg)
-        be      = int(num(i_be))
-        last    = int(num(i_last))
-        owned   = num(i_owned)
-
-        # 3-round average from last 3 played scores
-        last3 = [s for s in played[-3:] if s is not None]
-        avg3  = round(sum(last3)/len(last3), 1) if last3 else avg
+        rank_val = int(num(i_rank)) if i_rank is not None else (len(players) + 1)
 
         players.append({
             "name":        name,
-            "team":        v(i_team, ""),
-            "pos":         v(i_pos, "MID"),
-            "sc_price":    price,
-            "sc_avg":      avg,
-            "sc_avg3":     avg3,
-            "sc_last":     last,
-            "sc_be":       be,
-            "sc_owned":    owned,
-            "sc_scores":   last7,
-            "sc_all_scores": played,
+            "team":        team_raw,
+            "pos":         "",                # filled later from breakevens / profile
+            "sc_price":    money(i_price),
+            "sc_avg":      num(i_avg),
+            "sc_avg3":     num(i_avg),        # placeholder; overwritten when rounds load
+            "sc_last":     0,                 # filled later from per-player rounds
+            "sc_be":       0,                 # filled later from breakevens
+            "sc_owned":    0,                 # not exposed on this page
+            "sc_games":    int(num(i_games)),
+            "sc_total":    int(num(i_total)),
+            "sc_scores":   [],
+            "sc_all_scores": [],
             "profile_url": profile_url,
-            "sc_rank":     len(players) + 1,
+            "sc_rank":     rank_val,
         })
 
     log.info(f"SC stats: parsed {len(players)} players")
     return players
+
+
+def parse_sc_breakevens(html):
+    """
+    Parse Footywire SuperCoach break-evens page.
+
+    Actual table columns:
+      Player | Team | Price | G | Avg | Breakeven | Likelihood %
+
+    Player cell format: "Reilly O'Brien (RUC)" — position embedded in parens
+    after the name. May also be combined like "(MID/FWD)".
+
+    Returns dict keyed by name_key(player) → {name, pos, team, price, games,
+    avg, be, likelihood}.
+    """
+    soup = BeautifulSoup(html, "lxml")
+    result = {}
+
+    table = _largest_table(soup)
+    if not table:
+        log.warning("SC breakevens: no table found")
+        return result
+
+    headers = [th.get_text(strip=True).lower() for th in table.find_all("th")]
+    log.info(f"SC breakevens columns: {headers[:8]}")
+
+    def col_idx(*names):
+        for name in names:
+            for i, h in enumerate(headers):
+                if name in h: return i
+        return None
+
+    i_player = col_idx("player","name")
+    i_team   = col_idx("team","club")
+    i_price  = col_idx("price")
+    i_games  = col_idx("games","gms")
+    i_avg    = col_idx("avg","average")
+    i_be     = col_idx("breakeven","break","b/e")
+    i_like   = col_idx("likelihood","%")
+
+    # "G" header is a single char and won't match the substring search above
+    if i_games is None:
+        for i, h in enumerate(headers):
+            if h.strip() == "g":
+                i_games = i
+                break
+
+    for row in table.find_all("tr"):
+        cells = row.find_all(["td","th"])
+        if len(cells) < 5: continue
+        if all(c.name == "th" for c in cells): continue
+        txt = [c.get_text(strip=True) for c in cells]
+
+        def v(idx, default=""):
+            return txt[idx] if idx is not None and 0 <= idx < len(txt) else default
+        def num(idx, default=0):
+            try: return float(re.sub(r"[^\d.\-]", "", v(idx) or "0") or 0)
+            except: return default
+        def money(idx, default=0):
+            raw = v(idx, "0").replace("$","").replace(",","")
+            try: return int(float(raw))
+            except: return default
+
+        player_cell = cells[i_player] if i_player is not None and i_player < len(cells) else cells[0]
+        raw_name = (player_cell.find("a") or player_cell).get_text(strip=True)
+
+        pos_match = re.search(r"\(([A-Z/]+)\)\s*$", raw_name)
+        pos = pos_match.group(1).split("/")[0] if pos_match else ""
+        name = re.sub(r"\s*\([A-Z/]+\)\s*$", "", raw_name).strip()
+        name = re.sub(r"\s+(INJ|SUS|TBC|EMG)\s*$", "", name).strip()
+        if not name or name.lower() in ("player","name",""): continue
+
+        result[name_key(name)] = {
+            "name":       name,
+            "pos":        pos,
+            "team":       v(i_team),
+            "price":      money(i_price),
+            "games":      int(num(i_games)),
+            "avg":        num(i_avg),
+            "be":         int(num(i_be)),
+            "likelihood": num(i_like),
+        }
+
+    log.info(f"SC breakevens: parsed {len(result)} players")
+    return result
+
+
+def parse_player_rounds(html):
+    """
+    Parse a player profile page (/afl/footy/pu-{team}--{player}) for:
+      - Position (from "Position: Ruck" / "Position: Midfielder" etc. in header)
+      - Round-by-round SuperCoach scores table: Round | Price | Score | Value
+        (Round 0 = AFL Opening Round; missing/DNP scores shown as "-")
+
+    Returns: {pos, rounds: [int|None per round], prices: [int per round]}
+    """
+    soup = BeautifulSoup(html, "lxml")
+    result = {"pos": "", "rounds": [], "prices": []}
+
+    page_text = soup.get_text(" ", strip=True)
+    m = re.search(
+        r"Position:\s*([A-Za-z][A-Za-z /]*?)(?=\s+(?:Born|Height|Weight|DOB|Origin|Drafted|Recruited|Club|Games|Career|Debut|$))",
+        page_text,
+    )
+    if m:
+        pos_raw = m.group(1).strip().upper()
+        result["pos"] = {
+            "RUCK":"RUC","RUCK ROVER":"MID","MIDFIELD":"MID","MIDFIELDER":"MID",
+            "DEFENDER":"DEF","DEFENCE":"DEF","BACK":"DEF","BACKMAN":"DEF",
+            "FORWARD":"FWD","FORWARDS":"FWD","ATTACK":"FWD",
+        }.get(pos_raw, pos_raw[:3])
+
+    for table in soup.find_all("table"):
+        headers = [th.get_text(strip=True).lower() for th in table.find_all("th")]
+        if not headers or headers[0] != "round": continue
+        if "score" not in " ".join(headers): continue
+
+        for row in table.find_all("tr")[1:]:
+            cells = [c.get_text(strip=True) for c in row.find_all(["td","th"])]
+            if len(cells) < 3: continue
+
+            try: rnd = int(re.sub(r"[^\d\-]", "", cells[0]) or "-99")
+            except: continue
+            if rnd < 0 or rnd > 30: continue
+
+            score_raw = cells[2]
+            if score_raw in ("", "-", "DNP", "BYE", "—"):
+                result["rounds"].append(None)
+            else:
+                try: result["rounds"].append(int(re.sub(r"[^\d]", "", score_raw) or 0))
+                except: result["rounds"].append(None)
+
+            price_raw = cells[1].replace("$","").replace(",","")
+            try: result["prices"].append(int(float(price_raw)))
+            except: result["prices"].append(0)
+
+        break
+
+    return result
+
+
+def fetch_classic_ownership(session):
+    """
+    Fetch AFL Fantasy Classic player data from the public JSON endpoint.
+
+    Public payload (no auth) includes per-player Classic ownership and projections:
+      {
+        "first_name", "last_name", "cost", "positions": [int],
+        "stats": {
+          "owned_by": 53.73,          ← Classic ownership %
+          "avg_points": 108.1,
+          "last_3_avg": 99,
+          "proj_avg": 112.04,
+          ...
+        }
+      }
+
+    Returns dict keyed by name_key(first + last):
+      {classic_owned, classic_avg, classic_avg3, classic_proj, classic_price}
+    """
+    result = {}
+    r = get(session, URLS["afl_classic"])
+    if not r:
+        log.warning("AFL Fantasy Classic: fetch failed")
+        return result
+
+    try:
+        data = r.json()
+    except Exception as e:
+        log.warning(f"AFL Fantasy Classic: JSON parse failed: {e}")
+        return result
+
+    # The payload is either a bare list or wrapped in a dict — handle both
+    players = data if isinstance(data, list) else data.get("players", data)
+    if not isinstance(players, list):
+        log.warning(f"AFL Fantasy Classic: unexpected payload shape ({type(data).__name__})")
+        return result
+
+    for p in players:
+        first = (p.get("first_name") or "").strip()
+        last  = (p.get("last_name")  or "").strip()
+        if not first and not last: continue
+        name  = f"{first} {last}".strip()
+        nk    = name_key(name)
+        stats = p.get("stats") or {}
+
+        result[nk] = {
+            "classic_owned": float(stats.get("owned_by") or 0),
+            "classic_avg":   float(stats.get("avg_points") or 0),
+            "classic_avg3":  float(stats.get("last_3_avg") or 0),
+            "classic_proj":  float(stats.get("proj_avg") or 0),
+            "classic_price": int(p.get("cost") or 0),
+        }
+
+    log.info(f"AFL Fantasy Classic: parsed {len(result)} players (ownership)")
+    return result
 
 
 def parse_dt_stats(html):
@@ -449,14 +633,35 @@ TEAM_COLOURS = {
 }
 
 TEAM_ALIASES = {
+    # Full / partial club names
     "GWS":"GWS Giants","GREATER WESTERN SYDNEY":"GWS Giants",
     "WESTERN BULLDOGS":"Western Bulldogs","DOGS":"Western Bulldogs",
     "PORT":"Port Adelaide","PORT ADELAIDE":"Port Adelaide",
     "NORTH":"North Melbourne","NORTH MELBOURNE":"North Melbourne",
-    "GOLD COAST":"Gold Coast","SUNS":"Gold Coast",
-    "BRISBANE":"Brisbane","LIONS":"Brisbane",
-    "ST KILDA":"St Kilda","SAINTS":"St Kilda",
-    "WEST COAST":"West Coast","EAGLES":"West Coast",
+    "GOLD COAST":"Gold Coast",
+    "BRISBANE":"Brisbane","BRISBANE LIONS":"Brisbane",
+    "ST KILDA":"St Kilda",
+    "WEST COAST":"West Coast",
+    "SYDNEY":"Sydney","SYDNEY SWANS":"Sydney",
+    # Footywire nicknames (as returned by /supercoach_season etc.)
+    "SWANS":"Sydney",
+    "KANGAROOS":"North Melbourne",
+    "CROWS":"Adelaide",
+    "DOCKERS":"Fremantle",
+    "CATS":"Geelong",
+    "SUNS":"Gold Coast",
+    "GIANTS":"GWS Giants",
+    "HAWKS":"Hawthorn",
+    "DEMONS":"Melbourne",
+    "POWER":"Port Adelaide",
+    "TIGERS":"Richmond",
+    "SAINTS":"St Kilda",
+    "EAGLES":"West Coast",
+    "BULLDOGS":"Western Bulldogs",
+    "BOMBERS":"Essendon",
+    "BLUES":"Carlton",
+    "MAGPIES":"Collingwood",
+    "LIONS":"Brisbane",
 }
 
 def normalise_team(raw):
@@ -540,6 +745,14 @@ def build_player(sc, dt, injuries, selections, rank):
     sc_owned = sc.get("sc_owned", 0) or 0
     sc_scores = sc.get("sc_scores", [sc_last]*7) or [sc_last]*7
 
+    # AFL Fantasy Classic ownership (Footywire doesn't expose SC ownership for free,
+    # so Classic ownership from fantasy.afl.com.au is the only live ownership signal).
+    classic_owned = float(sc.get("classic_owned", 0) or 0)
+    classic_avg   = float(sc.get("classic_avg",   0) or 0)
+    classic_avg3  = float(sc.get("classic_avg3",  0) or 0)
+    classic_proj  = float(sc.get("classic_proj",  0) or 0)
+    classic_price = int(sc.get("classic_price", 0) or 0)
+
     dt_avg   = dt.get("dt_avg", round(sc_avg  * 1.03)) if dt else round(sc_avg  * 1.03)
     dt_avg3  = dt.get("dt_avg3",round(sc_avg3 * 1.03)) if dt else round(sc_avg3 * 1.03)
     dt_last  = dt.get("dt_last",round(sc_last * 1.03)) if dt else round(sc_last * 1.03)
@@ -567,14 +780,15 @@ def build_player(sc, dt, injuries, selections, rank):
     played = [s for s in all_sc if s and s > 0]
     consistency = round(len([s for s in played if s >= threshold]) / len(played) * 100) if played else 75
 
-    # Build tags and reason
+    # Build tags and reason. sc_owned is always 0 (Footywire doesn't expose it),
+    # so tag rules use Classic ownership as the live ownership signal.
     p = {
         "injuryStatus": inj_status,
         "signal": sig,
         "scAvg3": round(sc_avg3, 1),
         "breakeven": sc_be,
         "priceDelta": price_delta,
-        "owned": round(sc_owned, 1),
+        "owned": round(classic_owned or sc_owned, 1),
     }
     tag_list = auto_tags(p)
 
@@ -620,6 +834,11 @@ def build_player(sc, dt, injuries, selections, rank):
 
         "owned": round(sc_owned, 1),
         "ownedDelta": 0,   # requires two fetches to compute delta
+        "classicOwned": round(classic_owned, 1),
+        "classicAvg":   round(classic_avg,  1),
+        "classicAvg3":  round(classic_avg3, 1),
+        "classicProj":  round(classic_proj, 1),
+        "classicPrice": classic_price,
 
         "scAvg":   round(sc_avg,  1),
         "scAvg3":  round(sc_avg3, 1),
@@ -716,24 +935,77 @@ def main():
 
     time.sleep(1)
 
-    # ── 5. Fetch detailed stats for top 50 players (disposals, clearances etc) ──
-    log.info("Fetching detailed stats for top 50 players...")
-    for i, p in enumerate(sc_players[:50]):
-        url = p.get("profile_url","")
+    # ── 5. Fetch SuperCoach break-evens (separate page, has BE + position) ──
+    log.info("Fetching SuperCoach break-evens...")
+    r_be = get(session, URLS["sc_breakevens"])
+    sc_be_lookup = parse_sc_breakevens(r_be.text) if r_be else {}
+
+    # Merge BE + position into each sc_player by name_key
+    for p in sc_players:
+        nk = name_key(p["name"])
+        be_data = sc_be_lookup.get(nk) or sc_be_lookup.get(name_key(p["name"].split()[-1]))
+        if be_data:
+            p["sc_be"] = be_data["be"]
+            if be_data["pos"]:
+                p["pos"] = be_data["pos"]
+            # Prefer breakevens price if season price was 0 (rare)
+            if not p["sc_price"] and be_data["price"]:
+                p["sc_price"] = be_data["price"]
+
+    time.sleep(1)
+
+    # ── 6. Fetch per-player profile pages for round-by-round scores ──
+    TOP_N = 200
+    log.info(f"Fetching round-by-round scores for top {TOP_N} players...")
+    for i, p in enumerate(sc_players[:TOP_N]):
+        url = p.get("profile_url", "")
         if not url:
             continue
-        # Convert to SC scores subpage
-        sc_scores_url = url.replace("/th-","/pp-") + "--supercoach-scores"
-        r5 = get(session, sc_scores_url)
-        if r5:
-            p["detail"] = parse_player_detail(r5.text, p["name"])
+        r5 = get(session, url)
+        if not r5:
+            continue
+
+        rounds_data = parse_player_rounds(r5.text)
+
+        # Profile-page position overrides breakevens (more specific)
+        if rounds_data["pos"]:
+            p["pos"] = rounds_data["pos"]
+
+        all_scores = rounds_data["rounds"]
+        played = [s for s in all_scores if s is not None and s > 0]
+        p["sc_all_scores"] = played
+
+        # Last 7 played scores (right-pad with 0s if fewer)
+        if len(played) >= 7:
+            p["sc_scores"] = played[-7:]
+        elif played:
+            p["sc_scores"] = played + [0] * (7 - len(played))
         else:
-            p["detail"] = {}
-        if i % 10 == 9:
-            log.info(f"  {i+1}/50 detailed profiles fetched")
+            p["sc_scores"] = [0] * 7
+
+        p["sc_last"] = played[-1] if played else 0
+
+        last3 = played[-3:]
+        p["sc_avg3"] = round(sum(last3) / len(last3), 1) if last3 else p["sc_avg"]
+
+        if i % 25 == 24:
+            log.info(f"  {i+1}/{TOP_N} player profiles fetched")
         time.sleep(0.5)
 
-    # ── 6. Merge and build final player list ──
+    # ── 6b. Fetch AFL Fantasy Classic ownership ──
+    log.info("Fetching AFL Fantasy Classic ownership...")
+    classic_lookup = fetch_classic_ownership(session)
+    for p in sc_players:
+        nk = name_key(p["name"])
+        co = classic_lookup.get(nk) or classic_lookup.get(name_key(p["name"].split()[-1]))
+        if co:
+            p["classic_owned"] = co["classic_owned"]
+            p["classic_avg"]   = co["classic_avg"]
+            p["classic_avg3"]  = co["classic_avg3"]
+            p["classic_proj"]  = co["classic_proj"]
+            p["classic_price"] = co["classic_price"]
+
+    # ── 7. Merge and build final player list ──
     log.info("Merging data sources...")
     players = []
     for i, sc in enumerate(sc_players[:200], 1):
