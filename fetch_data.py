@@ -46,10 +46,10 @@ OUTPUT_PATH = BASE_DIR.parent / "players.json"
 FW = "https://www.footywire.com/afl/footy"
 
 URLS = {
-    "sc_stats":       f"{FW}/ft_supercoach_statistics",
-    "dt_stats":       f"{FW}/dream_team_statistics",
-    "sc_prices":      f"{FW}/sc_prices",
-    "dt_prices":      f"{FW}/dream_team_prices",
+    "sc_stats":       f"{FW}/ft_player_rankings?year=2026&rt=LA&st=SU",
+    "dt_stats":       f"{FW}/ft_player_rankings?year=2026&rt=LA&st=DT",
+    "sc_prices":      f"{FW}/ft_player_rankings?year=2026&rt=LA&st=SU",
+    "dt_prices":      f"{FW}/ft_player_rankings?year=2026&rt=LA&st=DT",
     "injury_list":    f"{FW}/injury_list",
     "selection":      f"{FW}/selection_changes",
     "afl_selections": "https://www.afl.com.au/news/team-selection",
@@ -749,7 +749,7 @@ def main():
     output = {
         "scraped_at":   datetime.now().isoformat(),
         "round":        "Current",
-        "season":       datetime.now().year,
+        "season":       2026,
         "player_count": len(players),
         "sources": {
             "sc_players":  len(sc_players),
