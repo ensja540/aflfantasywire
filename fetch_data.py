@@ -26,6 +26,7 @@ OUTPUT
 import json, re, time, logging, sys
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import urljoin
 
 try:
     import requests
@@ -39,7 +40,7 @@ log = logging.getLogger("afw")
 
 BASE_DIR    = Path(__file__).parent
 CONFIG_PATH = BASE_DIR / "config.json"
-OUTPUT_PATH = BASE_DIR.parent / "players.json"
+OUTPUT_PATH = BASE_DIR / "players.json"
 
 # ── FOOTYWIRE URLS ──────────────────────────────────────────────────────────
 
@@ -110,6 +111,34 @@ def get(session, url, retries=3, delay=2):
 
 # ── FOOTYWIRE PARSERS ────────────────────────────────────────────────────────
 
+def _fw_table_headers_and_rows(soup):
+    """
+    Footywire ranks/breakevens tables don't use <th>. Headers are in a <tr>
+    of <td class="bnorm">/<td class="lbnorm"> cells directly above the first
+    data row, and data rows carry id="rowpid_<numeric>". Returns
+    (headers_lowercased, data_rows). Both empty if the page shape changed.
+    """
+    data_rows = soup.find_all("tr", id=re.compile(r"^rowpid_\d+"))
+    if not data_rows:
+        return [], []
+
+    parent_table = data_rows[0].find_parent("table")
+    prev = None
+    if parent_table:
+        for tr in parent_table.find_all("tr", recursive=False):
+            if tr is data_rows[0]: break
+            prev = tr
+    if prev is None:
+        prev = data_rows[0].find_previous_sibling("tr")
+
+    headers = []
+    if prev:
+        for cell in prev.find_all(["td", "th"], recursive=False):
+            txt = re.sub(r"\s+", " ", cell.get_text(" ", strip=True)).lower()
+            headers.append(txt)
+    return headers, data_rows
+
+
 def parse_sc_stats(html):
     """
     Parse Footywire SuperCoach season rankings page.
@@ -117,23 +146,26 @@ def parse_sc_stats(html):
     Actual table columns (as of 2026):
       Rank | Player | Team | Games | Price | Total Score | Average Score | *Value
 
-    - Player and Team are each wrapped in <a> tags. Team is a nickname ("Swans",
-      "Kangaroos") not the full club name.
-    - Player name may carry an inline status flag, e.g. "Errol Gulden INJ".
-    - This page has NO Position, Break-Even, Last Score, Ownership, or per-round
-      columns — those are loaded from supercoach_breakevens and per-player
-      profile pages and merged in main().
+    Footywire-specific markup:
+      - Header cells are <td class="bnorm">/<td class="lbnorm">, NOT <th>
+      - Data rows have id="rowpid_<numeric>"
+      - The Player <a> href is relative WITHOUT a /afl/footy/ prefix, e.g.
+        "pu-sydney-swans--brodie-grundy" — resolve with urljoin()
+      - Team is a nickname ("Swans") inside an <a>
+      - Status flags ("INJ", "SUS", "TBC", "EMG") appear inline after the name
+
+    Position, Break-Even, Last Score, Ownership, and per-round columns are
+    NOT on this page; they are pulled from /supercoach_breakevens and each
+    player's profile page and merged in main().
     """
     soup = BeautifulSoup(html, "lxml")
     players = []
 
-    table = _largest_table(soup)
-    if not table:
-        log.warning("SC stats: no table found")
+    headers, data_rows = _fw_table_headers_and_rows(soup)
+    if not data_rows:
+        log.warning("SC stats: no rowpid_ rows found")
         return players
-
-    headers = [th.get_text(strip=True).lower() for th in table.find_all("th")]
-    log.info(f"SC stats columns: {headers[:10]}")
+    log.info(f"SC stats columns: {headers}")
 
     def col_idx(*names):
         for name in names:
@@ -149,10 +181,18 @@ def parse_sc_stats(html):
     i_total  = col_idx("total")
     i_avg    = col_idx("avg","average")
 
-    for row in table.find_all("tr"):
-        cells = row.find_all(["td","th"])
+    # Fall back to the documented column order if header detection misses
+    if i_rank   is None: i_rank   = 0
+    if i_player is None: i_player = 1
+    if i_team   is None: i_team   = 2
+    if i_games  is None: i_games  = 3
+    if i_price  is None: i_price  = 4
+    if i_total  is None: i_total  = 5
+    if i_avg    is None: i_avg    = 6
+
+    for row in data_rows:
+        cells = row.find_all(["td","th"], recursive=False)
         if len(cells) < 6: continue
-        if all(c.name == "th" for c in cells): continue
         txt = [c.get_text(strip=True) for c in cells]
 
         def v(idx, default=""):
@@ -178,8 +218,11 @@ def parse_sc_stats(html):
 
         profile_url = ""
         if name_link and name_link.get("href"):
-            href = name_link["href"]
-            profile_url = f"https://www.footywire.com{href}" if href.startswith("/") else href
+            # Footywire serves relative hrefs without the /afl/footy/ prefix
+            # (e.g. "pu-st-kilda-saints--tom-de-koning"), so resolve against
+            # the page URL rather than just prepending the host.
+            profile_url = urljoin("https://www.footywire.com/afl/footy/",
+                                  name_link["href"])
 
         team_raw = ""
         if i_team is not None and i_team < len(cells):
@@ -218,8 +261,14 @@ def parse_sc_breakevens(html):
     Actual table columns:
       Player | Team | Price | G | Avg | Breakeven | Likelihood %
 
-    Player cell format: "Reilly O'Brien (RUC)" — position embedded in parens
-    after the name. May also be combined like "(MID/FWD)".
+    Footywire-specific markup in the Player cell:
+      <td>
+        <span class="hiddenspan">Reilly O'Brien</span>  ← full name (hidden, used for sort)
+        <a href="pu-...">R. O'Brien</a>                 ← abbreviated visible name
+        <span class="playerflag">RUC</span>             ← position (can be "RUC", "MID/FWD")
+      </td>
+    Position is in playerflag span — NOT in parentheses after the name like
+    older Footywire pages had.
 
     Returns dict keyed by name_key(player) → {name, pos, team, price, games,
     avg, be, likelihood}.
@@ -227,13 +276,11 @@ def parse_sc_breakevens(html):
     soup = BeautifulSoup(html, "lxml")
     result = {}
 
-    table = _largest_table(soup)
-    if not table:
-        log.warning("SC breakevens: no table found")
+    headers, data_rows = _fw_table_headers_and_rows(soup)
+    if not data_rows:
+        log.warning("SC breakevens: no rowpid_ rows found")
         return result
-
-    headers = [th.get_text(strip=True).lower() for th in table.find_all("th")]
-    log.info(f"SC breakevens columns: {headers[:8]}")
+    log.info(f"SC breakevens columns: {headers}")
 
     def col_idx(*names):
         for name in names:
@@ -249,17 +296,25 @@ def parse_sc_breakevens(html):
     i_be     = col_idx("breakeven","break","b/e")
     i_like   = col_idx("likelihood","%")
 
-    # "G" header is a single char and won't match the substring search above
+    # "G" header is a single char that won't match a substring search
     if i_games is None:
         for i, h in enumerate(headers):
             if h.strip() == "g":
                 i_games = i
                 break
 
-    for row in table.find_all("tr"):
-        cells = row.find_all(["td","th"])
+    # Fall back to documented column order if headers couldn't be detected
+    if i_player is None: i_player = 0
+    if i_team   is None: i_team   = 1
+    if i_price  is None: i_price  = 2
+    if i_games  is None: i_games  = 3
+    if i_avg    is None: i_avg    = 4
+    if i_be     is None: i_be     = 5
+    if i_like   is None: i_like   = 6
+
+    for row in data_rows:
+        cells = row.find_all(["td","th"], recursive=False)
         if len(cells) < 5: continue
-        if all(c.name == "th" for c in cells): continue
         txt = [c.get_text(strip=True) for c in cells]
 
         def v(idx, default=""):
@@ -272,19 +327,38 @@ def parse_sc_breakevens(html):
             try: return int(float(raw))
             except: return default
 
-        player_cell = cells[i_player] if i_player is not None and i_player < len(cells) else cells[0]
-        raw_name = (player_cell.find("a") or player_cell).get_text(strip=True)
+        player_cell = cells[i_player] if 0 <= i_player < len(cells) else cells[0]
 
-        pos_match = re.search(r"\(([A-Z/]+)\)\s*$", raw_name)
-        pos = pos_match.group(1).split("/")[0] if pos_match else ""
-        name = re.sub(r"\s*\([A-Z/]+\)\s*$", "", raw_name).strip()
+        # Prefer the hiddenspan (full name); fall back to the visible <a> text
+        hidden = player_cell.find("span", class_="hiddenspan")
+        anchor = player_cell.find("a")
+        name = ""
+        if hidden:
+            name = hidden.get_text(strip=True)
+        if not name and anchor:
+            name = anchor.get_text(strip=True)
+        if not name:
+            name = player_cell.get_text(" ", strip=True)
         name = re.sub(r"\s+(INJ|SUS|TBC|EMG)\s*$", "", name).strip()
         if not name or name.lower() in ("player","name",""): continue
+
+        flag = player_cell.find("span", class_="playerflag")
+        pos = ""
+        if flag:
+            pos_raw = flag.get_text(strip=True).upper()
+            # Take the first listed position when multi-position (e.g. MID/FWD)
+            pos = pos_raw.split("/")[0].strip()
+
+        team_cell = cells[i_team] if 0 <= i_team < len(cells) else None
+        team_raw = ""
+        if team_cell:
+            team_link = team_cell.find("a")
+            team_raw = (team_link.get_text(strip=True) if team_link else team_cell.get_text(strip=True))
 
         result[name_key(name)] = {
             "name":       name,
             "pos":        pos,
-            "team":       v(i_team),
+            "team":       team_raw,
             "price":      money(i_price),
             "games":      int(num(i_games)),
             "avg":        num(i_avg),
@@ -321,31 +395,52 @@ def parse_player_rounds(html):
             "FORWARD":"FWD","FORWARDS":"FWD","ATTACK":"FWD",
         }.get(pos_raw, pos_raw[:3])
 
+    # Find the first SuperCoach round-by-round table. Same Footywire trick
+    # as the other pages — header cells are <td class="bnorm">, not <th> —
+    # so detect headers from the first row's text instead of tag name.
     for table in soup.find_all("table"):
-        headers = [th.get_text(strip=True).lower() for th in table.find_all("th")]
-        if not headers or headers[0] != "round": continue
-        if "score" not in " ".join(headers): continue
+        rows = table.find_all("tr", recursive=False)
+        if not rows: continue
+        header_cells = [c.get_text(strip=True).lower()
+                        for c in rows[0].find_all(["td","th"], recursive=False)]
+        if "round" not in header_cells or "score" not in header_cells:
+            continue
+        try:
+            i_round = header_cells.index("round")
+            i_score = header_cells.index("score")
+        except ValueError:
+            continue
+        i_price = header_cells.index("price") if "price" in header_cells else 1
 
-        for row in table.find_all("tr")[1:]:
-            cells = [c.get_text(strip=True) for c in row.find_all(["td","th"])]
-            if len(cells) < 3: continue
+        for tr in rows[1:]:
+            cells = [c.get_text(strip=True)
+                     for c in tr.find_all(["td","th"], recursive=False)]
+            if len(cells) <= i_score: continue
 
-            try: rnd = int(re.sub(r"[^\d\-]", "", cells[0]) or "-99")
+            try: rnd = int(re.sub(r"[^\d\-]", "", cells[i_round]) or "-99")
             except: continue
             if rnd < 0 or rnd > 30: continue
 
-            score_raw = cells[2]
+            score_raw = cells[i_score]
             if score_raw in ("", "-", "DNP", "BYE", "—"):
                 result["rounds"].append(None)
             else:
                 try: result["rounds"].append(int(re.sub(r"[^\d]", "", score_raw) or 0))
                 except: result["rounds"].append(None)
 
-            price_raw = cells[1].replace("$","").replace(",","")
+            price_raw = cells[i_price].replace("$","").replace(",","")
             try: result["prices"].append(int(float(price_raw)))
             except: result["prices"].append(0)
 
-        break
+        if result["rounds"]: break
+
+    # Drop trailing None scores — the most recent listed round is usually the
+    # upcoming/in-progress round the player hasn't played yet, and including
+    # it would dilute "last score" / "last 3 avg" / Top Improvers calculations.
+    while result["rounds"] and result["rounds"][-1] is None:
+        result["rounds"].pop()
+        if result["prices"]:
+            result["prices"].pop()
 
     return result
 
@@ -539,41 +634,129 @@ def parse_player_detail(html, player_name):
     return stats
 
 
+# Body parts listed in priority order — more specific terms first so
+# "Achilles" wins over "Foot", "Hamstring" over "Leg", etc.
+INJURY_BODY_PARTS = [
+    "achilles", "concussion", "hamstring", "shoulder", "collarbone",
+    "ankle", "knee", "groin", "quad", "calf", "thigh", "shin",
+    "hip", "back", "ribs", "chest", "abdomen", "elbow", "wrist",
+    "hand", "finger", "thumb", "foot", "toe", "leg", "arm",
+    "neck", "head", "jaw", "nose", "eye", "face",
+    "illness", "suspension", "personal", "managed", "rest",
+]
+
+def _classify_injury_body_part(injury_text):
+    """Pull a canonical body-part keyword out of Footywire's free-text injury cell.
+    Examples: 'Hamstring' -> 'Hamstring', 'Leg/Calf' -> 'Calf',
+    'Right shoulder' -> 'Shoulder', 'Foot/Achilles' -> 'Achilles'."""
+    if not injury_text: return ""
+    lower = injury_text.lower()
+    for part in INJURY_BODY_PARTS:
+        if part in lower:
+            return part.capitalize()
+    # Fallback: strip side qualifiers and take the last token after a slash
+    tokens = re.split(r"[\s/]+", injury_text.strip())
+    tokens = [t for t in tokens if t.lower() not in ("left", "right", "lower", "upper")]
+    return tokens[-1].capitalize() if tokens else injury_text.strip().capitalize()
+
+
+def _classify_injury_returning(returning_text):
+    """Map Footywire's 'Returning' cell into (status, eta) where
+    status in {'out', 'test', 'available'} and eta is a tidy display string.
+    Players on the injury list at all default to 'test' if no harder signal."""
+    if not returning_text:
+        return "test", "TBC"
+    raw = returning_text.strip()
+    lower = raw.lower()
+
+    if lower in ("test", "tbc", "managed", "rested"):
+        return "test", raw.title() if lower != "tbc" else "TBC"
+
+    if "season" in lower or "indef" in lower or "career" in lower:
+        return "out", "Season"
+
+    # "1-2 weeks", "3 weeks", "5+ weeks"
+    if re.search(r"\d+\s*\+?\s*(?:-\s*\d+\s*)?week", lower):
+        return "out", re.sub(r"\s+", " ", raw)
+
+    # "2 months", "3-4 months"
+    if re.search(r"\d+\s*\+?\s*(?:-\s*\d+\s*)?month", lower):
+        return "out", re.sub(r"\s+", " ", raw)
+
+    if re.match(r"round\s*\d+", lower):
+        return "out", raw
+
+    # Anything else (e.g. "Available", "Cleared") — treat as available
+    if "avail" in lower or "clear" in lower or "fit" in lower:
+        return "available", raw
+
+    # Unrecognised — assume managed/uncertain
+    return "test", raw or "TBC"
+
+
 def parse_injury_list(html):
     """
     Parse Footywire injury list page.
-    Returns dict of {player_name: {"status": "out|tbc|fit", "detail": "...", "eta": "..."}}
+
+    Footywire layout: one nested 3-column table per club with header row
+      Player | Injury | Returning
+    Header cells are <td class="lbnorm"> / <td class="bnorm"> (NOT <th>);
+    data rows use class="darkcolor"/"lightcolor" — there's no rowpid_ id.
+
+    Returns dict keyed by name_key(player) → {status, body_part, eta, detail}
+    where status is one of {'out', 'test', 'available'}.
     """
     soup = BeautifulSoup(html, "lxml")
     injuries = {}
 
-    table = _largest_table(soup)
-    if not table: return injuries
+    # Each per-club table starts with a "<club> (N Players)" title row in its
+    # outer table, then a nested 3-column table. Find every nested table whose
+    # first row reads "Player | Injury | Returning".
+    for table in soup.find_all("table"):
+        rows = table.find_all("tr", recursive=False)
+        if len(rows) < 2: continue
+        header_cells = [c.get_text(strip=True).lower()
+                        for c in rows[0].find_all(["td","th"], recursive=False)]
+        if not header_cells: continue
+        joined = " ".join(header_cells)
+        if "player" not in joined or "injury" not in joined or "return" not in joined:
+            continue
 
-    for row in table.find_all("tr")[1:]:
-        cells = row.find_all(["td","th"])
-        if len(cells) < 3: continue
-        txt = [c.get_text(strip=True) for c in cells]
+        try:
+            i_player    = header_cells.index("player")
+        except ValueError:
+            i_player = 0
+        try:
+            i_injury    = header_cells.index("injury")
+        except ValueError:
+            i_injury = 1
+        try:
+            i_returning = next(i for i, h in enumerate(header_cells) if "return" in h)
+        except StopIteration:
+            i_returning = 2
 
-        name   = txt[0] if txt else ""
-        detail = txt[2] if len(txt) > 2 else ""
-        eta    = txt[3] if len(txt) > 3 else ""
+        for tr in rows[1:]:
+            cells = tr.find_all(["td","th"], recursive=False)
+            if len(cells) <= max(i_player, i_injury, i_returning): continue
+            name_cell = cells[i_player]
+            name_link = name_cell.find("a")
+            name = (name_link.get_text(strip=True) if name_link else name_cell.get_text(strip=True))
+            name = name.replace("\xa0", " ").strip()
+            if not name: continue
 
-        if not name: continue
+            injury_raw    = cells[i_injury].get_text(strip=True)
+            returning_raw = cells[i_returning].get_text(strip=True)
 
-        detail_lower = detail.lower() + eta.lower()
-        if any(x in detail_lower for x in ("out","omit","test","season")):
-            status = "out"
-        elif any(x in detail_lower for x in ("tbc","test","managed","uncertain","doubtful")):
-            status = "tbc"
-        else:
-            status = "fit"
+            status, eta  = _classify_injury_returning(returning_raw)
+            body_part    = _classify_injury_body_part(injury_raw)
 
-        injuries[name.lower()] = {
-            "status": status,
-            "detail": detail,
-            "eta": eta,
-        }
+            injuries[name_key(name)] = {
+                "status":    status,        # "out" | "test" | "available"
+                "body_part": body_part,     # "Hamstring", "Knee", ...
+                "eta":       eta,           # "2 weeks", "Season", "TBC", ...
+                "detail":    injury_raw,    # raw injury text (kept for back-compat / titles)
+                "returning": returning_raw, # raw returning text
+            }
 
     log.info(f"Injuries: found {len(injuries)} players with injury notes")
     return injuries
@@ -694,15 +877,15 @@ def build_signal(avg3, be, inj, price_delta):
     if (price_delta or 0) > 20000: s += 15
     elif (price_delta or 0) < -20000: s -= 15
     if inj == "out": s -= 30
-    elif inj == "tbc": s -= 20
+    elif inj in ("test", "tbc"): s -= 20
     sig = "buy" if s >= 30 else ("sell" if s <= -15 else "hold")
     return sig, min(95, max(40, 50 + abs(s)))
 
 def auto_tags(p):
     t = []
-    inj = p.get("injuryStatus","fit")
+    inj = p.get("injuryStatus","available")
     if inj == "out": t.append("OUT")
-    elif inj == "tbc": t.append("TBC")
+    elif inj in ("test", "tbc"): t.append("TEST")
     avg3 = p.get("scAvg3",0) or 0
     be   = p.get("breakeven",0) or 0
     pd   = p.get("priceDelta",0) or 0
@@ -731,6 +914,8 @@ def estimate_price_history(current_price, avg3, be, num_rounds=7):
 
 def build_player(sc, dt, injuries, selections, rank):
     """Merge SC stats + DT stats + injury/selection data into the app schema."""
+
+    dt = dt or {}   # downstream .get() calls assume a mapping; lookup may miss
 
     name  = sc.get("name","") or dt.get("name","")
     team  = normalise_team(sc.get("team","") or dt.get("team",""))
@@ -762,11 +947,12 @@ def build_player(sc, dt, injuries, selections, rank):
 
     # Injury status from injury list
     nk = name_key(name)
-    inj_data   = injuries.get(nk) or injuries.get(name_key(name.split()[-1])) or {}
-    sel_data   = selections.get(nk) or {}
-    inj_status = inj_data.get("status","fit")
-    inj_detail = inj_data.get("detail","")
-    inj_eta    = inj_data.get("eta","")
+    inj_data      = injuries.get(nk) or injuries.get(name_key(name.split()[-1])) or {}
+    sel_data      = selections.get(nk) or {}
+    inj_status    = inj_data.get("status","available")
+    inj_detail    = inj_data.get("detail","")
+    inj_body_part = inj_data.get("body_part","") or inj_detail
+    inj_eta       = inj_data.get("eta","")
 
     # Price delta estimate
     price_delta = round((sc_avg3 - sc_be) * 800) if sc_avg3 and sc_be else 0
@@ -796,18 +982,20 @@ def build_player(sc, dt, injuries, selections, rank):
     if sc_avg3 and sc_be:
         diff = round(sc_avg3 - sc_be)
         parts.append(f"3-round avg {round(sc_avg3)} is {abs(diff)} {'above' if diff>0 else 'below'} break-even ({sc_be}).")
-    if inj_status == "out": parts.append(f"OUT — {inj_detail or 'injury'}.")
-    elif inj_status == "tbc": parts.append(f"TBC — {inj_detail or 'managed'}.")
+    if inj_status == "out":   parts.append(f"OUT — {inj_detail or inj_body_part or 'injury'}.")
+    elif inj_status == "test": parts.append(f"TEST — {inj_detail or inj_body_part or 'managed'}.")
 
-    # Build news items from injury/selection data
+    # Build news items from injury/selection data.
+    # tags layout for injury items is [STATUS, BODY_PART, ETA] — the frontend's
+    # iTags[0]/iTags[1]/iTags[2] chip row reads them positionally.
     news = []
-    if inj_status in ("out","tbc") and inj_detail:
+    if inj_status in ("out","test") and (inj_body_part or inj_detail):
         news.append({
             "id":1, "type":"injury", "source":"Footywire",
             "time":"latest",
-            "title": f"{name} — {inj_status.upper()}: {inj_detail}",
-            "body": f"Status: {inj_status.upper()}. {inj_detail}. ETA: {inj_eta or 'unknown'}.",
-            "tags": [inj_status.upper(), inj_detail[:30], inj_eta or ""],
+            "title": f"{name} — {inj_status.upper()}: {inj_body_part or inj_detail}",
+            "body": f"Status: {inj_status.upper()}. {inj_body_part or inj_detail}. ETA: {inj_eta or 'TBC'}.",
+            "tags": [inj_status.upper(), inj_body_part or inj_detail, inj_eta or "TBC"],
         })
     if sel_data.get("note"):
         news.append({
