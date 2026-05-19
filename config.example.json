@@ -1,0 +1,17 @@
+{
+  "_comment": "Copy this file to config.json and fill in your credentials",
+
+  "_footywire": "No credentials needed — Footywire is scraped directly. Just run from a home machine.",
+
+  "_supercoach_optional": "Only needed for real-time ownership % data. Leave blank to skip.",
+  "sc_username":  "YOUR_SUPERCOACH_EMAIL",
+  "sc_password":  "YOUR_SUPERCOACH_PASSWORD",
+  "sc_client_id": "1",
+
+  "_aflf_optional": "Only needed for AFL Fantasy ownership data. Leave blank to skip.",
+  "aflf_email":    "YOUR_AFLF_EMAIL",
+  "aflf_password": "YOUR_AFLF_PASSWORD",
+
+  "_output": "Where to write players.json — default is next to aflfantasywire.html",
+  "output_path": "../players.json"
+}
