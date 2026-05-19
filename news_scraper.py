@@ -39,7 +39,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(message)s", datef
 log = logging.getLogger("news")
 
 BASE_DIR    = Path(__file__).parent
-OUTPUT_PATH = BASE_DIR / "news.json"
+OUTPUT_PATH = BASE_DIR.parent / "news.json"
 
 # ── ACCOUNTS TO FOLLOW (Twitter/Nitter) ─────────────────────────────────────
 # These are the most reliable SC/DT fantasy accounts
@@ -810,6 +810,51 @@ def scrape_club_news(session, player_idx):
     return items
 
 
+# ── RECENCY FILTER ────────────────────────────────────────────────────────────
+
+def filter_recent(items, max_age_hours=48):
+    """
+    Only keep items published within max_age_hours.
+    Items without a parseable timestamp are kept (assumed recent).
+    Footywire injury list items are always kept as they are structural data.
+    """
+    from datetime import timezone
+    now = datetime.now(timezone.utc)
+    recent = []
+    for item in items:
+        # Always keep structural injury/selection data from official sources
+        if item.get("_source") in ("footywire_injuries","afl_injury_page","footywire_selections"):
+            # But cap at 7 days — older than that it's stale
+            time_label = item.get("timeLabel","latest").lower()
+            if "latest" in time_label or "recent" in time_label:
+                recent.append(item)
+                continue
+
+        # Parse time label for other sources
+        time_label = item.get("timeLabel","") or item.get("time","")
+        try:
+            # Try to parse "Xm ago", "Xh ago", "Xd ago"
+            tl = time_label.lower().replace(" ago","").strip()
+            if tl.endswith("m"):
+                age_hrs = int(tl[:-1]) / 60
+            elif tl.endswith("h"):
+                age_hrs = int(tl[:-1])
+            elif tl.endswith("d"):
+                age_hrs = int(tl[:-1]) * 24
+            elif "latest" in tl or "recent" in tl:
+                age_hrs = 0
+            else:
+                age_hrs = 0  # unknown — keep it
+            
+            if age_hrs <= max_age_hours:
+                recent.append(item)
+        except Exception:
+            recent.append(item)  # keep if can't parse
+
+    log.info(f"Recency filter: {len(recent)}/{len(items)} items within {max_age_hours}h")
+    return recent
+
+
 # ── DEDUPLICATION ─────────────────────────────────────────────────────────────
 
 def deduplicate(items):
@@ -844,7 +889,7 @@ def scrape_all_news(players=None):
              If None, loads from players.json if available.
     """
     if players is None:
-        players_path = BASE_DIR / "players.json"
+        players_path = BASE_DIR.parent / "players.json"
         if players_path.exists():
             data = json.loads(players_path.read_text())
             players = data.get("players", []) if isinstance(data, dict) else data
@@ -869,6 +914,9 @@ def scrape_all_news(players=None):
     all_items += scrape_twitter(session, player_idx)
     time.sleep(1)
     all_items += scrape_club_news(session, player_idx)
+
+    # ── Recency filter (keep last 48h only) ──
+    all_items = filter_recent(all_items, max_age_hours=48)
 
     # ── Deduplicate ──
     all_items = deduplicate(all_items)
