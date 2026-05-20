@@ -15,11 +15,16 @@ KEYWORDS = {
         "sidelined", "season-ending", "season ending", "out for the season",
         "out indefinitely", "miss the rest", "ruptured", "requires surgery",
         "undergo surgery", "facing surgery", "done for the season", "torn",
+        "not available", "unavailable", "concussion protocol", "concussion test",
+        "miss a minimum", "weeks on the sideline", "weeks on the sidelines",
+        "ACL", "ruptured acl", "broken", "fracture", "fractured",
     ],
     "injury_tbc": [
         "fitness test", "in doubt", "injury cloud", "cloud over", "race against time",
         "managed", "questionable", "doubtful", "tbc", "game-time decision",
         "game time decision", "carrying an injury", "under an injury cloud",
+        "concussion", "injured", "strain", "strained", "sprain", "sprained",
+        "soreness", "complaint", "knock", "tightness", "corked",
     ],
     "dropped": ["omitted", "dropped", "left out", "not named", "axed", "demoted", "makes way"],
     "named": [
@@ -40,7 +45,7 @@ KEYWORDS = {
 }
 
 IGNORE_PHRASES = [
-    "trade news", "coach says", "press conference", "match report", "preview", "gossip", "rumour"  # allow some rumour if relevant
+    "press conference", "match report", "match preview"  # genuinely low fantasy value
 ]
 
 CATEGORY_PRIORITY = [
@@ -91,6 +96,25 @@ def classify_item(text, headline=None):
             if _kw_match(word, combined):
                 result["matches"].append((category, word))
                 result["score"] += 15
+
+    # Body-part injuries: "knee injury", "injured his shoulder", "hamstring strain"...
+    _bp = ("knee|ankle|hamstring|shoulder|groin|calf|quad|thigh|foot|hip|back|"
+           "wrist|hand|finger|collarbone|achilles|rib|ribs|jaw|toe|elbow|pec|hip|head")
+    if (re.search(r"(" + _bp + r")\s+(injury|strain|sprain|complaint|soreness|problem|issue)", combined)
+            or re.search(r"injur(?:ed|y)\b[^.]{0,25}(" + _bp + r")", combined)):
+        if any(_kw_match(t, combined) for t in ["weeks", "months", "miss", "out for", "ruled out", "not available", "unavailable", "season"]):
+            result["matches"].append(("injury_out", "bodypart"))
+        else:
+            result["matches"].append(("injury_tbc", "bodypart"))
+        result["score"] += 25
+
+    # General club news worth surfacing: VFL call-ups, form, trades, speculation.
+    if any(_kw_match(t, combined) for t in [
+            "vfl", "called up", "call-up", "promoted", "debut", "best on ground",
+            "big performance", "trade", "traded", "speculation", "speculated",
+            "signing", "re-sign", "resign", "contract", "free agent", "linked with",
+            "set to join", "request", "delisted", "retire", "retirement"]):
+        result["score"] += 30
 
     # Encourage news items with clear injury/selection signals
     if any(category in ["injury_out", "injury_tbc", "dropped", "named", "role_change", "vest_risk", "team_news"]

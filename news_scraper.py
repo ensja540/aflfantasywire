@@ -1687,7 +1687,7 @@ def _watch_rumour_text(player, bodypart, out=False, eta=""):
         ]
     return heads[idx], bodies[idx]
 
-def _apply_rumour_buffer(items, keep=15, min_items=10):
+def _apply_rumour_buffer(items, keep=15, min_items=15):
     """Keep a rolling buffer of the most recent rumours (persisted across runs in
     rumours.json) so the mill always has a healthy set — oldest are replaced as
     new ones arrive. A single scrape only yields a few rumours."""
@@ -1920,6 +1920,35 @@ def scrape_all_news(players=None):
     return all_items
 
 
+NEWS_ARCHIVE_CAP = 500
+
+def _merge_news_archive(new_items, cap=NEWS_ARCHIVE_CAP):
+    """Accumulate news across scrapes instead of replacing the file each run:
+    merge fresh items with the existing news.json, dedupe (fresh wins), keep the
+    newest `cap` items by scrape time and drop the oldest beyond that."""
+    now = datetime.now(timezone.utc).isoformat()
+    for it in new_items:
+        it.setdefault("scrapedAt", now)
+    try:
+        existing = json.loads(OUTPUT_PATH.read_text(encoding="utf-8")).get("news", [])
+    except Exception:
+        existing = []
+    merged, seen = [], set()
+    for it in list(new_items) + list(existing):
+        key = ((it.get("player") or "").lower(),
+               (it.get("headline") or "")[:80].lower(),
+               it.get("type", ""))
+        if key in seen:
+            continue
+        seen.add(key)
+        merged.append(it)
+    merged.sort(key=lambda x: x.get("scrapedAt", ""), reverse=True)
+    merged = merged[:cap]
+    for i, it in enumerate(merged, 1):
+        it["id"] = i
+    log.info(f"News archive: {len(new_items)} new merged with existing -> {len(merged)} kept (cap {cap})")
+    return merged
+
 def main():
     print("=" * 60)
     print("  AFLFantasyWire — News Scraper")
@@ -1927,6 +1956,7 @@ def main():
     print(f"  {datetime.now().strftime('%H:%M:%S  %d %b %Y')}\n")
 
     items = scrape_all_news()
+    items = _merge_news_archive(items)
 
     output = {
         "scraped_at":  datetime.now().isoformat(),
