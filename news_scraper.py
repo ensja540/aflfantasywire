@@ -42,28 +42,57 @@ BASE_DIR    = Path(__file__).parent
 OUTPUT_PATH = BASE_DIR.parent / "news.json"
 
 # ── ACCOUNTS TO FOLLOW (Twitter/Nitter) ─────────────────────────────────────
-# These are the most reliable SC/DT fantasy accounts
+# Mix of high-reliability official sources, top AFL beat reporters who break
+# news/scoops, and the established SC/DT fantasy accounts. Reliability is
+# weighted into both the in-app trust badge and the source-priority dedupe.
 TWITTER_ACCOUNTS = [
-    ("dttalk",          "DT Talk",          82),
-    ("supercoach_dr",   "SuperCoach DR",    80),
-    ("scscoop",         "Supercoach Scoop", 78),
-    ("warnie",          "Warnie",           80),
-    ("aflcomau",        "AFL.com.au",       96),
-    ("champdata",       "Champion Data",    98),
-    ("heraldsunfooty",  "Herald Sun Sport", 80),
-    ("footywire",       "Footywire",        94),
+    # Official / institutional (highest trust)
+    ("aflcomau",         "AFL.com.au",         96),
+    ("champdata",        "Champion Data",      98),
+    ("aflplayers",       "AFL Players Assoc.", 92),
+    ("foxfooty",         "Fox Footy",          90),
+    # AFL beat reporters & scoop breakers
+    ("tom_morris_",      "Tom Morris",         92),
+    ("damianbarrett",    "Damian Barrett",     90),
+    ("KaneCallaghan",    "Kane Callaghan",     88),
+    ("lachlanblakemore", "Lachlan Blakemore",  85),
+    ("MickWarner",       "Mick Warner",        83),
+    ("CallumDick7",      "Callum Dick",        82),
+    ("samedmund",        "Sam Edmund",         82),
+    ("heraldsunfooty",   "Herald Sun Sport",   80),
+    # Fantasy-focused (lower reliability — treat as rumour by default)
+    ("dttalk",           "DT Talk",            82),
+    ("supercoach_dr",    "SuperCoach DR",      80),
+    ("scscoop",          "Supercoach Scoop",   78),
+    ("warnie",           "Warnie",             80),
+    ("fantasyfreako",    "Fantasy Freako",     78),
+    ("footywire",        "Footywire",          94),
 ]
 
-# Nitter instances (public Twitter mirrors, no API needed)
-# Try each in order until one works
-NITTER_INSTANCES = [
-    "https://nitter.poast.org",
-    "https://nitter.privacydev.net",
-    "https://nitter.net",
-    "https://nitter.cz",
-    "https://nitter.it",
-    "https://nitter.unixfox.eu",
+# Hashtag/search pages — useful when specific accounts have nothing fresh.
+# Nitter exposes /search?q=... and renders the same tweet-content nodes.
+TWITTER_SEARCH_QUERIES = [
+    "#AFLFantasy",
+    "#SuperCoach",
+    "AFL injury",
+    "AFL named team",
 ]
+
+# Nitter instances. The public-mirror ecosystem has thinned since Twitter's
+# anti-scraping push; this list is ordered by recent uptime observations.
+NITTER_INSTANCES = [
+    "https://nitter.privacydev.net",
+    "https://xcancel.com",
+    "https://nitter.poast.org",
+    "https://nitter.tiekoetter.com",
+    "https://nitter.adminforge.de",
+    "https://nitter.kavin.rocks",
+    "https://nitter.net",
+]
+
+# Maximum age of a tweet we'll accept into the feed. Anything older than this
+# falls out of "recent news" territory and shouldn't fill the rumour mill.
+TWITTER_MAX_AGE_HOURS = 48
 
 # ── AFL CLUB NEWS PAGES ──────────────────────────────────────────────────────
 # All 18 clubs use the AFL.com.au CMS, so their news lives at afl.com.au/news/{slug}
@@ -486,99 +515,192 @@ def get_nitter_base(session):
     log.warning("Nitter: no working instance found")
     return None
 
+_TWEET_DATE_FMT = "%b %d, %Y · %I:%M %p UTC"  # e.g. "Mar 18, 2026 · 3:45 PM UTC"
+
+def _tweet_age_hours(tweet, now=None):
+    """
+    Parse the tweet's timestamp out of Nitter's <a class="tweet-date"> anchor
+    (its <span title="..."> holds the absolute UTC time). Returns age in
+    hours, or None when the timestamp can't be recovered.
+    """
+    if now is None: now = datetime.now(timezone.utc)
+    parent = tweet.find_parent()
+    if not parent: return None
+    span_with_title = parent.find(["a","span","time"], title=True)
+    if not span_with_title:
+        # Try walking up one more level — Nitter sometimes wraps the date
+        # in a sibling container outside the immediate parent.
+        gp = parent.find_parent()
+        if gp:
+            span_with_title = gp.find(["a","span","time"], title=True)
+    if not span_with_title: return None
+    title = (span_with_title.get("title") or "").strip()
+    if not title: return None
+    try:
+        dt = datetime.strptime(title, _TWEET_DATE_FMT).replace(tzinfo=timezone.utc)
+        return (now - dt).total_seconds() / 3600
+    except ValueError:
+        return None
+
+
+def _tweet_age_label(age_hours):
+    """Format an age (in hours) as a compact relative label, like Nitter does."""
+    if age_hours is None: return "recent"
+    if age_hours < 1:     return f"{int(age_hours * 60)}m ago"
+    if age_hours < 24:    return f"{int(age_hours)}h ago"
+    return f"{int(age_hours // 24)}d ago"
+
+
+def _scrape_nitter_page(session, nitter_base, url_path, source_name, source_handle, reliability, player_idx, now):
+    """
+    Helper: fetch one Nitter page (account timeline OR /search), iterate its
+    tweet-content nodes, drop anything older than TWITTER_MAX_AGE_HOURS,
+    return the matching items. Shared between account scraping and the
+    hashtag/keyword search path so the recency/relevance/dedupe logic lives
+    in one place.
+    """
+    items = []
+    url = f"{nitter_base}{url_path}"
+    log.info(f"Nitter fetch: {source_handle} -> {url_path}")
+    r = fetch(session, url)
+    if not r:
+        return items
+
+    soup = BeautifulSoup(r.text, "lxml")
+    tweet_divs = (
+        soup.find_all("div", class_="tweet-content")
+        or soup.find_all("div", class_=re.compile("tweet|status", re.I))
+    )
+
+    fresh = stale = 0
+    for tweet in tweet_divs[:30]:
+        text = tweet.get_text(separator=" ", strip=True)
+        if len(text) < 20:
+            continue
+
+        # Recency gate first — cheap and most tweets get dropped here.
+        age = _tweet_age_hours(tweet, now=now)
+        if age is not None and age > TWITTER_MAX_AGE_HOURS:
+            stale += 1
+            continue
+        fresh += 1
+
+        # Skip junk retweets (RT @... ...) unless they reference AFL fantasy keywords
+        if text.startswith("RT @") and not any(kw in text.lower() for kw in
+            ("injury", "out", "tbc", "named", "vest", "sc", "supercoach",
+             "fantasy", "price", "breakeven", "concussion", "hamstring", "knee")):
+            continue
+
+        result = classify_item(text)
+        if not result["relevant"]:
+            continue
+
+        pid, pname = find_player(text, player_idx)
+
+        # Official sources (AFL.com.au, Champion Data, club accounts, beat reporters
+        # at major outlets) get type="news"/"injury"/"selection". Fantasy talk + low
+        # confidence get type="rumour" so the rumour mill picks them up.
+        is_official = source_handle.lower() in ("@aflcomau", "@champdata", "@foxfooty",
+                                                 "@aflplayers", "@heraldsunfooty")
+        cat = result["category"]
+
+        if is_official or result["score"] >= 60:
+            item_type = (
+                "injury"    if "injury" in cat else
+                "selection" if cat in ("named", "dropped", "role_change", "vest_risk") else
+                "price"     if cat == "price" else
+                "news"
+            )
+        else:
+            item_type = "rumour"
+
+        signal = None
+        if cat == "injury_out":   signal = "sell"
+        elif cat == "injury_tbc": signal = "hold"
+        elif cat == "dropped":    signal = "sell"
+        elif cat == "role_change":signal = "hold"
+
+        items.append({
+            "id":          None,
+            "type":        item_type,
+            "category":    cat,
+            "urgent":      cat == "injury_out" and is_official and (age is None or age <= 2),
+            "player":      pname or "",
+            "pid":         pid,
+            "team":        None,
+            "pos":         None,
+            "source":      source_name,
+            "sourceHandle":source_handle,
+            "reliability": reliability,
+            "time":        _tweet_age_label(age),
+            "timeLabel":   _tweet_age_label(age),
+            "age_hours":   age,
+            "headline":    text[:140],
+            "body":        text[:400],
+            "signal":      signal,
+            "signalConf":  reliability - 10,
+            "tags":        [cat.replace("_"," ").title(), "Twitter"],
+            "stats":       [],
+            "is_rumour":   item_type == "rumour",
+            "relevance":   result["score"],
+            "_source":     f"twitter_{source_handle.lstrip('@')}",
+        })
+
+    if stale:
+        log.debug(f"  {source_handle}: {fresh} fresh, dropped {stale} older than {TWITTER_MAX_AGE_HOURS}h")
+    return items
+
+
 def scrape_twitter(session, player_idx):
     """
-    Scrape Twitter/X accounts via Nitter (no API key needed).
-    Returns list of tweet-based news items.
+    Scrape Twitter/X via Nitter for AFL news scoops, beat-reporter posts, and
+    fantasy chatter. No API key needed. Items are filtered to the last
+    TWITTER_MAX_AGE_HOURS (default 48) using the absolute timestamp in
+    Nitter's <a class="tweet-date" title="..."> attribute, NOT the relative
+    "2h ago" string (which can be stale-cached on slow mirrors).
+
+    Items from non-official handles or with low classifier scores are tagged
+    type="rumour" so the rumour mill picks them up. Official-source breaking
+    injuries within 2h of posting are tagged urgent.
     """
     items = []
     nitter = get_nitter_base(session)
     if not nitter:
-        log.warning("Twitter scraping skipped — no Nitter instance available")
+        log.warning("Twitter scraping skipped — no working Nitter instance")
         return items
 
+    now = datetime.now(timezone.utc)
+
+    # 1. Account timelines
     for handle, source_name, reliability in TWITTER_ACCOUNTS:
-        url = f"{nitter}/{handle}"
-        log.info(f"Scraping @{handle}...")
-        r = fetch(session, url)
-        if not r:
-            continue
-
-        soup = BeautifulSoup(r.text, "lxml")
-
-        # Nitter tweet containers
-        tweet_divs = (
-            soup.find_all("div", class_="tweet-content") or
-            soup.find_all("div", class_=re.compile("tweet|status", re.I))
+        items += _scrape_nitter_page(
+            session, nitter, f"/{handle}", source_name, f"@{handle}",
+            reliability, player_idx, now,
         )
+        time.sleep(0.8)   # polite
 
-        for tweet in tweet_divs[:20]:  # last 20 tweets per account
-            text = tweet.get_text(separator=" ", strip=True)
-            if len(text) < 20:
-                continue
+    # 2. Hashtag / keyword search — surfaces scoops from accounts we don't follow
+    for query in TWITTER_SEARCH_QUERIES:
+        from urllib.parse import quote_plus
+        path = f"/search?q={quote_plus(query)}&f=tweets"
+        items += _scrape_nitter_page(
+            session, nitter, path, f"Search: {query}", f"@search/{query}",
+            70, player_idx, now,
+        )
+        time.sleep(0.8)
 
-            # Skip retweets of non-fantasy content
-            if text.startswith("RT @") and not any(kw in text.lower() for kw in
-                ["injury","out","tbc","named","vest","sc","supercoach","fantasy","price","breakeven"]):
-                continue
+    # Dedupe by headline within this batch — search pages can repeat tweets
+    # we already pulled from individual accounts.
+    seen_heads = set()
+    deduped = []
+    for it in items:
+        key = (it.get("player","").lower(), (it.get("headline") or "")[:80].lower())
+        if key in seen_heads: continue
+        seen_heads.add(key)
+        deduped.append(it)
 
-            result = classify_item(text)
-            if not result["relevant"]:
-                continue
-
-            pid, pname = find_player(text, player_idx)
-
-            # Determine confidence level for rumour vs confirmed
-            is_official = handle in ("aflcomau", "champdata")
-            is_rumour   = not is_official and result["score"] < 40
-
-            # Get tweet timestamp if available
-            time_el = tweet.find_parent().find(["span","time"], class_=re.compile("time|date",re.I)) if tweet.find_parent() else None
-            time_label = time_el.get_text(strip=True) if time_el else "recent"
-
-            cat = result["category"]
-            item_type = (
-                "injury"    if "injury" in cat else
-                "selection" if cat in ("named","dropped","role_change","vest_risk") else
-                "price"     if cat == "price" else
-                "news"
-            )
-
-            signal = None
-            if cat == "injury_out":  signal = "sell"
-            elif cat == "injury_tbc": signal = "hold"
-            elif cat == "dropped":    signal = "sell"
-            elif cat == "role_change":signal = "hold"
-
-            items.append({
-                "id":          None,
-                "type":        item_type,
-                "category":    cat,
-                "urgent":      cat == "injury_out" and is_official,
-                "player":      pname or "",
-                "pid":         pid,
-                "team":        None,
-                "pos":         None,
-                "source":      source_name,
-                "sourceHandle":f"@{handle}",
-                "reliability": reliability,
-                "time":        time_label,
-                "timeLabel":   time_label,
-                "headline":    text[:140],
-                "body":        text[:400],
-                "signal":      signal,
-                "signalConf":  reliability - 10,
-                "tags":        [cat.replace("_"," ").title(), "Twitter"],
-                "stats":       [],
-                "is_rumour":   is_rumour,
-                "relevance":   result["score"],
-                "_source":     f"twitter_{handle}",
-            })
-
-        time.sleep(1)  # polite delay between accounts
-
-    log.info(f"Twitter: {len(items)} relevant items")
-    return items
+    log.info(f"Twitter: {len(deduped)} items kept (within {TWITTER_MAX_AGE_HOURS}h, deduped)")
+    return deduped
 
 
 def scrape_afl_injury_page(session, player_idx):
