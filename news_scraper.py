@@ -702,6 +702,16 @@ def scrape_google_news(session, player_idx):
             elif cat == "dropped":     signal = "sell"
             elif cat == "role_change": signal = "hold"
 
+            _clean = desc.strip()
+            if not _clean or headline.lower()[:35] in _clean.lower():
+                # Google News descriptions usually just echo the title — frame a
+                # distinct summary instead of repeating the headline.
+                if is_rumour:
+                    body = f"{publisher} report" + (f" on {pname}" if pname else "") + " — monitor team news and his price before lockout."
+                else:
+                    body = f"Via {publisher}" + (f" on {pname}" if pname else "") + ". Tap the source link for the full story."
+            else:
+                body = _clean[:400]
             items.append({
                 "id":           None,
                 "type":         item_type,
@@ -717,7 +727,7 @@ def scrape_google_news(session, player_idx):
                 "time":         time_label,
                 "timeLabel":    time_label,
                 "headline":     headline[:150],
-                "body":         (desc or headline)[:400],
+                "body":         body[:400],
                 "link":         link,
                 "signal":       signal,
                 "signalConf":   max(40, reliability - 10),
@@ -1648,6 +1658,35 @@ def _is_aflw(item):
 
 RUMOUR_BUFFER_PATH = BASE_DIR / "rumours.json"
 
+def _watch_rumour_text(player, bodypart, out=False, eta=""):
+    """Varied, natural watch/rumour phrasing so the summary never just repeats
+    the headline. We only know body part + status (not where/how it happened),
+    so phrasing stays honest and doesn't invent a cause."""
+    bp = (bodypart or "").strip().lower()
+    _art = "an" if bp[:1] in "aeiou" else "a"
+    bpp = f"{_art} {bp}" if bp and bp not in ("tbc", "test", "managed", "na", "") else "a knock"
+    eta = (eta or "").strip()
+    idx = sum(ord(c) for c in player) % 4
+    if out:
+        heads = [f"{player} set to miss", f"{player} ruled out",
+                 f"Blow for {player}", f"{player} sidelined"]
+        bodies = [
+            f"Word is {player} won't take his place after copping {bpp}" + (f"; out {eta}" if eta and eta.lower() not in ("tbc", "test") else "") + ". Likely a trade-out until he's right.",
+            f"{player} is on the sidelines with {bpp}; expect a price dip while he's out.",
+            f"Hearing {player} misses this week with {bpp} — line up cover before lockout.",
+            f"{player} won't feature, troubled by {bpp}. One to move on from for now.",
+        ]
+    else:
+        heads = [f"Doubt over {player}", f"{player} under an injury cloud",
+                 f"Watch: {player}", f"{player} on the watchlist"]
+        bodies = [
+            f"Hearing {player} pulled up sore with {bpp} — monitor the team sheet before lockout.",
+            f"{player} is in doubt after a {bp or 'minor'} complaint; keep an eye on selection news this week.",
+            f"Whispers {player} is racing the clock on {bpp} ahead of the weekend — risky to lock in.",
+            f"{player} flagged with {bpp}; wait for the named team before trusting him.",
+        ]
+    return heads[idx], bodies[idx]
+
 def _apply_rumour_buffer(items, keep=15, min_items=10):
     """Keep a rolling buffer of the most recent rumours (persisted across runs in
     rumours.json) so the mill always has a healthy set — oldest are replaced as
@@ -1691,10 +1730,13 @@ def _apply_rumour_buffer(items, keep=15, min_items=10):
             have.add(pl.lower())
             tags = it.get("tags") or []
             bp = (tags[1] if len(tags) > 1 else "") or ""
+            eta = tags[2] if len(tags) > 2 else ""
+            out = it.get("category") == "injury_out"
+            hd, bd = _watch_rumour_text(pl, bp, out=out, eta=eta)
             merged.append({**it, "type": "rumour", "is_rumour": True, "confirmed": False,
-                           "category": "injury_tbc", "signal": "hold",
-                           "headline": f"Hearing {pl} is in doubt" + (f" with a {bp.lower()}" if bp else "") + " — monitor before lockout",
-                           "body": f"{pl} is carrying a knock; watch team news before the lockout.",
+                           "category": "injury_out" if out else "injury_tbc",
+                           "signal": "sell" if out else "hold",
+                           "headline": hd, "body": bd,
                            "tags": ["Rumour", "Watch"], "_seen": now, "_padded": True})
         log.info(f"Rumour buffer: padded to {len(merged)} with reframed injuries")
 
@@ -1829,9 +1871,24 @@ def scrape_all_news(players=None):
 
     history.save()
 
-    # ── Ensure every item has a tidy, meaningful body sentence ──
+    # ── Ensure every item has a tidy body that isn't just the headline again ──
+    def _frame_body(it):
+        pl, src, t = it.get("player") or "", it.get("source") or "Reports", it.get("type")
+        if t == "rumour":
+            return f"{src} report" + (f" on {pl}" if pl else "") + " — monitor team news and his price before lockout."
+        if t == "injury":
+            return (f"{pl} " if pl else "") + f"flagged on the injury list ({src}) — check the status before selecting."
+        if t == "selection":
+            return f"{src} team news" + (f" involving {pl}" if pl else "") + " — confirm at the named team before locking in."
+        return f"Via {src}" + (f" on {pl}" if pl else "") + ". Tap the source link for the full story."
+
     for it in all_items:
         it["body"] = _tidy_body(it.get("body"), it.get("headline", ""))
+        h = (it.get("headline") or "").strip().lower()
+        b = (it.get("body") or "").strip().lower()
+        # If the summary just echoes the headline, replace it with a framed one.
+        if h and (b == h or b.startswith(h) or (h in b and len(b) <= len(h) + 24)):
+            it["body"] = _frame_body(it)
 
     # ── Sort: urgent first, then NEW > UPDATE > RESOLVED, then by relevance ──
     all_items = _apply_rumour_buffer(all_items)
