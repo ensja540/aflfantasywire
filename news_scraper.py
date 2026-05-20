@@ -1771,8 +1771,20 @@ def scrape_all_news(players=None):
     ))
 
     # ── Assign sequential IDs ──
+    # Cap the injury wall so the feed stays a news mix, not a static injury list.
+    capped, _inj = [], 0
+    for it in all_items:
+        if it.get("type") == "injury":
+            _inj += 1
+            if _inj > 15:
+                continue
+        capped.append(it)
+    all_items = capped
+
+    _scraped_iso = datetime.now(timezone.utc).isoformat()
     for i, item in enumerate(all_items, 1):
         item["id"] = i
+        item["scrapedAt"] = _scraped_iso
 
     log.info(f"Total news items: {len(all_items)}")
     return all_items
