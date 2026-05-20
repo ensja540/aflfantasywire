@@ -1960,8 +1960,17 @@ def _merge_news_archive(new_items, cap=NEWS_ARCHIVE_CAP):
         if len(body) < 30:
             return False
         return True
-    merged, seen = [], set()
-    for it in list(new_items) + list(existing):
+    import difflib
+    merged, seen, _sig = [], set(), []
+    def _similar(pl, tx):
+        for ppl, ptx in _sig:
+            if ppl == pl and difflib.SequenceMatcher(None, tx, ptx).ratio() > 0.82:
+                return True
+        return False
+    # Cross-check: process EXISTING items first so already-posted stories keep
+    # their slot; only genuinely new/changed stories from this scrape get added
+    # (a story >82% similar to one already posted for that player is skipped).
+    for it in list(existing) + list(new_items):
         if not _ok(it):
             continue
         key = ((it.get("player") or "").lower(),
@@ -1969,7 +1978,12 @@ def _merge_news_archive(new_items, cap=NEWS_ARCHIVE_CAP):
                it.get("type", ""))
         if key in seen:
             continue
+        pl = (it.get("player") or "").lower()
+        tx = ((it.get("headline") or "") + " " + (it.get("body") or "")).lower()
+        if pl and _similar(pl, tx):
+            continue
         seen.add(key)
+        _sig.append((pl, tx))
         merged.append(it)
     merged.sort(key=lambda x: x.get("scrapedAt", ""), reverse=True)
     merged = merged[:cap]
