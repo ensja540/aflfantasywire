@@ -1,0 +1,42 @@
+11:33:20  Fetching SuperCoach stats from Footywire...
+11:33:23  SC stats columns: ['rank', 'player', 'team', 'games', 'price', 'total score', 'average score', '*value']
+11:33:23  SC stats: parsed 587 players
+11:33:24  Fetching AFL Fantasy stats from Footywire...
+11:33:26  DT stats: parsed 0 players
+11:33:27  Fetching injury list...
+11:33:29  Injuries: found 164 players with injury notes
+11:33:30  Fetching selection changes...
+11:33:31  HTTP 404: https://www.footywire.com/afl/footy/selection_changes
+11:33:34  HTTP 404: https://www.footywire.com/afl/footy/selection_changes
+11:33:37  HTTP 404: https://www.footywire.com/afl/footy/selection_changes
+11:33:38  Fetching SuperCoach break-evens...
+11:33:39  SC breakevens columns: ['player', 'team', 'price', 'g', 'avg', 'breakeven', 'likelihood %']
+11:33:40  SC breakevens: parsed 789 players
+11:33:41  Fetching games log for top 200 players (pg- URL)...
+11:34:29    25/200 games-log pages fetched
+11:35:18    50/200 games-log pages fetched
+11:36:08    75/200 games-log pages fetched
+11:36:56    100/200 games-log pages fetched
+11:37:44    125/200 games-log pages fetched
+11:38:34    150/200 games-log pages fetched
+11:39:22    175/200 games-log pages fetched
+11:40:11    200/200 games-log pages fetched
+11:40:12  Fetching AFL Fantasy Classic ownership...
+11:40:14  AFL Fantasy Classic: parsed 808 players (ownership)
+11:40:14  Merging data sources...
+============================================================
+  AFLFantasyWire — Footywire Data Fetcher
+============================================================
+  11:33:20  20 May 2026
+
+Traceback (most recent call last):
+  File "C:\aflfantasywire\fetch_data.py", line 1333, in <module>
+    main()
+    ~~~~^^
+  File "C:\aflfantasywire\fetch_data.py", line 1326, in main
+    print(f"\n\u2713  Wrote {len(players)} players \u2192 {OUTPUT_PATH}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ensor\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2713' in position 2: character maps to <undefined>

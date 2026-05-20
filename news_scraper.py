@@ -35,11 +35,23 @@ sys.path.insert(0, str(Path(__file__).parent))
 from news_filter import classify_item, is_relevant
 from news_history import NewsHistory
 
+# Windows consoles default to cp1252, which can't encode the ✓/⚠/→ glyphs in
+# our status prints — that raises UnicodeEncodeError and aborts the run. Force
+# UTF-8 (replacing anything unmappable) so a print never kills the scraper.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(message)s", datefmt="%H:%M:%S")
 log = logging.getLogger("news")
 
 BASE_DIR    = Path(__file__).parent
-OUTPUT_PATH = BASE_DIR.parent / "news.json"
+# news.json must sit next to index.html (the repo root = this file's dir), NOT
+# one level up. The old BASE_DIR.parent wrote to C:\news.json, outside the repo,
+# so the frontend never saw the scraper's output.
+OUTPUT_PATH = BASE_DIR / "news.json"
 
 # ── ACCOUNTS TO FOLLOW (Twitter/Nitter) ─────────────────────────────────────
 # Mix of high-reliability official sources, top AFL beat reporters who break
@@ -1383,7 +1395,7 @@ def scrape_all_news(players=None):
              If None, loads from players.json if available.
     """
     if players is None:
-        players_path = BASE_DIR.parent / "players.json"
+        players_path = BASE_DIR / "players.json"
         if players_path.exists():
             data = json.loads(players_path.read_text())
             players = data.get("players", []) if isinstance(data, dict) else data

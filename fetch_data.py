@@ -35,6 +35,15 @@ except ImportError:
     print("Run:  pip install requests beautifulsoup4 lxml")
     sys.exit(1)
 
+# Windows consoles default to cp1252, which can't encode the ✓/→ glyphs in our
+# status prints — that raises UnicodeEncodeError and aborts the run *after*
+# players.json is written, so auto_scrape sees a non-zero exit. Force UTF-8.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(message)s", datefmt="%H:%M:%S")
 log = logging.getLogger("afw")
 

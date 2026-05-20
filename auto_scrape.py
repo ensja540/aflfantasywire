@@ -102,24 +102,18 @@ def git_step(args: list[str]) -> tuple[bool, str]:
 
 
 def commit_and_push(timestamp: str) -> tuple[bool, str]:
-    """Stage the JSON outputs, commit if there's a diff, and push.
+    """Stage the JSON outputs, commit (always, even with no diff), and push.
 
-    No-op (and not an error) when there's nothing to commit — happens often,
-    since the real-time filter drops repeat scrapes that produce identical
-    output.
+    We use --allow-empty so every run produces a commit and a push. This keeps
+    the deployed site's news.json guaranteed-fresh even when the real-time
+    filter drops repeat scrapes that produce byte-identical output, and gives a
+    visible heartbeat in the git history confirming the scraper is alive.
     """
     ok, _ = git_step(["add", "players.json", "news.json", "news_history.json"])
     if not ok:
         return False, "git add failed"
 
-    diff = subprocess.run(
-        ["git", "diff", "--cached", "--quiet"],
-        cwd=str(BASE_DIR),
-    )
-    if diff.returncode == 0:
-        return True, "no changes"
-
-    ok, tail = git_step(["commit", "-m", f"auto update {timestamp}"])
+    ok, tail = git_step(["commit", "--allow-empty", "-m", f"auto update {timestamp}"])
     if not ok:
         return False, f"commit failed: {tail}"
 
