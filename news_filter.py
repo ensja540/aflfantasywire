@@ -33,6 +33,10 @@ KEYWORDS = {
     ],
     "vest_risk": ["medical substitute", "sub vest", "named as the substitute", "21st man", "late withdrawal"],
     "price": ["price rise", "price drop", "breakeven", "break-even", "cash cow"],
+    "team_news": [
+        "named", "recalled", "omitted", "dropped", "replaced", "in for", "out for",
+        "selection", "emergencies", "late out", "substitute", "ins and outs", "ins & outs",
+    ],
 }
 
 IGNORE_PHRASES = [
@@ -46,6 +50,7 @@ CATEGORY_PRIORITY = [
     "vest_risk",
     "named",
     "role_change",
+    "team_news",
     "price",
 ]
 
@@ -88,9 +93,15 @@ def classify_item(text, headline=None):
                 result["score"] += 15
 
     # Encourage news items with clear injury/selection signals
-    if any(category in ["injury_out", "injury_tbc", "dropped", "named", "role_change", "vest_risk"]
+    if any(category in ["injury_out", "injury_tbc", "dropped", "named", "role_change", "vest_risk", "team_news"]
            for category, _ in result["matches"]):
         result["score"] += 20
+
+    # Team selection: reward actual changes, demote "unchanged"/full-team announcements.
+    if any(_kw_match(t, combined) for t in ["named", "omitted", "dropped", "recalled", "late out"]):
+        result["score"] += 10
+    if any(t in combined for t in ["unchanged", "no changes", "full team", "no change to"]):
+        result["score"] -= 10
 
     # Minor boost for common fantasy terms
     if any(_kw_match(term, combined) for term in ["supercoach", "fantasy", "breakeven", "price", "injury", "omitted", "named"]):

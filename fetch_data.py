@@ -303,7 +303,7 @@ def parse_sc_breakevens(html):
     i_games  = col_idx("games","gms")
     i_avg    = col_idx("avg","average")
     # Footywire has used several spellings for the break-even header over time.
-    i_be     = col_idx("breakeven","break-even","break even","be this week","b/e","break")
+    i_be     = col_idx("breakeven","break-even","break even","be this week","b/e","b.e","break")
     i_like   = col_idx("likelihood","%")
 
     # "G" header is a single char that won't match a substring search
@@ -316,7 +316,7 @@ def parse_sc_breakevens(html):
     # "BE"/"B/E" can also be a short standalone header
     if i_be is None:
         for i, h in enumerate(headers):
-            if h.strip() in ("be", "b/e", "be."):
+            if h.strip() in ("be", "b/e", "be.", "b.e", "b.e."):
                 i_be = i
                 break
 
@@ -1137,6 +1137,7 @@ def build_player(sc, dt, injuries, selections, rank):
         "marks":      sc.get("marks",      0),
         "hitouts":    sc.get("hitouts",    0),
 
+        "roundStats": sc.get("round_stats", []),
         "scores":   [s or 0 for s in sc_scores[-7:]],
         "dtScores": [s or 0 for s in dt_scores[-7:]],
         "prices":   price_hist,
@@ -1274,6 +1275,20 @@ def main():
         af_played = [s for s in games["af_scores"] if s is not None and s > 0]
         p["sc_all_scores"] = sc_played
         p["dt_all_scores"] = af_played
+
+        # Full round-by-round line for the player profile.
+        rs, gr = [], (games.get("sc_rounds") or [])
+        for idx in range(len(games["sc_scores"])):
+            sc_s = games["sc_scores"][idx]
+            if sc_s is None:
+                continue
+            def _g(key, ix=idx):
+                arr = games.get(key) or []
+                return arr[ix] if ix < len(arr) and arr[ix] is not None else 0
+            rs.append({"r": gr[idx] if idx < len(gr) else f"R{idx+1}",
+                       "sc": sc_s, "dt": _g("af_scores"), "dis": _g("disposals"),
+                       "mk": _g("marks"), "tk": _g("tackles"), "gl": _g("goals")})
+        p["round_stats"] = rs
 
         # Last 7 SC scores (right-pad with 0s if fewer played games)
         if len(sc_played) >= 7:
