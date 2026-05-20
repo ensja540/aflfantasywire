@@ -107,6 +107,17 @@ def _eta_from_item(item):
 
 # Coarse per-player status used for cross-category change detection
 # (e.g. yesterday "named", today "dropped" — different category, same player).
+def _injury_fields(item):
+    """Pull (status, injury, eta) out of an injury item for change-diffing.
+    Prefers the structured stats array, falls back to tags."""
+    stats = {(s.get("l") or ""): (s.get("v") or "") for s in (item.get("stats") or [])}
+    tags  = item.get("tags") or []
+    status = (stats.get("Status") or (tags[0] if len(tags) > 0 else "") or "").strip().upper()
+    injury = (stats.get("Injury") or (tags[1] if len(tags) > 1 else "") or "").strip()
+    eta    = (stats.get("ETA")    or (tags[2] if len(tags) > 2 else "") or "").strip()
+    return status, injury, eta
+
+
 def _player_status_from_item(item):
     cat  = (item.get("category") or "").lower()
     tags = {(t or "").lower() for t in (item.get("tags") or [])}
@@ -222,8 +233,27 @@ class NewsHistory:
                 if content_changed or player_status_changed:
                     # ── UPDATE ──
                     item["status"]       = "update"
-                    item["status_label"] = "🟡 Updated"
+                    item["status_label"] = "🟡 Update"
                     item["prev_status"]  = old_pstat or existing["last_item"].get("category","")
+                    # For injuries, describe exactly what changed (Status / ETA /
+                    # body part) so the feed can show "TBC → OUT" and the body
+                    # carries a human-readable note.
+                    if item.get("type") == "injury":
+                        os_, oi, oe = _injury_fields(existing.get("last_item", {}))
+                        ns_, ni, ne = _injury_fields(item)
+                        changes = []
+                        if os_ and ns_ and os_ != ns_: changes.append(f"Status {os_} → {ns_}")
+                        if oi and ni and oi != ni:      changes.append(f"{oi} → {ni}")
+                        if oe and ne and oe != ne:      changes.append(f"ETA {oe} → {ne}")
+                        if ns_:
+                            item["curr_status"] = ns_
+                        if os_:
+                            item["prev_status"] = os_
+                        if changes:
+                            desc = "; ".join(changes)
+                            item["change_desc"] = desc
+                            body = (item.get("body", "") or "").rstrip(". ")
+                            item["body"] = (body + f". Status updated: {desc}.").strip()
                 else:
                     # ── ONGOING (no material change) ──
                     item["status"]       = "ongoing"
