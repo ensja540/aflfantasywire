@@ -95,6 +95,19 @@ AFL_RSS_FEEDS = [
     ("https://www.heraldsun.com.au/sport/afl/rss",           "Herald Sun",   80),
 ]
 
+# Google News RSS aggregates dozens of AFL publishers and stays reachable from
+# data-centre IPs when Nitter and AFL.com.au are blocked — our most reliable way
+# to keep the feed (and rumour mill) populated beyond Footywire.
+# (search query, reliability, is_rumour)
+GOOGLE_NEWS_QUERIES = [
+    ("AFL injury",                                    78, False),
+    ('AFL team selection OR omitted OR "late out"',   78, False),
+    ('"AFL Fantasy" OR SuperCoach',                   70, False),
+    ('AFL trade OR signing OR "set to join"',         60, True),
+    ('AFL reportedly OR rumour OR "expected to"',      55, True),
+]
+GOOGLE_NEWS_RSS = "https://news.google.com/rss/search?q={q}+when:2d&hl=en-AU&gl=AU&ceid=AU:en"
+
 # The AFL injury list is a HTML page, not RSS — scraped separately
 AFL_INJURY_PAGE = "https://www.afl.com.au/matches/injury-list"
 # AFL team selections page
@@ -542,6 +555,129 @@ def scrape_afl_rss(session, player_idx):
 
     log.info(f"RSS total: {len(items)} relevant items")
     return items
+
+
+def scrape_google_news(session, player_idx):
+    """Pull AFL injury/selection/fantasy news and trade rumours from Google News
+    RSS. This aggregates many publishers and is reachable when Nitter and
+    AFL.com.au are blocked, so it's the main defence against a Footywire-only
+    feed (and the only working source for the rumour mill)."""
+    from urllib.parse import quote
+    items = []
+    for query, reliability, is_rumour in GOOGLE_NEWS_QUERIES:
+        url = GOOGLE_NEWS_RSS.format(q=quote(query))
+        r = fetch(session, url)
+        if not r:
+            continue
+        try:
+            soup = BeautifulSoup(r.text, "lxml-xml")
+        except Exception:
+            soup = BeautifulSoup(r.text, "xml")
+
+        kept = 0
+        for entry in soup.find_all("item")[:25]:
+            title_el = entry.find("title")
+            raw_title = title_el.get_text(strip=True) if title_el else ""
+            if not raw_title:
+                continue
+            # Google News titles end with " - Publisher"; split it off.
+            src_el = entry.find("source")
+            publisher = src_el.get_text(strip=True) if src_el else ""
+            headline = raw_title
+            if publisher and headline.endswith(" - " + publisher):
+                headline = headline[: -(len(publisher) + 3)].strip()
+            elif " - " in headline:
+                headline, _, pub_tail = headline.rpartition(" - ")
+                headline = headline.strip()
+                if not publisher:
+                    publisher = pub_tail.strip()
+            if not publisher:
+                publisher = "Google News"
+
+            desc_el = entry.find("description")
+            desc = ""
+            if desc_el and desc_el.get_text(strip=True):
+                desc = BeautifulSoup(desc_el.get_text(), "lxml").get_text(" ", strip=True)
+            full_text = headline + " " + desc
+
+            result = classify_item(full_text, headline)
+            if not result["relevant"]:
+                continue
+
+            age_min = 99999
+            time_label = "recent"
+            pd_el = entry.find("pubDate") or entry.find("pubdate")
+            if pd_el and pd_el.get_text(strip=True):
+                try:
+                    dt = parsedate_to_datetime(pd_el.get_text(strip=True))
+                    if dt.tzinfo is None:
+                        dt = dt.replace(tzinfo=timezone.utc)
+                    age_min = int((datetime.now(timezone.utc) - dt).total_seconds() / 60)
+                    if age_min < 60:     time_label = f"{age_min}m ago"
+                    elif age_min < 1440: time_label = f"{age_min//60}h ago"
+                    else:                time_label = f"{age_min//1440}d ago"
+                except Exception:
+                    pass
+
+            pid, pname = find_player(full_text, player_idx)
+            link_el = entry.find("link")
+            link = link_el.get_text(strip=True) if link_el else ""
+            cat = result["category"]
+            if is_rumour:
+                item_type = "rumour"
+            else:
+                item_type = (
+                    "injury"    if "injury" in cat else
+                    "selection" if cat in ("named", "dropped", "role_change", "vest_risk") else
+                    "price"     if cat == "price" else
+                    "news"
+                )
+            signal = None
+            if cat == "injury_out":    signal = "sell"
+            elif cat == "injury_tbc":  signal = "hold"
+            elif cat == "dropped":     signal = "sell"
+            elif cat == "role_change": signal = "hold"
+
+            items.append({
+                "id":           None,
+                "type":         item_type,
+                "category":     cat,
+                "urgent":       (not is_rumour) and cat in ("injury_out", "dropped") and age_min < 120,
+                "player":       pname or "",
+                "pid":          pid,
+                "team":         None,
+                "pos":          None,
+                "source":       publisher,
+                "sourceHandle": f"@{publisher.lower().replace(' ', '')}",
+                "reliability":  reliability,
+                "time":         time_label,
+                "timeLabel":    time_label,
+                "headline":     headline[:150],
+                "body":         (desc or headline)[:400],
+                "link":         link,
+                "signal":       signal,
+                "signalConf":   max(40, reliability - 10),
+                "tags":         [cat.replace("_", " ").title()] + (["Rumour"] if is_rumour else []),
+                "stats":        [],
+                "is_rumour":    is_rumour,
+                "relevance":    result["score"],
+                "_source":      "google_news",
+            })
+            kept += 1
+
+        log.info(f"Google News: '{query}' -> {kept} items")
+        time.sleep(0.6)
+
+    # Dedupe by (player, headline).
+    seen, out = set(), []
+    for it in items:
+        key = (it.get("player", "").lower(), (it.get("headline") or "")[:80].lower())
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(it)
+    log.info(f"Google News: {len(out)} items kept (deduped)")
+    return out
 
 
 # ── TWITTER/X VIA NITTER ─────────────────────────────────────────────────────
@@ -1488,6 +1624,7 @@ def scrape_all_news(players=None):
     all_items += _run("footywire_injuries",  scrape_fw_injuries);         time.sleep(1)
     all_items += _run("footywire_selections",scrape_fw_selections);       time.sleep(1)
     all_items += _run("afl_rss",             scrape_afl_rss);             time.sleep(1)
+    all_items += _run("google_news",         scrape_google_news);         time.sleep(1)
     all_items += _run("twitter_rss",         scrape_twitter_rss);         time.sleep(1)
     all_items += _run("club_pages",          scrape_club_news)
 

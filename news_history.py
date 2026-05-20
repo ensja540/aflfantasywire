@@ -296,7 +296,7 @@ class NewsHistory:
         # Any item in history that is an injury/selection and
         # NOT in the current scrape for 24+ hours = potentially resolved
         active_keys = {_key(item) for item in items}
-        for key, record in self.data["items"].items():
+        for key, record in list(self.data["items"].items()):
             if key in active_keys:
                 continue
             last_item = record.get("last_item", {})
