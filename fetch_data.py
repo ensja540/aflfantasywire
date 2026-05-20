@@ -1054,11 +1054,13 @@ def build_player(sc, dt, injuries, selections, rank):
 
     sig, conf = build_signal(sc_avg3, sc_be, inj_status, price_delta)
 
-    # Consistency: % of scores >= 90% of average
-    threshold = sc_avg * 0.9
+    # Consistency: % of the LAST 5 rounds within 90% of their 5-round average.
     all_sc = sc.get("sc_all_scores", sc_scores)
     played = [s for s in all_sc if s and s > 0]
-    consistency = round(len([s for s in played if s >= threshold]) / len(played) * 100) if played else 75
+    last5 = played[-5:]
+    avg5 = (sum(last5) / len(last5)) if last5 else sc_avg
+    threshold = avg5 * 0.9
+    consistency = round(len([s for s in last5 if s >= threshold]) / len(last5) * 100) if last5 else 75
 
     # Build tags and reason. sc_owned is always 0 (Footywire doesn't expose it),
     # so tag rules use Classic ownership as the live ownership signal.
