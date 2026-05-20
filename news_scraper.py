@@ -136,7 +136,9 @@ def make_session():
         ),
         "Accept":          "text/html,application/xhtml+xml,*/*;q=0.8",
         "Accept-Language": "en-AU,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
+        # Do NOT advertise "br" — brotli isn't decodable in this environment, and
+        # AFL.com.au serves brotli when offered, yielding an unparseable body.
+        "Accept-Encoding": "gzip, deflate",
         "DNT":             "1",
     })
     return s
@@ -906,47 +908,38 @@ def scrape_afl_injury_page(session, player_idx):
     soup = BeautifulSoup(r.text, "lxml")
     now  = datetime.now(timezone.utc)
 
-    # The page groups injuries by club
-    # Look for club sections with player injury tables
-    club_sections = soup.find_all(["section","div"], class_=re.compile("club|team|squad", re.I))
-    if not club_sections:
-        # Fallback: find any tables with injury-like columns
-        club_sections = [soup]
+    # AFL.com.au (PULSE platform) renders the injury list as one plain <table>
+    # per club, each with header columns: PLAYER | INJURY | ESTIMATED RETURN.
+    # Older markup (class="club"/"player"...) no longer exists, so parse tables.
+    for table in soup.find_all("table"):
+        rows = table.find_all("tr")
+        if not rows:
+            continue
+        header = [c.get_text(strip=True).lower() for c in rows[0].find_all(["th", "td"])]
+        if not (any("player" in h for h in header) and any("injury" in h for h in header)):
+            continue
 
-    for section in club_sections:
-        # Get club name from heading
-        heading = section.find(["h2","h3","h4","strong","span"], class_=re.compile("club|team|name|title", re.I))
-        club_name = heading.get_text(strip=True) if heading else ""
-
-        # Find player rows
-        for row in section.find_all(["tr","li","div"], class_=re.compile("player|injury|row|item", re.I)):
-            cells = [c.get_text(strip=True) for c in row.find_all(["td","span","div","p"]) if c.get_text(strip=True)]
-            if len(cells) < 2:
+        for row in rows[1:]:
+            cells = [c.get_text(strip=True) for c in row.find_all(["td", "th"])]
+            if len(cells) < 2 or not cells[0]:
                 continue
+            name_raw = cells[0]
+            injury   = cells[1] if len(cells) > 1 else ""
+            eta      = cells[2] if len(cells) > 2 else ""
 
-            text = " ".join(cells)
-            result = classify_item(text)
-            if not result["relevant"]:
-                continue
-
-            pid, pname = find_player(text, player_idx)
+            pid, pname = find_player(name_raw, player_idx)
             if not pname:
-                continue
+                continue  # only surface players we track (rank-relevant)
 
-            # Try to extract injury and ETA
-            injury = cells[1] if len(cells) > 1 else ""
-            eta    = cells[2] if len(cells) > 2 else ""
-
-            status_lower = (injury + " " + eta).lower()
-            if any(x in status_lower for x in ("out","omit","season","indefinite")):
-                cat = "injury_out"; signal = "sell"
-            elif any(x in status_lower for x in ("tbc","test","managed","doubtful")):
-                cat = "injury_tbc"; signal = "hold"
+            el = (eta + " " + injury).lower()
+            if (re.search(r"\d+\s*-?\s*\d*\s*week", el)
+                    or any(x in el for x in ("season", "indefinite", "year", "out for", "month"))):
+                cat, signal, status = "injury_out", "sell", "OUT"
             else:
-                continue
+                # "Test", "TBC", "1 week", managed, etc. — uncertain availability.
+                cat, signal, status = "injury_tbc", "hold", "TBC"
 
-            headline = f"{pname} — {cat.replace('_',' ').upper()}: {injury}"
-            if eta: headline += f" ({eta})"
+            headline = f"{pname} — {status}: {injury}" + (f" ({eta})" if eta else "")
 
             items.append({
                 "id":          None,
@@ -955,7 +948,7 @@ def scrape_afl_injury_page(session, player_idx):
                 "urgent":      cat == "injury_out",
                 "player":      pname,
                 "pid":         pid,
-                "team":        club_name,
+                "team":        None,
                 "pos":         None,
                 "source":      "AFL.com.au",
                 "sourceHandle":"@aflcomau",
@@ -963,17 +956,16 @@ def scrape_afl_injury_page(session, player_idx):
                 "time":        "latest",
                 "timeLabel":   "Latest",
                 "headline":    headline,
-                "body":        f"Official AFL injury update: {pname} ({club_name}). {injury}. Return: {eta or 'unknown'}.",
+                "body":        f"Official AFL injury update: {pname}. {injury}. Return: {eta or 'unknown'}.",
                 "signal":      signal,
                 "signalConf":  88,
-                "tags":        [cat.replace("_"," ").title(), injury[:25], eta or ""],
+                "tags":        [cat.replace("_", " ").title(), injury[:25], eta or ""],
                 "stats":       [
-                    {"l":"Status",  "v": "OUT" if cat=="injury_out" else "TBC"},
-                    {"l":"Injury",  "v": injury[:20]},
-                    {"l":"ETA",     "v": eta or "Unknown"},
-                    {"l":"Club",    "v": club_name},
+                    {"l": "Status", "v": status},
+                    {"l": "Injury", "v": injury[:20]},
+                    {"l": "ETA",    "v": eta or "Unknown"},
                 ],
-                "relevance":   result["score"] + 20,  # boost official AFL source
+                "relevance":   100,  # official AFL source — top priority
                 "_source":     "afl_injury_page",
             })
 
