@@ -1,11 +1,1453 @@
 {
+  "scraped_at": "2026-05-21T11:57:35.965064",
+  "item_count": 68,
   "news": [
     {
       "id": 1,
       "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Cooper Lord",
+      "pid": 184,
+      "team": "Carlton",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:52:37.443542+00:00",
+      "timeLabel": "4m ago",
+      "headline": "Cooper Lord \u2014 OUT: Concussion (1-2 weeks)",
+      "body": "Cooper Lord (Carlton) has been ruled OUT with a concussion; estimated return 1-2 weeks. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Concussion",
+        "1-2 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Concussion"
+        },
+        {
+          "l": "ETA",
+          "v": "1-2 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Carlton"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 2,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Harry Perryman",
+      "pid": 305,
+      "team": "Collingwood",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:49:37.443542+00:00",
+      "timeLabel": "7m ago",
+      "headline": "Harry Perryman \u2014 OUT: Hamstring (2-3 weeks)",
+      "body": "Harry Perryman (Collingwood) has been ruled OUT with a hamstring; estimated return 2-3 weeks. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Hamstring",
+        "2-3 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "2-3 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Collingwood"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 3,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Jordan Ridley",
+      "pid": 311,
+      "team": "Essendon",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:46:37.443542+00:00",
+      "timeLabel": "10m ago",
+      "headline": "Jordan Ridley \u2014 OUT: Calf (1 week)",
+      "body": "Jordan Ridley (Essendon) has been ruled OUT with a calf; estimated return 1 week. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Calf",
+        "1 week"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Calf"
+        },
+        {
+          "l": "ETA",
+          "v": "1 week"
+        },
+        {
+          "l": "Club",
+          "v": "Essendon"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 4,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Hayden Young",
+      "pid": 86,
+      "team": "Fremantle",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:43:37.443542+00:00",
+      "timeLabel": "13m ago",
+      "headline": "Hayden Young \u2014 OUT: Concussion (1 week)",
+      "body": "Hayden Young (Fremantle) has been ruled OUT with a concussion; estimated return 1 week. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Concussion",
+        "1 week"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Concussion"
+        },
+        {
+          "l": "ETA",
+          "v": "1 week"
+        },
+        {
+          "l": "Club",
+          "v": "Fremantle"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 5,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Leek Aleer",
+      "pid": 222,
+      "team": "GWS Giants",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:40:37.443542+00:00",
+      "timeLabel": "16m ago",
+      "headline": "Leek Aleer \u2014 OUT: Ankle (2 weeks)",
+      "body": "Leek Aleer (GWS Giants) has been ruled OUT with a ankle; estimated return 2 weeks. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Ankle",
+        "2 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Ankle"
+        },
+        {
+          "l": "ETA",
+          "v": "2 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "GWS Giants"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 6,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Nick Madden",
+      "pid": 117,
+      "team": "GWS Giants",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:37:37.443542+00:00",
+      "timeLabel": "19m ago",
+      "headline": "Nick Madden \u2014 OUT: Knee (5-8 weeks)",
+      "body": "Nick Madden (GWS Giants) has been ruled OUT with a knee; estimated return 5-8 weeks. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Knee",
+        "5-8 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Knee"
+        },
+        {
+          "l": "ETA",
+          "v": "5-8 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "GWS Giants"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 7,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Tom Barrass",
+      "pid": 344,
+      "team": "Hawthorn",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:34:37.443542+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Tom Barrass \u2014 OUT: Hamstring (2-4 weeks)",
+      "body": "Tom Barrass (Hawthorn) has been ruled OUT with a hamstring; estimated return 2-4 weeks. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Hamstring",
+        "2-4 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "2-4 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Hawthorn"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 8,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Xavier Lindsay",
+      "pid": 237,
+      "team": "Melbourne",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:31:37.443542+00:00",
+      "timeLabel": "25m ago",
+      "headline": "Xavier Lindsay \u2014 OUT: Groin (4-6 weeks)",
+      "body": "Xavier Lindsay (Melbourne) has been ruled OUT with a groin; estimated return 4-6 weeks. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Groin",
+        "4-6 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Groin"
+        },
+        {
+          "l": "ETA",
+          "v": "4-6 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Melbourne"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 9,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Christian Salem",
+      "pid": 183,
+      "team": "Melbourne",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:28:37.443542+00:00",
+      "timeLabel": "28m ago",
+      "headline": "Christian Salem \u2014 OUT: Foot (4-6 weeks)",
+      "body": "Christian Salem (Melbourne) has been ruled OUT with a foot; estimated return 4-6 weeks. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Foot",
+        "4-6 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Foot"
+        },
+        {
+          "l": "ETA",
+          "v": "4-6 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Melbourne"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 10,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Tom Powell",
+      "pid": 267,
+      "team": "North Melbourne",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:25:37.443542+00:00",
+      "timeLabel": "31m ago",
+      "headline": "Tom Powell \u2014 OUT: Groin (2-4 weeks)",
+      "body": "Tom Powell (North Melbourne) has been ruled OUT with a groin; estimated return 2-4 weeks. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Groin",
+        "2-4 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Groin"
+        },
+        {
+          "l": "ETA",
+          "v": "2-4 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "North Melbourne"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 11,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Jack Lukosius",
+      "pid": 148,
+      "team": "Port Adelaide",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:22:37.443542+00:00",
+      "timeLabel": "34m ago",
+      "headline": "Jack Lukosius \u2014 OUT: Groin (1-3 weeks)",
+      "body": "Jack Lukosius (Port Adelaide) has been ruled OUT with a groin; estimated return 1-3 weeks. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Groin",
+        "1-3 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Groin"
+        },
+        {
+          "l": "ETA",
+          "v": "1-3 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Port Adelaide"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 12,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Connor Rozee",
+      "pid": 152,
+      "team": "Port Adelaide",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:19:37.443542+00:00",
+      "timeLabel": "37m ago",
+      "headline": "Connor Rozee \u2014 OUT: Hamstring (7-9 weeks)",
+      "body": "Connor Rozee (Port Adelaide) has been ruled OUT with a hamstring; estimated return 7-9 weeks. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Hamstring",
+        "7-9 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "7-9 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Port Adelaide"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 13,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Sam Banks",
+      "pid": 348,
+      "team": "Richmond",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:16:37.443542+00:00",
+      "timeLabel": "40m ago",
+      "headline": "Sam Banks \u2014 OUT: Collarbone (1 week)",
+      "body": "Sam Banks (Richmond) has been ruled OUT with a collarbone; estimated return 1 week. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Collarbone",
+        "1 week"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Collarbone"
+        },
+        {
+          "l": "ETA",
+          "v": "1 week"
+        },
+        {
+          "l": "Club",
+          "v": "Richmond"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 14,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Sam Lalor",
+      "pid": 141,
+      "team": "Richmond",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:13:37.443542+00:00",
+      "timeLabel": "43m ago",
+      "headline": "Sam Lalor \u2014 OUT: Achilles (5-7 weeks)",
+      "body": "Sam Lalor (Richmond) has been ruled OUT with a achilles; estimated return 5-7 weeks. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Achilles",
+        "5-7 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Achilles"
+        },
+        {
+          "l": "ETA",
+          "v": "5-7 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Richmond"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 15,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Toby Nankervis",
+      "pid": 18,
+      "team": "Richmond",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:10:37.443542+00:00",
+      "timeLabel": "46m ago",
+      "headline": "Toby Nankervis \u2014 OUT: Hamstring (3-4 weeks)",
+      "body": "Toby Nankervis (Richmond) has been ruled OUT with a hamstring; estimated return 3-4 weeks. Expect a price dip - trade or bench until they return.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Hamstring",
+        "3-4 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "3-4 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Richmond"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 16,
+      "type": "rumour",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Cooper Lord",
+      "pid": 184,
+      "team": "Carlton",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:07:37.443542+00:00",
+      "timeLabel": "49m ago",
+      "headline": "Cooper Lord ruled out",
+      "body": "Cooper Lord is on the sidelines with a concussion; expect a price dip while he's out.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Concussion"
+        },
+        {
+          "l": "ETA",
+          "v": "1-2 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Carlton"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "is_rumour": true,
+      "confirmed": false,
+      "_seen": "2026-05-20T23:52:37.439465+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 17,
+      "type": "rumour",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Harry Perryman",
+      "pid": 305,
+      "team": "Collingwood",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:04:37.443542+00:00",
+      "timeLabel": "52m ago",
+      "headline": "Harry Perryman set to miss",
+      "body": "Word is Harry Perryman won't take his place after copping a hamstring; out 2-3 weeks. Likely a trade-out until he's right.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "2-3 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Collingwood"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "is_rumour": true,
+      "confirmed": false,
+      "_seen": "2026-05-20T23:52:37.439465+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 18,
+      "type": "rumour",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Jordan Ridley",
+      "pid": 311,
+      "team": "Essendon",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T23:01:37.443542+00:00",
+      "timeLabel": "55m ago",
+      "headline": "Jordan Ridley sidelined",
+      "body": "Jordan Ridley won't feature, troubled by a calf. One to move on from for now.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Calf"
+        },
+        {
+          "l": "ETA",
+          "v": "1 week"
+        },
+        {
+          "l": "Club",
+          "v": "Essendon"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "is_rumour": true,
+      "confirmed": false,
+      "_seen": "2026-05-20T23:52:37.439465+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 19,
+      "type": "rumour",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Hayden Young",
+      "pid": 86,
+      "team": "Fremantle",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T22:58:37.443542+00:00",
+      "timeLabel": "58m ago",
+      "headline": "Hayden Young sidelined",
+      "body": "Hayden Young won't feature, troubled by a concussion. One to move on from for now.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Concussion"
+        },
+        {
+          "l": "ETA",
+          "v": "1 week"
+        },
+        {
+          "l": "Club",
+          "v": "Fremantle"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "is_rumour": true,
+      "confirmed": false,
+      "_seen": "2026-05-20T23:52:37.439465+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 20,
+      "type": "rumour",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Leek Aleer",
+      "pid": 222,
+      "team": "GWS Giants",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T22:55:37.443542+00:00",
+      "timeLabel": "1h ago",
+      "headline": "Blow for Leek Aleer",
+      "body": "Leek Aleer is set to miss this week with an ankle; line up cover at selection.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Ankle"
+        },
+        {
+          "l": "ETA",
+          "v": "2 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "GWS Giants"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "out",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "is_rumour": true,
+      "confirmed": false,
+      "_seen": "2026-05-20T23:52:37.439465+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 21,
+      "type": "rumour",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Isaac Cumming",
+      "pid": 270,
+      "team": "Adelaide",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T22:43:37.443542+00:00",
+      "timeLabel": "1h ago",
+      "headline": "Isaac Cumming under an injury cloud",
+      "body": "Isaac Cumming is in doubt after a hamstring complaint; keep an eye on selection news this week.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Adelaide"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "is_rumour": true,
+      "confirmed": false,
+      "_seen": "2026-05-20T23:52:37.439465+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 22,
+      "type": "rumour",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Jarrod Berry",
+      "pid": 171,
+      "team": "Brisbane",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T22:40:37.443542+00:00",
+      "timeLabel": "1h ago",
+      "headline": "Watch: Jarrod Berry",
+      "body": "Whispers Jarrod Berry is racing the clock on a calf ahead of the weekend \u2014 risky to lock in.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Calf"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Brisbane"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "is_rumour": true,
+      "confirmed": false,
+      "_seen": "2026-05-20T23:52:37.439465+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 23,
+      "type": "rumour",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Dayne Zorko",
+      "pid": 56,
+      "team": "Brisbane",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T22:37:37.443542+00:00",
+      "timeLabel": "1h ago",
+      "headline": "Watch: Dayne Zorko",
+      "body": "Whispers Dayne Zorko is racing the clock on a soreness ahead of the weekend \u2014 risky to lock in.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Soreness"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Brisbane"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "is_rumour": true,
+      "confirmed": false,
+      "_seen": "2026-05-20T23:52:37.439465+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 24,
+      "type": "rumour",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Adam Saad",
+      "pid": 198,
+      "team": "Carlton",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T22:34:37.443542+00:00",
+      "timeLabel": "1h ago",
+      "headline": "Doubt over Adam Saad",
+      "body": "Adam Saad pulled up sore with a hamstring and is in doubt for this week.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Carlton"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "is_rumour": true,
+      "confirmed": false,
+      "_seen": "2026-05-20T23:52:37.439465+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 25,
+      "type": "rumour",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Peter Wright",
+      "pid": 95,
+      "team": "Essendon",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T22:31:37.443542+00:00",
+      "timeLabel": "1h ago",
+      "headline": "Peter Wright under an injury cloud",
+      "body": "Peter Wright is in doubt after a knee complaint; keep an eye on selection news this week.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Knee"
+        },
+        {
+          "l": "ETA",
+          "v": "TBC"
+        },
+        {
+          "l": "Club",
+          "v": "Essendon"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "is_rumour": true,
+      "confirmed": false,
+      "_seen": "2026-05-20T23:52:37.439465+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 26,
+      "type": "rumour",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Corey Wagner",
+      "pid": 228,
+      "team": "Fremantle",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T22:28:37.443542+00:00",
+      "timeLabel": "1h ago",
+      "headline": "Watch: Corey Wagner",
+      "body": "Whispers Corey Wagner is racing the clock on an adductor ahead of the weekend \u2014 risky to lock in.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Adductor"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Fremantle"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "is_rumour": true,
+      "confirmed": false,
+      "_seen": "2026-05-20T23:52:37.439465+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 27,
+      "type": "rumour",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Alex Davies",
+      "pid": 306,
+      "team": "Gold Coast",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-20T22:25:37.443542+00:00",
+      "timeLabel": "1h ago",
+      "headline": "Watch: Alex Davies",
+      "body": "Whispers Alex Davies is racing the clock on a foot ahead of the weekend \u2014 risky to lock in.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Foot"
+        },
+        {
+          "l": "ETA",
+          "v": "TBC"
+        },
+        {
+          "l": "Club",
+          "v": "Gold Coast"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-20T21:25:01.379467+00:00",
+      "age_label": "2h ago",
+      "seen_count": 10,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 2h ago",
+      "is_rumour": true,
+      "confirmed": false,
+      "_seen": "2026-05-20T23:52:37.439465+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-20T23:52:37.443542+00:00"
+    },
+    {
+      "id": 28,
+      "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T22:36:35.963632+00:00",
+      "timeLabel": "1h ago",
       "pid": 15,
       "player": "Errol Gulden",
       "team": "Sydney",
@@ -17,14 +1459,15 @@
         "OUT",
         "Shoulder",
         "6-8 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T22:36:35.963632+00:00"
     },
     {
-      "id": 2,
+      "id": 29,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T22:33:35.963632+00:00",
+      "timeLabel": "1h ago",
       "pid": 18,
       "player": "Toby Nankervis",
       "team": "Richmond",
@@ -36,14 +1479,15 @@
         "OUT",
         "Hamstring",
         "3-4 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T22:33:35.963632+00:00"
     },
     {
-      "id": 3,
+      "id": 30,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T22:30:35.963632+00:00",
+      "timeLabel": "1h ago",
       "pid": 27,
       "player": "Timothy English",
       "team": "Western Bulldogs",
@@ -55,14 +1499,15 @@
         "TEST",
         "Concussion",
         "TBC"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T22:30:35.963632+00:00"
     },
     {
-      "id": 4,
+      "id": 31,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T22:27:35.963632+00:00",
+      "timeLabel": "1h ago",
       "pid": 28,
       "player": "Nasiah Wanganeen-Milera",
       "team": "St Kilda",
@@ -74,14 +1519,15 @@
         "OUT",
         "Calf",
         "2 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T22:27:35.963632+00:00"
     },
     {
-      "id": 5,
+      "id": 32,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T22:24:35.963632+00:00",
+      "timeLabel": "1h ago",
       "pid": 56,
       "player": "Dayne Zorko",
       "team": "Brisbane",
@@ -93,33 +1539,15 @@
         "TEST",
         "General",
         "Test"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T22:24:35.963632+00:00"
     },
     {
-      "id": 6,
+      "id": 33,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
-      "pid": 59,
-      "player": "Thomas Liberatore",
-      "team": "Western Bulldogs",
-      "pos": "MID",
-      "title": "Thomas Liberatore \u2014 TEST: Knee",
-      "headline": "Thomas Liberatore \u2014 TEST: Knee",
-      "body": "Status: TEST. Knee. ETA: TBC.",
-      "tags": [
-        "TEST",
-        "Knee",
-        "TBC"
-      ]
-    },
-    {
-      "id": 7,
-      "type": "injury",
-      "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T22:21:35.963632+00:00",
+      "timeLabel": "1h ago",
       "pid": 85,
       "player": "Bailey Williams",
       "team": "West Coast",
@@ -131,14 +1559,15 @@
         "OUT",
         "Hamstring",
         "5-7 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T22:21:35.963632+00:00"
     },
     {
-      "id": 8,
+      "id": 34,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T22:18:35.963632+00:00",
+      "timeLabel": "1h ago",
       "pid": 86,
       "player": "Hayden Young",
       "team": "Fremantle",
@@ -150,52 +1579,15 @@
         "OUT",
         "Concussion",
         "1 week"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T22:18:35.963632+00:00"
     },
     {
-      "id": 9,
+      "id": 35,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
-      "pid": 95,
-      "player": "Peter Wright",
-      "team": "Essendon",
-      "pos": "MID",
-      "title": "Peter Wright \u2014 TEST: Knee",
-      "headline": "Peter Wright \u2014 TEST: Knee",
-      "body": "Status: TEST. Knee. ETA: TBC.",
-      "tags": [
-        "TEST",
-        "Knee",
-        "TBC"
-      ]
-    },
-    {
-      "id": 10,
-      "type": "injury",
-      "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
-      "pid": 110,
-      "player": "Rhyan Mansell",
-      "team": "Richmond",
-      "pos": "FWD",
-      "title": "Rhyan Mansell \u2014 TEST: Foot",
-      "headline": "Rhyan Mansell \u2014 TEST: Foot",
-      "body": "Status: TEST. Foot. ETA: TBC.",
-      "tags": [
-        "TEST",
-        "Foot",
-        "TBC"
-      ]
-    },
-    {
-      "id": 11,
-      "type": "injury",
-      "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T22:15:35.963632+00:00",
+      "timeLabel": "1h ago",
       "pid": 112,
       "player": "Jack Gunston",
       "team": "Hawthorn",
@@ -207,14 +1599,15 @@
         "TEST",
         "Foot",
         "Test"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T22:15:35.963632+00:00"
     },
     {
-      "id": 12,
+      "id": 36,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T22:12:35.963632+00:00",
+      "timeLabel": "1h ago",
       "pid": 113,
       "player": "Deven Robertson",
       "team": "West Coast",
@@ -226,14 +1619,15 @@
         "OUT",
         "Knee",
         "Season"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T22:12:35.963632+00:00"
     },
     {
-      "id": 13,
+      "id": 37,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T22:09:35.963632+00:00",
+      "timeLabel": "1h ago",
       "pid": 117,
       "player": "Nick Madden",
       "team": "GWS Giants",
@@ -245,14 +1639,15 @@
         "OUT",
         "Knee",
         "5-8 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T22:09:35.963632+00:00"
     },
     {
-      "id": 14,
+      "id": 38,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T22:06:35.963632+00:00",
+      "timeLabel": "1h ago",
       "pid": 141,
       "player": "Sam Lalor",
       "team": "Richmond",
@@ -264,14 +1659,15 @@
         "OUT",
         "Calf",
         "5-7 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T22:06:35.963632+00:00"
     },
     {
-      "id": 15,
+      "id": 39,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T22:03:35.963632+00:00",
+      "timeLabel": "1h ago",
       "pid": 148,
       "player": "Jack Lukosius",
       "team": "Port Adelaide",
@@ -283,14 +1679,15 @@
         "OUT",
         "Groin",
         "1-3 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T22:03:35.963632+00:00"
     },
     {
-      "id": 16,
+      "id": 40,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T22:00:35.963632+00:00",
+      "timeLabel": "1h ago",
       "pid": 152,
       "player": "Connor Rozee",
       "team": "Port Adelaide",
@@ -302,52 +1699,15 @@
         "OUT",
         "Hamstring",
         "7-9 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T22:00:35.963632+00:00"
     },
     {
-      "id": 17,
+      "id": 41,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
-      "pid": 165,
-      "player": "Bailey Williams",
-      "team": "Western Bulldogs",
-      "pos": "MID",
-      "title": "Bailey Williams \u2014 OUT: Hamstring",
-      "headline": "Bailey Williams \u2014 OUT: Hamstring",
-      "body": "Status: OUT. Hamstring. ETA: 5-7 weeks.",
-      "tags": [
-        "OUT",
-        "Hamstring",
-        "5-7 weeks"
-      ]
-    },
-    {
-      "id": 18,
-      "type": "injury",
-      "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
-      "pid": 170,
-      "player": "Kane McAuliffe",
-      "team": "Richmond",
-      "pos": "MID",
-      "title": "Kane McAuliffe \u2014 TEST: Calf",
-      "headline": "Kane McAuliffe \u2014 TEST: Calf",
-      "body": "Status: TEST. Calf. ETA: TBC.",
-      "tags": [
-        "TEST",
-        "Calf",
-        "TBC"
-      ]
-    },
-    {
-      "id": 19,
-      "type": "injury",
-      "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:57:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 171,
       "player": "Jarrod Berry",
       "team": "Brisbane",
@@ -359,14 +1719,15 @@
         "TEST",
         "Calf",
         "Test"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:57:35.963632+00:00"
     },
     {
-      "id": 20,
+      "id": 42,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:54:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 183,
       "player": "Christian Salem",
       "team": "Melbourne",
@@ -378,14 +1739,15 @@
         "OUT",
         "Foot",
         "4-6 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:54:35.963632+00:00"
     },
     {
-      "id": 21,
+      "id": 43,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:51:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 184,
       "player": "Cooper Lord",
       "team": "Carlton",
@@ -397,14 +1759,15 @@
         "OUT",
         "Concussion",
         "1-2 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:51:35.963632+00:00"
     },
     {
-      "id": 22,
+      "id": 44,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:48:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 186,
       "player": "Matthew Roberts",
       "team": "Sydney",
@@ -416,14 +1779,15 @@
         "OUT",
         "Groin",
         "2-4 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:48:35.963632+00:00"
     },
     {
-      "id": 23,
+      "id": 45,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:45:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 198,
       "player": "Adam Saad",
       "team": "Carlton",
@@ -435,14 +1799,15 @@
         "TEST",
         "Hamstring",
         "Test"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:45:35.963632+00:00"
     },
     {
-      "id": 24,
+      "id": 46,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:42:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 201,
       "player": "Oliver Hollands",
       "team": "Carlton",
@@ -454,14 +1819,15 @@
         "OUT",
         "Ankle",
         "3-4 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:42:35.963632+00:00"
     },
     {
-      "id": 25,
+      "id": 47,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:39:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 214,
       "player": "Sam Darcy",
       "team": "Western Bulldogs",
@@ -473,14 +1839,15 @@
         "OUT",
         "Knee",
         "Season"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:39:35.963632+00:00"
     },
     {
-      "id": 26,
+      "id": 48,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:36:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 222,
       "player": "Leek Aleer",
       "team": "GWS Giants",
@@ -492,14 +1859,15 @@
         "OUT",
         "Ankle",
         "2 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:36:35.963632+00:00"
     },
     {
-      "id": 27,
+      "id": 49,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:33:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 224,
       "player": "Jack Graham",
       "team": "West Coast",
@@ -511,14 +1879,15 @@
         "OUT",
         "Shoulder",
         "5-6 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:33:35.963632+00:00"
     },
     {
-      "id": 28,
+      "id": 50,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:30:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 228,
       "player": "Corey Wagner",
       "team": "Fremantle",
@@ -530,14 +1899,15 @@
         "TEST",
         "Groin",
         "Test"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:30:35.963632+00:00"
     },
     {
-      "id": 29,
+      "id": 51,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:27:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 230,
       "player": "Jaeger O'Meara",
       "team": "Fremantle",
@@ -549,14 +1919,15 @@
         "TEST",
         "Concussion",
         "Test"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:27:35.963632+00:00"
     },
     {
-      "id": 30,
+      "id": 52,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:24:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 233,
       "player": "Mitchito Owens",
       "team": "St Kilda",
@@ -568,14 +1939,15 @@
         "OUT",
         "Calf",
         "2 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:24:35.963632+00:00"
     },
     {
-      "id": 31,
+      "id": 53,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:21:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 237,
       "player": "Xavier Lindsay",
       "team": "Melbourne",
@@ -587,14 +1959,15 @@
         "OUT",
         "Groin",
         "4-6 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:21:35.963632+00:00"
     },
     {
-      "id": 32,
+      "id": 54,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:18:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 248,
       "player": "Patrick Lipinski",
       "team": "Collingwood",
@@ -606,14 +1979,15 @@
         "TEST",
         "Concussion",
         "Test"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:18:35.963632+00:00"
     },
     {
-      "id": 33,
+      "id": 55,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:15:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 249,
       "player": "Dion Prestia",
       "team": "Richmond",
@@ -625,14 +1999,15 @@
         "OUT",
         "Calf",
         "1 week"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:15:35.963632+00:00"
     },
     {
-      "id": 34,
+      "id": 56,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:12:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 254,
       "player": "Lachlan Weller",
       "team": "Gold Coast",
@@ -644,14 +2019,15 @@
         "OUT",
         "Hamstring",
         "1-3 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:12:35.963632+00:00"
     },
     {
-      "id": 35,
+      "id": 57,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:09:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 256,
       "player": "Jack Higgins",
       "team": "St Kilda",
@@ -663,14 +2039,15 @@
         "TEST",
         "Knee",
         "Test"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:09:35.963632+00:00"
     },
     {
-      "id": 36,
+      "id": 58,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:06:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 267,
       "player": "Tom Powell",
       "team": "North Melbourne",
@@ -682,14 +2059,15 @@
         "OUT",
         "Groin",
         "2-4 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:06:35.963632+00:00"
     },
     {
-      "id": 37,
+      "id": 59,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:03:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 269,
       "player": "Dane Rampe",
       "team": "Sydney",
@@ -701,14 +2079,15 @@
         "OUT",
         "Calf",
         "4 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:03:35.963632+00:00"
     },
     {
-      "id": 38,
+      "id": 60,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T21:00:35.963632+00:00",
+      "timeLabel": "2h ago",
       "pid": 270,
       "player": "Isaac Cumming",
       "team": "Adelaide",
@@ -720,33 +2099,15 @@
         "TEST",
         "Hamstring",
         "Test"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T21:00:35.963632+00:00"
     },
     {
-      "id": 39,
+      "id": 61,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
-      "pid": 276,
-      "player": "Caleb Windsor",
-      "team": "Melbourne",
-      "pos": "MID",
-      "title": "Caleb Windsor \u2014 TEST: Toe",
-      "headline": "Caleb Windsor \u2014 TEST: Toe",
-      "body": "Status: TEST. Toe. ETA: Test.",
-      "tags": [
-        "TEST",
-        "Toe",
-        "Test"
-      ]
-    },
-    {
-      "id": 40,
-      "type": "injury",
-      "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T20:57:35.963632+00:00",
+      "timeLabel": "3h ago",
       "pid": 285,
       "player": "Ryan Angwin",
       "team": "GWS Giants",
@@ -758,14 +2119,15 @@
         "TEST",
         "Concussion",
         "Test"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T20:57:35.963632+00:00"
     },
     {
-      "id": 41,
+      "id": 62,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T20:54:35.963632+00:00",
+      "timeLabel": "3h ago",
       "pid": 305,
       "player": "Harry Perryman",
       "team": "Collingwood",
@@ -777,33 +2139,15 @@
         "OUT",
         "Hamstring",
         "2-3 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T20:54:35.963632+00:00"
     },
     {
-      "id": 42,
+      "id": 63,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
-      "pid": 306,
-      "player": "Alex Davies",
-      "team": "Gold Coast",
-      "pos": "MID",
-      "title": "Alex Davies \u2014 TEST: Foot",
-      "headline": "Alex Davies \u2014 TEST: Foot",
-      "body": "Status: TEST. Foot. ETA: TBC.",
-      "tags": [
-        "TEST",
-        "Foot",
-        "TBC"
-      ]
-    },
-    {
-      "id": 43,
-      "type": "injury",
-      "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T20:51:35.963632+00:00",
+      "timeLabel": "3h ago",
       "pid": 311,
       "player": "Jordan Ridley",
       "team": "Essendon",
@@ -815,33 +2159,15 @@
         "OUT",
         "Calf",
         "1 week"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T20:51:35.963632+00:00"
     },
     {
-      "id": 44,
+      "id": 64,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
-      "pid": 317,
-      "player": "Hunter Clark",
-      "team": "St Kilda",
-      "pos": "MID",
-      "title": "Hunter Clark \u2014 TEST: Knee",
-      "headline": "Hunter Clark \u2014 TEST: Knee",
-      "body": "Status: TEST. Knee. ETA: TBC.",
-      "tags": [
-        "TEST",
-        "Knee",
-        "TBC"
-      ]
-    },
-    {
-      "id": 45,
-      "type": "injury",
-      "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T20:48:35.963632+00:00",
+      "timeLabel": "3h ago",
       "pid": 324,
       "player": "Saad El-Hawli",
       "team": "Essendon",
@@ -853,14 +2179,15 @@
         "OUT",
         "Shoulder",
         "1 week"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T20:48:35.963632+00:00"
     },
     {
-      "id": 46,
+      "id": 65,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T20:45:35.963632+00:00",
+      "timeLabel": "3h ago",
       "pid": 331,
       "player": "Jack Buckley",
       "team": "GWS Giants",
@@ -872,33 +2199,15 @@
         "TEST",
         "Hamstring",
         "Test"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T20:45:35.963632+00:00"
     },
     {
-      "id": 47,
+      "id": 66,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
-      "pid": 340,
-      "player": "Jack Scrimshaw",
-      "team": "Hawthorn",
-      "pos": "DEF",
-      "title": "Jack Scrimshaw \u2014 TEST: Knee",
-      "headline": "Jack Scrimshaw \u2014 TEST: Knee",
-      "body": "Status: TEST. Knee. ETA: TBC.",
-      "tags": [
-        "TEST",
-        "Knee",
-        "TBC"
-      ]
-    },
-    {
-      "id": 48,
-      "type": "injury",
-      "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T20:42:35.963632+00:00",
+      "timeLabel": "3h ago",
       "pid": 344,
       "player": "Tom Barrass",
       "team": "Hawthorn",
@@ -910,14 +2219,15 @@
         "OUT",
         "Hamstring",
         "2-4 weeks"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T20:42:35.963632+00:00"
     },
     {
-      "id": 49,
+      "id": 67,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T20:39:35.963632+00:00",
+      "timeLabel": "3h ago",
       "pid": 348,
       "player": "Sam Banks",
       "team": "Richmond",
@@ -929,14 +2239,15 @@
         "OUT",
         "Shoulder",
         "1 week"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T20:39:35.963632+00:00"
     },
     {
-      "id": 50,
+      "id": 68,
       "type": "injury",
       "source": "Footywire",
-      "time": "latest",
-      "timeLabel": "latest",
+      "time": "2026-05-20T20:36:35.963632+00:00",
+      "timeLabel": "3h ago",
       "pid": 350,
       "player": "James O'Donnell",
       "team": "Western Bulldogs",
@@ -948,9 +2259,8 @@
         "TEST",
         "Hamstring",
         "Test"
-      ]
+      ],
+      "scrapedAt": "2026-05-20T20:36:35.963632+00:00"
     }
-  ],
-  "generated_at": "2026-05-21T11:39:25.148346",
-  "count": 50
+  ]
 }

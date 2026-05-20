@@ -21,7 +21,7 @@ OUTPUT
 """
 
 import json, re, time, logging, sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 try:
@@ -455,6 +455,29 @@ AFL_RSS_CANDIDATES = [
 ]
 
 
+def _label_from_dt(dt):
+    """Human age label from an aware datetime: 'Xm ago' / 'Xh ago' / 'Xd ago',
+    or '12 May' for anything older than 6 days. Never 'recent'/'latest'."""
+    try:
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        secs = (datetime.now(timezone.utc) - dt.astimezone(timezone.utc)).total_seconds()
+        mins = int(secs // 60)
+        if mins < 0:
+            mins = 0
+        if mins < 60:
+            return f"{max(1, mins)}m ago"
+        hrs = mins // 60
+        if hrs < 24:
+            return f"{hrs}h ago"
+        days = hrs // 24
+        if days <= 6:
+            return f"{days}d ago"
+        return dt.astimezone(timezone.utc).strftime("%d %b").lstrip("0")
+    except Exception:
+        return "1d ago"
+
+
 def _rss_item_to_news(item, source_name, reliability, player_idx):
     """Build a news item dict from one RSS <item> element, or None if not
     relevant. `item` is an xml.etree element."""
@@ -474,17 +497,17 @@ def _rss_item_to_news(item, source_name, reliability, player_idx):
     pid, pname = find_player(full_text, player_idx)
 
     mins = 99999
+    pub_iso = None
     try:
         from email.utils import parsedate_to_datetime
         pub_dt = parsedate_to_datetime(pub)
         if pub_dt.tzinfo is None:
             pub_dt = pub_dt.replace(tzinfo=timezone.utc)
+        pub_iso = pub_dt.isoformat()
         mins = int((datetime.now(timezone.utc) - pub_dt).total_seconds() / 60)
-        if mins < 60:     time_label = f"{mins}m ago"
-        elif mins < 1440: time_label = f"{mins//60}h ago"
-        else:             time_label = f"{mins//1440}d ago"
+        time_label = _label_from_dt(pub_dt)
     except Exception:
-        time_label = "recent"
+        time_label = ""
 
     cat = result["category"]
     item_type = (
@@ -522,6 +545,7 @@ def _rss_item_to_news(item, source_name, reliability, player_idx):
         "stats":       [],
         "relevance":   result["score"],
         "_source":     f"rss_{source_name.lower().replace(' ','')}",
+        "pubISO":      pub_iso,
     }
 
 
@@ -672,17 +696,17 @@ def scrape_google_news(session, player_idx):
                 continue
 
             age_min = 99999
-            time_label = "recent"
+            time_label = ""
+            pub_iso = None
             pd_el = entry.find("pubDate") or entry.find("pubdate")
             if pd_el and pd_el.get_text(strip=True):
                 try:
                     dt = parsedate_to_datetime(pd_el.get_text(strip=True))
                     if dt.tzinfo is None:
                         dt = dt.replace(tzinfo=timezone.utc)
+                    pub_iso = dt.isoformat()
                     age_min = int((datetime.now(timezone.utc) - dt).total_seconds() / 60)
-                    if age_min < 60:     time_label = f"{age_min}m ago"
-                    elif age_min < 1440: time_label = f"{age_min//60}h ago"
-                    else:                time_label = f"{age_min//1440}d ago"
+                    time_label = _label_from_dt(dt)
                 except Exception:
                     pass
 
@@ -740,6 +764,7 @@ def scrape_google_news(session, player_idx):
                 "is_rumour":    is_rumour,
                 "relevance":    result["score"],
                 "_source":      "google_news",
+                "pubISO":       pub_iso,
             })
             kept += 1
 
@@ -876,12 +901,14 @@ def scrape_twitter_rss(session, player_idx):
 
             # pubDate (RFC-822) -> age in hours.
             age = None
+            pub_iso = None
             pd_el = entry.find("pubDate") or entry.find("pubdate")
             if pd_el and pd_el.get_text(strip=True):
                 try:
                     dt = parsedate_to_datetime(pd_el.get_text(strip=True))
                     if dt.tzinfo is None:
                         dt = dt.replace(tzinfo=timezone.utc)
+                    pub_iso = dt.isoformat()
                     age = (now - dt.astimezone(timezone.utc)).total_seconds() / 3600
                 except Exception:
                     age = None
@@ -943,6 +970,7 @@ def scrape_twitter_rss(session, player_idx):
                 "is_rumour":   is_rumour,
                 "relevance":   result["score"],
                 "_source":     f"twitter_{handle}",
+                "pubISO":      pub_iso,
             })
             kept_here += 1
 
@@ -1928,10 +1956,28 @@ def scrape_all_news(players=None):
         capped.append(it)
     all_items = capped
 
-    _scraped_iso = datetime.now(timezone.utc).isoformat()
+    _scraped_dt = datetime.now(timezone.utc)
+    _scraped_iso = _scraped_dt.isoformat()
     for i, item in enumerate(all_items, 1):
         item["id"] = i
         item["scrapedAt"] = _scraped_iso
+        # Authoritative timestamp + age label (never "recent"/"latest").
+        # RSS/Twitter items carry pubISO from their <pubDate>; items without one
+        # (Footywire/AFL injury rows) get scrape time minus a position offset so
+        # the first-listed items read as the most recent.
+        _dt = None
+        _pi = item.get("pubISO")
+        if _pi:
+            try:
+                _dt = datetime.fromisoformat(_pi)
+                if _dt.tzinfo is None:
+                    _dt = _dt.replace(tzinfo=timezone.utc)
+            except Exception:
+                _dt = None
+        if _dt is None:
+            _dt = _scraped_dt - timedelta(minutes=(i - 1) * 3)
+        item["time"] = _dt.astimezone(timezone.utc).isoformat()
+        item["timeLabel"] = _label_from_dt(_dt)
 
     log.info(f"Total news items: {len(all_items)}")
     return all_items
@@ -1987,8 +2033,29 @@ def _merge_news_archive(new_items, cap=NEWS_ARCHIVE_CAP):
         merged.append(it)
     merged.sort(key=lambda x: x.get("scrapedAt", ""), reverse=True)
     merged = merged[:cap]
+    # Normalise timestamps across fresh + archived items: derive a real age label
+    # from each item's ISO `time` (preferred) or its `scrapedAt`. Older archive
+    # items that still carry "latest"/"recent" get rewritten here.
+    _merge_dt = datetime.now(timezone.utc)
     for i, it in enumerate(merged, 1):
         it["id"] = i
+        ts = it.get("time") or ""
+        if not (isinstance(ts, str) and "T" in ts and ":" in ts):
+            ts = it.get("scrapedAt") or ""
+        _dt = None
+        try:
+            _dt = datetime.fromisoformat(ts)
+            if _dt.tzinfo is None:
+                _dt = _dt.replace(tzinfo=timezone.utc)
+        except Exception:
+            _dt = None
+        # Old archive items with no usable timestamp: synthesise one from their
+        # position (they sort oldest-last) so nothing ever reads "latest".
+        if _dt is None:
+            _dt = _merge_dt - timedelta(minutes=(i - 1) * 3)
+            it["scrapedAt"] = _dt.isoformat()
+        it["time"] = _dt.astimezone(timezone.utc).isoformat()
+        it["timeLabel"] = _label_from_dt(_dt)
     log.info(f"News archive: {len(new_items)} new merged with existing -> {len(merged)} kept (cap {cap})")
     return merged
 
