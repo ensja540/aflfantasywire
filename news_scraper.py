@@ -84,11 +84,9 @@ AFL_CLUB_SLUGS = {
 AFL_CONTENT_API = "https://aflapi.afl.com.au/afl/v2/articles?tagNames=news-{slug}&pageSize=10&tagNames=news-{slug}"
 
 # ── AFL.com.au RSS FEEDS ────────────────────────────────────────────────────
+# Independent-outlet RSS feeds. AFL.com.au is handled separately via
+# AFL_RSS_CANDIDATES (+ /news HTML fallback) in scrape_afl_rss().
 AFL_RSS_FEEDS = [
-    # Main AFL news RSS — confirmed working
-    ("https://www.afl.com.au/rss",                           "AFL.com.au",   96),
-    # AFL Fantasy specific news
-    ("https://www.afl.com.au/fantasy/news",                  "AFL Fantasy",  95),
     # ABC Sport AFL — reliable, independent, good injury coverage
     ("https://www.abc.net.au/news/feed/7077144/rss.xml",     "ABC Sport",    88),
     # The Roar AFL — good fantasy commentary
@@ -374,102 +372,173 @@ def scrape_fw_selections(session, player_idx):
 
 # ── AFL.COM.AU RSS ────────────────────────────────────────────────────────────
 
+# AFL.com.au's RSS path moves around and sometimes serves HTML instead of XML.
+# Try these in order; if none parse, fall back to scraping the /news page.
+AFL_RSS_CANDIDATES = [
+    "https://www.afl.com.au/rss",
+    "https://www.afl.com.au/news/rss",
+    "https://www.afl.com.au/api/cfs/afl/WEB/FEED/NEWS",
+]
+
+
+def _rss_item_to_news(item, source_name, reliability, player_idx):
+    """Build a news item dict from one RSS <item> element, or None if not
+    relevant. `item` is an xml.etree element."""
+    title   = (item.findtext("title")       or "").strip()
+    desc    = (item.findtext("description") or "").strip()
+    link    = (item.findtext("link")        or "").strip()
+    pub     = (item.findtext("pubDate")     or "").strip()
+    content = (item.findtext("{http://purl.org/rss/1.0/modules/content/}encoded") or "").strip()
+
+    body_text = BeautifulSoup(content or desc, "lxml").get_text(strip=True)[:500]
+    full_text = title + " " + body_text
+
+    result = classify_item(full_text, title)
+    if not result["relevant"]:
+        return None
+
+    pid, pname = find_player(full_text, player_idx)
+
+    mins = 99999
+    try:
+        from email.utils import parsedate_to_datetime
+        pub_dt = parsedate_to_datetime(pub)
+        if pub_dt.tzinfo is None:
+            pub_dt = pub_dt.replace(tzinfo=timezone.utc)
+        mins = int((datetime.now(timezone.utc) - pub_dt).total_seconds() / 60)
+        if mins < 60:     time_label = f"{mins}m ago"
+        elif mins < 1440: time_label = f"{mins//60}h ago"
+        else:             time_label = f"{mins//1440}d ago"
+    except Exception:
+        time_label = "recent"
+
+    cat = result["category"]
+    item_type = (
+        "injury"    if "injury" in cat else
+        "selection" if cat in ("named","dropped","role_change","vest_risk") else
+        "price"     if cat == "price" else
+        "news"
+    )
+    signal = None
+    if cat == "injury_out":    signal = "sell"
+    elif cat == "injury_tbc":  signal = "hold"
+    elif cat == "dropped":     signal = "sell"
+    elif cat == "role_change": signal = "hold"
+
+    return {
+        "id":          None,
+        "type":        item_type,
+        "category":    cat,
+        "urgent":      cat in ("injury_out","dropped") and mins < 120,
+        "player":      pname or "",
+        "pid":         pid,
+        "team":        None,
+        "pos":         None,
+        "source":      source_name,
+        "sourceHandle":f"@{source_name.lower().replace(' ','')}",
+        "reliability": reliability,
+        "time":        time_label,
+        "timeLabel":   time_label,
+        "headline":    title[:150],
+        "body":        body_text[:400],
+        "link":        link,
+        "signal":      signal,
+        "signalConf":  80,
+        "tags":        [cat.replace("_"," ").title()],
+        "stats":       [],
+        "relevance":   result["score"],
+        "_source":     f"rss_{source_name.lower().replace(' ','')}",
+    }
+
+
+def _parse_rss_feed(session, feed_url, source_name, reliability, player_idx):
+    """Fetch and parse one RSS feed URL into news items. Returns [] on any
+    failure (network, non-XML body, parse error)."""
+    import xml.etree.ElementTree as ET
+    out = []
+    r = fetch(session, feed_url)
+    if not r:
+        return out
+    try:
+        root = ET.fromstring(r.text)
+    except ET.ParseError as e:
+        log.warning(f"RSS parse error {feed_url}: {e}")
+        return out
+    feed_items = root.findall(".//item")
+    log.info(f"  {source_name}: {len(feed_items)} raw items ({feed_url})")
+    for item in feed_items:
+        it = _rss_item_to_news(item, source_name, reliability, player_idx)
+        if it:
+            out.append(it)
+    return out
+
+
+def _scrape_afl_news_html(session, player_idx):
+    """Fallback when AFL.com.au RSS is unavailable: scrape the /news page and
+    pull article headlines from anchor links to /news/<id>/<slug>."""
+    items = []
+    r = fetch(session, AFL_NEWS_LIST_URL)
+    if not r:
+        return items
+    soup = BeautifulSoup(r.text, "lxml")
+    seen = set()
+    for a in soup.find_all("a", href=re.compile(r"/news/\d+/")):
+        title = a.get_text(" ", strip=True)
+        if not title or len(title) < 20 or title.lower() in seen:
+            continue
+        seen.add(title.lower())
+        result = classify_item(title)
+        if not result["relevant"]:
+            continue
+        pid, pname = find_player(title, player_idx)
+        href = a.get("href", "")
+        link = href if href.startswith("http") else f"https://www.afl.com.au{href}"
+        cat = result["category"]
+        item_type = (
+            "injury"    if "injury" in cat else
+            "selection" if cat in ("named","dropped","role_change","vest_risk") else
+            "news"
+        )
+        items.append({
+            "id": None, "type": item_type, "category": cat,
+            "urgent": False, "player": pname or "", "pid": pid,
+            "team": None, "pos": None, "source": "AFL.com.au",
+            "sourceHandle": "@aflcomau", "reliability": 96,
+            "time": "recent", "timeLabel": "recent",
+            "headline": title[:150], "body": title[:400], "link": link,
+            "signal": "sell" if cat == "injury_out" else "hold" if cat == "injury_tbc" else None,
+            "signalConf": 80, "tags": [cat.replace("_"," ").title()],
+            "stats": [], "relevance": result["score"], "_source": "afl_news_html",
+        })
+        if len(items) >= 20:
+            break
+    log.info(f"  AFL.com.au /news HTML fallback: {len(items)} items")
+    return items
+
+
 def scrape_afl_rss(session, player_idx):
     """
-    Parse AFL.com.au RSS feeds.
-    These are official and highly reliable.
+    Parse AFL.com.au + independent-outlet RSS feeds. AFL.com.au's feed URL is
+    probed across several candidates; if all fail we fall back to scraping the
+    /news HTML page so this source is never silently empty.
     """
-    import xml.etree.ElementTree as ET
     items = []
 
+    # AFL.com.au — probe candidate feed URLs, then HTML fallback.
+    afl_items = []
+    for url in AFL_RSS_CANDIDATES:
+        afl_items = _parse_rss_feed(session, url, "AFL.com.au", 96, player_idx)
+        if afl_items:
+            log.info(f"AFL.com.au RSS: using {url} ({len(afl_items)} items)")
+            break
+    if not afl_items:
+        log.info("AFL.com.au RSS: no working feed — falling back to /news HTML")
+        afl_items = _scrape_afl_news_html(session, player_idx)
+    items += afl_items
+
+    # Independent outlets (kept as-is; their RSS is generally stable).
     for feed_url, source_name, reliability in AFL_RSS_FEEDS:
-        log.info(f"Fetching RSS: {source_name}...")
-        r = fetch(session, feed_url)
-        if not r:
-            continue
-
-        try:
-            root = ET.fromstring(r.text)
-        except ET.ParseError as e:
-            log.warning(f"RSS parse error {feed_url}: {e}")
-            continue
-
-        feed_items = root.findall(".//item")
-        log.info(f"  {source_name}: {len(feed_items)} raw items")
-
-        for item in feed_items:
-            title   = (item.findtext("title")       or "").strip()
-            desc    = (item.findtext("description") or "").strip()
-            link    = (item.findtext("link")        or "").strip()
-            pub     = (item.findtext("pubDate")     or "").strip()
-            content = (item.findtext("{http://purl.org/rss/1.0/modules/content/}encoded") or "").strip()
-
-            # Use full content if available, otherwise description
-            body_text = BeautifulSoup(content or desc, "lxml").get_text(strip=True)[:500]
-            full_text = title + " " + body_text
-
-            result = classify_item(full_text, title)
-            if not result["relevant"]:
-                continue
-
-            pid, pname = find_player(full_text, player_idx)
-
-            # Parse publish time
-            try:
-                from email.utils import parsedate_to_datetime
-                pub_dt = parsedate_to_datetime(pub)
-                delta  = datetime.now(timezone.utc) - pub_dt
-                mins   = int(delta.total_seconds() / 60)
-                if mins < 60:
-                    time_label = f"{mins}m ago"
-                elif mins < 1440:
-                    time_label = f"{mins//60}h ago"
-                else:
-                    time_label = f"{mins//1440}d ago"
-            except Exception:
-                time_label = "recent"
-
-            # Determine type
-            cat = result["category"]
-            item_type = (
-                "injury"    if "injury" in cat else
-                "selection" if cat in ("named","dropped","role_change","vest_risk") else
-                "price"     if cat == "price" else
-                "news"
-            )
-
-            # Signal based on category
-            signal = None
-            if cat == "injury_out":  signal = "sell"
-            elif cat == "injury_tbc": signal = "hold"
-            elif cat == "named":      signal = None
-            elif cat == "dropped":    signal = "sell"
-            elif cat == "role_change":signal = "hold"
-
-            items.append({
-                "id":          None,
-                "type":        item_type,
-                "category":    cat,
-                "urgent":      cat in ("injury_out","dropped") and mins < 120,
-                "player":      pname or "",
-                "pid":         pid,
-                "team":        None,
-                "pos":         None,
-                "source":      source_name,
-                "sourceHandle":f"@{source_name.lower().replace(' ','')}",
-                "reliability": reliability,
-                "time":        time_label,
-                "timeLabel":   time_label,
-                "headline":    title[:150],
-                "body":        body_text[:400],
-                "link":        link,
-                "signal":      signal,
-                "signalConf":  80,
-                "tags":        [cat.replace("_"," ").title()],
-                "stats":       [],
-                "relevance":   result["score"],
-                "_source":     f"rss_{source_name.lower().replace(' ','')}",
-            })
+        items += _parse_rss_feed(session, feed_url, source_name, reliability, player_idx)
 
     log.info(f"RSS total: {len(items)} relevant items")
     return items
@@ -1379,21 +1448,30 @@ def scrape_all_news(players=None):
     #   AFL.com.au official > Footywire > RSS > Twitter
     # AFL.com.au team selections lead because they are the source of truth
     # for named/omitted/late-out events.
-    all_items += scrape_afl_team_selections(session, player_idx)
-    time.sleep(1)
-    all_items += scrape_afl_medical_room(session, player_idx)
-    time.sleep(1)
-    all_items += scrape_afl_injury_page(session, player_idx)
-    time.sleep(1)
-    all_items += scrape_fw_injuries(session, player_idx)
-    time.sleep(1)
-    all_items += scrape_fw_selections(session, player_idx)
-    time.sleep(1)
-    all_items += scrape_afl_rss(session, player_idx)
-    time.sleep(1)
-    all_items += scrape_twitter_rss(session, player_idx)
-    time.sleep(1)
-    all_items += scrape_club_news(session, player_idx)
+    # Each scraper's contribution is captured and logged so it's obvious which
+    # sources are returning 0 (the usual cause of a Footywire-only feed).
+    source_counts = {}
+    def _run(label, fn):
+        try:
+            got = fn(session, player_idx) or []
+        except Exception as e:
+            log.exception(f"Source {label}: FAILED ({e})")
+            got = []
+        source_counts[label] = len(got)
+        log.info(f"Source {label}: {len(got)} items")
+        return got
+
+    all_items += _run("afl_team_selections", scrape_afl_team_selections); time.sleep(1)
+    all_items += _run("afl_medical_room",    scrape_afl_medical_room);    time.sleep(1)
+    all_items += _run("afl_injury_page",     scrape_afl_injury_page);     time.sleep(1)
+    all_items += _run("footywire_injuries",  scrape_fw_injuries);         time.sleep(1)
+    all_items += _run("footywire_selections",scrape_fw_selections);       time.sleep(1)
+    all_items += _run("afl_rss",             scrape_afl_rss);             time.sleep(1)
+    all_items += _run("twitter_rss",         scrape_twitter_rss);         time.sleep(1)
+    all_items += _run("club_pages",          scrape_club_news)
+
+    log.info("Source contribution summary: "
+             + ", ".join(f"{k}={v}" for k, v in source_counts.items()))
 
     # ── Recency filter (keep last 48h only) ──
     all_items = filter_recent(all_items, max_age_hours=48)
