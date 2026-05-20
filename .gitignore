@@ -1,0 +1,20 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Local config (may contain API keys / cookies)
+config.json
+
+# Raw scrape dumps + debug artifacts (regenerated on every run)
+scrape.log
+fetch.log
+afl_medical_room.html
+grundy.html
+injury_raw.html
+pg_anderson.html
+sc_be_raw.html
+sc_season_raw.html
+
+# Archives
+*.zip
