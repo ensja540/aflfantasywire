@@ -1397,6 +1397,27 @@ def filter_rumours_by_status(items, players):
     return kept
 
 
+# ── BODY TEXT CLEANUP ─────────────────────────────────────────────────────────
+
+def _tidy_body(text, fallback="", max_len=250):
+    """Ensure an item has a meaningful body sentence. Falls back to the
+    headline when empty, and truncates cleanly at the last full stop before
+    max_len (or last word + ellipsis if no sentence break is found)."""
+    text = (text or "").strip()
+    if not text:
+        text = (fallback or "").strip()
+    if len(text) <= max_len:
+        return text
+    cut = text[:max_len]
+    dot = cut.rfind(". ")
+    if dot == -1:
+        dot = cut.rfind(".")
+    if dot >= 60:
+        return cut[:dot + 1].strip()
+    sp = cut.rfind(" ")
+    return (cut[:sp].rstrip() if sp > 60 else cut.rstrip()) + "..."
+
+
 # ── DEDUPLICATION ─────────────────────────────────────────────────────────────
 
 def deduplicate(items):
@@ -1496,6 +1517,10 @@ def scrape_all_news(players=None):
     log.info(f"Real-time filter: kept {len(all_items)}/{before} items (dropped ongoing/no-change)")
 
     history.save()
+
+    # ── Ensure every item has a tidy, meaningful body sentence ──
+    for it in all_items:
+        it["body"] = _tidy_body(it.get("body"), it.get("headline", ""))
 
     # ── Sort: urgent first, then NEW > UPDATE > RESOLVED, then by relevance ──
     status_rank = {"new": 0, "update": 1, "resolved": 2, "ongoing": 3}
