@@ -53,6 +53,9 @@ BASE_DIR    = Path(__file__).parent
 # so the frontend never saw the scraper's output.
 OUTPUT_PATH = BASE_DIR / "news.json"
 
+# Aggregator sites with no original fantasy content — items from these are dropped.
+BLOCKED_SOURCES = ["news.com.au", "msn.com", "yahoo.com", "google.com/alerts"]
+
 # Twitter/X is scraped via Nitter RSS feeds — see scrape_twitter_rss() and its
 # NITTER_RSS_INSTANCES / TWITTER_RSS_ACCOUNTS config further down.
 
@@ -702,16 +705,17 @@ def scrape_google_news(session, player_idx):
             elif cat == "dropped":     signal = "sell"
             elif cat == "role_change": signal = "hold"
 
-            _clean = desc.strip()
-            if not _clean or headline.lower()[:35] in _clean.lower():
-                # Google News descriptions usually just echo the title — frame a
-                # distinct summary instead of repeating the headline.
-                if is_rumour:
-                    body = f"{publisher} report" + (f" on {pname}" if pname else "") + " — monitor team news and his price before lockout."
-                else:
-                    body = f"Via {publisher}" + (f" on {pname}" if pname else "") + ". Tap the source link for the full story."
-            else:
-                body = _clean[:400]
+            _clean = re.sub(r"\s+", " ", desc or "").strip()
+            # Real article snippet only. Skip clickbait aggregators and any item
+            # whose description just echoes the headline / player name or is too
+            # short — never publish a generic template.
+            if publisher.lower() in ("news.com.au", "msn", "msn.com", "yahoo", "yahoo sport"):
+                continue
+            if (not _clean or len(_clean) < 30
+                    or headline.lower()[:35] in _clean.lower()
+                    or _clean.lower() == (pname or "").lower()):
+                continue
+            body = _clean[:200]
             items.append({
                 "id":           None,
                 "type":         item_type,
@@ -1673,14 +1677,14 @@ def _watch_rumour_text(player, bodypart, out=False, eta=""):
         bodies = [
             f"Word is {player} won't take his place after copping {bpp}" + (f"; out {eta}" if eta and eta.lower() not in ("tbc", "test") else "") + ". Likely a trade-out until he's right.",
             f"{player} is on the sidelines with {bpp}; expect a price dip while he's out.",
-            f"Hearing {player} misses this week with {bpp} — line up cover before lockout.",
+            f"{player} is set to miss this week with {bpp}; line up cover at selection.",
             f"{player} won't feature, troubled by {bpp}. One to move on from for now.",
         ]
     else:
         heads = [f"Doubt over {player}", f"{player} under an injury cloud",
                  f"Watch: {player}", f"{player} on the watchlist"]
         bodies = [
-            f"Hearing {player} pulled up sore with {bpp} — monitor the team sheet before lockout.",
+            f"{player} pulled up sore with {bpp} and is in doubt for this week.",
             f"{player} is in doubt after a {bp or 'minor'} complaint; keep an eye on selection news this week.",
             f"Whispers {player} is racing the clock on {bpp} ahead of the weekend — risky to lock in.",
             f"{player} flagged with {bpp}; wait for the named team before trusting him.",
@@ -1871,24 +1875,37 @@ def scrape_all_news(players=None):
 
     history.save()
 
-    # ── Ensure every item has a tidy body that isn't just the headline again ──
-    def _frame_body(it):
-        pl, src, t = it.get("player") or "", it.get("source") or "Reports", it.get("type")
-        if t == "rumour":
-            return f"{src} report" + (f" on {pl}" if pl else "") + " — monitor team news and his price before lockout."
-        if t == "injury":
-            return (f"{pl} " if pl else "") + f"flagged on the injury list ({src}) — check the status before selecting."
-        if t == "selection":
-            return f"{src} team news" + (f" involving {pl}" if pl else "") + " — confirm at the named team before locking in."
-        return f"Via {src}" + (f" on {pl}" if pl else "") + ". Tap the source link for the full story."
-
+    # ── Body quality gate: discard items whose body is empty, too short, or
+    # just repeats the headline / player name. Never publish a generic template. ──
+    import difflib
+    _clean_items = []
     for it in all_items:
+        _src = ((it.get("source") or "") + " " + (it.get("link") or "") + " " + (it.get("sourceHandle") or "")).lower()
+        if any(bs in _src for bs in BLOCKED_SOURCES):
+            continue
         it["body"] = _tidy_body(it.get("body"), it.get("headline", ""))
-        h = (it.get("headline") or "").strip().lower()
-        b = (it.get("body") or "").strip().lower()
-        # If the summary just echoes the headline, replace it with a framed one.
-        if h and (b == h or b.startswith(h) or (h in b and len(b) <= len(h) + 24)):
-            it["body"] = _frame_body(it)
+        b = (it.get("body") or "").strip()
+        h = (it.get("headline") or "").strip()
+        pl = (it.get("player") or "").strip()
+        if len(b) < 30:
+            continue
+        if pl and b.lower() == pl.lower():
+            continue
+        if h and (b.lower() == h.lower() or (b.lower().startswith(h.lower()) and len(b) <= len(h) + 24)):
+            continue
+        _clean_items.append(it)
+
+    # Dedup by player + near-identical body (>80% similar): keep the most recent.
+    _by_player, _deduped = {}, []
+    for it in sorted(_clean_items, key=lambda x: x.get("scrapedAt", "") or x.get("time", ""), reverse=True):
+        plk = (it.get("player") or "").lower()
+        bod = (it.get("body") or "").lower()
+        if any(difflib.SequenceMatcher(None, bod, prev).ratio() > 0.8 for prev in _by_player.get(plk, [])):
+            continue
+        _by_player.setdefault(plk, []).append(bod)
+        _deduped.append(it)
+    all_items = _deduped
+    log.info(f"Body quality + dedup: {len(all_items)} items kept")
 
     # ── Sort: urgent first, then NEW > UPDATE > RESOLVED, then by relevance ──
     all_items = _apply_rumour_buffer(all_items)
@@ -1933,8 +1950,20 @@ def _merge_news_archive(new_items, cap=NEWS_ARCHIVE_CAP):
         existing = json.loads(OUTPUT_PATH.read_text(encoding="utf-8")).get("news", [])
     except Exception:
         existing = []
+    def _ok(it):
+        body = (it.get("body") or "").strip()
+        src = ((it.get("source") or "") + " " + (it.get("link") or "") + " " + (it.get("sourceHandle") or "")).lower()
+        if any(b in src for b in BLOCKED_SOURCES):
+            return False
+        if any(x in body.lower() for x in ("monitor team news", "before lockout", "report on")):
+            return False
+        if len(body) < 30:
+            return False
+        return True
     merged, seen = [], set()
     for it in list(new_items) + list(existing):
+        if not _ok(it):
+            continue
         key = ((it.get("player") or "").lower(),
                (it.get("headline") or "")[:80].lower(),
                it.get("type", ""))
