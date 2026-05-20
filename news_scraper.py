@@ -1291,6 +1291,64 @@ def filter_recent(items, max_age_hours=48):
     return recent
 
 
+# ── RUMOUR FILTER BY PLAYER STATUS ───────────────────────────────────────────
+
+def filter_rumours_by_status(items, players):
+    """
+    Drop rumour-mill items about players who are already confirmed OUT — those
+    rumours are stale and add noise. For TBC/managed players, keep the rumour
+    but flag it as low confidence so the UI can de-emphasise it.
+
+    Applies only to items the rumour mill picks up (type == "rumour" or
+    is_rumour == True or type == "twitter" with reliability < 90). Official
+    news/injury/selection items are untouched.
+    """
+    if not players:
+        return items
+
+    out_ids   = {p["id"] for p in players if p.get("injuryStatus") == "out"}
+    out_names = {(p.get("name") or "").lower() for p in players
+                 if p.get("injuryStatus") == "out"}
+    tbc_ids   = {p["id"] for p in players if p.get("injuryStatus") in ("tbc", "test")}
+    tbc_names = {(p.get("name") or "").lower() for p in players
+                 if p.get("injuryStatus") in ("tbc", "test")}
+
+    kept, dropped_out, flagged_tbc = [], 0, 0
+    for item in items:
+        is_rumour = (
+            item.get("type") == "rumour"
+            or item.get("is_rumour") is True
+            or (item.get("type") == "twitter" and (item.get("reliability") or 0) < 90)
+        )
+        if not is_rumour:
+            kept.append(item)
+            continue
+
+        pid    = item.get("pid")
+        pname  = (item.get("player") or "").lower()
+
+        if (pid and pid in out_ids) or (pname and pname in out_names):
+            dropped_out += 1
+            continue  # confirmed OUT — drop rumour entirely
+
+        if (pid and pid in tbc_ids) or (pname and pname in tbc_names):
+            item = dict(item)
+            item["low_confidence"] = True
+            item["reliability"] = max(0, (item.get("reliability") or 60) - 20)
+            item["signalConf"]  = max(0, (item.get("signalConf")  or 50) - 20)
+            tags = list(item.get("tags") or [])
+            if "Low Confidence" not in tags:
+                tags.append("Low Confidence")
+            item["tags"] = tags
+            flagged_tbc += 1
+        kept.append(item)
+
+    if dropped_out or flagged_tbc:
+        log.info(f"Rumour filter: dropped {dropped_out} (player OUT), "
+                 f"flagged {flagged_tbc} as low-confidence (player TBC)")
+    return kept
+
+
 # ── DEDUPLICATION ─────────────────────────────────────────────────────────────
 
 def deduplicate(items):
@@ -1363,6 +1421,11 @@ def scrape_all_news(players=None):
 
     # ── Deduplicate ──
     all_items = deduplicate(all_items)
+
+    # ── Rumour-vs-status filter ──
+    # Drop rumours about confirmed-OUT players (the rumour is stale), and flag
+    # rumours about TBC/managed players as low-confidence rather than dropping.
+    all_items = filter_rumours_by_status(all_items, players)
 
     # ── Apply history tracking (NEW / ONGOING / UPDATE / RESOLVED) ──
     history = NewsHistory()
