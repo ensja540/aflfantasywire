@@ -100,11 +100,11 @@ AFL_RSS_FEEDS = [
 # to keep the feed (and rumour mill) populated beyond Footywire.
 # (search query, reliability, is_rumour)
 GOOGLE_NEWS_QUERIES = [
-    ("AFL injury",                                    78, False),
-    ('AFL team selection OR omitted OR "late out"',   78, False),
-    ('"AFL Fantasy" OR SuperCoach',                   70, False),
-    ('AFL trade OR signing OR "set to join"',         60, True),
-    ('AFL reportedly OR rumour OR "expected to"',      55, True),
+    ("AFL injury -AFLW -women",                                  78, False),
+    ('AFL team selection OR omitted OR "late out" -AFLW -women', 78, False),
+    ('"AFL Fantasy" OR SuperCoach -AFLW -women',                 70, False),
+    ('AFL trade OR signing OR "set to join" -AFLW -women',       60, True),
+    ('AFL reportedly OR rumour OR "expected to" -AFLW -women',    55, True),
 ]
 GOOGLE_NEWS_RSS = "https://news.google.com/rss/search?q={q}+when:2d&hl=en-AU&gl=AU&ceid=AU:en"
 
@@ -163,10 +163,14 @@ def fetch(session, url, timeout=12):
 
 # ── PLAYER NAME MATCHING ─────────────────────────────────────────────────────
 
+_PID_NAME = {}
+
 def build_player_index(players):
     """Build lookup dict for fast player name matching."""
     idx = {}
+    _PID_NAME.clear()
     for p in players:
+        _PID_NAME[p["id"]] = p["name"]
         name = p["name"].lower()
         idx[name] = p["id"]
         # Last name only
@@ -187,9 +191,11 @@ def find_player(text, player_idx):
     matches = [(name, pid) for name, pid in player_idx.items() if name in text_lower]
     if not matches:
         return None, None
-    # Return the longest matching name (most specific)
+    # Return the longest matching name (most specific). Resolve to the player's
+    # FULL name via pid so the feed never shows a bare surname/first name.
     best = max(matches, key=lambda x: len(x[0]))
-    return best[1], best[0].title()
+    pid = best[1]
+    return pid, _PID_NAME.get(pid, best[0].title())
 
 # ── FOOTYWIRE INJURY LIST ─────────────────────────────────────────────────────
 
@@ -1581,6 +1587,13 @@ def deduplicate(items):
 
 # ── MAIN ─────────────────────────────────────────────────────────────────────
 
+def _is_aflw(item):
+    """True if a news item is about AFLW / women's football — excluded because
+    this app tracks the men's AFL competition only."""
+    text = f"{item.get('headline','')} {item.get('body','')} {item.get('player','')}".lower()
+    return "aflw" in text or "women" in text
+
+
 def scrape_all_news(players=None):
     """
     Run all scrapers and return merged, filtered, sorted news list.
@@ -1630,6 +1643,11 @@ def scrape_all_news(players=None):
 
     log.info("Source contribution summary: "
              + ", ".join(f"{k}={v}" for k, v in source_counts.items()))
+
+    # ── Drop AFLW / women's football items (men's AFL only) ──
+    before_aflw = len(all_items)
+    all_items = [it for it in all_items if not _is_aflw(it)]
+    log.info(f"AFLW filter: kept {len(all_items)}/{before_aflw} items (dropped women's-football)")
 
     # ── Recency filter (keep last 48h only) ──
     all_items = filter_recent(all_items, max_age_hours=48)

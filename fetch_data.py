@@ -361,9 +361,12 @@ def parse_sc_breakevens(html):
 
         flag = player_cell.find("span", class_="playerflag")
         pos = ""
+        positions = []
         if flag:
             pos_raw = flag.get_text(strip=True).upper()
-            # Take the first listed position when multi-position (e.g. MID/FWD)
+            # Keep ALL listed positions for dual-position players (e.g. MID/FWD);
+            # `pos` stays the primary (first) for backward compatibility.
+            positions = normalise_pos_list(pos_raw)
             pos = pos_raw.split("/")[0].strip()
 
         team_cell = cells[i_team] if 0 <= i_team < len(cells) else None
@@ -375,6 +378,7 @@ def parse_sc_breakevens(html):
         result[name_key(name)] = {
             "name":       name,
             "pos":        pos,
+            "positions":  positions,
             "team":       team_raw,
             "price":      money(i_price),
             "games":      int(num(i_games)),
@@ -925,6 +929,19 @@ def normalise_pos(raw):
     p = str(raw).upper().split("/")[0].strip()
     return {"DEF":"DEF","MID":"MID","RUC":"RUC","FWD":"FWD","D":"DEF","M":"MID","R":"RUC","F":"FWD"}.get(p,"MID")
 
+def normalise_pos_list(raw):
+    """Split a multi-position flag (e.g. "MID/FWD", "DEF,MID") into a deduped
+    list of canonical codes, preserving order. Used for dual-position players."""
+    if not raw: return []
+    m = {"DEF":"DEF","MID":"MID","RUC":"RUC","FWD":"FWD","D":"DEF","M":"MID","R":"RUC","F":"FWD"}
+    out = []
+    for part in re.split(r"[/,]", str(raw).upper()):
+        part = part.strip()
+        if not part: continue
+        v = m.get(part)
+        if v and v not in out: out.append(v)
+    return out
+
 def name_key(name):
     return re.sub(r"[^a-z]","",name.lower())
 
@@ -981,6 +998,8 @@ def build_player(sc, dt, injuries, selections, rank):
     name  = sc.get("name","") or dt.get("name","")
     team  = normalise_team(sc.get("team","") or dt.get("team",""))
     pos   = normalise_pos(sc.get("pos","") or dt.get("pos",""))
+    positions = sc.get("sc_positions") or [pos]
+    if pos not in positions: positions = [pos] + positions
     col   = TEAM_COLOURS.get(team, {"tc":"#888","tb":"rgba(100,100,100,0.1)"})
 
     sc_avg   = sc.get("sc_avg", 0) or 0
@@ -1081,6 +1100,7 @@ def build_player(sc, dt, injuries, selections, rank):
         "init": (name.split()[0][0] + name.split()[-1][0]).upper() if len(name.split())>=2 else name[:2].upper(),
         "team": team,
         "pos": pos,
+        "positions": positions,
         "tc": col["tc"],
         "tb": col["tb"],
 
@@ -1207,6 +1227,8 @@ def main():
             p["sc_be"] = be_data["be"]
             if be_data["pos"]:
                 p["pos"] = be_data["pos"]
+            if be_data.get("positions"):
+                p["sc_positions"] = be_data["positions"]
             # Prefer breakevens price if season price was 0 (rare)
             if not p["sc_price"] and be_data["price"]:
                 p["sc_price"] = be_data["price"]
@@ -1231,7 +1253,7 @@ def main():
     # Footywire's "pg-" page (Player Games) is richer than the "pu-" profile —
     # it gives BOTH the SuperCoach and AFL Fantasy score per round, plus full
     # disposals/marks/goals/tackles/clearances per game.
-    TOP_N = 200
+    TOP_N = 350
     log.info(f"Fetching games log for top {TOP_N} players (pg- URL)...")
     for i, p in enumerate(sc_players[:TOP_N]):
         pu_url = p.get("profile_url", "")
@@ -1309,7 +1331,7 @@ def main():
     # ── 7. Merge and build final player list ──
     log.info("Merging data sources...")
     players = []
-    for i, sc in enumerate(sc_players[:200], 1):
+    for i, sc in enumerate(sc_players[:350], 1):
         nk  = name_key(sc["name"])
         nk_last = name_key(sc["name"].split()[-1])
         dt  = dt_lookup.get(nk) or dt_lookup.get(nk_last)
