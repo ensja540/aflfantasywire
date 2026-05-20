@@ -245,92 +245,105 @@ def scrape_fw_injuries(session, player_idx):
 
     soup = BeautifulSoup(r.text, "lxml")
 
-    # Footywire injury table: Player | Club | Injury | Likely Return
-    table = None
-    for t in soup.find_all("table"):
-        headers = [th.get_text(strip=True).lower() for th in t.find_all("th")]
-        if any("player" in h or "name" in h for h in headers):
-            table = t
-            break
-
-    if not table:
-        # Try finding any table with injury-looking content
-        for t in soup.find_all("table"):
-            rows = t.find_all("tr")
-            if len(rows) > 5:
-                table = t
-                break
-
-    if not table:
-        log.warning("Footywire injury list: no table found")
-        return items
-
-    rows = table.find_all("tr")[1:]  # skip header
-    for row in rows:
-        cells = [td.get_text(strip=True) for td in row.find_all(["td","th"])]
-        if len(cells) < 3:
+    # Footywire groups injuries by club. Each club is a
+    #   <td class="tbtitle">Adelaide Crows (3 Players)</td>
+    # heading, followed by a nested 3-column table:
+    #   <td class="lbnorm">Player</td><td class="bnorm">Injury</td>
+    #   <td class="bnorm">Returning</td>
+    # then one <tr class="darkcolor"|"lightcolor"> per player, where the player
+    # name lives in an <a href="/afl/footy/pp-...">. We walk each club heading to
+    # its player table and emit ONE item per player row — never per club.
+    seen = set()
+    titles = soup.find_all("td", class_="tbtitle")
+    for title in titles:
+        club_raw = title.get_text(" ", strip=True)
+        club = re.sub(r"\s*\(\s*\d+\s*Players?\s*\)\s*$", "", club_raw).strip()
+        if not club:
             continue
 
-        # Best guess at columns: name, club, injury, return
-        name    = cells[0] if cells else ""
-        club    = cells[1] if len(cells) > 1 else ""
-        injury  = cells[2] if len(cells) > 2 else ""
-        eta     = cells[3] if len(cells) > 3 else ""
-
-        if not name or len(name) < 3:
+        # Find this club's player table: the nearest table (within the club's
+        # wrapper) whose header row says Player / Injury / Returning.
+        wrapper = title.find_parent("table")
+        player_table = None
+        if wrapper:
+            for tbl in wrapper.find_all("table"):
+                hdr = " ".join(td.get_text(strip=True).lower()
+                               for td in tbl.find_all("td", class_=re.compile(r"b?norm")))
+                if "player" in hdr and "injury" in hdr:
+                    player_table = tbl
+                    break
+        if player_table is None:
             continue
 
-        # Determine status
-        combined = (injury + " " + eta).lower()
-        if any(x in combined for x in ("indefinite","season","out","omit","test")):
-            status = "out"
-        elif any(x in combined for x in ("tbc","managed","test","doubtful","uncertain")):
-            status = "tbc"
-        else:
-            continue  # not injured enough to report
+        for row in player_table.find_all("tr"):
+            # Player rows carry the zebra-stripe classes; the header row doesn't.
+            row_cls = " ".join(row.get("class", []))
+            if "color" not in row_cls:
+                continue
+            cells = row.find_all("td")
+            if len(cells) < 3:
+                continue
 
-        headline = f"{name} — {status.upper()}: {injury}"
-        if eta:
-            headline += f" ({eta})"
+            link   = cells[0].find("a")
+            name   = (link.get_text(" ", strip=True) if link
+                      else cells[0].get_text(" ", strip=True)).strip()
+            injury = cells[1].get_text(" ", strip=True)
+            eta    = cells[2].get_text(" ", strip=True)
+            if not name or len(name) < 3 or name.lower() == "player":
+                continue
 
-        body = f"{name} ({club}) injury status: {injury}. Expected return: {eta or 'unknown'}."
+            status, eta_disp = _classify_returning(eta)
+            if status == "available":
+                continue  # cleared to play — not injury-list news
+            body_part = _injury_body_part(injury)
+            # The Footywire <a> text is the authoritative full name. find_player
+            # is only consulted for the pid (its returned name can be a partial
+            # index key like a bare surname, which would truncate the display).
+            pid, _pname = find_player(name, player_idx)
+            display_name = name
 
-        result = classify_item(body, headline)
-        if not result["relevant"]:
-            continue
+            dedupe_key = (pid or display_name.lower(), body_part or injury.lower())
+            if dedupe_key in seen:
+                continue
+            seen.add(dedupe_key)
 
-        pid, pname = find_player(name, player_idx)
+            cat = "injury_out" if status == "out" else "injury_tbc"
+            headline = f"{display_name} — {status.upper()}: {body_part or injury}"
+            if eta_disp:
+                headline += f" ({eta_disp})"
+            body = (f"{display_name} ({club}) injury status: {body_part or injury}. "
+                    f"Expected return: {eta_disp or 'unknown'}.")
 
-        items.append({
-            "id":          None,
-            "type":        "injury",
-            "category":    "injury_out" if status == "out" else "injury_tbc",
-            "urgent":      status == "out",
-            "player":      name,
-            "pid":         pid,
-            "team":        club,
-            "pos":         None,
-            "source":      "Footywire",
-            "sourceHandle":"@footywire",
-            "reliability": 94,
-            "time":        "latest",
-            "timeLabel":   "Latest",
-            "headline":    headline,
-            "body":        body,
-            "signal":      "sell" if status == "out" else "hold",
-            "signalConf":  85 if status == "out" else 60,
-            "tags":        [status.upper(), injury[:30], eta or ""],
-            "stats":       [
-                {"l":"Status",  "v": status.upper()},
-                {"l":"Injury",  "v": injury[:20]},
-                {"l":"ETA",     "v": eta or "Unknown"},
-                {"l":"Club",    "v": club},
-            ],
-            "relevance":   result["score"],
-            "_source":     "footywire_injuries",
-        })
+            items.append({
+                "id":          None,
+                "type":        "injury",
+                "category":    cat,
+                "urgent":      status == "out",
+                "player":      display_name,
+                "pid":         pid,
+                "team":        club,
+                "pos":         None,
+                "source":      "Footywire",
+                "sourceHandle":"@footywire",
+                "reliability": 94,
+                "time":        "latest",
+                "timeLabel":   "Latest",
+                "headline":    headline,
+                "body":        body,
+                "signal":      "sell" if status == "out" else "hold",
+                "signalConf":  85 if status == "out" else 60,
+                "tags":        [status.upper(), body_part or injury[:30], eta_disp or ""],
+                "stats":       [
+                    {"l":"Status",  "v": status.upper()},
+                    {"l":"Injury",  "v": body_part or injury[:20]},
+                    {"l":"ETA",     "v": eta_disp or "Unknown"},
+                    {"l":"Club",    "v": club},
+                ],
+                "relevance":   60,
+                "_source":     "footywire_injuries",
+            })
 
-    log.info(f"Footywire injuries: {len(items)} relevant items")
+    log.info(f"Footywire injuries: {len(items)} player items across clubs")
     return items
 
 
@@ -969,14 +982,16 @@ def scrape_afl_medical_room(session, player_idx):
 
             status, eta_disp = _classify_returning(eta)
             body_part = _injury_body_part(injury)
-            pid, pname = find_player(name, player_idx)
+            # The Medical Room table cell is the authoritative full name; use
+            # find_player only for the pid (its name can be a partial index key).
+            pid, _pname = find_player(name, player_idx)
 
             dedupe_key = (pid or name.lower(), body_part or injury.lower())
             if dedupe_key in seen: continue
             seen.add(dedupe_key)
 
             cat = "injury_out" if status == "out" else "injury_tbc" if status == "test" else "injury_available"
-            display_name = pname or name
+            display_name = name
             headline = f"{display_name} — {status.upper()}: {body_part or injury}"
             if eta_disp: headline += f" ({eta_disp})"
 

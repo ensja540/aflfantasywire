@@ -311,7 +311,18 @@ class NewsHistory:
         once). Higher-reliability source wins; AFL.com.au beats Footywire beats
         the rest, ties broken by item relevance score.
         """
-        kept = [i for i in items if i.get("status") in ("new", "update", "resolved")]
+        # Structured "current-state" sources (the injury list, the official
+        # medical room, named teams) represent who is injured/selected RIGHT
+        # NOW — the site must always display them, even when unchanged since the
+        # last scrape. Only genuinely ephemeral event sources (tweets, RSS,
+        # club-news blurbs) are subject to the drop-ongoing rule, so the feed
+        # never empties out between real-time changes.
+        ALWAYS_SHOW = {"footywire_injuries", "afl_medical_room",
+                       "afl_injury_page", "afl_team_selections",
+                       "footywire_selections"}
+        kept = [i for i in items
+                if i.get("status") in ("new", "update", "resolved")
+                or i.get("_source") in ALWAYS_SHOW]
 
         # Dedupe by (pid, coarse_status) within the kept set
         def src_rank(item):
