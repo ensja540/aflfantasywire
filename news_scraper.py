@@ -103,8 +103,10 @@ GOOGLE_NEWS_QUERIES = [
     ("AFL injury -AFLW -women",                                  78, False),
     ('AFL team selection OR omitted OR "late out" -AFLW -women', 78, False),
     ('"AFL Fantasy" OR SuperCoach -AFLW -women',                 70, False),
-    ('AFL trade OR signing OR "set to join" -AFLW -women',       60, True),
-    ('AFL reportedly OR rumour OR "expected to" -AFLW -women',    55, True),
+    ('AFL "back at training" OR "returned to training" OR "fitness test" OR "in doubt" -AFLW -women', 66, True),
+    ('AFL "role change" OR "into the midfield" OR managed OR "injury cloud" OR "racing the clock" -AFLW -women', 62, True),
+    ('AFL "set to return" OR recalled OR "pushing for selection" OR "named to return" OR "in the mix" -AFLW -women', 60, True),
+    ('SuperCoach OR "AFL Fantasy" trade OR "cash cow" OR "price rise" OR "buy or sell" OR captain -AFLW -women', 58, True),
 ]
 GOOGLE_NEWS_RSS = "https://news.google.com/rss/search?q={q}+when:2d&hl=en-AU&gl=AU&ceid=AU:en"
 
@@ -656,7 +658,10 @@ def scrape_google_news(session, player_idx):
 
             result = classify_item(full_text, headline)
             if is_rumour:
+                _ft = full_text.lower()
                 if not find_player(full_text, player_idx)[0]:
+                    continue
+                if not any(w in _ft for w in ("train", "fitness", "return", "role", "midfield", "forward", "ruck", "defend", "injur", "doubt", " test", "manage", "position", "supercoach", "fantasy", "cleared", "recall", "omit", "drop", "named", "select", "concuss")):
                     continue
             elif not result["relevant"]:
                 continue
@@ -1633,7 +1638,10 @@ def _is_aflw(item):
     """True if a news item is about AFLW / women's football — excluded because
     this app tracks the men's AFL competition only."""
     text = f"{item.get('headline','')} {item.get('body','')} {item.get('player','')}".lower()
-    return "aflw" in text or "women" in text
+    if "aflw" in text or "women" in text:
+        return True
+    # Exclude other sports that share surnames with AFL players.
+    return any(w in text for w in ("nrl", "rugby", "cricket", "netball", "a-league", "soccer", "casualty ward"))
 
 
 def scrape_all_news(players=None):

@@ -1109,7 +1109,7 @@ def build_player(sc, dt, injuries, selections, rank):
         "rank": sc.get("sc_rank", rank),
         "afRank": dt.get("dt_rank", rank) if dt else rank,
 
-        "owned": round(sc_owned, 1),
+        "owned": round(classic_owned or sc_owned, 1),
         "ownedDelta": 0,   # requires two fetches to compute delta
         "classicOwned": round(classic_owned, 1),
         "classicAvg":   round(classic_avg,  1),
