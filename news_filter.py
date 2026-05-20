@@ -6,14 +6,33 @@ Provides simple classification and relevance scoring for news text.
 
 import re
 
+# Keywords are matched with letter-boundaries (see _kw_match), so bare ambiguous
+# words like "out" or "test" are deliberately avoided — they previously matched
+# "outstanding", "Darwin test", etc. and mislabelled general news as injuries.
 KEYWORDS = {
-    "injury_out": ["out", "ruled out", "will miss", "sidelined", "season-ending", "season ending"],
-    "injury_tbc": ["tbc", "questionable", "doubtful", "managed", "uncertain", "unclear", "test", "monitor", "possible"],
-    "dropped": ["omitted", "dropped", "left out", "not named", "replaced by", "replaced"],
-    "named": ["named", "selected", "unchanged", "in for", "returns", "returns to", "set to play"],
-    "role_change": ["role change", "role change", "move to", "shift to", "tagged", "forward pocket", "half forward", "centre bounce", "midfield role", "forward","ruck"],
-    "vest_risk": ["vest", "substitute", "sub", "emergency", "emg"],
-    "price": ["price", "breakeven", "breakeven", "price rise", "price drop", "price delta"],
+    "injury_out": [
+        "ruled out", "will miss", "to miss", "set to miss", "won't play", "wont play",
+        "sidelined", "season-ending", "season ending", "out for the season",
+        "out indefinitely", "miss the rest", "ruptured", "requires surgery",
+        "undergo surgery", "facing surgery", "done for the season", "torn",
+    ],
+    "injury_tbc": [
+        "fitness test", "in doubt", "injury cloud", "cloud over", "race against time",
+        "managed", "questionable", "doubtful", "tbc", "game-time decision",
+        "game time decision", "carrying an injury", "under an injury cloud",
+    ],
+    "dropped": ["omitted", "dropped", "left out", "not named", "axed", "demoted", "makes way"],
+    "named": [
+        "teams:", "ins and outs", "ins & outs", "team news", "named side", "named to play",
+        "set to return", "returns from injury", "cleared to play", "recalled",
+        "handed a recall", "back in the side", "team selection", "lineup", "line-up",
+    ],
+    "role_change": [
+        "role change", "midfield role", "tagging role", "new role",
+        "positional switch", "moved into the midfield",
+    ],
+    "vest_risk": ["medical substitute", "sub vest", "named as the substitute", "21st man", "late withdrawal"],
+    "price": ["price rise", "price drop", "breakeven", "break-even", "cash cow"],
 }
 
 IGNORE_PHRASES = [
@@ -32,6 +51,13 @@ CATEGORY_PRIORITY = [
 
 def _normalize(text):
     return re.sub(r"\s+", " ", (text or "").strip().lower())
+
+
+def _kw_match(word, text):
+    """Letter-boundary match so "out" does not match "outstanding" and "test"
+    does not match "Darwin test". Only letters count as word characters, so
+    phrases ending in punctuation (e.g. "teams:") still match."""
+    return re.search(r"(?<![a-z])" + re.escape(word) + r"(?![a-z])", text) is not None
 
 
 def classify_item(text, headline=None):
@@ -54,10 +80,10 @@ def classify_item(text, headline=None):
         result["score"] = 5
         return result
 
-    # Base relevance scoring by keyword hits
+    # Base relevance scoring by keyword hits (letter-boundary matched)
     for category, words in KEYWORDS.items():
         for word in words:
-            if word in combined:
+            if _kw_match(word, combined):
                 result["matches"].append((category, word))
                 result["score"] += 15
 
@@ -67,11 +93,11 @@ def classify_item(text, headline=None):
         result["score"] += 20
 
     # Minor boost for common fantasy terms
-    if any(term in combined for term in ["supercoach", "fantasy", "breakeven", "price", "injury", "omitted", "named"]):
+    if any(_kw_match(term, combined) for term in ["supercoach", "fantasy", "breakeven", "price", "injury", "omitted", "named"]):
         result["score"] += 10
 
     # Demote generic news with no player or injury keywords
-    if "injury" in combined or "out" in combined or "named" in combined or "omitted" in combined or "selected" in combined:
+    if any(_kw_match(term, combined) for term in ["injury", "named", "omitted", "selected", "recalled"]):
         result["score"] += 5
 
     # Determine category by highest-priority match
@@ -84,7 +110,7 @@ def classify_item(text, headline=None):
         result["relevant"] = True
     else:
         # Some headlines are still relevant if they refer to strong fantasy events.
-        if any(term in combined for term in ["injury", "omitted", "named", "selected", "vest", "tbc", "doubtful"]):
+        if any(_kw_match(term, combined) for term in ["injury", "omitted", "named", "selected", "tbc", "doubtful"]):
             result["relevant"] = True
             result["score"] = max(result["score"], 25)
 

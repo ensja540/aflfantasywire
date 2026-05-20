@@ -166,38 +166,69 @@ def fetch(session, url, timeout=12):
 # ── PLAYER NAME MATCHING ─────────────────────────────────────────────────────
 
 _PID_NAME = {}
+_PLAYERS_IDX = []          # [{pid, full, first, last}]
+_SURNAME_FIRSTS = {}       # surname -> set of first names (to detect same-surname clashes)
 
 def build_player_index(players):
-    """Build lookup dict for fast player name matching."""
+    """Build player lookup tables. Returns a name->pid dict for backward
+    compatibility, but find_player uses the richer _PLAYERS_IDX below."""
     idx = {}
     _PID_NAME.clear()
+    _PLAYERS_IDX.clear()
+    _SURNAME_FIRSTS.clear()
     for p in players:
         _PID_NAME[p["id"]] = p["name"]
-        name = p["name"].lower()
+        name = p["name"].lower().strip()
         idx[name] = p["id"]
-        # Last name only
-        last = name.split()[-1]
-        if last not in idx:
-            idx[last] = p["id"]
-        # First initial + last (e.g. "n daicos")
         parts = name.split()
-        if len(parts) >= 2:
-            short = parts[0][0] + " " + parts[-1]
-            idx[short] = p["id"]
+        if not parts:
+            continue
+        first, last = parts[0], parts[-1]
+        _PLAYERS_IDX.append({"pid": p["id"], "full": name, "first": first, "last": last})
+        _SURNAME_FIRSTS.setdefault(last, set()).add(first)
     return idx
 
-def find_player(text, player_idx):
-    """Find a player mentioned in text. Returns (player_id, player_name) or (None, None)."""
-    text_lower = text.lower()
-    # Try full names first (longer matches = more specific)
-    matches = [(name, pid) for name, pid in player_idx.items() if name in text_lower]
-    if not matches:
+def find_player(text, player_idx=None):
+    """Find a player mentioned in text. Returns (player_id, full_name) or
+    (None, None).
+
+    Matching is deliberately conservative to avoid mis-attribution (e.g. an
+    "Elijah Hewett" story being filed under "George Hewett"):
+      1. Prefer a full-name match.
+      2. For a surname-only hit, the word in front of the surname MUST equal the
+         player's first name or initial. If a different first name precedes it,
+         skip — it's a different same-surname player. A bare surname is only
+         accepted when no other tracked player shares that surname.
+    """
+    t = (text or "").lower()
+    if not t:
         return None, None
-    # Return the longest matching name (most specific). Resolve to the player's
-    # FULL name via pid so the feed never shows a bare surname/first name.
-    best = max(matches, key=lambda x: len(x[0]))
-    pid = best[1]
-    return pid, _PID_NAME.get(pid, best[0].title())
+
+    # 1. Full-name match — longest wins (most specific).
+    full = [pl for pl in _PLAYERS_IDX if pl["full"] in t]
+    if full:
+        best = max(full, key=lambda pl: len(pl["full"]))
+        return best["pid"], _PID_NAME[best["pid"]]
+
+    # 2. Surname match with first-name verification.
+    for pl in sorted(_PLAYERS_IDX, key=lambda p: -len(p["last"])):
+        last = pl["last"]
+        if len(last) < 4:
+            continue  # short surnames are too ambiguous on their own
+        m = re.search(r"(?:([a-z][a-z'.-]*)\s+)?(?<![a-z])" + re.escape(last) + r"(?![a-z])", t)
+        if not m:
+            continue
+        prev = m.group(1) or ""
+        if prev:
+            if prev == pl["first"] or (1 <= len(prev) <= 2 and prev[0] == pl["first"][0]):
+                return pl["pid"], _PID_NAME[pl["pid"]]
+            # A different word precedes the surname — could be another player's
+            # first name. Don't guess.
+            continue
+        # Bare surname: only safe when no other tracked player shares it.
+        if len(_SURNAME_FIRSTS.get(last, ())) == 1:
+            return pl["pid"], _PID_NAME[pl["pid"]]
+    return None, None
 
 # ── FOOTYWIRE INJURY LIST ─────────────────────────────────────────────────────
 
