@@ -678,19 +678,30 @@ INJURY_BODY_PARTS = [
     "illness", "suspension", "personal", "managed", "rest",
 ]
 
+# Canonical-name swaps applied AFTER priority-list matching AND after the
+# fallback first-token path. In AFL injury parlance "head" listed without
+# qualification almost always means concussion — clubs use "Jaw", "Eye",
+# "Nose", "Face" for non-concussion head/face injuries.
+INJURY_BODY_PART_ALIASES = {
+    "Head": "Concussion",
+}
+
 def _classify_injury_body_part(injury_text):
     """Pull a canonical body-part keyword out of Footywire's free-text injury cell.
     Examples: 'Hamstring' -> 'Hamstring', 'Leg/Calf' -> 'Calf',
-    'Right shoulder' -> 'Shoulder', 'Foot/Achilles' -> 'Achilles'."""
+    'Right shoulder' -> 'Shoulder', 'Foot/Achilles' -> 'Achilles',
+    'Head' -> 'Concussion' (via INJURY_BODY_PART_ALIASES)."""
     if not injury_text: return ""
     lower = injury_text.lower()
     for part in INJURY_BODY_PARTS:
         if part in lower:
-            return part.capitalize()
+            canon = part.capitalize()
+            return INJURY_BODY_PART_ALIASES.get(canon, canon)
     # Fallback: strip side qualifiers and take the last token after a slash
     tokens = re.split(r"[\s/]+", injury_text.strip())
     tokens = [t for t in tokens if t.lower() not in ("left", "right", "lower", "upper")]
-    return tokens[-1].capitalize() if tokens else injury_text.strip().capitalize()
+    canon = tokens[-1].capitalize() if tokens else injury_text.strip().capitalize()
+    return INJURY_BODY_PART_ALIASES.get(canon, canon)
 
 
 def _classify_injury_returning(returning_text):

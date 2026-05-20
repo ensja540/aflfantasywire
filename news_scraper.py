@@ -681,15 +681,24 @@ _INJURY_BODY_PARTS = [
     "eye","face","illness","suspension","personal","managed","rest",
 ]
 
+# Canonical-name swaps applied after the priority-list match. "Head"
+# without further qualification = Concussion in AFL injury parlance; the
+# clubs use Jaw/Eye/Nose/Face for non-concussion head/face injuries.
+_INJURY_BODY_PART_ALIASES = {
+    "Head": "Concussion",
+}
+
 def _injury_body_part(text):
     if not text: return ""
     lt = text.lower()
     for bp in _INJURY_BODY_PARTS:
         if bp in lt:
-            return bp.capitalize()
+            canon = bp.capitalize()
+            return _INJURY_BODY_PART_ALIASES.get(canon, canon)
     tokens = re.split(r"[\s/]+", text.strip())
     tokens = [t for t in tokens if t.lower() not in ("left","right","lower","upper")]
-    return tokens[-1].capitalize() if tokens else text.strip().capitalize()
+    canon = tokens[-1].capitalize() if tokens else text.strip().capitalize()
+    return _INJURY_BODY_PART_ALIASES.get(canon, canon)
 
 
 def _classify_returning(text):
