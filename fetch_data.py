@@ -1010,6 +1010,17 @@ def build_player(sc, dt, injuries, selections, rank):
     sc_owned = sc.get("sc_owned", 0) or 0
     sc_scores = sc.get("sc_scores", [sc_last]*7) or [sc_last]*7
 
+    # sc_all_scores is chronological (R1 first, most recent last). The last score
+    # must be the most recent round played — fall back to it if sc_last is 0.
+    sc_all_scores = sc.get("sc_all_scores") or [s for s in sc_scores if s and s > 0]
+    if not sc_last and sc_all_scores:
+        _non_zero = [s for s in sc_all_scores if s and s > 0]
+        sc_last = _non_zero[-1] if _non_zero else 0
+
+    if "ridley" in name.lower():
+        log.info(f"[Ridley check] {name} sc_last={sc_last} sc_avg={sc_avg} "
+                 f"sc_avg3={sc_avg3} sc_all_scores={sc_all_scores}")
+
     # AFL Fantasy Classic ownership (Footywire doesn't expose SC ownership for free,
     # so Classic ownership from fantasy.afl.com.au is the only live ownership signal).
     classic_owned = float(sc.get("classic_owned", 0) or 0)
@@ -1120,6 +1131,7 @@ def build_player(sc, dt, injuries, selections, rank):
         "scAvg":   round(sc_avg,  1),
         "scAvg3":  round(sc_avg3, 1),
         "lastScore": sc_last,
+        "lastRound": (sc.get("round_stats") or [{}])[-1].get("r", ""),
 
         "dtAvg":  round(dt_avg,  1),
         "dtAvg3": round(dt_avg3, 1),
