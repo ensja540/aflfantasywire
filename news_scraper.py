@@ -188,6 +188,19 @@ def build_player_index(players):
         _SURNAME_FIRSTS.setdefault(last, set()).add(first)
     return idx
 
+def find_player_strict(name):
+    """Match a clean "First Last" name to a tracked player by exact full name
+    (or first+last), never by a loose surname hit. Returns (pid, full) or
+    (None, None)."""
+    parts = re.sub(r"[^a-z ]", " ", (name or "").lower()).split()
+    if not parts:
+        return None, None
+    first, last, full = parts[0], parts[-1], " ".join(parts)
+    for pl in _PLAYERS_IDX:
+        if pl["full"] == full or (pl["first"] == first and pl["last"] == last):
+            return pl["pid"], _PID_NAME[pl["pid"]]
+    return None, None
+
 def find_player(text, player_idx=None):
     """Find a player mentioned in text. Returns (player_id, full_name) or
     (None, None).
@@ -299,7 +312,9 @@ def scrape_fw_injuries(session, player_idx):
             # The Footywire <a> text is the authoritative full name. find_player
             # is only consulted for the pid (its returned name can be a partial
             # index key like a bare surname, which would truncate the display).
-            pid, _pname = find_player(name, player_idx)
+            pid, _pname = find_player_strict(name)
+            if not pid:
+                continue  # only surface players tracked in players.json (searchable)
             display_name = name
 
             dedupe_key = (pid or display_name.lower(), body_part or injury.lower())
@@ -640,7 +655,10 @@ def scrape_google_news(session, player_idx):
             full_text = headline + " " + desc
 
             result = classify_item(full_text, headline)
-            if not result["relevant"]:
+            if is_rumour:
+                if not find_player(full_text, player_idx)[0]:
+                    continue
+            elif not result["relevant"]:
                 continue
 
             age_min = 99999
@@ -958,7 +976,7 @@ def scrape_afl_injury_page(session, player_idx):
             injury   = cells[1] if len(cells) > 1 else ""
             eta      = cells[2] if len(cells) > 2 else ""
 
-            pid, pname = find_player(name_raw, player_idx)
+            pid, pname = find_player_strict(name_raw)
             if not pname:
                 continue  # only surface players we track (rank-relevant)
 
@@ -987,7 +1005,7 @@ def scrape_afl_injury_page(session, player_idx):
                 "time":        "latest",
                 "timeLabel":   "Latest",
                 "headline":    headline,
-                "body":        f"Official AFL injury update: {pname}. {injury}. Return: {eta or 'unknown'}.",
+                "body":        (f"{pname} has been ruled out" + (f" with a {injury.lower()}" if injury else "") + (f"; estimated return {eta}." if eta and eta.lower() not in ("", "tbc") else ".") + " Expect a price dip - trade or bench until they return." if cat == "injury_out" else f"{pname} is in doubt" + (f" with a {injury.lower()}" if injury else "") + (f" ({eta})" if eta else "") + ". Monitor team news before locking them in - risky to field unconfirmed."),
                 "signal":      signal,
                 "signalConf":  88,
                 "tags":        [cat.replace("_", " ").title(), injury[:25], eta or ""],
@@ -1170,7 +1188,9 @@ def scrape_afl_medical_room(session, player_idx):
             body_part = _injury_body_part(injury)
             # The Medical Room table cell is the authoritative full name; use
             # find_player only for the pid (its name can be a partial index key).
-            pid, _pname = find_player(name, player_idx)
+            pid, _pname = find_player_strict(name)
+            if not pid:
+                continue  # only surface players tracked in players.json (searchable)
 
             dedupe_key = (pid or name.lower(), body_part or injury.lower())
             if dedupe_key in seen: continue
@@ -1196,8 +1216,7 @@ def scrape_afl_medical_room(session, player_idx):
                 "time":        "latest",
                 "timeLabel":   "Latest",
                 "headline":    headline,
-                "body":        (f"Official AFL Medical Room update for {club_name}: "
-                                f"{display_name} ({body_part or injury}). Estimated return: {eta_disp}."),
+                "body":        (f"{display_name} ({club_name}) has been ruled OUT" + (f" with a {(body_part or injury).lower()}" if (body_part or injury) else "") + (f"; estimated return {eta_disp}." if eta_disp and eta_disp.lower() not in ("", "tbc") else ".") + " Expect a price dip - trade or bench until they return." if status == "out" else f"{display_name} ({club_name}) faces a fitness test" + (f" on a {(body_part or injury).lower()}" if (body_part or injury) else "") + ". Monitor team news before locking them in - risky to field unconfirmed." if status == "test" else f"{display_name} ({club_name}) is managing" + (f" a {(body_part or injury).lower()}" if (body_part or injury) else " a minor issue") + (f", return {eta_disp}." if eta_disp and eta_disp.lower() not in ("", "tbc") else ".") + " Keep an eye on selection news."),
                 "signal":      "sell" if status == "out" else "hold" if status == "test" else "buy",
                 "signalConf":  88,
                 "tags":        [status.upper(), body_part or injury, eta_disp],
