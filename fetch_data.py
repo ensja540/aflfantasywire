@@ -302,7 +302,8 @@ def parse_sc_breakevens(html):
     i_price  = col_idx("price")
     i_games  = col_idx("games","gms")
     i_avg    = col_idx("avg","average")
-    i_be     = col_idx("breakeven","break","b/e")
+    # Footywire has used several spellings for the break-even header over time.
+    i_be     = col_idx("breakeven","break-even","break even","be this week","b/e","break")
     i_like   = col_idx("likelihood","%")
 
     # "G" header is a single char that won't match a substring search
@@ -310,6 +311,13 @@ def parse_sc_breakevens(html):
         for i, h in enumerate(headers):
             if h.strip() == "g":
                 i_games = i
+                break
+
+    # "BE"/"B/E" can also be a short standalone header
+    if i_be is None:
+        for i, h in enumerate(headers):
+            if h.strip() in ("be", "b/e", "be."):
+                i_be = i
                 break
 
     # Fall back to documented column order if headers couldn't be detected
@@ -1202,6 +1210,20 @@ def main():
             # Prefer breakevens price if season price was 0 (rare)
             if not p["sc_price"] and be_data["price"]:
                 p["sc_price"] = be_data["price"]
+
+    # Fallback: if BE couldn't be scraped, approximate from price and average
+    # (rough — better than showing 0). be ~= price / (avg * 0.8).
+    for p in sc_players:
+        if not p.get("sc_be"):
+            avg = p.get("sc_avg") or 0
+            price = p.get("sc_price") or 0
+            p["sc_be"] = round(price / (avg * 0.8)) if avg > 0 and price > 0 else 0
+
+    # Diagnostic: confirm break-evens captured for the first 5 players
+    log.info("Break-even check (first 5 players):")
+    for p in sc_players[:5]:
+        log.info(f"  {p['name']:22} price={p.get('sc_price')} be={p.get('sc_be')} "
+                 f"avg={p.get('sc_avg')} avg3={p.get('sc_avg3')}")
 
     time.sleep(1)
 
