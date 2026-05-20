@@ -107,6 +107,8 @@ GOOGLE_NEWS_QUERIES = [
     ('AFL "role change" OR "into the midfield" OR managed OR "injury cloud" OR "racing the clock" -AFLW -women', 62, True),
     ('AFL "set to return" OR recalled OR "pushing for selection" OR "named to return" OR "in the mix" -AFLW -women', 60, True),
     ('SuperCoach OR "AFL Fantasy" trade OR "cash cow" OR "price rise" OR "buy or sell" OR captain -AFLW -women', 58, True),
+    ('AFL ("Tom Morris" OR "Jon Ralph" OR "Damian Barrett" OR "Cal Twomey" OR "Mitch Cleary") -AFLW -women', 66, True),
+    ('AFL ("Riley Beveridge" OR "Josh Gabelich" OR "Sam Edmund" OR "DT Talk" OR "SuperCoach") news -AFLW -women', 60, True),
 ]
 GOOGLE_NEWS_RSS = "https://news.google.com/rss/search?q={q}+when:2d&hl=en-AU&gl=AU&ceid=AU:en"
 
@@ -1644,6 +1646,37 @@ def _is_aflw(item):
     return any(w in text for w in ("nrl", "rugby", "cricket", "netball", "a-league", "soccer", "casualty ward"))
 
 
+RUMOUR_BUFFER_PATH = BASE_DIR / "rumours.json"
+
+def _apply_rumour_buffer(items, keep=15):
+    """Keep a rolling buffer of the most recent rumours (persisted across runs in
+    rumours.json) so the mill always has a healthy set — oldest are replaced as
+    new ones arrive. A single scrape only yields a few rumours."""
+    now = datetime.now(timezone.utc).isoformat()
+    is_rum = lambda it: (it.get("is_rumour") or it.get("type") == "rumour") and it.get("player")
+    fresh = [it for it in items if is_rum(it)]
+    for it in fresh:
+        it["_seen"] = now
+    try:
+        buf = json.loads(RUMOUR_BUFFER_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        buf = []
+    merged, seen = [], set()
+    for it in fresh + buf:
+        key = ((it.get("player") or "").lower(), (it.get("headline") or "")[:60].lower())
+        if key in seen:
+            continue
+        seen.add(key)
+        merged.append(it)
+    merged.sort(key=lambda x: x.get("_seen", ""), reverse=True)
+    merged = merged[:keep]
+    try:
+        RUMOUR_BUFFER_PATH.write_text(json.dumps(merged, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+    log.info(f"Rumour buffer: {len(merged)} rumours retained (rolling)")
+    return [it for it in items if not is_rum(it)] + merged
+
 def scrape_all_news(players=None):
     """
     Run all scrapers and return merged, filtered, sorted news list.
@@ -1728,6 +1761,8 @@ def scrape_all_news(players=None):
         it["body"] = _tidy_body(it.get("body"), it.get("headline", ""))
 
     # ── Sort: urgent first, then NEW > UPDATE > RESOLVED, then by relevance ──
+    all_items = _apply_rumour_buffer(all_items)
+
     status_rank = {"new": 0, "update": 1, "resolved": 2, "ongoing": 3}
     all_items.sort(key=lambda x: (
         0 if x.get("urgent") else 1,
