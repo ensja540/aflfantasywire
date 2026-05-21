@@ -2684,6 +2684,32 @@ def scrape_all_news(players=None):
 
 NEWS_ARCHIVE_CAP = 500
 
+def _balance_feed_order(items, max_run=3):
+    """Reorder (never drop) so the feed doesn't open with a wall of injuries.
+
+    Items arrive newest-first. We keep that order but, whenever more than
+    `max_run` injuries would appear consecutively, we promote the nearest
+    non-injury item to break the run. Every item is preserved — this only
+    affects display order, so the archive can still accumulate to the 500 cap.
+    """
+    queue = list(items)
+    out   = []
+    run   = 0
+    while queue:
+        if queue[0].get("type") == "injury" and run >= max_run:
+            promote = next((j for j, it in enumerate(queue)
+                            if it.get("type") != "injury"), None)
+            if promote is not None:
+                out.append(queue.pop(promote))
+                run = 0
+                continue
+            # Only injuries remain — flush them in order.
+        it = queue.pop(0)
+        out.append(it)
+        run = run + 1 if it.get("type") == "injury" else 0
+    return out
+
+
 def _merge_news_archive(new_items, cap=NEWS_ARCHIVE_CAP):
     """Accumulate news across scrapes instead of replacing the file each run:
     merge fresh items with the existing news.json, dedupe (fresh wins), keep the
@@ -2769,30 +2795,20 @@ def main():
     print(f"  {datetime.now().strftime('%H:%M:%S  %d %b %Y')}\n")
 
     items = scrape_all_news()
-    items = _merge_news_archive(items)
 
-    # ── Strict category enforcement: block non-fantasy news, force types ──
+    # ── Strict category enforcement on FRESH items only ──
+    # Vet new items (block non-fantasy news, force injury/selection/analysis)
+    # BEFORE they enter the archive. Already-archived items keep their slot:
+    # re-filtering the whole archive every run and writing back the survivors is
+    # what stopped the feed from ever accumulating toward the 500 cap.
     items = [enforce_category(i) for i in items]
     items = [i for i in items if not i.get("_skip")]
-    log.info(f"After category enforcement: {len(items)} items remaining")
+    log.info(f"After category enforcement: {len(items)} fresh items vetted")
     from collections import Counter
     print(Counter(i["type"] for i in items))
 
-    # ── Source/type diversity: don't let the feed become an injury wall ──
-    injury_count = len([i for i in items if i.get("type") == "injury"])
-    if items and injury_count > len(items) * 0.6:
-        log.warning(f"Over 60% injury items ({injury_count}/{len(items)}) — trimming "
-                    f"lowest-relevance injuries to restore variety")
-        others   = [i for i in items if i.get("type") != "injury"]
-        injuries = [i for i in items if i.get("type") == "injury"]
-        injuries.sort(key=lambda x: x.get("relevance", 0), reverse=True)
-        cap = max(1, int(len(others) * 1.5))   # result is <=60% injury
-        keep = set(id(x) for x in (others + injuries[:cap]))
-        items = [i for i in items if id(i) in keep]
-        for n, it in enumerate(items, 1):
-            it["id"] = n
-        inj2 = len([i for i in items if i.get("type") == "injury"])
-        print(f"diversity trim: {injury_count} -> {inj2} injuries of {len(items)} total")
+    # ── Accumulate into the rolling archive (newest 500 kept, oldest roll off) ──
+    items = _merge_news_archive(items)
 
     # Final type breakdown for visibility.
     _tb = {}
@@ -2819,6 +2835,9 @@ def main():
         return now - timedelta(days=99)
 
     items.sort(key=lambda x: parse_timestamp(x), reverse=True)
+    # Non-destructive variety pass: keep every item but break up long runs of
+    # injuries so the top of the feed isn't a wall of them. Nothing is dropped.
+    items = _balance_feed_order(items)
     for i, item in enumerate(items, 1):
         item["id"] = i
 
