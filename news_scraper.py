@@ -2161,6 +2161,18 @@ def main():
         _tb[i.get("type", "?")] = _tb.get(i.get("type", "?"), 0) + 1
     print(f"final type breakdown: {_tb}")
 
+    # ── Chronological order: newest first by timestamp ──
+    def _ts(it):
+        t = it.get("time") or it.get("scrapedAt") or ""
+        try:
+            d = datetime.fromisoformat(t)
+            return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+        except Exception:
+            return datetime(1970, 1, 1, tzinfo=timezone.utc)
+    items.sort(key=_ts, reverse=True)
+    for n, it in enumerate(items, 1):
+        it["id"] = n
+
     output = {
         "scraped_at":  datetime.now().isoformat(),
         "item_count":  len(items),
