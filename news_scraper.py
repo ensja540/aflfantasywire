@@ -2300,22 +2300,29 @@ def scrape_all_news(players=None):
     for i, item in enumerate(all_items, 1):
         item["id"] = i
         item["scrapedAt"] = _scraped_iso
-        # Authoritative timestamp + age label (never "recent"/"latest").
-        # RSS/Twitter items carry pubISO from their <pubDate>; items without one
-        # (Footywire/AFL injury rows) get scrape time minus a position offset so
-        # the first-listed items read as the most recent.
+        # Display timestamp = when the news was FIRST published, NOT this scrape.
+        #  - RSS/Twitter: the <pubDate> we captured in pubISO.
+        #  - Everything else (Footywire/AFL injury rows): the time NewsHistory
+        #    assigned — now_str for NEW/UPDATE, the original first_seen for
+        #    ONGOING — so a 2-day-old injury reads "2d ago", not "now".
         _dt = None
-        _pi = item.get("pubISO")
-        if _pi:
-            try:
-                _dt = datetime.fromisoformat(_pi)
-                if _dt.tzinfo is None:
-                    _dt = _dt.replace(tzinfo=timezone.utc)
-            except Exception:
-                _dt = None
+        for _src in (item.get("pubISO"), item.get("time"), item.get("first_seen")):
+            if isinstance(_src, str) and "T" in _src and ":" in _src:
+                try:
+                    _dt = datetime.fromisoformat(_src.replace("Z", "+00:00"))
+                    if _dt.tzinfo is None:
+                        _dt = _dt.replace(tzinfo=timezone.utc)
+                    break
+                except Exception:
+                    _dt = None
         if _dt is None:
-            _dt = _scraped_dt - timedelta(minutes=(i - 1) * 3)
-        item["time"] = _dt.astimezone(timezone.utc).isoformat()
+            _dt = _scraped_dt
+        _iso = _dt.astimezone(timezone.utc).isoformat()
+        # first_seen anchors to the best stable source (pubDate for RSS, the
+        # original NewsHistory time for injuries) so an item's age is constant
+        # across scrapes.
+        item["first_seen"] = _iso
+        item["time"] = _iso
         item["timeLabel"] = _label_from_dt(_dt)
 
     log.info(f"Total news items: {len(all_items)}")
@@ -2378,22 +2385,26 @@ def _merge_news_archive(new_items, cap=NEWS_ARCHIVE_CAP):
     _merge_dt = datetime.now(timezone.utc)
     for i, it in enumerate(merged, 1):
         it["id"] = i
-        ts = it.get("time") or ""
-        if not (isinstance(ts, str) and "T" in ts and ":" in ts):
-            ts = it.get("scrapedAt") or ""
+        # Prefer first_seen (original publication) so an item's age is stable
+        # across runs; fall back to time, then scrapedAt.
         _dt = None
-        try:
-            _dt = datetime.fromisoformat(ts)
-            if _dt.tzinfo is None:
-                _dt = _dt.replace(tzinfo=timezone.utc)
-        except Exception:
-            _dt = None
+        for ts in (it.get("first_seen"), it.get("time"), it.get("scrapedAt")):
+            if isinstance(ts, str) and "T" in ts and ":" in ts:
+                try:
+                    _dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+                    if _dt.tzinfo is None:
+                        _dt = _dt.replace(tzinfo=timezone.utc)
+                    break
+                except Exception:
+                    _dt = None
         # Old archive items with no usable timestamp: synthesise one from their
         # position (they sort oldest-last) so nothing ever reads "latest".
         if _dt is None:
             _dt = _merge_dt - timedelta(minutes=(i - 1) * 3)
             it["scrapedAt"] = _dt.isoformat()
-        it["time"] = _dt.astimezone(timezone.utc).isoformat()
+        _iso = _dt.astimezone(timezone.utc).isoformat()
+        it["first_seen"] = it.get("first_seen") or _iso
+        it["time"] = _iso
         it["timeLabel"] = _label_from_dt(_dt)
     log.info(f"News archive: {len(new_items)} new merged with existing -> {len(merged)} kept (cap {cap})")
     return merged
