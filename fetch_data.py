@@ -23,7 +23,7 @@ OUTPUT
   players.json — drop this next to aflfantasywire.html and reload the app
 """
 
-import json, re, time, logging, sys
+import json, re, time, logging, sys, traceback
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urljoin
@@ -1190,6 +1190,32 @@ def build_player(sc, dt, injuries, selections, rank):
 
 # ── MAIN ─────────────────────────────────────────────────────────────────────
 
+# Holds the most recent fully-built player list so the top-level crash handler
+# can still persist it if something blows up after the merge step.
+LAST_PLAYERS = []
+
+
+def write_output(players, sc_players=None, dt_players=None, injuries=None, selections=None):
+    """Write players.json. Safe to call with a partial list (e.g. from the crash
+    handler) — source counts fall back sensibly when the extras aren't passed."""
+    output = {
+        "scraped_at":   datetime.now().isoformat(),
+        "round":        "Current",
+        "season":       2026,
+        "player_count": len(players),
+        "sources": {
+            "sc_players":  len(sc_players) if sc_players is not None else len(players),
+            "dt_players":  len(dt_players) if dt_players is not None else 0,
+            "injuries":    len(injuries)   if injuries   is not None else 0,
+            "selections":  len(selections) if selections is not None else 0,
+        },
+        "players": players,
+    }
+    with open(OUTPUT_PATH, "w") as f:
+        json.dump(output, f, indent=2)
+    return output
+
+
 def main():
     print("=" * 60)
     print("  AFLFantasyWire — Footywire Data Fetcher")
@@ -1283,78 +1309,90 @@ def main():
     TOP_N = 350
     log.info(f"Fetching games log for top {TOP_N} players (pg- URL)...")
     for i, p in enumerate(sc_players[:TOP_N]):
-        pu_url = p.get("profile_url", "")
-        if not pu_url:
-            continue
-        # Swap the /pu- prefix for /pg- to hit the games-log page
-        pg_url = pu_url.replace("/pu-", "/pg-")
-        r5 = get(session, pg_url)
-        if not r5:
-            continue
-
-        games = parse_player_games(r5.text)
-
-        if games["pos"]:
-            p["pos"] = games["pos"]
-
-        sc_played = [s for s in games["sc_scores"] if s is not None and s > 0]
-        af_played = [s for s in games["af_scores"] if s is not None and s > 0]
-        p["sc_all_scores"] = sc_played
-        p["dt_all_scores"] = af_played
-
-        # Full round-by-round line for the player profile.
-        rs, gr = [], (games.get("sc_rounds") or [])
-        for idx in range(len(games["sc_scores"])):
-            sc_s = games["sc_scores"][idx]
-            if sc_s is None:
+        # One player's games-log page failing (network blip, an unexpected table
+        # layout, a parse error) must never abort the whole scrape. On failure we
+        # log the full traceback and skip just this player's games-log — the SC/DT
+        # price, average and break-even already parsed from the main stats page
+        # stay intact, so the player still appears in players.json.
+        try:
+            pu_url = p.get("profile_url", "")
+            if not pu_url:
                 continue
-            def _g(key, ix=idx):
-                arr = games.get(key) or []
-                return arr[ix] if ix < len(arr) and arr[ix] is not None else 0
-            rs.append({"r": gr[idx] if idx < len(gr) else f"R{idx+1}",
-                       "sc": sc_s, "dt": _g("af_scores"), "dis": _g("disposals"),
-                       "mk": _g("marks"), "tk": _g("tackles"), "gl": _g("goals")})
-        p["round_stats"] = rs
+            # Swap the /pu- prefix for /pg- to hit the games-log page
+            pg_url = pu_url.replace("/pu-", "/pg-")
+            r5 = get(session, pg_url)
+            if not r5:
+                continue
 
-        # Last 7 SC scores (right-pad with 0s if fewer played games)
-        if len(sc_played) >= 7:
-            p["sc_scores"] = sc_played[-7:]
-        elif sc_played:
-            p["sc_scores"] = sc_played + [0] * (7 - len(sc_played))
-        else:
-            p["sc_scores"] = [0] * 7
+            games = parse_player_games(r5.text)
 
-        if len(af_played) >= 7:
-            p["dt_scores"] = af_played[-7:]
-        elif af_played:
-            p["dt_scores"] = af_played + [0] * (7 - len(af_played))
-        else:
-            p["dt_scores"] = [0] * 7
+            if games["pos"]:
+                p["pos"] = games["pos"]
 
-        p["sc_last"] = sc_played[-1] if sc_played else 0
-        p["dt_last"] = af_played[-1] if af_played else 0
+            sc_played = [s for s in games["sc_scores"] if s is not None and s > 0]
+            af_played = [s for s in games["af_scores"] if s is not None and s > 0]
+            p["sc_all_scores"] = sc_played
+            p["dt_all_scores"] = af_played
 
-        sc_last3 = sc_played[-3:]
-        p["sc_avg3"] = round(sum(sc_last3) / len(sc_last3), 1) if sc_last3 else p["sc_avg"]
-        if af_played:
-            p["dt_avg"]  = round(sum(af_played) / len(af_played), 1)
-            af_last3 = af_played[-3:]
-            p["dt_avg3"] = round(sum(af_last3) / len(af_last3), 1)
+            # Full round-by-round line for the player profile.
+            rs, gr = [], (games.get("sc_rounds") or [])
+            for idx in range(len(games["sc_scores"])):
+                sc_s = games["sc_scores"][idx]
+                if sc_s is None:
+                    continue
+                def _g(key, ix=idx):
+                    arr = games.get(key) or []
+                    return arr[ix] if ix < len(arr) and arr[ix] is not None else 0
+                rs.append({"r": gr[idx] if idx < len(gr) else f"R{idx+1}",
+                           "sc": sc_s, "dt": _g("af_scores"), "dis": _g("disposals"),
+                           "mk": _g("marks"), "tk": _g("tackles"), "gl": _g("goals")})
+            p["round_stats"] = rs
 
-        # Per-game stat averages over actual played rounds
-        def avg_of(key):
-            vals = [v for v in games[key] if v is not None]
-            return round(sum(vals) / len(vals), 1) if vals else 0
-        p["disposals"]  = avg_of("disposals")
-        p["marks"]      = avg_of("marks")
-        p["goals"]      = avg_of("goals")
-        p["tackles"]    = avg_of("tackles")
-        p["hitouts"]    = avg_of("hitouts")
-        p["clearances"] = avg_of("clearances")
+            # Last 7 SC scores (right-pad with 0s if fewer played games)
+            if len(sc_played) >= 7:
+                p["sc_scores"] = sc_played[-7:]
+            elif sc_played:
+                p["sc_scores"] = sc_played + [0] * (7 - len(sc_played))
+            else:
+                p["sc_scores"] = [0] * 7
 
-        if i % 25 == 24:
-            log.info(f"  {i+1}/{TOP_N} games-log pages fetched")
-        time.sleep(0.5)
+            if len(af_played) >= 7:
+                p["dt_scores"] = af_played[-7:]
+            elif af_played:
+                p["dt_scores"] = af_played + [0] * (7 - len(af_played))
+            else:
+                p["dt_scores"] = [0] * 7
+
+            p["sc_last"] = sc_played[-1] if sc_played else 0
+            p["dt_last"] = af_played[-1] if af_played else 0
+
+            sc_last3 = sc_played[-3:]
+            p["sc_avg3"] = round(sum(sc_last3) / len(sc_last3), 1) if sc_last3 else p["sc_avg"]
+            if af_played:
+                p["dt_avg"]  = round(sum(af_played) / len(af_played), 1)
+                af_last3 = af_played[-3:]
+                p["dt_avg3"] = round(sum(af_last3) / len(af_last3), 1)
+
+            # Per-game stat averages over actual played rounds
+            def avg_of(key):
+                vals = [v for v in games[key] if v is not None]
+                return round(sum(vals) / len(vals), 1) if vals else 0
+            p["disposals"]  = avg_of("disposals")
+            p["marks"]      = avg_of("marks")
+            p["goals"]      = avg_of("goals")
+            p["tackles"]    = avg_of("tackles")
+            p["hitouts"]    = avg_of("hitouts")
+            p["clearances"] = avg_of("clearances")
+        except Exception as e:
+            log.error(f"Games-log fetch failed for {p.get('name', '?')} "
+                      f"({p.get('profile_url', '')}): {e}")
+            log.error(traceback.format_exc())
+            # Skip this player's games-log; keep the main-stats score data.
+            continue
+        finally:
+            if i % 25 == 24:
+                log.info(f"  {i+1}/{TOP_N} games-log pages fetched")
+            time.sleep(0.5)
 
     # ── 6b. Fetch AFL Fantasy Classic ownership ──
     log.info("Fetching AFL Fantasy Classic ownership...")
@@ -1383,22 +1421,9 @@ def main():
     players.sort(key=lambda p: p["rank"])
 
     # ── 7. Write output ──
-    output = {
-        "scraped_at":   datetime.now().isoformat(),
-        "round":        "Current",
-        "season":       2026,
-        "player_count": len(players),
-        "sources": {
-            "sc_players":  len(sc_players),
-            "dt_players":  len(dt_players),
-            "injuries":    len(injuries),
-            "selections":  len(selections),
-        },
-        "players": players,
-    }
-
-    with open(OUTPUT_PATH, "w") as f:
-        json.dump(output, f, indent=2)
+    global LAST_PLAYERS
+    LAST_PLAYERS = players
+    write_output(players, sc_players, dt_players, injuries, selections)
 
     # ── 8. Flatten each player's news[] into news.json for the frontend feed ──
     # The frontend's T7() loads ./news.json — without this, structured injury
@@ -1435,7 +1460,19 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # Never exit non-zero mid-run leaving players.json stale: if main() blows up
+    # after players have been built, persist whatever we have and exit cleanly.
+    try:
+        main()
+    except Exception as e:
+        log.error(f"fetch_data.py crashed: {e}")
+        log.error(traceback.format_exc())
+        if LAST_PLAYERS:
+            try:
+                write_output(LAST_PLAYERS)
+                log.info(f"Wrote {len(LAST_PLAYERS)} players despite crash")
+            except Exception as werr:
+                log.error(f"Could not write partial players.json: {werr}")
 
 # ── NEWS SCRAPING ─────────────────────────────────────────────────────────────
 
