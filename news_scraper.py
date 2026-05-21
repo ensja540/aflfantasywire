@@ -2429,17 +2429,27 @@ def main():
         _tb[i.get("type", "?")] = _tb.get(i.get("type", "?"), 0) + 1
     print(f"final type breakdown: {_tb}")
 
-    # ── Chronological order: newest first by timestamp ──
-    def _ts(it):
-        t = it.get("time") or it.get("scrapedAt") or ""
+    # ── Chronological order: newest first, urgent items pinned to top ──
+    def parse_timestamp(item):
+        t = item.get("time", "") or item.get("timeLabel", "") or ""
         try:
-            d = datetime.fromisoformat(t)
-            return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+            if "T" in t and ":" in t:
+                return datetime.fromisoformat(t.replace("Z", "+00:00"))
         except Exception:
-            return datetime(1970, 1, 1, tzinfo=timezone.utc)
-    items.sort(key=_ts, reverse=True)
-    for n, it in enumerate(items, 1):
-        it["id"] = n
+            pass
+        now = datetime.now(timezone.utc)
+        t_lower = t.lower().replace(" ago", "").strip()
+        try:
+            if t_lower.endswith("m"): return now - timedelta(minutes=int(t_lower[:-1]))
+            if t_lower.endswith("h"): return now - timedelta(hours=int(t_lower[:-1]))
+            if t_lower.endswith("d"): return now - timedelta(days=int(t_lower[:-1]))
+        except Exception:
+            pass
+        return now - timedelta(days=99)
+
+    items.sort(key=lambda x: (0 if x.get("urgent") else 1, -parse_timestamp(x).timestamp()))
+    for i, item in enumerate(items, 1):
+        item["id"] = i
 
     output = {
         "scraped_at":  datetime.now().isoformat(),
