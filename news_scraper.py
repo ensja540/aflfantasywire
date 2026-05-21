@@ -440,6 +440,43 @@ def scrape_fw_selections(session, player_idx):
                 "_source":     "footywire_selections",
             })
 
+    # Fallback: the team-block class names move around. If nothing matched,
+    # scan every li/p/tr in the page and keep rows that name a known player and
+    # mention a selection event.
+    if not items:
+        log.info("Footywire selections: no team blocks matched — scanning li/p/tr fallback")
+        for row in soup.find_all(["tr", "li", "p"]):
+            text = row.get_text(strip=True)
+            if len(text) < 5:
+                continue
+            pid, pname = find_player(text, player_idx)
+            if not pid:
+                continue
+            tl = text.lower()
+            if not any(x in tl for x in ("named", "selected", "in for", "replaces",
+                                         "omitted", "dropped", "out for", "replaced by",
+                                         "emergenc", "vest", "sub", "recalled")):
+                continue
+            if "vest" in tl or "sub" in tl:
+                cat = "vest_risk"
+            elif any(x in tl for x in ("omitted", "dropped", "out for", "replaced by")):
+                cat = "dropped"
+            elif any(x in tl for x in ("forward pocket", "half forward", "role")):
+                cat = "role_change"
+            else:
+                cat = "named"
+            items.append({
+                "id": None, "type": "selection", "category": cat,
+                "urgent": cat in ("vest_risk", "dropped"),
+                "player": pname or "", "pid": pid, "team": None, "pos": None,
+                "source": "Footywire", "sourceHandle": "@footywire", "reliability": 94,
+                "time": "latest", "timeLabel": "Latest",
+                "headline": text[:120], "body": text,
+                "signal": "sell" if cat in ("dropped", "vest_risk") else ("hold" if cat == "role_change" else None),
+                "signalConf": 70, "tags": [cat.replace("_", " ").title()],
+                "stats": [], "relevance": 50, "_source": "footywire_selections",
+            })
+
     log.info(f"Footywire selections: {len(items)} relevant items")
     return items
 
@@ -478,6 +515,29 @@ def _label_from_dt(dt):
         return "1d ago"
 
 
+def _classify_headline(text):
+    """Map a headline/body to (type, category) by keyword priority:
+    selection -> injury -> analysis -> news/general. General news is KEPT
+    (not dropped) so the feed isn't dominated by injuries."""
+    t = (text or "").lower()
+    if any(k in t for k in ("named", "selected", " in for ", "omitted", "dropped",
+                            "emergenc", "recalled", "ins and outs", "team news",
+                            "line-up", "lineup", "squad", "to debut", "late out",
+                            "late change", "selection")):
+        return "selection", "team_news"
+    if any(k in t for k in ("injury", "injured", "ruled out", " out for", "sidelined",
+                            "tbc", "hamstring", "knee", "ankle", "calf", "shoulder",
+                            "concussion", "groin", "quad", "corked", "achilles",
+                            "soreness", "setback", "scan", "surgery", "suspend",
+                            "weeks out", "done for the")):
+        return "injury", "injury_tbc"
+    if any(k in t for k in ("trade", "price", "average", "fantasy", "supercoach",
+                            "cash cow", "captain", "draft", "value pick", "breakeven",
+                            "break-even")):
+        return "analysis", "price"
+    return "news", "general"
+
+
 def _rss_item_to_news(item, source_name, reliability, player_idx):
     """Build a news item dict from one RSS <item> element, or None if not
     relevant. `item` is an xml.etree element."""
@@ -491,10 +551,17 @@ def _rss_item_to_news(item, source_name, reliability, player_idx):
     full_text = title + " " + body_text
 
     result = classify_item(full_text, title)
-    if not result["relevant"]:
-        return None
-
     pid, pname = find_player(full_text, player_idx)
+
+    # Type/category from the headline (per fix): selection / injury / analysis /
+    # news+general. Keep injury sub-category nuance (out vs tbc) when the keyword
+    # classifier has it. Secondary outlets still drop clearly non-AFL items.
+    item_type, cat = _classify_headline(full_text)
+    if item_type == "injury" and (result.get("category") or "").startswith("injury"):
+        cat = result["category"]
+    if source_name != "AFL.com.au" and not result.get("relevant") and not pid             and not any(k in full_text.lower() for k in ("afl", "football", "footy")):
+        return None
+    score = result["score"] if result.get("relevant") else 45
 
     mins = 99999
     pub_iso = None
@@ -509,13 +576,6 @@ def _rss_item_to_news(item, source_name, reliability, player_idx):
     except Exception:
         time_label = ""
 
-    cat = result["category"]
-    item_type = (
-        "injury"    if "injury" in cat else
-        "selection" if cat in ("named","dropped","role_change","vest_risk","team_news") else
-        "price"     if cat == "price" else
-        "news"
-    )
     signal = None
     if cat == "injury_out":    signal = "sell"
     elif cat == "injury_tbc":  signal = "hold"
@@ -543,7 +603,7 @@ def _rss_item_to_news(item, source_name, reliability, player_idx):
         "signalConf":  80,
         "tags":        [cat.replace("_"," ").title()],
         "stats":       [],
-        "relevance":   result["score"],
+        "relevance":   score,
         "_source":     f"rss_{source_name.lower().replace(' ','')}",
         "pubISO":      pub_iso,
     }
@@ -586,17 +646,12 @@ def _scrape_afl_news_html(session, player_idx):
             continue
         seen.add(title.lower())
         result = classify_item(title)
-        if not result["relevant"]:
-            continue
         pid, pname = find_player(title, player_idx)
         href = a.get("href", "")
         link = href if href.startswith("http") else f"https://www.afl.com.au{href}"
-        cat = result["category"]
-        item_type = (
-            "injury"    if "injury" in cat else
-            "selection" if cat in ("named","dropped","role_change","vest_risk","team_news") else
-            "news"
-        )
+        item_type, cat = _classify_headline(title)
+        if item_type == "injury" and (result.get("category") or "").startswith("injury"):
+            cat = result["category"]
         items.append({
             "id": None, "type": item_type, "category": cat,
             "urgent": False, "player": pname or "", "pid": pid,
@@ -1874,6 +1929,22 @@ def scrape_all_news(players=None):
     log.info("Source contribution summary: "
              + ", ".join(f"{k}={v}" for k, v in source_counts.items()))
 
+    # ── Per-source diagnostic (which sources returned 0?) ──
+    print("--- scraper source counts ---")
+    print(f"footywire_injuries:   {source_counts.get('footywire_injuries', 0)} items")
+    print(f"footywire_selections: {source_counts.get('footywire_selections', 0)} items")
+    print(f"afl_rss:              {source_counts.get('afl_rss', 0)} items")
+    print(f"club_pages:           {source_counts.get('club_pages', 0)} items")
+    print(f"twitter_rss:          {source_counts.get('twitter_rss', 0)} items")
+    print(f"afl_injury_page:      {source_counts.get('afl_injury_page', 0)} items")
+    print(f"afl_medical_room:     {source_counts.get('afl_medical_room', 0)} items")
+    print(f"afl_team_selections:  {source_counts.get('afl_team_selections', 0)} items")
+    print(f"google_news:          {source_counts.get('google_news', 0)} items")
+    zero = [k for k, v in source_counts.items() if v == 0]
+    if zero:
+        print(f"ZERO-ITEM sources: {', '.join(zero)}")
+    print("-----------------------------")
+
     # ── Drop AFLW / women's football items (men's AFL only) ──
     before_aflw = len(all_items)
     all_items = [it for it in all_items if not _is_aflw(it)]
@@ -2067,6 +2138,28 @@ def main():
 
     items = scrape_all_news()
     items = _merge_news_archive(items)
+
+    # ── Source/type diversity: don't let the feed become an injury wall ──
+    injury_count = len([i for i in items if i.get("type") == "injury"])
+    if items and injury_count > len(items) * 0.6:
+        log.warning(f"Over 60% injury items ({injury_count}/{len(items)}) — trimming "
+                    f"lowest-relevance injuries to restore variety")
+        others   = [i for i in items if i.get("type") != "injury"]
+        injuries = [i for i in items if i.get("type") == "injury"]
+        injuries.sort(key=lambda x: x.get("relevance", 0), reverse=True)
+        cap = max(1, int(len(others) * 1.5))   # result is <=60% injury
+        keep = set(id(x) for x in (others + injuries[:cap]))
+        items = [i for i in items if id(i) in keep]
+        for n, it in enumerate(items, 1):
+            it["id"] = n
+        inj2 = len([i for i in items if i.get("type") == "injury"])
+        print(f"diversity trim: {injury_count} -> {inj2} injuries of {len(items)} total")
+
+    # Final type breakdown for visibility.
+    _tb = {}
+    for i in items:
+        _tb[i.get("type", "?")] = _tb.get(i.get("type", "?"), 0) + 1
+    print(f"final type breakdown: {_tb}")
 
     output = {
         "scraped_at":  datetime.now().isoformat(),
