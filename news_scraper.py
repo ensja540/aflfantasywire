@@ -33,7 +33,7 @@ except ImportError:
 
 sys.path.insert(0, str(Path(__file__).parent))
 from news_filter import classify_item, is_relevant
-from news_history import NewsHistory
+from news_history import NewsHistory, HISTORY_PATH
 
 # Windows consoles default to cp1252, which can't encode the ✓/⚠/→ glyphs in
 # our status prints — that raises UnicodeEncodeError and aborts the run. Force
@@ -1438,6 +1438,216 @@ def scrape_afl_team_selections(session, player_idx):
     return items
 
 
+# ── DEDICATED TEAM-ANNOUNCEMENT SCRAPER (Wed/Thu/Fri lineups) ──────────────────
+
+AFL_TEAM_NEWS_PAGE = "https://www.afl.com.au/news/teams"
+
+
+def _selection_window_active():
+    """True during the Wed/Thu/Fri ~6pm-midnight AEST team-announcement window."""
+    aest = datetime.now(timezone.utc) + timedelta(hours=10)
+    return aest.weekday() in (2, 3, 4) and 18 <= aest.hour < 24
+
+
+def _guess_round():
+    """Best-effort current round number from players.json roundStats keys."""
+    try:
+        data = json.loads((BASE_DIR / "players.json").read_text(encoding="utf-8"))
+        players = data.get("players", []) if isinstance(data, dict) else data
+        rounds = set()
+        for p in players[:80]:
+            for k in (p.get("roundStats") or {}):
+                m = re.match(r"[Rr]?(\d+)", str(k))
+                if m:
+                    rounds.add(int(m.group(1)))
+        if rounds:
+            return max(rounds)
+    except Exception:
+        pass
+    return None
+
+
+def _parse_afl_team_page(session, player_idx):
+    """Best-effort parse of the AFL team-selection page into
+    {club: {"named": [names], "emergencies": [names]}}. The page is often
+    JS-rendered, so this returns {} when the lineups aren't in the static HTML."""
+    teams = {}
+    r = fetch(session, AFL_TEAMS_PAGE)
+    if not r:
+        return teams
+    soup = BeautifulSoup(r.text, "lxml")
+    cards = (soup.find_all(["section", "div"],
+                           class_=re.compile("team-selection|team-?announcement|match-?selection", re.I))
+             or soup.find_all(["section", "div"], class_=re.compile("club|team", re.I)))
+    for card in cards:
+        club_el = card.find(["h2", "h3", "h4", "span"], class_=re.compile("club|team|name", re.I))
+        club = club_el.get_text(strip=True) if club_el else ""
+        if not club or len(club) > 40:
+            continue
+        named, emerg = [], []
+        for slot in card.find_all(["li", "div", "span", "a"]):
+            text = slot.get_text(" ", strip=True)
+            if len(text) < 3 or len(text) > 60:
+                continue
+            _pid, pname = find_player(text, player_idx)
+            if not pname:
+                continue
+            blob = (text + " " + " ".join(slot.get("class") or [])).lower()
+            if "emergenc" in blob:
+                if pname not in emerg:
+                    emerg.append(pname)
+            elif pname not in named:
+                named.append(pname)
+        if named or emerg:
+            book = teams.setdefault(club, {"named": [], "emergencies": []})
+            for n in named:
+                if n not in book["named"]:
+                    book["named"].append(n)
+            for e in emerg:
+                if e not in book["emergencies"]:
+                    book["emergencies"].append(e)
+    return teams
+
+
+def _sel_item(club, category, headline, body, signal, relevance, player=None, player_idx=None):
+    """Build a selection news item, resolving the player's pid where possible."""
+    pid, pname = None, (player or "")
+    if player and player_idx:
+        pid, found = find_player(player, player_idx)
+        pname = found or player
+    return {
+        "id": None, "type": "selection", "category": category,
+        "urgent": category in ("dropped", "vest_risk"),
+        "player": pname, "pid": pid, "team": club, "pos": None,
+        "source": "AFL.com.au", "sourceHandle": "@aflcomau", "reliability": 95,
+        "time": "latest", "timeLabel": "Latest",
+        "headline": headline[:150], "body": body[:400],
+        "signal": signal, "signalConf": 80,
+        "tags": [category.replace("_", " ").title(), club],
+        "stats": [], "relevance": relevance, "_source": "team_announcements",
+    }
+
+
+def scrape_team_announcements(session, player_idx):
+    """Capture Wed/Thu/Fri team announcements: build each club's named 22 +
+    emergencies from the AFL team-selection page (primary), Footywire ins/outs
+    (secondary) and the AFL teams-news page (tertiary), diff against last week's
+    lineup stored in news_history.json, and emit a selection item per change
+    (IN / OUT / emergency) plus a one-off full-team summary when a club's team is
+    announced for the first time this round."""
+    items = []
+    if _selection_window_active():
+        log.info("Selection window active — checking team news")
+
+    round_num = _guess_round()
+    round_lbl = f"Round {round_num}" if round_num else "this round"
+
+    # PRIMARY — AFL.com.au team-selection page
+    teams = _parse_afl_team_page(session, player_idx)
+
+    # SECONDARY — Footywire ins/outs folded in (ins -> named, vest -> emergency)
+    try:
+        for it in scrape_fw_selections(session, player_idx):
+            club, pl, cat = it.get("team") or "", it.get("player") or "", it.get("category")
+            if not club or not pl:
+                continue
+            book = teams.setdefault(club, {"named": [], "emergencies": []})
+            if cat in ("named",) and pl not in book["named"]:
+                book["named"].append(pl)
+            elif cat == "vest_risk" and pl not in book["emergencies"]:
+                book["emergencies"].append(pl)
+    except Exception as e:
+        log.warning(f"Footywire fold-in failed: {e}")
+
+    # TERTIARY — AFL teams-news page: surface "TEAMS:" headline articles
+    try:
+        r = fetch(session, AFL_TEAM_NEWS_PAGE)
+        if r:
+            soup = BeautifulSoup(r.text, "lxml")
+            seen = set()
+            for a in soup.find_all("a", href=True):
+                t = a.get_text(" ", strip=True)
+                if "teams:" in t.lower() and 12 < len(t) < 140 and t.lower() not in seen:
+                    seen.add(t.lower())
+                    href = a["href"]
+                    link = href if href.startswith("http") else f"https://www.afl.com.au{href}"
+                    items.append({
+                        "id": None, "type": "selection", "category": "team_news",
+                        "urgent": False, "player": "", "pid": None, "team": "",
+                        "pos": None, "source": "AFL.com.au", "sourceHandle": "@aflcomau",
+                        "reliability": 95, "time": "latest", "timeLabel": "Latest",
+                        "headline": t[:150], "body": t[:400], "link": link,
+                        "signal": None, "signalConf": 80, "tags": ["Team News"],
+                        "stats": [], "relevance": 60, "_source": "team_announcements",
+                    })
+                    if len(items) >= 10:
+                        break
+    except Exception:
+        pass
+
+    # CHANGE DETECTION against last week's lineup in news_history.json
+    try:
+        hist = json.loads(HISTORY_PATH.read_text(encoding="utf-8")) if HISTORY_PATH.exists() else {}
+    except Exception:
+        hist = {}
+    snap = hist.get("team_announcements") or {}
+    now_iso = datetime.now(timezone.utc).isoformat()
+    num_clubs = 0
+
+    for club, cur in teams.items():
+        cur_named = cur.get("named", [])
+        cur_emerg = cur.get("emergencies", [])
+        if not cur_named and not cur_emerg:
+            continue
+        num_clubs += 1
+        prev = snap.get(club) or {}
+        prev_named = set(prev.get("named", []))
+        prev_emerg = set(prev.get("emergencies", []))
+
+        ins        = [p for p in cur_named if p not in prev_named]
+        outs       = [p for p in prev_named if p not in set(cur_named)]
+        new_emergs = [p for p in cur_emerg if p not in prev_emerg]
+
+        # First sighting of this club's team for this round -> full-team summary
+        if (prev.get("round") != round_num or not prev_named) and cur_named:
+            items.append(_sel_item(
+                club, "team_news",
+                f"{club} name team for {round_lbl}: {len(ins)} in, {len(outs)} out",
+                f"{club} have named their {round_lbl} lineup. "
+                f"In: {', '.join(ins) or 'no changes'}. Out: {', '.join(outs) or 'none'}. "
+                f"Emergencies: {', '.join(cur_emerg) or 'none'}.",
+                None, 80))
+
+        for p in ins:
+            items.append(_sel_item(club, "named",
+                f"{p} IN: Returns for {club} in {round_lbl}",
+                f"{p} has been named in {club}'s {round_lbl} lineup after missing last week.",
+                None, 78, player=p, player_idx=player_idx))
+        for p in outs:
+            items.append(_sel_item(club, "dropped",
+                f"{p} OUT: Omitted by {club} for {round_lbl}",
+                f"{p} has been dropped from {club}'s {round_lbl} lineup.",
+                "sell", 78, player=p, player_idx=player_idx))
+        for p in new_emergs:
+            items.append(_sel_item(club, "vest_risk",
+                f"{p} named as emergency for {club}",
+                f"{p} is listed as emergency for {club} in {round_lbl} — sub vest risk.",
+                "hold", 70, player=p, player_idx=player_idx))
+
+        snap[club] = {"round": round_num, "named": cur_named,
+                      "emergencies": cur_emerg, "updated": now_iso}
+
+    # Persist the snapshot (NewsHistory preserves this top-level key on save())
+    try:
+        hist["team_announcements"] = snap
+        HISTORY_PATH.write_text(json.dumps(hist, indent=2))
+    except Exception as e:
+        log.warning(f"Could not persist team snapshot: {e}")
+
+    log.info(f"Team selections: {len(items)} changes found across {num_clubs} clubs")
+    return items
+
+
 def scrape_club_news(session, player_idx):
     """
     Scrape news from all 18 AFL club pages via AFL.com.au.
@@ -1882,6 +2092,14 @@ def reclassify_item(item):
     """Re-categorise an item by headline/body keywords, correcting classify_item
     mislabels. Sets item['_skip']=True for items that should not appear at all
     (captaincy/coaching/awards/AFLW/etc)."""
+    # Structured scrapers already assign accurate, trusted categories
+    # (named/dropped/vest_risk/injury_out/etc) — don't let keyword guessing
+    # override them (e.g. a 'dropped' headline containing "out:" must NOT
+    # become an injury).
+    if item.get("_source") in ("team_announcements", "afl_team_selections",
+                               "footywire_selections", "footywire_injuries",
+                               "afl_medical_room", "afl_injury_page"):
+        return item
     headline = (item.get("headline", "") + " " + item.get("body", "")).lower()
 
     # Injury keywords - highest priority
@@ -1957,6 +2175,7 @@ def scrape_all_news(players=None):
         return got
 
     all_items += _run("afl_team_selections", scrape_afl_team_selections); time.sleep(1)
+    all_items += _run("team_announcements",  scrape_team_announcements);   time.sleep(1)
     all_items += _run("afl_medical_room",    scrape_afl_medical_room);    time.sleep(1)
     all_items += _run("afl_injury_page",     scrape_afl_injury_page);     time.sleep(1)
     all_items += _run("footywire_injuries",  scrape_fw_injuries);         time.sleep(1)
