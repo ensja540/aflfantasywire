@@ -2430,6 +2430,56 @@ def reclassify_item(item):
     return item
 
 
+def enforce_category(item):
+    """Final strict classification pass: block non-fantasy news outright and
+    force every surviving item into injury / selection / analysis."""
+    headline = (item.get("headline", "") or "").lower()
+    body = (item.get("body", "") or "").lower()
+    text = headline + " " + body
+
+    block_phrases = [
+        "captaincy", "vice-captain", "coach of the year", "brownlow",
+        "best and fairest", "aflw", "women's afl", "nab league",
+        "umpire", "fixture change", "venue change", "crowd",
+        "contract extension", "re-signed", "retirement", "farewell",
+        "hannah priest", "inaugural saint", "fagan's message",
+        "out-of-form midfield", "get back to basics",
+        "hands over", "reins", "captaincy reins",
+    ]
+    for phrase in block_phrases:
+        if phrase in text:
+            item["_skip"] = True
+            return item
+
+    injury_words = ["out:", "tbc:", "hamstring", "knee", "shoulder", "concussion",
+                    "ankle", "calf", "foot injury", "hip", "groin", "ruled out",
+                    "will miss", "injured", "soreness", "fracture", "strain",
+                    "torn", "managed", "racing the clock", "in doubt", "test his fitness"]
+    if any(w in text for w in injury_words):
+        item["type"] = "injury"
+        item["category"] = "injury_out" if any(w in text for w in ["out:", "ruled out", "will miss", "season", "6-8 weeks", "4-6 weeks"]) else "injury_tbc"
+        return item
+
+    selection_words = ["teams:", "in:", "out:", "named", "recalled", "selected",
+                       "omitted", "dropped", "emergencies", "late out", "in for",
+                       "returns for", "guns return", "will face", "makes changes",
+                       "four changes", "unchanged", "lineup"]
+    if any(w in text for w in selection_words):
+        item["type"] = "selection"
+        item["category"] = "team_news"
+        return item
+
+    fantasy_words = ["supercoach", "afl fantasy", "break-even", "fantasy relevant",
+                     "must trade", "trade target", "waiver", "draft pick"]
+    if any(w in text for w in fantasy_words):
+        item["type"] = "analysis"
+        item["category"] = "price"
+        return item
+
+    item["_skip"] = True
+    return item
+
+
 def scrape_all_news(players=None):
     """
     Run all scrapers and return merged, filtered, sorted news list.
@@ -2720,6 +2770,13 @@ def main():
 
     items = scrape_all_news()
     items = _merge_news_archive(items)
+
+    # ── Strict category enforcement: block non-fantasy news, force types ──
+    items = [enforce_category(i) for i in items]
+    items = [i for i in items if not i.get("_skip")]
+    log.info(f"After category enforcement: {len(items)} items remaining")
+    from collections import Counter
+    print(Counter(i["type"] for i in items))
 
     # ── Source/type diversity: don't let the feed become an injury wall ──
     injury_count = len([i for i in items if i.get("type") == "injury"])
