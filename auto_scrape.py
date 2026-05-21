@@ -14,11 +14,16 @@ Usage:
 import hashlib
 import json
 import logging
+import os
 import subprocess
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
+
+# Child scrapers print ✓/→ glyphs; force UTF-8 in the subprocess environment so
+# they don't crash under a cp1252 console.
+_UTF8_ENV = {**os.environ, "PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
 
 BASE_DIR     = Path(__file__).resolve().parent
 LOG_PATH     = BASE_DIR / "scrape.log"
@@ -66,6 +71,9 @@ def run_script(script_name: str) -> tuple[bool, str]:
             cwd=str(BASE_DIR),
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=_UTF8_ENV,
             timeout=10 * 60,
         )
     except subprocess.TimeoutExpired:
@@ -96,6 +104,8 @@ def git_step(args: list[str]) -> tuple[bool, str]:
             cwd=str(BASE_DIR),
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=120,
         )
     except Exception as e:

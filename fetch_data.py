@@ -28,6 +28,14 @@ from datetime import datetime
 from pathlib import Path
 from urllib.parse import urljoin
 
+# Force UTF-8 stdout/stderr so the checkmark/arrow glyphs in our prints don't
+# crash under a cp1252 console (scheduled task / auto_scrape subprocess).
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 try:
     import requests
     from bs4 import BeautifulSoup
