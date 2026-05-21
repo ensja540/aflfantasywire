@@ -1878,6 +1878,47 @@ def scrape_team_selections(session, player_idx):
     log.info(f"Team selections: {len(items)} changes from {len(cur_pids)} named players")
     return items
 
+def reclassify_item(item):
+    """Re-categorise an item by headline/body keywords, correcting classify_item
+    mislabels. Sets item['_skip']=True for items that should not appear at all
+    (captaincy/coaching/awards/AFLW/etc)."""
+    headline = (item.get("headline", "") + " " + item.get("body", "")).lower()
+
+    # Injury keywords - highest priority
+    if any(x in headline for x in ["out:", "tbc:", "hamstring", "knee", "shoulder", "concussion",
+                                   "ankle", "calf", "foot", "hip", "groin", "ruled out", "will miss",
+                                   "injury", "injured", "soreness", "sore", "managed",
+                                   "test his fitness", "race the clock", "in doubt"]):
+        item["type"] = "injury"
+        item["category"] = "injury_out" if any(x in headline for x in ["out:", "ruled out", "will miss", "season"]) else "injury_tbc"
+        return item
+
+    # Selection/team news keywords
+    if any(x in headline for x in ["teams:", "team:", "named", "selected", "recalled", "omitted",
+                                   "dropped", "in for", "out for", "emergencies", "late out", "changes",
+                                   "makes", "call", "returns", "guns return", "will face", "lineup", "squad"]):
+        item["type"] = "selection"
+        item["category"] = "team_news"
+        return item
+
+    # Captaincy, coaching, AFLW etc — filtered OUT entirely, not shown as General
+    if any(x in headline for x in ["captain", "captaincy", "coach", "coaching", "aflw",
+                                   "women", "brownlow", "award", "contract", "re-signed", "umpire", "fixture"]):
+        item["_skip"] = True
+        return item
+
+    # Fantasy/price specific
+    if any(x in headline for x in ["supercoach", "fantasy", "break-even", "price", "trade in", "trade out"]):
+        item["type"] = "analysis"
+        item["category"] = "price"
+        return item
+
+    # Default to general
+    item["type"] = "news"
+    item["category"] = "general"
+    return item
+
+
 def scrape_all_news(players=None):
     """
     Run all scrapers and return merged, filtered, sorted news list.
@@ -1952,6 +1993,14 @@ def scrape_all_news(players=None):
 
     # ── Recency filter (keep last 48h only) ──
     all_items = filter_recent(all_items, max_age_hours=48)
+
+    # ── Re-categorise by headline keywords (corrects classify_item mislabels)
+    # and drop irrelevant items (captaincy/coaching/awards/AFLW/etc) ──
+    all_items = [reclassify_item(item) for item in all_items]
+    all_items = [item for item in all_items if not item.get("_skip")]
+    from collections import Counter
+    types = Counter(item["type"] for item in all_items)
+    log.info(f"Item types after classification: {dict(types)}")
 
     # ── Deduplicate ──
     all_items = deduplicate(all_items)
