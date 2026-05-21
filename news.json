@@ -1,9 +1,121 @@
 {
-  "scraped_at": "2026-05-21T23:47:38.497749",
-  "item_count": 114,
+  "scraped_at": "2026-05-22T00:08:35.435738",
+  "item_count": 116,
   "news": [
     {
       "id": 1,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Jack Graham",
+      "pid": 224,
+      "team": "West Coast",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-21T12:08:35.282755+00:00",
+      "timeLabel": "1m ago",
+      "headline": "Jack Graham \u2014 OUT: Shoulder (5-6 weeks)",
+      "body": "Jack Graham (West Coast) has been ruled OUT with a shoulder; estimated return 5-6 weeks. Expect a price dip - trade or bench until they return. Status updated: Concussion \u2192 Shoulder; ETA Gold Coast \u2192 5-6 weeks.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Shoulder",
+        "5-6 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Shoulder"
+        },
+        {
+          "l": "ETA",
+          "v": "5-6 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "West Coast"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "first_seen": "2026-05-21T12:08:35.282755+00:00",
+      "age_label": "14h ago",
+      "seen_count": 21,
+      "last_status": "out",
+      "status_changed": true,
+      "status": "update",
+      "status_label": "\ud83d\udfe1 Update",
+      "prev_status": "OUT",
+      "curr_status": "OUT",
+      "change_desc": "Concussion \u2192 Shoulder; ETA Gold Coast \u2192 5-6 weeks",
+      "stale_after_days": 3,
+      "scrapedAt": "2026-05-21T12:08:35.308170+00:00"
+    },
+    {
+      "id": 2,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Lachlan Weller",
+      "pid": 254,
+      "team": "Gold Coast Suns",
+      "pos": null,
+      "source": "Footywire",
+      "sourceHandle": "@footywire",
+      "reliability": 94,
+      "time": "2026-05-21T12:08:35.282755+00:00",
+      "timeLabel": "1m ago",
+      "headline": "Lachlan Weller \u2014 OUT: Hamstring (1-3 weeks)",
+      "body": "Lachlan Weller (Gold Coast Suns) injury status: Hamstring. Expected return: 1-3 weeks. Status updated: ETA Gold Coast \u2192 1-3 weeks.",
+      "signal": "sell",
+      "signalConf": 85,
+      "tags": [
+        "OUT",
+        "Hamstring",
+        "1-3 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "1-3 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Gold Coast Suns"
+        }
+      ],
+      "relevance": 60,
+      "_source": "footywire_injuries",
+      "first_seen": "2026-05-21T12:08:35.282755+00:00",
+      "age_label": "14h ago",
+      "seen_count": 21,
+      "last_status": "out",
+      "status_changed": true,
+      "status": "update",
+      "status_label": "\ud83d\udfe1 Update",
+      "prev_status": "OUT",
+      "curr_status": "OUT",
+      "change_desc": "ETA Gold Coast \u2192 1-3 weeks",
+      "stale_after_days": 5,
+      "scrapedAt": "2026-05-21T12:08:35.308170+00:00"
+    },
+    {
+      "id": 3,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -15,7 +127,7 @@
       "sourceHandle": "@portadelaide",
       "reliability": 90,
       "time": "2026-05-21T10:52:28.434575+00:00",
-      "timeLabel": "55m ago",
+      "timeLabel": "1h ago",
       "headline": "'There's emotion attached': Power gun still uncertain on future call",
       "body": "As his contract end nears, Zak Butters says he needs to 'start having conversations' about his choices",
       "signal": null,
@@ -37,7 +149,7 @@
       "scrapedAt": "2026-05-21T10:52:28.456254+00:00"
     },
     {
-      "id": 2,
+      "id": 4,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -49,7 +161,7 @@
       "sourceHandle": "@carlton",
       "reliability": 90,
       "time": "2026-05-21T10:52:28.434575+00:00",
-      "timeLabel": "55m ago",
+      "timeLabel": "1h ago",
       "headline": "Leaders dismiss trade rumours as Blues flag aggressive draft strategy",
       "body": "Patrick Cripps and Jacob Weitering remain committed to Carlton as Graham Wright confirms the Blues' plan to attack this year's draft",
       "signal": null,
@@ -71,7 +183,7 @@
       "scrapedAt": "2026-05-21T10:52:28.456254+00:00"
     },
     {
-      "id": 3,
+      "id": 5,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -83,7 +195,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-21T10:52:28.434575+00:00",
-      "timeLabel": "55m ago",
+      "timeLabel": "1h ago",
       "headline": "McRae slams 'naive' theory over Pendlebury call, defends Grundy exchange",
       "body": "Craig McRae has hit back at criticism of the club's management of Scott Pendlebury in the lead-up to his record-breaking 433rd AFL match",
       "link": "https://www.afl.com.au/news/1523439/collingwood-magpies-coach-craig-mcrae-slams-naive-theory-over-scott-pendlebury-call-defends-brodie-grundy-exchange",
@@ -106,7 +218,7 @@
       "scrapedAt": "2026-05-21T10:52:28.456254+00:00"
     },
     {
-      "id": 4,
+      "id": 6,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -118,7 +230,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-21T10:52:28.434575+00:00",
-      "timeLabel": "55m ago",
+      "timeLabel": "1h ago",
       "headline": "Team whispers: Star draftee left out, Suns' tall call, Bulldogs make call on English",
       "body": "Stay up to date with all the latest teams news ahead of round 11",
       "link": "https://www.afl.com.au/news/1522895/team-whispers-live-all-the-latest-selection-news-ahead-of-round-11",
@@ -141,7 +253,7 @@
       "scrapedAt": "2026-05-21T10:52:28.456254+00:00"
     },
     {
-      "id": 5,
+      "id": 7,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -193,7 +305,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 6,
+      "id": 8,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -248,7 +360,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 7,
+      "id": 9,
       "type": "news",
       "category": "news",
       "urgent": false,
@@ -282,7 +394,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 8,
+      "id": 10,
       "type": "analysis",
       "category": "price",
       "urgent": false,
@@ -317,7 +429,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 9,
+      "id": 11,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -352,7 +464,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 10,
+      "id": 12,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -387,7 +499,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 11,
+      "id": 13,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -422,7 +534,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 12,
+      "id": 14,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -457,7 +569,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 13,
+      "id": 15,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -492,7 +604,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 14,
+      "id": 16,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -527,7 +639,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 15,
+      "id": 17,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -562,7 +674,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 16,
+      "id": 18,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -597,7 +709,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 17,
+      "id": 19,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -632,7 +744,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 18,
+      "id": 20,
       "type": "analysis",
       "category": "price",
       "urgent": false,
@@ -667,7 +779,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 19,
+      "id": 21,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -702,7 +814,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 20,
+      "id": 22,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:44:19.570107+00:00",
@@ -723,7 +835,7 @@
       "first_seen": "2026-05-21T08:44:19.570107+00:00"
     },
     {
-      "id": 21,
+      "id": 23,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:41:19.570107+00:00",
@@ -744,7 +856,7 @@
       "first_seen": "2026-05-21T08:41:19.570107+00:00"
     },
     {
-      "id": 22,
+      "id": 24,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:38:19.570107+00:00",
@@ -765,7 +877,7 @@
       "first_seen": "2026-05-21T08:38:19.570107+00:00"
     },
     {
-      "id": 23,
+      "id": 25,
       "type": "rumour",
       "category": "injury_out",
       "urgent": false,
@@ -805,7 +917,7 @@
       "scrapedAt": "2026-05-21T11:45:11.093648+00:00"
     },
     {
-      "id": 24,
+      "id": 26,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:35:19.570107+00:00",
@@ -826,7 +938,7 @@
       "first_seen": "2026-05-21T08:35:19.570107+00:00"
     },
     {
-      "id": 25,
+      "id": 27,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:32:19.570107+00:00",
@@ -847,7 +959,7 @@
       "first_seen": "2026-05-21T08:32:19.570107+00:00"
     },
     {
-      "id": 26,
+      "id": 28,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:29:19.570107+00:00",
@@ -868,7 +980,7 @@
       "first_seen": "2026-05-21T08:29:19.570107+00:00"
     },
     {
-      "id": 27,
+      "id": 29,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:26:19.570107+00:00",
@@ -889,7 +1001,7 @@
       "first_seen": "2026-05-21T08:26:19.570107+00:00"
     },
     {
-      "id": 28,
+      "id": 30,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:23:19.570107+00:00",
@@ -910,7 +1022,7 @@
       "first_seen": "2026-05-21T08:23:19.570107+00:00"
     },
     {
-      "id": 29,
+      "id": 31,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:20:19.570107+00:00",
@@ -931,7 +1043,7 @@
       "first_seen": "2026-05-21T08:20:19.570107+00:00"
     },
     {
-      "id": 30,
+      "id": 32,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -968,7 +1080,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 31,
+      "id": 33,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -1005,7 +1117,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 32,
+      "id": 34,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -1042,7 +1154,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 33,
+      "id": 35,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -1079,7 +1191,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 34,
+      "id": 36,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -1116,7 +1228,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 35,
+      "id": 37,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -1153,7 +1265,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 36,
+      "id": 38,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -1193,7 +1305,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 37,
+      "id": 39,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -1233,7 +1345,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 38,
+      "id": 40,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -1273,7 +1385,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 39,
+      "id": 41,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -1313,7 +1425,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 40,
+      "id": 42,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -1353,7 +1465,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 41,
+      "id": 43,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -1393,7 +1505,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 42,
+      "id": 44,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -1433,7 +1545,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 43,
+      "id": 45,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -1473,7 +1585,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 44,
+      "id": 46,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -1516,7 +1628,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 45,
+      "id": 47,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -1559,7 +1671,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 46,
+      "id": 48,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -1596,7 +1708,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 47,
+      "id": 49,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -1633,7 +1745,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 48,
+      "id": 50,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -1670,7 +1782,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 49,
+      "id": 51,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -1707,7 +1819,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 50,
+      "id": 52,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -1744,7 +1856,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 51,
+      "id": 53,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -1781,7 +1893,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 52,
+      "id": 54,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -1818,7 +1930,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 53,
+      "id": 55,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -1855,7 +1967,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 54,
+      "id": 56,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -1892,7 +2004,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 55,
+      "id": 57,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -1929,7 +2041,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 56,
+      "id": 58,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -1966,7 +2078,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 57,
+      "id": 59,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -2003,7 +2115,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 58,
+      "id": 60,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -2040,7 +2152,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 59,
+      "id": 61,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -2077,7 +2189,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 60,
+      "id": 62,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -2114,7 +2226,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 61,
+      "id": 63,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -2151,7 +2263,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 62,
+      "id": 64,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -2188,7 +2300,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 63,
+      "id": 65,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -2225,7 +2337,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 64,
+      "id": 66,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -2263,7 +2375,7 @@
       "scrapedAt": "2026-05-21T11:47:38.432158+00:00"
     },
     {
-      "id": 65,
+      "id": 67,
       "type": "selection",
       "category": "dropped",
       "urgent": true,
@@ -2298,7 +2410,7 @@
       "scrapedAt": "2026-05-21T11:29:33.020213+00:00"
     },
     {
-      "id": 66,
+      "id": 68,
       "type": "selection",
       "category": "dropped",
       "urgent": true,
@@ -2333,7 +2445,7 @@
       "scrapedAt": "2026-05-21T11:29:33.020213+00:00"
     },
     {
-      "id": 67,
+      "id": 69,
       "type": "selection",
       "category": "dropped",
       "urgent": true,
@@ -2368,7 +2480,7 @@
       "scrapedAt": "2026-05-21T11:29:33.020213+00:00"
     },
     {
-      "id": 68,
+      "id": 70,
       "type": "selection",
       "category": "dropped",
       "urgent": true,
@@ -2403,7 +2515,7 @@
       "scrapedAt": "2026-05-21T11:29:33.020213+00:00"
     },
     {
-      "id": 69,
+      "id": 71,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -2438,7 +2550,7 @@
       "scrapedAt": "2026-05-21T11:29:33.020213+00:00"
     },
     {
-      "id": 70,
+      "id": 72,
       "type": "selection",
       "category": "dropped",
       "urgent": true,
@@ -2473,7 +2585,7 @@
       "scrapedAt": "2026-05-21T11:29:33.020213+00:00"
     },
     {
-      "id": 71,
+      "id": 73,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -2513,7 +2625,7 @@
       "scrapedAt": "2026-05-21T11:29:33.020213+00:00"
     },
     {
-      "id": 72,
+      "id": 74,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -2548,7 +2660,7 @@
       "scrapedAt": "2026-05-21T11:29:33.020213+00:00"
     },
     {
-      "id": 73,
+      "id": 75,
       "type": "selection",
       "category": "named",
       "urgent": false,
@@ -2583,7 +2695,7 @@
       "scrapedAt": "2026-05-21T11:29:33.020213+00:00"
     },
     {
-      "id": 74,
+      "id": 76,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:17:19.570107+00:00",
@@ -2604,7 +2716,7 @@
       "first_seen": "2026-05-21T08:17:19.570107+00:00"
     },
     {
-      "id": 75,
+      "id": 77,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:14:19.570107+00:00",
@@ -2625,7 +2737,7 @@
       "first_seen": "2026-05-21T08:14:19.570107+00:00"
     },
     {
-      "id": 76,
+      "id": 78,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:11:19.570107+00:00",
@@ -2646,11 +2758,11 @@
       "first_seen": "2026-05-21T08:11:19.570107+00:00"
     },
     {
-      "id": 77,
+      "id": 79,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:08:19.570107+00:00",
-      "timeLabel": "3h ago",
+      "timeLabel": "4h ago",
       "pid": 152,
       "player": "Connor Rozee",
       "team": "Port Adelaide",
@@ -2667,11 +2779,11 @@
       "first_seen": "2026-05-21T08:08:19.570107+00:00"
     },
     {
-      "id": 78,
+      "id": 80,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:05:19.570107+00:00",
-      "timeLabel": "3h ago",
+      "timeLabel": "4h ago",
       "pid": 171,
       "player": "Jarrod Berry",
       "team": "Brisbane",
@@ -2688,11 +2800,11 @@
       "first_seen": "2026-05-21T08:05:19.570107+00:00"
     },
     {
-      "id": 79,
+      "id": 81,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T08:02:19.570107+00:00",
-      "timeLabel": "3h ago",
+      "timeLabel": "4h ago",
       "pid": 183,
       "player": "Christian Salem",
       "team": "Melbourne",
@@ -2709,11 +2821,11 @@
       "first_seen": "2026-05-21T08:02:19.570107+00:00"
     },
     {
-      "id": 80,
+      "id": 82,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T07:59:19.570107+00:00",
-      "timeLabel": "3h ago",
+      "timeLabel": "4h ago",
       "pid": 184,
       "player": "Cooper Lord",
       "team": "Carlton",
@@ -2730,11 +2842,11 @@
       "first_seen": "2026-05-21T07:59:19.570107+00:00"
     },
     {
-      "id": 81,
+      "id": 83,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T07:56:19.570107+00:00",
-      "timeLabel": "3h ago",
+      "timeLabel": "4h ago",
       "pid": 186,
       "player": "Matthew Roberts",
       "team": "Sydney",
@@ -2751,11 +2863,11 @@
       "first_seen": "2026-05-21T07:56:19.570107+00:00"
     },
     {
-      "id": 82,
+      "id": 84,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T07:53:19.570107+00:00",
-      "timeLabel": "3h ago",
+      "timeLabel": "4h ago",
       "pid": 198,
       "player": "Adam Saad",
       "team": "Carlton",
@@ -2772,11 +2884,11 @@
       "first_seen": "2026-05-21T07:53:19.570107+00:00"
     },
     {
-      "id": 83,
+      "id": 85,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T07:50:19.570107+00:00",
-      "timeLabel": "3h ago",
+      "timeLabel": "4h ago",
       "pid": 201,
       "player": "Oliver Hollands",
       "team": "Carlton",
@@ -2793,7 +2905,7 @@
       "first_seen": "2026-05-21T07:50:19.570107+00:00"
     },
     {
-      "id": 84,
+      "id": 86,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T07:47:19.570107+00:00",
@@ -2814,7 +2926,7 @@
       "first_seen": "2026-05-21T07:47:19.570107+00:00"
     },
     {
-      "id": 85,
+      "id": 87,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T07:44:19.570107+00:00",
@@ -2835,7 +2947,7 @@
       "first_seen": "2026-05-21T07:44:19.570107+00:00"
     },
     {
-      "id": 86,
+      "id": 88,
       "type": "injury",
       "source": "Footywire",
       "time": "2026-05-21T07:41:19.570107+00:00",
@@ -2856,7 +2968,7 @@
       "first_seen": "2026-05-21T07:41:19.570107+00:00"
     },
     {
-      "id": 87,
+      "id": 89,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -2911,7 +3023,7 @@
       "scrapedAt": "2026-05-21T11:03:42.477497+00:00"
     },
     {
-      "id": 88,
+      "id": 90,
       "type": "rumour",
       "category": "injury_tbc",
       "urgent": false,
@@ -2965,7 +3077,7 @@
       "scrapedAt": "2026-05-21T10:52:28.456254+00:00"
     },
     {
-      "id": 89,
+      "id": 91,
       "type": "rumour",
       "category": "injury_tbc",
       "urgent": false,
@@ -3016,7 +3128,7 @@
       "scrapedAt": "2026-05-21T10:52:28.456254+00:00"
     },
     {
-      "id": 90,
+      "id": 92,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3068,7 +3180,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 91,
+      "id": 93,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3120,7 +3232,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 92,
+      "id": 94,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3172,7 +3284,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 93,
+      "id": 95,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3224,7 +3336,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 94,
+      "id": 96,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3276,7 +3388,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 95,
+      "id": 97,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3328,7 +3440,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 96,
+      "id": 98,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3380,7 +3492,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 97,
+      "id": 99,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3432,7 +3544,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 98,
+      "id": 100,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3484,7 +3596,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 99,
+      "id": 101,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3536,7 +3648,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 100,
+      "id": 102,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3588,7 +3700,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 101,
+      "id": 103,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3640,7 +3752,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 102,
+      "id": 104,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3692,7 +3804,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 103,
+      "id": 105,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -3744,7 +3856,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 104,
+      "id": 106,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -3799,7 +3911,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 105,
+      "id": 107,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -3854,7 +3966,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 106,
+      "id": 108,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -3909,7 +4021,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 107,
+      "id": 109,
       "type": "rumour",
       "category": "injury_out",
       "urgent": true,
@@ -3964,7 +4076,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 108,
+      "id": 110,
       "type": "rumour",
       "category": "injury_tbc",
       "urgent": false,
@@ -4019,7 +4131,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 109,
+      "id": 111,
       "type": "rumour",
       "category": "injury_tbc",
       "urgent": false,
@@ -4074,7 +4186,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 110,
+      "id": 112,
       "type": "rumour",
       "category": "injury_tbc",
       "urgent": false,
@@ -4129,7 +4241,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 111,
+      "id": 113,
       "type": "rumour",
       "category": "injury_tbc",
       "urgent": false,
@@ -4184,7 +4296,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 112,
+      "id": 114,
       "type": "rumour",
       "category": "injury_tbc",
       "urgent": false,
@@ -4239,7 +4351,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 113,
+      "id": 115,
       "type": "rumour",
       "category": "injury_tbc",
       "urgent": false,
@@ -4294,7 +4406,7 @@
       "scrapedAt": "2026-05-21T10:44:19.536262+00:00"
     },
     {
-      "id": 114,
+      "id": 116,
       "type": "rumour",
       "category": "injury_tbc",
       "urgent": false,

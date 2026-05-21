@@ -2320,6 +2320,67 @@ def scrape_team_selections(session, player_idx):
     log.info(f"Team selections: {len(items)} changes from {len(cur_pids)} named players")
     return items
 
+def _eta_text(item):
+    tags = item.get("tags") or []
+    return " ".join(str(p) for p in (list(tags) + [item.get("body", "") or "", item.get("headline", "") or ""]))
+
+
+def _injury_eta_weeks(txt):
+    """Best-effort weeks-until-return parsed from an injury item's text."""
+    t = (txt or "").lower()
+    if "season" in t or "indefinite" in t:
+        return 99
+    m = re.search(r"(\d+)\s*[-to ]+\s*(\d+)\s*week", t)
+    if m:
+        return int(m.group(2))
+    m = re.search(r"(\d+)\s*week", t)
+    if m:
+        return int(m.group(1))
+    if re.search(r"\d+\s*day", t):
+        return 0
+    return None
+
+
+def _set_stale_after(item):
+    """Tag an item with how many days until it counts as stale news."""
+    if item.get("type") != "injury":
+        item["stale_after_days"] = 7
+        return
+    txt = _eta_text(item).lower()
+    weeks = _injury_eta_weeks(txt)
+    if "season" in txt or weeks == 99:
+        item["stale_after_days"] = 1
+    elif item.get("category") == "injury_tbc":
+        item["stale_after_days"] = 2
+    elif weeks is not None and weeks > 4:
+        item["stale_after_days"] = 3
+    elif weeks is not None and 1 <= weeks <= 4:
+        item["stale_after_days"] = 5
+    else:
+        item["stale_after_days"] = 5
+
+
+def _is_stale_ongoing(item):
+    """An ONGOING injury is stale once older than its staleness budget — unless
+    it's urgent, just changed status, or the player returns within ~2 rounds."""
+    if item.get("status") != "ongoing" or item.get("type") != "injury":
+        return False
+    if item.get("urgent") or item.get("status_changed"):
+        return False
+    weeks = _injury_eta_weeks(_eta_text(item))
+    if weeks is not None and weeks <= 2:
+        return False
+    fs = item.get("first_seen")
+    if not fs:
+        return False
+    try:
+        age_days = (datetime.now(timezone.utc)
+                    - datetime.fromisoformat(str(fs).replace("Z", "+00:00"))).days
+    except Exception:
+        return False
+    return age_days > item.get("stale_after_days", 7)
+
+
 def reclassify_item(item):
     """Re-categorise an item by headline/body keywords, correcting classify_item
     mislabels. Sets item['_skip']=True for items that should not appear at all
@@ -2465,6 +2526,15 @@ def scrape_all_news(players=None):
     # ── Apply history tracking (NEW / ONGOING / UPDATE / RESOLVED) ──
     history = NewsHistory()
     all_items = history.process(all_items)
+
+    # Tag staleness budget + drop stale ONGOING injuries (kept if urgent /
+    # status changed / returning within 2 rounds) so long-known injuries don't
+    # clog the feed.
+    for _it in all_items:
+        _set_stale_after(_it)
+    _before_stale = len(all_items)
+    all_items = [i for i in all_items if not _is_stale_ongoing(i)]
+    log.info(f"Stale-injury filter: kept {len(all_items)}/{_before_stale} items")
 
     # ── Real-time-only filter (per spec): drop ongoing items where the player's
     # status and the item content haven't changed since the previous scrape.
