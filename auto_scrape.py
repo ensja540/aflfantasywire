@@ -11,6 +11,8 @@ Usage:
     python auto_scrape.py
 """
 
+import hashlib
+import json
 import logging
 import subprocess
 import sys
@@ -20,7 +22,13 @@ from pathlib import Path
 
 BASE_DIR     = Path(__file__).resolve().parent
 LOG_PATH     = BASE_DIR / "scrape.log"
+SIG_PATH     = BASE_DIR / ".scrape_sig"
 INTERVAL_SEC = 5 * 60   # 5 minutes
+
+# Fields that change every run regardless of real data (timestamps, ids,
+# recomputed relevance). Excluded from the change signature so timestamp-only
+# churn (e.g. "1h ago" -> "2h ago") doesn't look like a real update.
+_VOLATILE_FIELDS = {"id", "time", "timeLabel", "scrapedAt", "relevance", "urgent", "status"}
 
 
 # Detailed log to file, terse status line to stdout.
@@ -101,25 +109,76 @@ def git_step(args: list[str]) -> tuple[bool, str]:
     return True, tail
 
 
-def commit_and_push(timestamp: str) -> tuple[bool, str]:
-    """Stage the JSON outputs, commit (always, even with no diff), and push.
+def _normalized(path: Path, list_key: str) -> str:
+    """Return a stable JSON string of a data file's records with volatile fields
+    (timestamps, ids) stripped, so timestamp-only churn isn't seen as a real
+    change. Returns '' if the file can't be read or parsed."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        rows = data.get(list_key, data) if isinstance(data, dict) else data
+        if not isinstance(rows, list):
+            return ""
+        cleaned = [
+            {k: v for k, v in r.items() if k not in _VOLATILE_FIELDS}
+            for r in rows if isinstance(r, dict)
+        ]
+        cleaned.sort(key=lambda r: json.dumps(r, sort_keys=True, ensure_ascii=False))
+        return json.dumps(cleaned, sort_keys=True, ensure_ascii=False)
+    except Exception:
+        return ""
 
-    We use --allow-empty so every run produces a commit and a push. This keeps
-    the deployed site's news.json guaranteed-fresh even when the real-time
-    filter drops repeat scrapes that produce byte-identical output, and gives a
-    visible heartbeat in the git history confirming the scraper is alive.
+
+def _data_signature() -> str:
+    """Hash the substantive content of players.json + news.json (timestamps and
+    ids excluded) so we can tell whether the data actually changed."""
+    players = _normalized(BASE_DIR / "players.json", "players")
+    news    = _normalized(BASE_DIR / "news.json", "news")
+    return hashlib.sha256((players + "\x00" + news).encode("utf-8")).hexdigest()
+
+
+def commit_and_push(timestamp: str) -> tuple[bool, str]:
+    """Commit and push ONLY if the scraped data actually changed.
+
+    We compare a content signature (players.json + news.json with volatile
+    timestamp/id fields stripped) against the previous run's signature. If they
+    match, the data is unchanged — we skip the commit and push entirely so we
+    don't trigger an unnecessary Cloudflare build. The signature is persisted to
+    .scrape_sig and only updated after a successful push.
     """
+    sig = _data_signature()
+    try:
+        prev = SIG_PATH.read_text(encoding="utf-8").strip()
+    except Exception:
+        prev = ""
+
+    if sig and sig == prev:
+        log.info("No changes — skipping push")
+        return True, "no changes"
+
     ok, _ = git_step(["add", "players.json", "news.json", "news_history.json"])
     if not ok:
         return False, "git add failed"
 
-    ok, tail = git_step(["commit", "--allow-empty", "-m", f"auto update {timestamp}"])
+    ok, tail = git_step(["commit", "-m", f"auto update {timestamp}"])
     if not ok:
+        # No staged diff (e.g. only volatile fields moved) -> nothing to push.
+        if "nothing to commit" in tail.lower() or "no changes added" in tail.lower():
+            try:
+                SIG_PATH.write_text(sig, encoding="utf-8")
+            except Exception:
+                pass
+            log.info("No changes — skipping push")
+            return True, "no changes"
         return False, f"commit failed: {tail}"
 
     ok, tail = git_step(["push"])
     if not ok:
         return False, f"push failed: {tail}"
+
+    try:
+        SIG_PATH.write_text(sig, encoding="utf-8")
+    except Exception:
+        pass
     return True, "pushed"
 
 
