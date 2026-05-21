@@ -1648,6 +1648,107 @@ def scrape_team_announcements(session, player_idx):
     return items
 
 
+TEAM_ALIASES = {
+    "WALYALUP": "Fremantle", "EURO-YROKE": "Sydney Swans", "YARTAPUULTI": "Port Adelaide",
+    "WAALITJ MARAWAR": "West Coast", "NARRM": "Melbourne", "GREATER WESTERN SYDNEY": "GWS Giants",
+    "KUWARNA": "Adelaide", "NGANGER": "Geelong", "BIGUBADHA": "Brisbane",
+}
+_TEAM_INJURY_REASONS = ["hamstring", "knee", "calf", "shoulder", "concussion", "ankle", "foot",
+                        "hip", "groin", "head", "back", "quad", "illness", "managed", "soreness",
+                        "corked", "achilles", "wrist", "finger", " rib", "suspended", "suspension"]
+
+
+def _team_alias(caps_name):
+    n = (caps_name or "").strip()
+    return TEAM_ALIASES.get(n.upper(), n.title())
+
+
+def parse_teams_article(text, url, round_num="", pub_iso=None, player_idx=None):
+    """Parse an AFL.com.au team-announcement article into one item per player.
+
+    Articles list each club as an ALL-CAPS line followed by 'In:' / 'Out:' lines,
+    e.g.:
+        RICHMOND
+        In:
+        M.Lefau, J.Alger
+        Out:
+        C.Gray (hamstring), L.Fawcett (omitted)
+    Out players carry a bracketed reason; injury reasons -> type=injury, else a
+    plain omission -> selection/dropped."""
+    rl = f"Round {round_num}" if round_num else "this round"
+    clubs, order, current, pending = {}, [], None, None
+    for raw in (text or "").split("\n"):
+        line = raw.strip()
+        if not line:
+            continue
+        low = line.lower()
+        if (line == line.upper() and re.match(r"^[A-Z][A-Z'’\-\. ]{2,30}$", line)
+                and not low.startswith("in:") and not low.startswith("out:")):
+            current = _team_alias(line)
+            if current not in clubs:
+                clubs[current] = {"in": "", "out": ""}
+                order.append(current)
+            pending = None
+            continue
+        if not current:
+            continue
+        if low.startswith("in:"):
+            rest = line.split(":", 1)[1].strip()
+            if rest: clubs[current]["in"] = rest
+            else:    pending = "in"
+            continue
+        if low.startswith("out:"):
+            rest = line.split(":", 1)[1].strip()
+            if rest: clubs[current]["out"] = rest
+            else:    pending = "out"
+            continue
+        if pending == "in":  clubs[current]["in"] = line;  pending = None; continue
+        if pending == "out": clubs[current]["out"] = line; pending = None; continue
+
+    def _mk(category, player, club, headline, body, signal, urgent, tags):
+        pid = None
+        if player_idx:
+            pid, found = find_player(player, player_idx)
+            player = found or player
+        return {
+            "id": None, "type": "injury" if category == "injury_out" else "selection",
+            "category": category, "urgent": urgent, "player": player, "pid": pid,
+            "team": club, "pos": None, "source": "AFL.com.au", "sourceHandle": "@aflcomau",
+            "reliability": 96, "time": "latest", "timeLabel": "Latest", "pubISO": pub_iso,
+            "headline": headline[:150], "body": body[:400], "link": url,
+            "signal": signal, "signalConf": 85, "tags": tags, "stats": [],
+            "relevance": 80, "_source": "team_announcements",
+        }
+
+    items = []
+    for club in order:
+        io = clubs[club]
+        for player in [p.strip() for p in io["in"].split(",") if p.strip() and p.strip().lower() != "nil"]:
+            items.append(_mk("named", player, club,
+                             f"{player} IN: Named for {club}",
+                             f"{player} has been named in {club}'s {rl} lineup. Coming in this week.",
+                             None, False, ["Named", "IN", club]))
+        for chunk in io["out"].split(","):
+            chunk = chunk.strip()
+            if not chunk or chunk.lower() == "nil":
+                continue
+            m = re.match(r"(.+?)\s*\(([^)]+)\)", chunk)
+            if m:
+                player, reason = m.group(1).strip(), m.group(2).strip()
+            else:
+                player, reason = chunk, "omitted"
+            if not player:
+                continue
+            is_inj = any(r in reason.lower() for r in _TEAM_INJURY_REASONS)
+            items.append(_mk(
+                "injury_out" if is_inj else "dropped", player, club,
+                f"{player} OUT: {club} — {reason.title()}",
+                f"{player} has been ruled OUT for {club} in {rl}. Reason: {reason}.",
+                "sell" if is_inj else None, is_inj,
+                ["OUT", reason.title(), club]))
+    return items
+
+
 def scrape_team_news_articles(session, player_idx):
     """Pull AFL.com.au 'TEAMS:' announcement articles from the main RSS feed,
     fetch each article body, and emit one item per player IN/OUT/injury plus a
@@ -1720,9 +1821,19 @@ def scrape_team_news_articles(session, player_idx):
             "stats": [], "relevance": 72, "_source": "team_announcements",
         })
 
-        # Per-player ins/outs from the article sentences
+        # Structured "In:/Out:" club blocks (preferred). Build from newline-
+        # joined article text so club names land on their own lines.
+        struct_text = ""
+        if ar:
+            struct_text = BeautifulSoup(ar.text, "lxml").get_text("\n", strip=True)
+        block_items = parse_teams_article(struct_text, link, round_num=round_num or "",
+                                          pub_iso=pub_iso, player_idx=player_idx)
+        items += block_items
+
+        # Per-player ins/outs from the article sentences (fallback when the
+        # article has no structured In:/Out: blocks)
         seen_players = set()
-        for sent in re.split(r"(?<=[.!?])\s+", body_text):
+        for sent in ([] if block_items else re.split(r"(?<=[.!?])\s+", body_text)):
             sl = sent.lower()
             pid, pname = find_player(sent, player_idx)
             if not pname or pname in seen_players:
