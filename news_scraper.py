@@ -2822,6 +2822,25 @@ def main():
     for i, item in enumerate(items, 1):
         item["id"] = i
 
+    # ── Degenerate-scrape guard ──
+    # When every web source blips out at once (rate limit, network drop) a run
+    # can collapse to a handful of items even after the archive merge. Publishing
+    # that wreckage is worse than doing nothing: once news.json collapses there's
+    # nothing left for the next run's archive merge to restore from, so the feed
+    # stays empty until a clean scrape happens to land. So if this run is a
+    # catastrophic drop from a previously healthy file, keep the existing file
+    # and skip the write. auto_scrape.py then sees no change and won't push.
+    try:
+        prev_count = len(json.loads(OUTPUT_PATH.read_text(encoding="utf-8")).get("news", []))
+    except Exception:
+        prev_count = 0
+    if prev_count >= 10 and len(items) <= 6 and len(items) < prev_count * 0.4:
+        log.error(f"Degenerate scrape: {len(items)} items vs {prev_count} in existing "
+                  f"news.json — keeping existing file, NOT overwriting.")
+        print(f"\n⚠  Degenerate scrape ({len(items)} vs {prev_count} existing) — "
+              f"kept existing news.json, skipped write.")
+        return
+
     output = {
         "scraped_at":  datetime.now().isoformat(),
         "item_count":  len(items),
