@@ -1,0 +1,49 @@
+name: Auto scrape
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every 10 minutes (UTC; GitHub may delay under load)
+  workflow_dispatch:          # allow manual runs from the Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-scrape
+  cancel-in-progress: false   # never interrupt a run mid-scrape
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scrapers
+        run: |
+          python fetch_data.py
+          python news_scraper.py
+
+      - name: Commit & push refreshed data
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          for f in news.json players.json team_selections.json rumours.json news_history.json; do
+            [ -f "$f" ] && git add "$f"
+          done
+          if git diff --cached --quiet; then
+            echo "No data changes — nothing to commit."
+          else
+            git commit -m "auto-scrape: refresh data"
+            git push
+          fi
