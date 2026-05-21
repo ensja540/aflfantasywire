@@ -1648,6 +1648,119 @@ def scrape_team_announcements(session, player_idx):
     return items
 
 
+def scrape_team_news_articles(session, player_idx):
+    """Pull AFL.com.au 'TEAMS:' announcement articles from the main RSS feed,
+    fetch each article body, and emit one item per player IN/OUT/injury plus a
+    summary item for the article. Articles already handled are tracked in
+    news_history.json['processed_articles'] so we never reprocess them."""
+    import xml.etree.ElementTree as ET
+    from email.utils import parsedate_to_datetime
+    items = []
+    r = fetch(session, "https://www.afl.com.au/rss")
+    if not r:
+        log.info("Team news articles: AFL RSS unavailable")
+        return items
+    try:
+        root = ET.fromstring(r.text)
+    except Exception as e:
+        log.warning(f"Team news RSS parse error: {e}")
+        return items
+
+    try:
+        hist = json.loads(HISTORY_PATH.read_text(encoding="utf-8")) if HISTORY_PATH.exists() else {}
+    except Exception:
+        hist = {}
+    processed = list(hist.get("processed_articles", []))
+    processed_set = set(processed)
+
+    round_num = _guess_round()
+    round_lbl = f"Round {round_num}" if round_num else "this round"
+    n_articles = 0
+
+    for el in root.findall(".//item"):
+        title = (el.findtext("title") or "").strip()
+        link  = (el.findtext("link") or "").strip()
+        tl = title.lower()
+        is_team = ("teams-" in link.lower()) or ("teams:" in tl) or ("make" in tl and "change" in tl)
+        if not is_team or not link or link in processed_set:
+            continue
+        n_articles += 1
+        processed_set.add(link)
+        processed.append(link)
+
+        # publish time from the RSS <pubDate>
+        pub_iso = None
+        try:
+            pdt = parsedate_to_datetime(el.findtext("pubDate") or "")
+            if pdt.tzinfo is None:
+                pdt = pdt.replace(tzinfo=timezone.utc)
+            pub_iso = pdt.isoformat()
+        except Exception:
+            pub_iso = None
+
+        # Article body: the page is often JS-rendered, so combine whatever <p>
+        # text we can scrape with the RSS <description> summary.
+        desc = BeautifulSoup(el.findtext("description") or "", "lxml").get_text(" ", strip=True)
+        body_text = desc
+        ar = fetch(session, link)
+        if ar:
+            paras = " ".join(p.get_text(" ", strip=True) for p in BeautifulSoup(ar.text, "lxml").find_all("p"))
+            if len(paras) > len(body_text):
+                body_text = paras
+        body_text = body_text[:4000]
+
+        # Summary item for the whole article
+        items.append({
+            "id": None, "type": "selection", "category": "team_news",
+            "urgent": False, "player": "", "pid": None, "team": "", "pos": None,
+            "source": "AFL.com.au", "sourceHandle": "@aflcomau", "reliability": 96,
+            "time": "latest", "timeLabel": "Latest", "pubISO": pub_iso,
+            "headline": title[:150], "body": (body_text[:200] or title)[:400], "link": link,
+            "signal": None, "signalConf": 85, "tags": ["Team News"],
+            "stats": [], "relevance": 72, "_source": "team_announcements",
+        })
+
+        # Per-player ins/outs from the article sentences
+        seen_players = set()
+        for sent in re.split(r"(?<=[.!?])\s+", body_text):
+            sl = sent.lower()
+            pid, pname = find_player(sent, player_idx)
+            if not pname or pname in seen_players:
+                continue
+            if any(x in sl for x in ("ruled out", " is out", " out for", "won't play", "will miss", "sidelined", "omitted", "dropped")):
+                cat, sig, urg, verb = "dropped", "sell", True, "OUT"
+            elif "injured" in sl or "injury" in sl:
+                cat, sig, urg, verb = "injury_out", "sell", True, "Injured"
+            elif any(x in sl for x in (" returns", " is in ", " named", " recalled", " comes in", " back in", " selected")):
+                cat, sig, urg, verb = "named", None, False, "IN"
+            elif "emergenc" in sl:
+                cat, sig, urg, verb = "vest_risk", "hold", False, "EMG"
+            else:
+                continue
+            seen_players.add(pname)
+            items.append({
+                "id": None, "type": "selection" if cat != "injury_out" else "injury",
+                "category": cat, "urgent": urg, "player": pname, "pid": pid,
+                "team": "", "pos": None, "source": "AFL.com.au",
+                "sourceHandle": "@aflcomau", "reliability": 96,
+                "time": "latest", "timeLabel": "Latest", "pubISO": pub_iso,
+                "headline": f"{pname} — {verb}: {round_lbl}"[:150],
+                "body": sent[:400], "link": link,
+                "signal": sig, "signalConf": 85, "tags": [verb],
+                "stats": [], "relevance": 78, "_source": "team_announcements",
+            })
+
+    # Persist processed-article URLs (keep the most recent 300)
+    try:
+        hist["processed_articles"] = processed[-300:]
+        HISTORY_PATH.write_text(json.dumps(hist, indent=2))
+    except Exception as e:
+        log.warning(f"Could not persist processed_articles: {e}")
+
+    log.info(f"Team news articles: {len(items)} items from {n_articles} new articles")
+    return items
+
+
 def scrape_club_news(session, player_idx):
     """
     Scrape news from all 18 AFL club pages via AFL.com.au.
@@ -2176,6 +2289,7 @@ def scrape_all_news(players=None):
 
     all_items += _run("afl_team_selections", scrape_afl_team_selections); time.sleep(1)
     all_items += _run("team_announcements",  scrape_team_announcements);   time.sleep(1)
+    all_items += _run("team_news_articles",  scrape_team_news_articles);   time.sleep(1)
     all_items += _run("afl_medical_room",    scrape_afl_medical_room);    time.sleep(1)
     all_items += _run("afl_injury_page",     scrape_afl_injury_page);     time.sleep(1)
     all_items += _run("footywire_injuries",  scrape_fw_injuries);         time.sleep(1)
