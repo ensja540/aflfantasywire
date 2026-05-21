@@ -190,6 +190,7 @@ class NewsHistory:
                 item["status"]         = "new"
                 item["status_label"]   = "🔴 New"
                 item["first_seen"]     = now_str
+                item["time"]           = now_str
                 item["age_label"]      = "Just in"
                 item["seen_count"]     = 1
                 item["last_status"]    = prev_pstat or None
@@ -233,6 +234,7 @@ class NewsHistory:
                 if content_changed or player_status_changed:
                     # ── UPDATE ──
                     item["status"]       = "update"
+                    item["time"]         = now_str
                     item["status_label"] = "🟡 Update"
                     item["prev_status"]  = old_pstat or existing["last_item"].get("category","")
                     # For injuries, describe exactly what changed (Status / ETA /
@@ -257,6 +259,7 @@ class NewsHistory:
                 else:
                     # ── ONGOING (no material change) ──
                     item["status"]       = "ongoing"
+                    item["time"]         = existing["first_seen"]
                     item["status_label"] = f"🔁 Ongoing · {age_label}"
 
                 existing["last_seen"]   = now_str
