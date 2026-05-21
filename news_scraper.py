@@ -2447,7 +2447,7 @@ def main():
             pass
         return now - timedelta(days=99)
 
-    items.sort(key=lambda x: (0 if x.get("urgent") else 1, -parse_timestamp(x).timestamp()))
+    items.sort(key=lambda x: parse_timestamp(x), reverse=True)
     for i, item in enumerate(items, 1):
         item["id"] = i
 
