@@ -136,7 +136,7 @@ AFL_NEWS_LIST_URL    = "https://www.afl.com.au/news"
 # Footywire pages
 FW_BASE        = "https://www.footywire.com/afl/footy"
 FW_INJURY_URL  = f"{FW_BASE}/injury_list"
-FW_SELECT_URL  = f"{FW_BASE}/selection_changes"
+FW_SELECT_URL  = f"{FW_BASE}/afl_team_selections"
 FW_NEWS_URL    = f"{FW_BASE}/afl_news"
 
 # ── HTTP SESSION ─────────────────────────────────────────────────────────────

@@ -71,7 +71,7 @@ URLS = {
     "sc_prices":      f"{FW}/supercoach_prices",
     "dt_prices":      f"{FW}/dream_team_prices",
     "injury_list":    f"{FW}/injury_list",
-    "selection":      f"{FW}/selection_changes",
+    "selection":      f"{FW}/afl_team_selections",
     "afl_selections": "https://www.afl.com.au/news/team-selection",
     # AFL Fantasy Classic — public JSON, gives Classic ownership %
     "afl_classic":    "https://fantasy.afl.com.au/data/afl/players.json",
@@ -565,74 +565,78 @@ def fetch_classic_ownership(session):
 
 
 def parse_dt_stats(html):
-    """
-    Parse the AFL Fantasy (Dream Team) statistics page.
-    Same structure as SC stats but DT-specific values.
+    """Parse the AFL Fantasy (Dream Team) season rankings page.
+
+    The rankings table has a <td> header row (not <th>):
+      Rank | Player | Team | Games | Price | TotalScore | AverageScore | *Value
+    so we locate it by header content and read column names from the first row.
     """
     soup = BeautifulSoup(html, "lxml")
     players = []
-    table = (
-        soup.find("table", id=re.compile("dream|dt|fantasy", re.I)) or
-        _largest_table(soup)
-    )
+
+    def header_cells(table):
+        first = table.find("tr")
+        return [c.get_text(strip=True).lower() for c in first.find_all(["td", "th"])] if first else []
+
+    # The real rankings table has DISTINCT short header cells ("player",
+    # "price"); wrapper/control tables only have those words inside blob cells.
+    table = None
+    for t in soup.find_all("table"):
+        h = header_cells(t)
+        if "player" in h and any(c == "price" for c in h) and len(h) >= 6 and len(t.find_all("tr")) > 20:
+            table = t
+            break
     if not table:
-        log.warning("DT stats: no table found")
+        log.warning("DT stats: no rankings table found")
         return players
 
-    headers = [th.get_text(strip=True).lower() for th in table.find_all("th")]
+    headers = header_cells(table)
+    log.info(f"DT stats headers: {headers}")
 
     def col_idx(*names):
         for name in names:
             for i, h in enumerate(headers):
-                if name in h: return i
+                if name in h:
+                    return i
         return None
 
-    i_player = col_idx("player","name")
-    i_price  = col_idx("price","cost","value")
-    i_avg    = col_idx("avg","average")
-    i_be     = col_idx("be","break")
-    i_last   = col_idx("last","pts")
-    i_owned  = col_idx("own","%")
-    round_cols = [i for i, h in enumerate(headers) if re.match(r"r\d+$", h)]
+    i_player = col_idx("player", "name")
+    i_price  = col_idx("price", "cost")
+    i_avg    = col_idx("averagescore", "average", "avg")
+    i_total  = col_idx("totalscore", "total")
 
     for row in table.find_all("tr")[1:]:
-        cells = row.find_all(["td","th"])
-        if len(cells) < 5: continue
+        cells = row.find_all(["td", "th"])
+        if len(cells) < 5:
+            continue
         txt = [c.get_text(strip=True) for c in cells]
-        def v(i, d=""): return txt[i] if i is not None and i < len(txt) else d
-        def num(i,d=0):
-            try: return float(re.sub(r"[^\d.]","",v(i) or "0") or 0)
-            except: return d
-        def money(i,d=0):
-            raw=(v(i,"0")).replace("$","").replace(",","")
-            if raw.endswith("k"): return int(float(raw[:-1])*1000)
+        def v(i, d=""):
+            return txt[i] if i is not None and i < len(txt) else d
+        def num(i, d=0):
+            try: return float(re.sub(r"[^\d.]", "", v(i) or "0") or 0)
+            except Exception: return d
+        def money(i, d=0):
+            raw = v(i, "0").replace("$", "").replace(",", "")
             try: return int(float(raw))
-            except: return d
+            except Exception: return d
 
         player_cell = cells[i_player] if i_player is not None else cells[1]
         name = (player_cell.find("a") or player_cell).get_text(strip=True)
-        if not name or name.lower() in ("player","name",""): continue
+        # Footywire suffixes a status flag onto the name ("Errol GuldenINJ").
+        name = re.sub(r"\s*(INJ|SUSP|TEST|LATE|OUT|DLIST)\s*$", "", name).strip()
+        if not name or name.lower() in ("player", "name", ""):
+            continue
 
-        played = []
-        for ci in round_cols:
-            raw = v(ci,"")
-            if raw and raw not in ("-","DNP",""):
-                try: played.append(int(re.sub(r"[^\d]","",raw) or 0))
-                except: pass
-
-        last7 = played[-7:] if len(played) >= 7 else (played + [0]*(7-len(played)))
-        last3_scores = played[-3:] if played else []
-        avg3  = round(sum(last3_scores)/len(last3_scores), 1) if last3_scores else num(i_avg)
-
+        avg = num(i_avg)
         players.append({
             "name":     name,
             "dt_price": money(i_price) or 500000,
-            "dt_avg":   num(i_avg),
-            "dt_avg3":  avg3,
-            "dt_last":  int(num(i_last)),
-            "dt_be":    int(num(i_be)),
-            "dt_owned": num(i_owned),
-            "dt_scores": last7,
+            "dt_avg":   avg,
+            "dt_avg3":  avg,
+            "dt_last":  0,
+            "dt_be":    0,
+            "dt_owned": 0,
+            "dt_scores": [],
             "dt_rank":  len(players) + 1,
         })
 
