@@ -1306,12 +1306,17 @@ def main():
     # Footywire's "pg-" page (Player Games) is richer than the "pu-" profile —
     # it gives BOTH the SuperCoach and AFL Fantasy score per round, plus full
     # disposals/marks/goals/tackles/clearances per game.
-    TOP_N = 100
+    # Cover the full waiver-target band (rank ≤ 250) so mid-rank players get
+    # real per-round scores / 3-round form — without it the Waiver Wire has no
+    # accurate analysis to show. The loop sleeps 5 min AFTER each cycle and the
+    # subprocess timeout is 20 min, so a longer games-log phase just spaces
+    # cycles out; it never breaks the run.
+    TOP_N = 250
     log.info(f"Fetching games log for top {TOP_N} players (pg- URL)...")
     games_log_start = time.time()
     for i, p in enumerate(sc_players[:TOP_N]):
-        if time.time() - games_log_start > 300:   # 5 min cap on the games-log phase
-            log.warning("Games-log fetch exceeded 5 min — stopping early, using data so far")
+        if time.time() - games_log_start > 600:   # 10 min cap on the games-log phase
+            log.warning("Games-log fetch exceeded 10 min — stopping early, using data so far")
             break
         # One player's games-log page failing (network blip, an unexpected table
         # layout, a parse error) must never abort the whole scrape. On failure we
