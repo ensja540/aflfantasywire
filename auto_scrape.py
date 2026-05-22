@@ -30,6 +30,12 @@ LOG_PATH     = BASE_DIR / "scrape.log"
 SIG_PATH     = BASE_DIR / ".scrape_sig"
 INTERVAL_SEC = 5 * 60   # 5 minutes
 
+# Per-script subprocess timeout. fetch_data.py fetches ~350 games-log pages
+# sequentially with polite delays (~2s/player to avoid Footywire rate-limiting),
+# so it needs ~12 min for that phase alone; give comfortable headroom so it isn't
+# killed mid-fetch (which would otherwise push news-only with stale player data).
+SCRIPT_TIMEOUT_SEC = 20 * 60   # 20 minutes
+
 # Even when the content signature is unchanged, force a push after this many
 # consecutive no-change runs (~30 min at a 5-min interval) so the deployed site
 # never goes stale and we can confirm the loop is alive from the commit history.
@@ -80,10 +86,10 @@ def run_script(script_name: str) -> tuple[bool, str]:
             encoding="utf-8",
             errors="replace",
             env=_UTF8_ENV,
-            timeout=10 * 60,
+            timeout=SCRIPT_TIMEOUT_SEC,
         )
     except subprocess.TimeoutExpired:
-        msg = f"{script_name} timed out after 10 min"
+        msg = f"{script_name} timed out after {SCRIPT_TIMEOUT_SEC // 60} min"
         log.error(msg)
         return False, msg
     except Exception as e:
