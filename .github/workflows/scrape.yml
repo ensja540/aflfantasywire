@@ -1,9 +1,11 @@
 name: Auto scrape
 
 on:
-  schedule:
-    - cron: "*/10 * * * *"   # every 10 minutes (UTC; GitHub may delay under load)
-  workflow_dispatch:          # allow manual runs from the Actions tab
+  # Scheduled runs DISABLED: GitHub's cloud IPs are blocked by Footywire (so
+  # fetch_data.py returns degraded data), and this workflow collided with the
+  # local auto_scrape.py loop's pushes. The home-machine loop is the source of
+  # truth. Manual runs still allowed from the Actions tab if ever needed.
+  workflow_dispatch:
 
 permissions:
   contents: write
