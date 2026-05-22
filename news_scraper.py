@@ -2150,25 +2150,42 @@ def _tidy_body(text, fallback="", max_len=250):
 
 # ── DEDUPLICATION ─────────────────────────────────────────────────────────────
 
+def _coarse_status(cat):
+    """Collapse fine categories to a coarse status so the same real event from
+    different sources maps to one key."""
+    c = (cat or "").lower()
+    if "out" in c:                 return "out"
+    if "tbc" in c or "test" in c:  return "tbc"
+    if "named" in c:               return "named"
+    if "drop" in c or "omit" in c: return "dropped"
+    if "vest" in c:                return "vest"
+    if "role" in c:                return "role"
+    return c or "news"
+
+
 def deduplicate(items):
-    """
-    Remove near-duplicate items.
-    Two items are duplicates if they're about the same player
-    and have the same category within 2 hours.
-    """
+    """Remove cross-source duplicates: at most one item per player + coarse
+    status, keeping the most reliable source (AFL.com.au 96 > Footywire 94 >
+    others). This is what stops Footywire re-reporting an AFL.com.au injury as a
+    second feed item. Items with no player (general news) are never collapsed."""
     seen = {}
     unique = []
     for item in items:
-        key = f"{item.get('pid','none')}_{item.get('category','none')}"
+        pl  = (item.get("player") or "").strip().lower()
+        pid = item.get("pid")
+        if not pl and not pid:
+            # General/no-player news — keep every distinct headline.
+            key = "gen|" + (item.get("headline") or str(id(item)))[:80].lower()
+        else:
+            ident = pl or f"pid:{pid}"
+            key = f"{ident}|{_coarse_status(item.get('category'))}"
         if key not in seen:
             seen[key] = item
             unique.append(item)
         else:
-            # Keep the one with higher reliability
             existing = seen[key]
-            if item["reliability"] > existing["reliability"]:
-                idx = unique.index(existing)
-                unique[idx] = item
+            if (item.get("reliability", 0) or 0) > (existing.get("reliability", 0) or 0):
+                unique[unique.index(existing)] = item
                 seen[key] = item
     return unique
 
@@ -2795,15 +2812,30 @@ def _merge_news_archive(new_items, cap=NEWS_ARCHIVE_CAP):
             if ppl == pl and difflib.SequenceMatcher(None, tx, ptx).ratio() > 0.82:
                 return True
         return False
-    # Cross-check: process EXISTING items first so already-posted stories keep
-    # their slot; only genuinely new/changed stories from this scrape get added
-    # (a story >82% similar to one already posted for that player is skipped).
-    for it in list(existing) + list(new_items):
+    def _key(it):
+        return ((it.get("player") or "").lower(),
+                (it.get("headline") or "")[:80].lower(),
+                it.get("type", ""))
+    # Existing items have earned their slot: keep them ALL (exact-key dedup only)
+    # so the archive ACCUMULATES toward the cap instead of collapsing when bodies
+    # look similar (e.g. after advice text is stripped). Their signatures are
+    # recorded so we don't re-add a near-duplicate as if it were new.
+    for it in existing:
         if not _ok(it):
             continue
-        key = ((it.get("player") or "").lower(),
-               (it.get("headline") or "")[:80].lower(),
-               it.get("type", ""))
+        key = _key(it)
+        if key in seen:
+            continue
+        seen.add(key)
+        _sig.append(((it.get("player") or "").lower(),
+                     ((it.get("headline") or "") + " " + (it.get("body") or "")).lower()))
+        merged.append(it)
+    # Add only genuinely-new stories: skip exact-key dups and >82%-similar
+    # same-player stories already in the archive.
+    for it in new_items:
+        if not _ok(it):
+            continue
+        key = _key(it)
         if key in seen:
             continue
         pl = (it.get("player") or "").lower()
@@ -2866,6 +2898,13 @@ def main():
 
     # ── Accumulate into the rolling archive (newest 500 kept, oldest roll off) ──
     items = _merge_news_archive(items)
+
+    # ── Cross-source de-dup across the whole archive: one item per player+coarse
+    # status, AFL.com.au beating Footywire — kills Footywire regurgitating an
+    # AFL.com.au injury that's already in the feed. (General news is preserved.) ──
+    _pre = len(items)
+    items = deduplicate(items)
+    log.info(f"Cross-source dedup: {len(items)}/{_pre} kept")
 
     # Final type breakdown for visibility.
     _tb = {}
