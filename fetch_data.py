@@ -100,12 +100,12 @@ def make_session():
     })
     return s
 
-def get(session, url, retries=3, delay=2):
+def get(session, url, retries=3, delay=2, timeout=15):
     """Fetch URL with retries and rate limiting."""
     for attempt in range(retries):
         try:
             time.sleep(0.8)  # polite delay between requests
-            r = session.get(url, timeout=15)
+            r = session.get(url, timeout=timeout)
             if r.status_code == 200:
                 return r
             elif r.status_code == 403:
@@ -1306,9 +1306,13 @@ def main():
     # Footywire's "pg-" page (Player Games) is richer than the "pu-" profile —
     # it gives BOTH the SuperCoach and AFL Fantasy score per round, plus full
     # disposals/marks/goals/tackles/clearances per game.
-    TOP_N = 350
+    TOP_N = 100
     log.info(f"Fetching games log for top {TOP_N} players (pg- URL)...")
+    games_log_start = time.time()
     for i, p in enumerate(sc_players[:TOP_N]):
+        if time.time() - games_log_start > 300:   # 5 min cap on the games-log phase
+            log.warning("Games-log fetch exceeded 5 min — stopping early, using data so far")
+            break
         # One player's games-log page failing (network blip, an unexpected table
         # layout, a parse error) must never abort the whole scrape. On failure we
         # log the full traceback and skip just this player's games-log — the SC/DT
@@ -1320,7 +1324,7 @@ def main():
                 continue
             # Swap the /pu- prefix for /pg- to hit the games-log page
             pg_url = pu_url.replace("/pu-", "/pg-")
-            r5 = get(session, pg_url)
+            r5 = get(session, pg_url, retries=1, timeout=8)
             if not r5:
                 continue
 
