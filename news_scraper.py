@@ -1117,7 +1117,7 @@ def scrape_afl_injury_page(session, player_idx):
                 "time":        "latest",
                 "timeLabel":   "Latest",
                 "headline":    headline,
-                "body":        (f"{pname} has been ruled out" + (f" with a {injury.lower()}" if injury else "") + (f"; estimated return {eta}." if eta and eta.lower() not in ("", "tbc") else ".") + " Expect a price dip - trade or bench until they return." if cat == "injury_out" else f"{pname} is in doubt" + (f" with a {injury.lower()}" if injury else "") + (f" ({eta})" if eta else "") + ". Monitor team news before locking them in - risky to field unconfirmed."),
+                "body":        (f"{pname} has been ruled OUT" + (f" with a {injury.lower()}" if injury else "") + (f" Estimated return: {eta}." if eta and eta.lower() not in ("", "tbc") else ".") if cat == "injury_out" else f"{pname} is in doubt" + (f" with a {injury.lower()}" if injury else "") + (f" Estimated return: {eta}." if eta and eta.lower() not in ("", "tbc") else ".")),
                 "signal":      signal,
                 "signalConf":  88,
                 "tags":        [cat.replace("_", " ").title(), injury[:25], eta or ""],
@@ -1328,7 +1328,7 @@ def scrape_afl_medical_room(session, player_idx):
                 "time":        "latest",
                 "timeLabel":   "Latest",
                 "headline":    headline,
-                "body":        (f"{display_name} ({club_name}) has been ruled OUT" + (f" with a {(body_part or injury).lower()}" if (body_part or injury) else "") + (f"; estimated return {eta_disp}." if eta_disp and eta_disp.lower() not in ("", "tbc") else ".") + " Expect a price dip - trade or bench until they return." if status == "out" else f"{display_name} ({club_name}) faces a fitness test" + (f" on a {(body_part or injury).lower()}" if (body_part or injury) else "") + ". Monitor team news before locking them in - risky to field unconfirmed." if status == "test" else f"{display_name} ({club_name}) is managing" + (f" a {(body_part or injury).lower()}" if (body_part or injury) else " a minor issue") + (f", return {eta_disp}." if eta_disp and eta_disp.lower() not in ("", "tbc") else ".") + " Keep an eye on selection news."),
+                "body":        (f"{display_name} ({club_name}) has been ruled OUT" + (f" with a {(body_part or injury).lower()}" if (body_part or injury) else "") + (f" Estimated return: {eta_disp}." if eta_disp and eta_disp.lower() not in ("", "tbc") else ".") if status == "out" else f"{display_name} ({club_name}) faces a fitness test" + (f" on a {(body_part or injury).lower()}" if (body_part or injury) else "") + "." if status == "test" else f"{display_name} ({club_name}) is managing" + (f" a {(body_part or injury).lower()}" if (body_part or injury) else " a minor issue") + (f" Estimated return: {eta_disp}." if eta_disp and eta_disp.lower() not in ("", "tbc") else ".")),
                 "signal":      "sell" if status == "out" else "hold" if status == "test" else "buy",
                 "signalConf":  88,
                 "tags":        [status.upper(), body_part or injury, eta_disp],
@@ -2253,6 +2253,11 @@ def _apply_rumour_buffer(items, keep=15, min_items=15):
                 break
             if it.get("type") != "injury" or not it.get("player"):
                 continue
+            # Confirmed OUT from an official source is NEWS, not a rumour — never
+            # reframe it into the mill (this is what made confirmed injuries show
+            # up as high-"confidence" rumours).
+            if it.get("category") == "injury_out" and (it.get("reliability") or 0) >= 90:
+                continue
             pl = it["player"]
             if pl.lower() in have:
                 continue
@@ -2265,7 +2270,7 @@ def _apply_rumour_buffer(items, keep=15, min_items=15):
             merged.append({**it, "type": "rumour", "is_rumour": True, "confirmed": False,
                            "category": "injury_out" if out else "injury_tbc",
                            "signal": "sell" if out else "hold",
-                           "headline": hd, "body": bd,
+                           "headline": hd, "body": _strip_fantasy_advice(bd),
                            "tags": ["Rumour", "Watch"], "_seen": now, "_padded": True})
         log.info(f"Rumour buffer: padded to {len(merged)} with reframed injuries")
 
@@ -2480,6 +2485,53 @@ def enforce_category(item):
     return item
 
 
+OFFICIAL_NEVER_RUMOUR = ("afl.com.au", "footywire", "champion data")
+
+_ADVICE_RE = re.compile(
+    r"(expect a price dip|trade or bench|bench until|trade[- ]out|monitor team news|"
+    r"risky to (?:field|lock)|keep an eye on selection|line up cover|"
+    r"worth watching at lockout|risky sc|one to move on from|wait for the named team)",
+    re.I)
+
+def _strip_fantasy_advice(body):
+    """Remove fantasy/financial advice sentences from a news body so injury items
+    state only the fact (injury + ETA), not trade advice. Applied to every item
+    each run so already-archived bodies get cleaned too."""
+    if not body:
+        return body
+    parts = re.split(r"(?<=[.!?;])\s+|\s+[—–-]\s+", body)
+    kept = [p.strip() for p in parts if p and not _ADVICE_RE.search(p)]
+    if not kept:
+        return body
+    out = re.sub(r"\s*[;,]\s*$", "", " ".join(kept).strip()).strip()
+    if out and out[-1] not in ".!?":
+        out += "."
+    return out or body
+
+def enforce_official_not_rumour(items):
+    """AFL.com.au / Footywire / Champion Data are confirmed sources — their items
+    are NEWS, never rumours. Force is_rumour False and demote any 'rumour' type."""
+    for it in items:
+        src = (it.get("source") or "").lower()
+        if any(o in src for o in OFFICIAL_NEVER_RUMOUR):
+            it["is_rumour"] = False
+            if it.get("type") == "rumour":
+                it["type"] = "selection" if "named" in (it.get("category") or "") \
+                    or "drop" in (it.get("category") or "") else "injury"
+    return items
+
+
+def remove_superseded_rumours(all_items):
+    """Drop any rumour that duplicates a CONFIRMED news item (same player AND
+    category, reliability >= 90) — the confirmed news supersedes the speculation."""
+    confirmed = {(i.get("player"), i.get("category"))
+                 for i in all_items
+                 if not i.get("is_rumour") and (i.get("reliability", 0) or 0) >= 90}
+    return [i for i in all_items
+            if not i.get("is_rumour")
+            or (i.get("player"), i.get("category")) not in confirmed]
+
+
 def scrape_all_news(players=None):
     """
     Run all scrapers and return merged, filtered, sorted news list.
@@ -2568,6 +2620,9 @@ def scrape_all_news(players=None):
     # ── Deduplicate ──
     all_items = deduplicate(all_items)
 
+    # ── Official sources are NEWS, never rumours ──
+    all_items = enforce_official_not_rumour(all_items)
+
     # ── Rumour-vs-status filter ──
     # Drop rumours about confirmed-OUT players (the rumour is stale), and flag
     # rumours about TBC/managed players as low-confidence rather than dropping.
@@ -2603,7 +2658,7 @@ def scrape_all_news(players=None):
         _src = ((it.get("source") or "") + " " + (it.get("link") or "") + " " + (it.get("sourceHandle") or "")).lower()
         if any(bs in _src for bs in BLOCKED_SOURCES):
             continue
-        it["body"] = _tidy_body(it.get("body"), it.get("headline", ""))
+        it["body"] = _strip_fantasy_advice(_tidy_body(it.get("body"), it.get("headline", "")))
         b = (it.get("body") or "").strip()
         h = (it.get("headline") or "").strip()
         pl = (it.get("player") or "").strip()
@@ -2629,6 +2684,8 @@ def scrape_all_news(players=None):
 
     # ── Sort: urgent first, then NEW > UPDATE > RESOLVED, then by relevance ──
     all_items = _apply_rumour_buffer(all_items)
+    # Drop rumours a confirmed news item already supersedes (same player+category).
+    all_items = remove_superseded_rumours(all_items)
 
     status_rank = {"new": 0, "update": 1, "resolved": 2, "ongoing": 3}
     all_items.sort(key=lambda x: (
@@ -2840,6 +2897,9 @@ def main():
     items = _balance_feed_order(items)
     for i, item in enumerate(items, 1):
         item["id"] = i
+        # Final pass: strip fantasy/financial advice from every body (incl. items
+        # restored from the archive, which never went through the quality gate).
+        item["body"] = _strip_fantasy_advice(item.get("body"))
 
     # ── Degenerate-scrape guard ──
     # When every web source blips out at once (rate limit, network drop) a run
