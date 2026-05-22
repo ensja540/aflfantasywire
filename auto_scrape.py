@@ -30,6 +30,12 @@ LOG_PATH     = BASE_DIR / "scrape.log"
 SIG_PATH     = BASE_DIR / ".scrape_sig"
 INTERVAL_SEC = 5 * 60   # 5 minutes
 
+# Even when the content signature is unchanged, force a push after this many
+# consecutive no-change runs (~30 min at a 5-min interval) so the deployed site
+# never goes stale and we can confirm the loop is alive from the commit history.
+MAX_NO_CHANGE_RUNS = 6
+_no_change_streak  = 0
+
 # Fields that change every run regardless of real data (timestamps, ids,
 # recomputed relevance). Excluded from the change signature so timestamp-only
 # churn (e.g. "1h ago" -> "2h ago") doesn't look like a real update.
@@ -146,7 +152,7 @@ def _data_signature() -> str:
     return hashlib.sha256((players + "\x00" + news).encode("utf-8")).hexdigest()
 
 
-def commit_and_push(timestamp: str) -> tuple[bool, str]:
+def commit_and_push(timestamp: str, force: bool = False) -> tuple[bool, str]:
     """Commit and push ONLY if the scraped data actually changed.
 
     We compare a content signature (players.json + news.json with volatile
@@ -154,6 +160,10 @@ def commit_and_push(timestamp: str) -> tuple[bool, str]:
     match, the data is unchanged — we skip the commit and push entirely so we
     don't trigger an unnecessary Cloudflare build. The signature is persisted to
     .scrape_sig and only updated after a successful push.
+
+    When ``force`` is set, we push regardless of the signature — creating an
+    empty commit if there is no real diff — so a long unchanged streak still
+    refreshes the deployment.
     """
     sig = _data_signature()
     try:
@@ -161,7 +171,7 @@ def commit_and_push(timestamp: str) -> tuple[bool, str]:
     except Exception:
         prev = ""
 
-    if sig and sig == prev:
+    if sig and sig == prev and not force:
         log.info("No changes — skipping push")
         return True, "no changes"
 
@@ -169,7 +179,11 @@ def commit_and_push(timestamp: str) -> tuple[bool, str]:
     if not ok:
         return False, "git add failed"
 
-    ok, tail = git_step(["commit", "-m", f"auto update {timestamp}"])
+    commit_args = ["commit", "-m", f"auto update {timestamp}"]
+    if force:
+        # Allow an empty commit so a no-change streak still triggers a push.
+        commit_args = ["commit", "--allow-empty", "-m", f"auto refresh {timestamp}"]
+    ok, tail = git_step(commit_args)
     if not ok:
         # No staged diff (e.g. only volatile fields moved) -> nothing to push.
         if "nothing to commit" in tail.lower() or "no changes added" in tail.lower():
@@ -240,8 +254,18 @@ def run_once() -> None:
         bits.append(f"news FAILED ({news_msg})")
 
     if fetch_ok or news_ok:
-        push_ok, push_msg = commit_and_push(timestamp)
-        bits.append("Pushed." if push_msg == "pushed" else
+        global _no_change_streak
+        force = _no_change_streak >= MAX_NO_CHANGE_RUNS
+        push_ok, push_msg = commit_and_push(timestamp, force=force)
+        if push_msg == "no changes":
+            _no_change_streak += 1
+        else:
+            # A real push (or a forced refresh) resets the streak.
+            _no_change_streak = 0
+        if push_msg == "pushed" and force:
+            log.info(f"Forced refresh push after {MAX_NO_CHANGE_RUNS} no-change runs")
+        bits.append("Pushed (forced refresh)." if (push_msg == "pushed" and force) else
+                    "Pushed." if push_msg == "pushed" else
                     "No changes." if push_msg == "no changes" else
                     f"Push FAILED ({push_msg})")
     else:
