@@ -2823,6 +2823,15 @@ def _merge_news_archive(new_items, cap=NEWS_ARCHIVE_CAP):
     for it in existing:
         if not _ok(it):
             continue
+        # Injuries & selections are CURRENT STATE, not archival history: never
+        # carry them over from the previous news.json. Every scrape regenerates
+        # them fresh (deduped cross-source + auto-resolved via NewsHistory when a
+        # player clears). Archiving them was the 56-every-push bug — stale,
+        # un-enriched injury items (no category/status) got pinned forever
+        # because the archive never hit its cap and cross-source dedup couldn't
+        # collapse them. Only ephemeral news/rumours/analysis accumulate here.
+        if it.get("type") in ("injury", "selection"):
+            continue
         key = _key(it)
         if key in seen:
             continue
