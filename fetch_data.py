@@ -1433,33 +1433,14 @@ def main():
     LAST_PLAYERS = players
     write_output(players, sc_players, dt_players, injuries, selections)
 
-    # ── 8. Flatten each player's news[] into news.json for the frontend feed ──
-    # The frontend's T7() loads ./news.json — without this, structured injury
-    # items (with [STATUS, BODY_PART, ETA] tags) never reach the news feed
-    # because they live inside per-player records.
-    NEWS_PATH = BASE_DIR / "news.json"
-    news_items = []
-    for player in players:
-        for n in player.get("news", []):
-            news_items.append({
-                **n,
-                "id":       len(news_items) + 1,
-                "pid":      n.get("pid", player["id"]),
-                "player":   n.get("player", player["name"]),
-                "team":     n.get("team",   player["team"]),
-                "pos":      n.get("pos",    player["pos"]),
-                "headline": n.get("headline", n.get("title", "")),
-            })
-    # Injury items first, then everything else, so the OUT/TEST chips lead the feed.
-    news_items.sort(key=lambda x: (0 if x.get("type") == "injury" else 1,
-                                   x.get("id", 0)))
-    # Renumber after sort so ids are dense & ordered
-    for i, n in enumerate(news_items, 1):
-        n["id"] = i
-
-    with open(NEWS_PATH, "w") as f:
-        json.dump({"news": news_items, "generated_at": datetime.now().isoformat(),
-                   "count": len(news_items)}, f, indent=2)
+    # NOTE: news.json is owned entirely by news_scraper.py (which runs after
+    # this script and maintains the rolling archive). fetch_data.py used to also
+    # write news.json here — flattening per-player injury news into a separate
+    # {news, generated_at, count} schema — but that clobbered the scraper's feed
+    # (different schema, injuries only) and, with concurrent runs, corrupted the
+    # file. Player injury news still reaches the feed via news_scraper's own
+    # injury sources (afl_medical_room / footywire_injuries), so this write was
+    # removed to give news.json a single writer.
 
     print(f"\n✓  Wrote {len(players)} players → {OUTPUT_PATH}")
     print(f"✓  Wrote {len(news_items)} news items → {NEWS_PATH}")

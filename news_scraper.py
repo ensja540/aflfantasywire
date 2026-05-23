@@ -2860,7 +2860,9 @@ def _merge_news_archive(new_items, cap=NEWS_ARCHIVE_CAP):
         seen.add(key)
         _sig.append((pl, tx))
         merged.append(it)
-    merged.sort(key=lambda x: x.get("scrapedAt", ""), reverse=True)
+    # Newest first by publication time, then roll off the oldest beyond the cap
+    # (500). Once full, each new item displaces the oldest.
+    merged.sort(key=lambda x: x.get("first_seen") or x.get("time") or x.get("scrapedAt") or "", reverse=True)
     merged = merged[:cap]
     # Normalise timestamps across fresh + archived items: derive a real age label
     # from each item's ISO `time` (preferred) or its `scrapedAt`. Older archive
@@ -2891,6 +2893,68 @@ def _merge_news_archive(new_items, cap=NEWS_ARCHIVE_CAP):
         it["timeLabel"] = _label_from_dt(_dt)
     log.info(f"News archive: {len(new_items)} new merged with existing -> {len(merged)} kept (cap {cap})")
     return merged
+
+
+FAST_FILL_RSS = [
+    "https://news.google.com/rss/search?q=AFL+football&hl=en-AU&gl=AU&ceid=AU:en",
+    "https://news.google.com/rss/search?q=AFL+SuperCoach+fantasy&hl=en-AU&gl=AU&ceid=AU:en",
+    "https://news.google.com/rss/search?q=AFL+injury+selection&hl=en-AU&gl=AU&ceid=AU:en",
+    "https://news.google.com/rss/search?q=AFL+team+news+2026&hl=en-AU&gl=AU&ceid=AU:en",
+    "https://news.google.com/rss/search?q=SuperCoach+2026&hl=en-AU&gl=AU&ceid=AU:en",
+    "https://www.afl.com.au/rss",
+    "https://www.abc.net.au/news/feed/51120/rss.xml",
+]
+
+
+def fast_fill():
+    """Bulk-scrape AFL-related articles with relaxed (non-fantasy-strict) rules
+    to grow the archive toward the 500-item cap quickly. AFLW / off-topic items
+    are still excluded (AFL-only). Returns a list of news items; writes nothing."""
+    from email.utils import parsedate_to_datetime
+    session = make_session()
+    items = []
+    for url in FAST_FILL_RSS:
+        try:
+            r = session.get(url, timeout=15)
+            soup = BeautifulSoup(r.content, "xml")
+            for it in soup.find_all("item")[:50]:
+                title = it.find("title")
+                if not title:
+                    continue
+                headline = title.get_text(strip=True)
+                hl = headline.lower()
+                if not any(w in hl for w in ["afl", "football", "footy", "supercoach",
+                                             "fantasy", "injury", "named", "selection", "round"]):
+                    continue
+                desc = it.find("description")
+                body = BeautifulSoup(desc.get_text() if desc else "", "lxml").get_text()[:200] if desc else ""
+                link = it.find("link")
+                pub  = it.find("pubDate")
+                ts = datetime.now(timezone.utc).isoformat()
+                if pub:
+                    try:
+                        ts = parsedate_to_datetime(pub.get_text()).isoformat()
+                    except Exception:
+                        pass
+                host = url.split("/")[2]
+                item = {
+                    "type": "news", "category": "general", "urgent": False,
+                    "player": "", "headline": headline,
+                    "body": (body or headline)[:200],
+                    "source": host,
+                    "sourceHandle": "@" + host.replace("www.", "").split(".")[0],
+                    "reliability": 65, "time": ts, "first_seen": ts, "timeLabel": "",
+                    "link": link.get_text() if link else "",
+                    "is_rumour": False, "tags": ["News"], "_source": "fast_fill",
+                }
+                if _is_aflw(item):   # respect the AFL-only rule
+                    continue
+                items.append(item)
+        except Exception as e:
+            log.warning(f"fast_fill {url}: {e}")
+    log.info(f"fast_fill: collected {len(items)} raw items")
+    return items
+
 
 def main():
     print("=" * 60)
