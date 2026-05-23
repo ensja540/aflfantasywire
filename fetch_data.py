@@ -1306,17 +1306,16 @@ def main():
     # Footywire's "pg-" page (Player Games) is richer than the "pu-" profile —
     # it gives BOTH the SuperCoach and AFL Fantasy score per round, plus full
     # disposals/marks/goals/tackles/clearances per game.
-    # Cover the full waiver-target band (rank ≤ 250) so mid-rank players get
-    # real per-round scores / 3-round form — without it the Waiver Wire has no
-    # accurate analysis to show. The loop sleeps 5 min AFTER each cycle and the
-    # subprocess timeout is 20 min, so a longer games-log phase just spaces
-    # cycles out; it never breaks the run.
-    TOP_N = 250
-    log.info(f"Fetching games log for top {TOP_N} players (pg- URL)...")
+    # Keep the games-log phase short so fetch_data never hits the 20-min
+    # subprocess timeout. Only the top players get per-round form; a hard time
+    # cap stops the phase early when Footywire is slow or rate-limiting.
+    MAX_GAMES_LOG = 50
+    GAMES_LOG_TIME_LIMIT = 180  # 3 minutes max
+    log.info(f"Fetching games log for top {MAX_GAMES_LOG} players (pg- URL)...")
     games_log_start = time.time()
-    for i, p in enumerate(sc_players[:TOP_N]):
-        if time.time() - games_log_start > 600:   # 10 min cap on the games-log phase
-            log.warning("Games-log fetch exceeded 10 min — stopping early, using data so far")
+    for i, p in enumerate(sc_players[:MAX_GAMES_LOG]):
+        if time.time() - games_log_start > GAMES_LOG_TIME_LIMIT:
+            log.warning(f"Games-log fetch exceeded {GAMES_LOG_TIME_LIMIT//60} min — stopping early, using data so far")
             break
         # One player's games-log page failing (network blip, an unexpected table
         # layout, a parse error) must never abort the whole scrape. On failure we
@@ -1400,7 +1399,7 @@ def main():
             continue
         finally:
             if i % 25 == 24:
-                log.info(f"  {i+1}/{TOP_N} games-log pages fetched")
+                log.info(f"  {i+1}/{MAX_GAMES_LOG} games-log pages fetched")
             time.sleep(0.5)
 
     # ── 6b. Fetch AFL Fantasy Classic ownership ──
