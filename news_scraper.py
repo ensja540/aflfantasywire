@@ -2498,7 +2498,13 @@ def enforce_category(item):
         item["category"] = "price"
         return item
 
-    item["_skip"] = True
+    # Keep general AFL news rather than dropping it. This block was collapsing
+    # the feed to ~15 injury items: every story that wasn't an injury/selection/
+    # fantasy-keyword match got skipped, even though afl_rss (~48) and club pages
+    # (~34) return that many valid AFL items each run. The block_phrases above
+    # still filter AFLW / off-topic fluff, so the feed stays AFL-relevant.
+    item["type"] = item.get("type") or "news"
+    item["category"] = item.get("category") or "general"
     return item
 
 
