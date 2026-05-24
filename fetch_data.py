@@ -271,6 +271,54 @@ def parse_sc_stats(html):
     return players
 
 
+SC_SCORES_URL = "https://www.footywire.com/afl/footy/supercoach_scores"
+
+
+def parse_sc_scores(html):
+    """Parse Footywire's SuperCoach Scores page — a single page that lists, for
+    EVERY player: Average, 3-Rnd Average and Consistency. We use it to fill real
+    3-round form (and a consistency %) for players whose per-game log we don't
+    fetch (the waiver band, rank > ~50), so the Waiver tab shows real
+    DIFF/TREND/consistency instead of flat season-average placeholders.
+
+    Columns: Player | Team | Price | G | Total | Average | 3-Rnd Average |
+             $/Average | $/3-Rnd Avg | Consistency
+
+    Returns {name_key: {"avg3": float, "cons_pct": int}}.
+    """
+    out = {}
+    soup = BeautifulSoup(html, "lxml")
+    first = soup.find("a", href=re.compile(r"pu-"))
+    table = first.find_parent("table") if first else None
+    if not table:
+        log.warning("SC scores: data table not found")
+        return out
+    for row in table.find_all("tr"):
+        link = row.find("a", href=re.compile(r"pu-"))
+        if not link:
+            continue
+        cells = row.find_all(["td", "th"])
+        if len(cells) < 10:
+            continue
+        name = link.get_text(strip=True)
+        if not name:
+            continue
+
+        def num(i):
+            try:
+                return float(re.sub(r"[^0-9.\-]", "", cells[i].get_text(strip=True)) or 0)
+            except Exception:
+                return 0.0
+
+        avg3 = num(6)
+        cons = num(9)   # Footywire variability metric (~1.5-45; LOWER = steadier)
+        # Map to a 0-100 consistency % where higher = more consistent.
+        cons_pct = max(5, min(99, round(100 - cons * 1.8))) if cons else 0
+        out[name_key(name)] = {"avg3": avg3, "cons_pct": cons_pct}
+    log.info(f"SC scores: parsed {len(out)} players (3-rnd avg + consistency)")
+    return out
+
+
 def parse_sc_breakevens(html):
     """
     Parse Footywire SuperCoach break-evens page.
@@ -1272,6 +1320,13 @@ def main():
     r_be = get(session, URLS["sc_breakevens"])
     sc_be_lookup = parse_sc_breakevens(r_be.text) if r_be else {}
 
+    # ── 5b. SuperCoach Scores page: 3-round avg + consistency for ALL players ──
+    # One fetch covers every player, so the waiver band (which we don't fetch
+    # per-game logs for) still gets real form numbers.
+    log.info("Fetching SuperCoach Scores (3-rnd avg + consistency)...")
+    r_scs = get(session, SC_SCORES_URL)
+    sc_scores_lookup = parse_sc_scores(r_scs.text) if r_scs else {}
+
     # Merge BE + position into each sc_player by name_key
     for p in sc_players:
         nk = name_key(p["name"])
@@ -1428,6 +1483,27 @@ def main():
     # Sort by SC rank
     players.sort(key=lambda p: p["rank"])
 
+    # ── 7b. Fill 3-round form + consistency for players without a per-game log
+    # (the waiver band) from the SuperCoach Scores page, so the Waiver tab shows
+    # real DIFF/TREND/consistency instead of flat season-average placeholders.
+    # Players that already have roundStats (top ~50, from the games log) keep
+    # their more-granular data.
+    if sc_scores_lookup:
+        filled = 0
+        for p in players:
+            if p.get("roundStats"):
+                continue
+            rec = (sc_scores_lookup.get(name_key(p["name"]))
+                   or sc_scores_lookup.get(name_key(p["name"].split()[-1])))
+            if not rec:
+                continue
+            if rec.get("avg3"):
+                p["scAvg3"] = round(rec["avg3"], 1)
+            if rec.get("cons_pct"):
+                p["consistency"] = rec["cons_pct"]
+            filled += 1
+        log.info(f"SC scores: filled 3-rnd avg/consistency for {filled} players")
+
     # ── 7. Write output ──
     global LAST_PLAYERS
     LAST_PLAYERS = players
@@ -1443,7 +1519,6 @@ def main():
     # removed to give news.json a single writer.
 
     print(f"\n✓  Wrote {len(players)} players → {OUTPUT_PATH}")
-    print(f"✓  Wrote {len(news_items)} news items → {NEWS_PATH}")
     print(f"   SC: {len(sc_players)}  DT: {len(dt_players)}  Injuries: {len(injuries)}")
     print(f"\n   Drop players.json next to aflfantasywire.html and reload the browser.\n")
 
