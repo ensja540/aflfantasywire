@@ -2956,6 +2956,31 @@ def fast_fill():
     return items
 
 
+AI_ENDPOINT = "https://aflfantasywire.ensor-jack.workers.dev/api/ai"
+
+
+def ai_summarise(headline, body):
+    """1-2 sentence AI summary of a news item (fantasy angle). Returns '' on any
+    failure so the scrape never breaks. Called only for NEW items, so this is a
+    handful of calls per run at most."""
+    try:
+        q = ("In 1-2 punchy sentences, summarise this AFL news for fantasy coaches. "
+             f"Headline: {headline}. Detail: {body}. Plain text, no preamble.")
+        r = requests.post(AI_ENDPOINT, json={
+            "model": "claude-opus-4-7", "max_tokens": 2000,
+            "thinking": {"type": "adaptive"}, "output_config": {"effort": "low"},
+            "system": "You are a concise AFL fantasy news editor.",
+            "messages": [{"role": "user", "content": q}]}, timeout=30)
+        K = r.json()
+        if not r.ok or K.get("error"):
+            return ""
+        return " ".join(b.get("text", "") for b in K.get("content", [])
+                        if b.get("type") == "text").strip()
+    except Exception as e:
+        log.warning(f"ai_summarise failed: {e}")
+        return ""
+
+
 def main():
     print("=" * 60)
     print("  AFLFantasyWire — News Scraper")
@@ -3037,6 +3062,23 @@ def main():
         print(f"\n⚠  Degenerate scrape ({len(items)} vs {prev_count} existing) — "
               f"kept existing news.json, skipped write.")
         return
+
+    # ── AI summaries for NEW news items only (cheap: ~1-2 new/cycle). Items
+    # carried from the archive keep their cached summary; never re-summarise. ──
+    _ai_budget = 4
+    for _it in items:
+        if _ai_budget <= 0:
+            break
+        if _it.get("ai_summary") or _it.get("type") not in ("news", "analysis", "rumour"):
+            continue
+        _body = (_it.get("body") or "")[:400]
+        if not _body:
+            continue
+        _summ = ai_summarise(_it.get("headline", ""), _body)
+        if _summ:
+            _it["ai_summary"] = _summ
+            _ai_budget -= 1
+    log.info(f"AI summaries: {sum(1 for _i in items if _i.get('ai_summary'))} items carry a summary")
 
     output = {
         "scraped_at":  datetime.now().isoformat(),
