@@ -344,15 +344,12 @@ class NewsHistory:
         once). Higher-reliability source wins; AFL.com.au beats Footywire beats
         the rest, ties broken by item relevance score.
         """
-        # Structured "current-state" sources (the injury list, the official
-        # medical room, named teams) represent who is injured/selected RIGHT
-        # NOW — the site must always display them, even when unchanged since the
-        # last scrape. Only genuinely ephemeral event sources (tweets, RSS,
-        # club-news blurbs) are subject to the drop-ongoing rule, so the feed
-        # never empties out between real-time changes.
-        ALWAYS_SHOW = {"footywire_injuries", "afl_medical_room",
-                       "afl_injury_page", "afl_team_selections",
-                       "footywire_selections"}
+        # Injury items are only newsworthy on a timeline change: a NEW injury, a
+        # status/ETA UPDATE, or a RESOLVED. An ongoing injury with no change must
+        # NOT keep re-appearing in the feed every scrape — so injury sources are
+        # deliberately NOT in ALWAYS_SHOW. Only the team-selection lineups (which
+        # represent the current named side) are always shown.
+        ALWAYS_SHOW = {"afl_team_selections", "footywire_selections"}
         kept = [i for i in items
                 if i.get("status") in ("new", "update", "resolved")
                 or i.get("_source") in ALWAYS_SHOW]
