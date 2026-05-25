@@ -319,6 +319,46 @@ def parse_sc_scores(html):
     return out
 
 
+def parse_sc_round(html):
+    """Parse a Footywire supercoach_round page (every player's score for ONE
+    round). Header looks like: Rank | Player | Team | ... | 2026 R11 Score | ...
+    Returns (round_num, {name_key: score})."""
+    out = {}
+    soup = BeautifulSoup(html, "lxml")
+    first = soup.find("a", href=re.compile(r"pu-"))
+    table = first.find_parent("table") if first else None
+    if not table:
+        return 0, out
+    rows = table.find_all("tr")
+    rnd, score_col = 0, None
+    for row in rows[:4]:
+        cells = [c.get_text(" ", strip=True) for c in row.find_all(["td", "th"])]
+        for i, t in enumerate(cells):
+            m = re.search(r"R(\d+)\s+Score", t)
+            if m:
+                rnd, score_col = int(m.group(1)), i
+                break
+        if score_col is not None:
+            break
+    if score_col is None:
+        score_col = 5
+    for row in rows:
+        link = row.find("a", href=re.compile(r"pu-"))
+        if not link:
+            continue
+        cells = row.find_all(["td", "th"])
+        if len(cells) <= score_col:
+            continue
+        name = link.get_text(strip=True)
+        try:
+            sco = int(re.sub(r"[^0-9\-]", "", cells[score_col].get_text(strip=True)) or 0)
+        except Exception:
+            sco = 0
+        if name and sco > 0:
+            out[name_key(name)] = sco
+    return rnd, out
+
+
 def parse_sc_breakevens(html):
     """
     Parse Footywire SuperCoach break-evens page.
@@ -1327,6 +1367,29 @@ def main():
     r_scs = get(session, SC_SCORES_URL)
     sc_scores_lookup = parse_sc_scores(r_scs.text) if r_scs else {}
 
+    # ── 5c. Per-round SuperCoach scores (last 5 rounds) — a few page fetches
+    # cover every player, giving a real score series for 3/5-round form,
+    # consistency and sparklines on players we don't fetch game logs for. ──
+    log.info("Fetching per-round SuperCoach scores (last 5 rounds)...")
+    SC_ROUND_BASE = "https://www.footywire.com/afl/footy/supercoach_round"
+    _yr = datetime.now().year
+    r_cur = get(session, SC_ROUND_BASE)
+    cur_rnd, _curmap = parse_sc_round(r_cur.text) if r_cur else (0, {})
+    _round_scores = {}   # name_key -> {round: score}
+    if cur_rnd:
+        for nk, sco in _curmap.items():
+            _round_scores.setdefault(nk, {})[cur_rnd] = sco
+        for rnd in range(max(1, cur_rnd - 4), cur_rnd):
+            rr = get(session, f"{SC_ROUND_BASE}?year={_yr}&round={rnd}")
+            if not rr:
+                continue
+            _, m = parse_sc_round(rr.text)
+            for nk, sco in m.items():
+                _round_scores.setdefault(nk, {})[rnd] = sco
+            time.sleep(0.5)
+    sc_round_lookup = {nk: [d[r] for r in sorted(d)] for nk, d in _round_scores.items()}
+    log.info(f"Per-round SC scores: {len(sc_round_lookup)} players over last 5 rounds")
+
     # Merge BE + position into each sc_player by name_key
     for p in sc_players:
         nk = name_key(p["name"])
@@ -1488,21 +1551,26 @@ def main():
     # real DIFF/TREND/consistency instead of flat season-average placeholders.
     # Players that already have roundStats (top ~50, from the games log) keep
     # their more-granular data.
-    if sc_scores_lookup:
-        filled = 0
-        for p in players:
-            if p.get("roundStats"):
-                continue
-            rec = (sc_scores_lookup.get(name_key(p["name"]))
-                   or sc_scores_lookup.get(name_key(p["name"].split()[-1])))
-            if not rec:
-                continue
-            if rec.get("avg3"):
-                p["scAvg3"] = round(rec["avg3"], 1)
-            if rec.get("cons_pct"):
-                p["consistency"] = rec["cons_pct"]
+    filled = 0
+    for p in players:
+        if p.get("roundStats"):
+            continue
+        nk1, nk2 = name_key(p["name"]), name_key(p["name"].split()[-1])
+        rounds = sc_round_lookup.get(nk1) or sc_round_lookup.get(nk2)
+        rec = sc_scores_lookup.get(nk1) or sc_scores_lookup.get(nk2)
+        if rounds:
+            # Real per-round series -> 3RD, 5RD, consistency and sparkline all
+            # derive from the same actual scores (so 3RD and 5RD genuinely differ).
+            p["scores"] = rounds
+            last3 = rounds[-3:]
+            p["scAvg3"] = round(sum(last3) / len(last3), 1)
+        elif rec and rec.get("avg3"):
+            p["scAvg3"] = round(rec["avg3"], 1)
+        if rec and rec.get("cons_pct"):
+            p["consistency"] = rec["cons_pct"]
+        if rounds or rec:
             filled += 1
-        log.info(f"SC scores: filled 3-rnd avg/consistency for {filled} players")
+    log.info(f"Form fill: updated {filled} players (per-round scores / 3-rnd avg)")
 
     # ── 7. Write output ──
     global LAST_PLAYERS
