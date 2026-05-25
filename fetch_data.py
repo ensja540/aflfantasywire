@@ -1367,10 +1367,13 @@ def main():
     r_scs = get(session, SC_SCORES_URL)
     sc_scores_lookup = parse_sc_scores(r_scs.text) if r_scs else {}
 
-    # ── 5c. Per-round SuperCoach scores (last 5 rounds) — a few page fetches
+    # ── 5c. Per-round SuperCoach scores (last 8 rounds) — a few page fetches
     # cover every player, giving a real score series for 3/5-round form,
-    # consistency and sparklines on players we don't fetch game logs for. ──
-    log.info("Fetching per-round SuperCoach scores (last 5 rounds)...")
+    # consistency and sparklines on players we don't fetch game logs for.
+    # We pull 8 rounds (not just 5) so a player who's had a bye or missed a
+    # game still has the most recent 5 *played* scores — otherwise the UI's
+    # 5-round average collapses to the 3-round one (they look identical). ──
+    log.info("Fetching per-round SuperCoach scores (last 8 rounds)...")
     SC_ROUND_BASE = "https://www.footywire.com/afl/footy/supercoach_round"
     _yr = datetime.now().year
     r_cur = get(session, SC_ROUND_BASE)
@@ -1379,7 +1382,7 @@ def main():
     if cur_rnd:
         for nk, sco in _curmap.items():
             _round_scores.setdefault(nk, {})[cur_rnd] = sco
-        for rnd in range(max(1, cur_rnd - 4), cur_rnd):
+        for rnd in range(max(1, cur_rnd - 7), cur_rnd):
             rr = get(session, f"{SC_ROUND_BASE}?year={_yr}&round={rnd}")
             if not rr:
                 continue
@@ -1388,7 +1391,7 @@ def main():
                 _round_scores.setdefault(nk, {})[rnd] = sco
             time.sleep(0.5)
     sc_round_lookup = {nk: [d[r] for r in sorted(d)] for nk, d in _round_scores.items()}
-    log.info(f"Per-round SC scores: {len(sc_round_lookup)} players over last 5 rounds")
+    log.info(f"Per-round SC scores: {len(sc_round_lookup)} players over last 8 rounds")
 
     # Merge BE + position into each sc_player by name_key
     for p in sc_players:

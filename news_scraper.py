@@ -3010,6 +3010,22 @@ def main():
     items = deduplicate(items)
     log.info(f"Cross-source dedup: {len(items)}/{_pre} kept")
 
+    # ── Injury items must name a CURRENT player ──
+    # The structured injury-list scrapers always set pid (they skip players not
+    # in players.json), so a type=="injury" item with no pid can only come from a
+    # free-text RSS/news headline whose body tripped an injury keyword — e.g. the
+    # Neale Daniher obituaries ("Fight MND … dies aged 65"). Those aren't player
+    # injuries: demote them to general news rather than showing them as injury.
+    _demoted = 0
+    for _it in items:
+        if _it.get("type") == "injury" and not _it.get("pid"):
+            _it["type"] = "news"
+            if (_it.get("category") or "").startswith("injury"):
+                _it["category"] = "general"
+            _demoted += 1
+    if _demoted:
+        log.info(f"Demoted {_demoted} player-less injury items to general news")
+
     # Final type breakdown for visibility.
     _tb = {}
     for i in items:
