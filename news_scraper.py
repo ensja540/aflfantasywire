@@ -2764,6 +2764,26 @@ def scrape_all_news(players=None):
 
 NEWS_ARCHIVE_CAP = 500
 
+# Injuries & selections now accumulate in the archive like any other news, but
+# age out after this many days so resolved / long-known statuses slowly filter
+# out as fresher items arrive (instead of being dropped wholesale every run,
+# which made the feed count seesaw). An injury UPDATE re-enters as a fresh item.
+INJURY_FEED_MAX_DAYS = 10
+
+def _too_old(iso_or_label, max_days):
+    """True if an ISO timestamp is older than max_days. Non-ISO/blank values
+    (e.g. 'latest') are treated as fresh so we never drop an item we can't date."""
+    s = (iso_or_label or "").strip()
+    if "T" not in s:
+        return False
+    try:
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - dt).days > max_days
+    except Exception:
+        return False
+
 def _balance_feed_order(items, max_run=3):
     """Reorder (never drop) so the feed doesn't open with a wall of injuries.
 
@@ -2829,15 +2849,17 @@ def _merge_news_archive(new_items, cap=NEWS_ARCHIVE_CAP):
     for it in existing:
         if not _ok(it):
             continue
-        # Injuries & selections are CURRENT STATE, not archival history: never
-        # carry them over from the previous news.json. Every scrape regenerates
-        # them fresh (deduped cross-source + auto-resolved via NewsHistory when a
-        # player clears). Archiving them was the 56-every-push bug — stale,
-        # un-enriched injury items (no category/status) got pinned forever
-        # because the archive never hit its cap and cross-source dedup couldn't
-        # collapse them. Only ephemeral news/rumours/analysis accumulate here.
+        # Injuries & selections accumulate like any other news item, but age out
+        # after INJURY_FEED_MAX_DAYS so resolved / long-known statuses slowly
+        # filter out as fresher items arrive (a status change re-enters as a
+        # fresh item). They carry a real first_seen from NewsHistory, so they
+        # sort and roll off chronologically. The old "pinned forever" bug came
+        # from un-enriched items with no category/status that cross-source dedup
+        # couldn't collapse; today's injuries are fully enriched, so dedup +
+        # this age-out keep the feed clean.
         if it.get("type") in ("injury", "selection"):
-            continue
+            if _too_old(it.get("first_seen") or it.get("scrapedAt"), INJURY_FEED_MAX_DAYS):
+                continue
         key = _key(it)
         if key in seen:
             continue
