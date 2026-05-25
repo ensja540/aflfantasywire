@@ -1090,6 +1090,30 @@ def estimate_price_history(current_price, avg3, be, num_rounds=7):
     history.append(current_price)
     return history[-7:]
 
+def price_history_from_scores(current_price, played_scores, be, num_rounds=6):
+    """Reconstruct a realistic price sparkline from the player's actual recent
+    SuperCoach scores. Working backwards from the current price, each round's
+    price moved roughly with (score - break_even): a big score above the BE
+    pushes the price up, a low score drops it. This gives a line with genuine
+    round-to-round variation instead of estimate_price_history's straight ramp
+    (which made the chart look like just two points).
+
+    `played_scores` must already exclude byes/zero rounds. Returns a list of
+    num_rounds+1 prices ending at current_price, or None if we can't build one.
+    """
+    if not current_price or not played_scores:
+        return None
+    MAGIC = 700  # rough $ per SuperCoach point of (score - breakeven)
+    pts = [s for s in played_scores if s and s > 0][-num_rounds:]
+    if not pts:
+        return None
+    hist = [int(current_price)]
+    # pts[-1] is the most recent round; unwind it first to get the prior price.
+    for s in reversed(pts):
+        delta = round((s - (be or 0)) * MAGIC)
+        hist.insert(0, max(100000, hist[0] - delta))
+    return hist
+
 def build_player(sc, dt, injuries, selections, rank):
     """Merge SC stats + DT stats + injury/selection data into the app schema."""
 
@@ -1150,7 +1174,11 @@ def build_player(sc, dt, injuries, selections, rank):
 
     # Price delta estimate
     price_delta = round((sc_avg3 - sc_be) * 800) if sc_avg3 and sc_be else 0
-    price_hist  = estimate_price_history(sc_price, sc_avg3, sc_be)
+    # Prefer a price history reconstructed from the player's real recent scores
+    # (varies round-to-round); fall back to the straight-line estimate only when
+    # we have no per-round scores for this player yet.
+    price_hist  = (price_history_from_scores(sc_price, sc_all_scores, sc_be)
+                   or estimate_price_history(sc_price, sc_avg3, sc_be))
 
     sig, conf = build_signal(sc_avg3, sc_be, inj_status, price_delta)
 
@@ -1390,7 +1418,11 @@ def main():
             for nk, sco in m.items():
                 _round_scores.setdefault(nk, {})[rnd] = sco
             time.sleep(0.5)
-    sc_round_lookup = {nk: [d[r] for r in sorted(d)] for nk, d in _round_scores.items()}
+    # Build a fixed last-8-round window per player, using 0 for byes / rounds
+    # not played, so the round-by-round bar chart still shows those as 0-height
+    # blocks. Averages downstream filter the zeros out, so byes don't drag form.
+    _rwin = list(range(max(1, cur_rnd - 7), cur_rnd + 1)) if cur_rnd else []
+    sc_round_lookup = {nk: [d.get(r, 0) for r in _rwin] for nk, d in _round_scores.items()}
     log.info(f"Per-round SC scores: {len(sc_round_lookup)} players over last 8 rounds")
 
     # Merge BE + position into each sc_player by name_key
@@ -1562,11 +1594,18 @@ def main():
         rounds = sc_round_lookup.get(nk1) or sc_round_lookup.get(nk2)
         rec = sc_scores_lookup.get(nk1) or sc_scores_lookup.get(nk2)
         if rounds:
-            # Real per-round series -> 3RD, 5RD, consistency and sparkline all
-            # derive from the same actual scores (so 3RD and 5RD genuinely differ).
+            # Fixed-window series WITH 0s for byes -> the bar chart shows every
+            # round (a 0-height block for a bye); 3RD/5RD use only played scores
+            # so they stay accurate and genuinely differ from one another.
             p["scores"] = rounds
-            last3 = rounds[-3:]
-            p["scAvg3"] = round(sum(last3) / len(last3), 1)
+            played = [s for s in rounds if s and s > 0]
+            if played:
+                last3 = played[-3:]
+                p["scAvg3"] = round(sum(last3) / len(last3), 1)
+                ph = price_history_from_scores(p.get("price") or 0, played,
+                                               p.get("breakeven") or 0)
+                if ph:
+                    p["prices"] = ph
         elif rec and rec.get("avg3"):
             p["scAvg3"] = round(rec["avg3"], 1)
         if rec and rec.get("cons_pct"):
