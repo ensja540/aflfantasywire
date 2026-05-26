@@ -879,6 +879,10 @@ SPECULATION_WORDS = (
 # A rumour older than 6h is stale. Official news gets a slightly longer window.
 RUMOUR_MAX_AGE_HOURS = 6
 NEWS_MAX_AGE_HOURS   = 24
+# The rumour buffer is a rolling "current whispers" board — drop anything first
+# seen more than this many days ago so week-old rumours don't sit forever when
+# fresh ones are scarce.
+RUMOUR_BUFFER_MAX_DAYS = 4
 
 
 def _tweet_age_label(age_hours):
@@ -2233,10 +2237,14 @@ def _watch_rumour_text(player, bodypart, out=False, eta=""):
         ]
     return heads[idx], bodies[idx]
 
-def _apply_rumour_buffer(items, keep=15, min_items=15):
+def _apply_rumour_buffer(items, keep=15, min_items=15, reframe_pool=None):
     """Keep a rolling buffer of the most recent rumours (persisted across runs in
     rumours.json) so the mill always has a healthy set — oldest are replaced as
-    new ones arrive. A single scrape only yields a few rumours."""
+    new ones arrive, and anything older than RUMOUR_BUFFER_MAX_DAYS is dropped.
+    A single scrape only yields a few rumours, so when the live sources are dry
+    (Nitter is defunct, Google News carries no rumour bodies) we top the mill up
+    by reframing real injury-cloud players from `reframe_pool` (the full injury
+    list, before the real-time filter strips it) as watch-style rumours."""
     now = datetime.now(timezone.utc).isoformat()
     is_rum = lambda it: (it.get("is_rumour") or it.get("type") == "rumour") and it.get("player")
     fresh = [it for it in items if is_rum(it)]
@@ -2246,6 +2254,8 @@ def _apply_rumour_buffer(items, keep=15, min_items=15):
         buf = json.loads(RUMOUR_BUFFER_PATH.read_text(encoding="utf-8"))
     except Exception:
         buf = []
+    # Drop stale rumours so old whispers filter out instead of lingering.
+    buf = [it for it in buf if not _too_old(it.get("_seen"), RUMOUR_BUFFER_MAX_DAYS)]
     merged, seen = [], set()
     for it in fresh + buf:
         key = ((it.get("player") or "").lower(), (it.get("headline") or "")[:60].lower())
@@ -2265,7 +2275,7 @@ def _apply_rumour_buffer(items, keep=15, min_items=15):
     # injuries reframed as watch-style rumours (never mock/fabricated players).
     if len(merged) < min_items:
         have = {(it.get("player") or "").lower() for it in merged}
-        for it in items:
+        for it in (reframe_pool if reframe_pool is not None else items):
             if len(merged) >= min_items:
                 break
             if it.get("type") != "injury" or not it.get("player"):
@@ -2608,6 +2618,11 @@ def scrape_all_news(players=None):
     log.info("Source contribution summary: "
              + ", ".join(f"{k}={v}" for k, v in source_counts.items()))
 
+    # Snapshot the full injury list NOW, before the real-time/stale filters strip
+    # it, so the rumour mill can be topped up with watch-style reframes of real
+    # injury-cloud players when the live rumour sources are dry.
+    _injury_pool = [it for it in all_items if it.get("type") == "injury" and it.get("player")]
+
     # ── Per-source diagnostic (which sources returned 0?) ──
     print("--- scraper source counts ---")
     print(f"footywire_injuries:   {source_counts.get('footywire_injuries', 0)} items")
@@ -2706,7 +2721,7 @@ def scrape_all_news(players=None):
     log.info(f"Body quality + dedup: {len(all_items)} items kept")
 
     # ── Sort: urgent first, then NEW > UPDATE > RESOLVED, then by relevance ──
-    all_items = _apply_rumour_buffer(all_items)
+    all_items = _apply_rumour_buffer(all_items, reframe_pool=_injury_pool)
     # Drop rumours a confirmed news item already supersedes (same player+category).
     all_items = remove_superseded_rumours(all_items)
 
