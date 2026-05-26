@@ -184,9 +184,39 @@ _PID_NAME = {}
 _PLAYERS_IDX = []          # [{pid, full, first, last}]
 _SURNAME_FIRSTS = {}       # surname -> set of first names (to detect same-surname clashes)
 
+_EXTRA_ROSTER_CACHE = None
+
+def _afl_classic_names():
+    """Fetch the full AFL Fantasy roster (~800 names) for news tagging only, so
+    general articles can tag players beyond our tracked top-350. Cached per
+    process; returns [] on any failure (the feed still works without it)."""
+    global _EXTRA_ROSTER_CACHE
+    if _EXTRA_ROSTER_CACHE is not None:
+        return _EXTRA_ROSTER_CACHE
+    out = []
+    try:
+        r = requests.get("https://fantasy.afl.com.au/data/afl/players.json",
+                         headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
+        data = r.json()
+        roster = data if isinstance(data, list) else data.get("players", data)
+        for p in roster:
+            nm = (f"{(p.get('first_name') or '').strip()} "
+                  f"{(p.get('last_name') or '').strip()}").strip()
+            if len(nm) >= 5 and " " in nm:
+                out.append(nm)
+    except Exception as e:
+        log.warning(f"Extended roster fetch failed: {e}")
+    _EXTRA_ROSTER_CACHE = out
+    log.info(f"Extended roster: {len(out)} names available for news tagging")
+    return out
+
+
 def build_player_index(players):
     """Build player lookup tables. Returns a name->pid dict for backward
-    compatibility, but find_player uses the richer _PLAYERS_IDX below."""
+    compatibility, but find_player uses the richer _PLAYERS_IDX below. The index
+    also includes the full AFL roster (pid=None) so general news can be tagged
+    with players outside our tracked top-350 — those tags show the name but
+    aren't clickable (no player card)."""
     idx = {}
     _PID_NAME.clear()
     _PLAYERS_IDX.clear()
@@ -199,7 +229,19 @@ def build_player_index(players):
         if not parts:
             continue
         first, last = parts[0], parts[-1]
-        _PLAYERS_IDX.append({"pid": p["id"], "full": name, "first": first, "last": last})
+        _PLAYERS_IDX.append({"pid": p["id"], "name": p["name"], "full": name, "first": first, "last": last})
+        _SURNAME_FIRSTS.setdefault(last, set()).add(first)
+    seen = {e["full"] for e in _PLAYERS_IDX}
+    for nm in _afl_classic_names():
+        full = nm.lower().strip()
+        if full in seen:
+            continue
+        seen.add(full)
+        parts = full.split()
+        if len(parts) < 2:
+            continue
+        first, last = parts[0], parts[-1]
+        _PLAYERS_IDX.append({"pid": None, "name": nm, "full": full, "first": first, "last": last})
         _SURNAME_FIRSTS.setdefault(last, set()).add(first)
     return idx
 
@@ -213,7 +255,7 @@ def find_player_strict(name):
     first, last, full = parts[0], parts[-1], " ".join(parts)
     for pl in _PLAYERS_IDX:
         if pl["full"] == full or (pl["first"] == first and pl["last"] == last):
-            return pl["pid"], _PID_NAME[pl["pid"]]
+            return pl["pid"], pl["name"]
     return None, None
 
 def find_player(text, player_idx=None):
@@ -232,14 +274,14 @@ def find_player(text, player_idx=None):
     if not t:
         return None, None
 
-    # 1. Full-name match — longest wins (most specific).
+    # 1. Full-name match — prefer a tracked (top-350) player, then longest.
     full = [pl for pl in _PLAYERS_IDX if pl["full"] in t]
     if full:
-        best = max(full, key=lambda pl: len(pl["full"]))
-        return best["pid"], _PID_NAME[best["pid"]]
+        best = max(full, key=lambda pl: (pl["pid"] is not None, len(pl["full"])))
+        return best["pid"], best["name"]
 
-    # 2. Surname match with first-name verification.
-    for pl in sorted(_PLAYERS_IDX, key=lambda p: -len(p["last"])):
+    # 2. Surname match with first-name verification (tracked players first).
+    for pl in sorted(_PLAYERS_IDX, key=lambda p: (p["pid"] is not None, len(p["last"])), reverse=True):
         last = pl["last"]
         if len(last) < 4:
             continue  # short surnames are too ambiguous on their own
@@ -249,13 +291,13 @@ def find_player(text, player_idx=None):
         prev = m.group(1) or ""
         if prev:
             if prev == pl["first"] or (1 <= len(prev) <= 2 and prev[0] == pl["first"][0]):
-                return pl["pid"], _PID_NAME[pl["pid"]]
+                return pl["pid"], pl["name"]
             # A different word precedes the surname — could be another player's
             # first name. Don't guess.
             continue
         # Bare surname: only safe when no other tracked player shares it.
         if len(_SURNAME_FIRSTS.get(last, ())) == 1:
-            return pl["pid"], _PID_NAME[pl["pid"]]
+            return pl["pid"], pl["name"]
     return None, None
 
 
@@ -268,20 +310,19 @@ def find_players_all(text, max_n=4):
     t = (text or "").lower()
     if not t:
         return []
-    found = {}
+    found = {}  # full-name(lower) -> {pid, name}
     for pl in _PLAYERS_IDX:
         if pl["full"] in t:
-            found.setdefault(pl["pid"], _PID_NAME[pl["pid"]])
+            found.setdefault(pl["full"], {"pid": pl["pid"], "name": pl["name"]})
     # Blank out the full names we've already matched before surname matching, so a
     # matched player's FIRST name can't be misread as another player's surname
     # (e.g. "Brodie Grundy" must not also tag "Will Brodie", nor "Ryan Angwin"
     # tag "Luke Ryan").
     residual = t
-    for pl in _PLAYERS_IDX:
-        if pl["pid"] in found:
-            residual = residual.replace(pl["full"], " ")
+    for full in list(found):
+        residual = residual.replace(full, " ")
     for pl in sorted(_PLAYERS_IDX, key=lambda p: -len(p["last"])):
-        if pl["pid"] in found:
+        if pl["full"] in found:
             continue
         last = pl["last"]
         if len(last) < 4:
@@ -292,10 +333,10 @@ def find_players_all(text, max_n=4):
         prev = m.group(1) or ""
         if prev:
             if prev == pl["first"] or (1 <= len(prev) <= 2 and prev[0] == pl["first"][0]):
-                found.setdefault(pl["pid"], _PID_NAME[pl["pid"]])
+                found.setdefault(pl["full"], {"pid": pl["pid"], "name": pl["name"]})
         elif len(_SURNAME_FIRSTS.get(last, ())) == 1:
-            found.setdefault(pl["pid"], _PID_NAME[pl["pid"]])
-    return [{"pid": pid, "name": name} for pid, name in list(found.items())[:max_n]]
+            found.setdefault(pl["full"], {"pid": pl["pid"], "name": pl["name"]})
+    return list(found.values())[:max_n]
 
 # ── FOOTYWIRE INJURY LIST ─────────────────────────────────────────────────────
 
