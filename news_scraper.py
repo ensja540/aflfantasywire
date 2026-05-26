@@ -258,6 +258,45 @@ def find_player(text, player_idx=None):
             return pl["pid"], _PID_NAME[pl["pid"]]
     return None, None
 
+
+def find_players_all(text, max_n=4):
+    """Like find_player, but return EVERY confidently-matched tracked player in
+    the text as [{pid, name}] (up to max_n), so an article can carry tags for
+    all the players it mentions. Uses the same conservative rules (full name, or
+    surname with first-name verification / unique surname) to avoid
+    mis-attribution."""
+    t = (text or "").lower()
+    if not t:
+        return []
+    found = {}
+    for pl in _PLAYERS_IDX:
+        if pl["full"] in t:
+            found.setdefault(pl["pid"], _PID_NAME[pl["pid"]])
+    # Blank out the full names we've already matched before surname matching, so a
+    # matched player's FIRST name can't be misread as another player's surname
+    # (e.g. "Brodie Grundy" must not also tag "Will Brodie", nor "Ryan Angwin"
+    # tag "Luke Ryan").
+    residual = t
+    for pl in _PLAYERS_IDX:
+        if pl["pid"] in found:
+            residual = residual.replace(pl["full"], " ")
+    for pl in sorted(_PLAYERS_IDX, key=lambda p: -len(p["last"])):
+        if pl["pid"] in found:
+            continue
+        last = pl["last"]
+        if len(last) < 4:
+            continue
+        m = re.search(r"(?:([a-z][a-z'.-]*)\s+)?(?<![a-z])" + re.escape(last) + r"(?![a-z])", residual)
+        if not m:
+            continue
+        prev = m.group(1) or ""
+        if prev:
+            if prev == pl["first"] or (1 <= len(prev) <= 2 and prev[0] == pl["first"][0]):
+                found.setdefault(pl["pid"], _PID_NAME[pl["pid"]])
+        elif len(_SURNAME_FIRSTS.get(last, ())) == 1:
+            found.setdefault(pl["pid"], _PID_NAME[pl["pid"]])
+    return [{"pid": pid, "name": name} for pid, name in list(found.items())[:max_n]]
+
 # ── FOOTYWIRE INJURY LIST ─────────────────────────────────────────────────────
 
 def scrape_fw_injuries(session, player_idx):
@@ -2214,7 +2253,14 @@ def _watch_rumour_text(player, bodypart, out=False, eta=""):
     so phrasing stays honest and doesn't invent a cause."""
     bp = (bodypart or "").strip().lower()
     _art = "an" if bp[:1] in "aeiou" else "a"
-    bpp = f"{_art} {bp}" if bp and bp not in ("tbc", "test", "managed", "na", "") else "a knock"
+    # Body parts read as "a foot injury"; conditions that are already a noun
+    # (concussion, illness, …) read as-is so we don't say "a concussion injury".
+    _conditions = ("concussion", "illness", "virus", "soreness", "suspension",
+                   "managed", "rest", "personal", "corked")
+    if bp and bp not in ("tbc", "test", "managed", "na", ""):
+        bpp = f"{_art} {bp}" if any(c in bp for c in _conditions) else f"{_art} {bp} injury"
+    else:
+        bpp = "a knock"
     eta = (eta or "").strip()
     idx = sum(ord(c) for c in player) % 4
     if out:
@@ -2864,6 +2910,11 @@ def _merge_news_archive(new_items, cap=NEWS_ARCHIVE_CAP):
     for it in existing:
         if not _ok(it):
             continue
+        # Padded reframe-rumours (injury-cloud watch items) are regenerated fresh
+        # every run by _apply_rumour_buffer, so never carry the old ones over —
+        # otherwise stale-worded copies pile up in the archive.
+        if it.get("_padded"):
+            continue
         # Injuries & selections accumulate like any other news item, but age out
         # after INJURY_FEED_MAX_DAYS so resolved / long-known statuses slowly
         # filter out as fresher items arrive (a status change re-enters as a
@@ -3096,6 +3147,17 @@ def main():
         # Final pass: strip fantasy/financial advice from every body (incl. items
         # restored from the archive, which never went through the quality gate).
         item["body"] = _strip_fantasy_advice(item.get("body"))
+        # Tag every tracked player the article mentions, so the feed can show a
+        # chip per player (not just the first match). Falls back to the existing
+        # single player/pid when text matching finds none.
+        _pls = find_players_all((item.get("headline", "") or "") + " " + (item.get("body", "") or ""))
+        if not _pls and item.get("pid") and item.get("player"):
+            _pls = [{"pid": item["pid"], "name": item["player"]}]
+        if _pls:
+            item["players"] = _pls
+            if not item.get("pid"):
+                item["pid"] = _pls[0]["pid"]
+                item["player"] = _pls[0]["name"]
 
     # ── Degenerate-scrape guard ──
     # When every web source blips out at once (rate limit, network drop) a run
