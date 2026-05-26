@@ -853,6 +853,13 @@ def scrape_google_news(session, player_idx):
                 except Exception:
                     pass
 
+            # Google News surfaces old / evergreen articles (e.g. a March fantasy
+            # preview). Without a real, recent pubDate we'd date them by when we
+            # first saw them and they'd look "5d ago" — so require a parseable
+            # pubDate within the last 3 days.
+            if pub_iso is None or age_min > 3 * 24 * 60:
+                continue
+
             pid, pname = find_player(full_text, player_idx)
             link_el = entry.find("link")
             link = link_el.get_text(strip=True) if link_el else ""
@@ -3191,6 +3198,11 @@ def main():
         head = (it.get("headline") or "").strip()
         typ = it.get("type")
         blob = f"{it.get('eta','')} {head} {body}".lower()
+        # Undatable Google News items: a news.google redirect link with no
+        # pubISO can't be aged (Google surfaces old/evergreen articles), so it
+        # shows a misleading "Nd ago" off its first-seen date — drop it.
+        if not it.get("pubISO") and "news.google" in (it.get("link") or ""):
+            return False
         # An injury-list item (type injury, or a demoted one keeping the
         # "Name — OUT: BodyPart (eta)" shape) that's season-ending/indefinite is
         # long-term reference, not weekly news — drop it.
