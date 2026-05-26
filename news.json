@@ -1,9 +1,195 @@
 {
-  "scraped_at": "2026-05-26T13:32:47.503722",
-  "item_count": 257,
+  "scraped_at": "2026-05-26T17:59:32.319795",
+  "item_count": 254,
   "news": [
     {
       "id": 1,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Ty Gallop",
+      "pid": 482,
+      "team": "Brisbane",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-26T05:36:19.805857+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Doubt over Ty Gallop",
+      "body": "Ty Gallop pulled up sore with a hamstring injury and is in doubt for this week.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Brisbane"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-05-26T05:36:19.805857+00:00",
+      "age_label": "22m ago",
+      "seen_count": 3,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
+      "players": [
+        {
+          "pid": 482,
+          "name": "Ty Gallop"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Tim Membrey",
+      "pid": 429,
+      "team": "Collingwood",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-26T05:36:19.805857+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Tim Membrey on the watchlist",
+      "body": "Tim Membrey flagged with a hamstring injury.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Collingwood"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-05-26T05:36:19.805857+00:00",
+      "age_label": "22m ago",
+      "seen_count": 3,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
+      "players": [
+        {
+          "pid": 429,
+          "name": "Tim Membrey"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Darcy Moore",
+      "pid": 570,
+      "team": "Collingwood",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-26T05:36:19.805857+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Darcy Moore under an injury cloud",
+      "body": "Darcy Moore is in doubt after a concussion complaint.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Concussion"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Collingwood"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-05-26T05:36:19.805857+00:00",
+      "age_label": "22m ago",
+      "seen_count": 3,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
+      "players": [
+        {
+          "pid": 570,
+          "name": "Darcy Moore"
+        }
+      ]
+    },
+    {
+      "id": 4,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -15,7 +201,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "4h ago",
       "headline": "Mark Keane \u2014 OUT: Leg (1-2 weeks)",
       "body": "Mark Keane has been ruled OUT with a leg Estimated return: 1-2 weeks.",
       "signal": "sell",
@@ -60,19 +246,205 @@
       "ai_summary": "Keane is sidelined 1-2 weeks with a leg injury \u2014 trade or bench him now to avoid a donut."
     },
     {
-      "id": 2,
+      "id": 5,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Lachie Sullivan",
+      "pid": 531,
+      "team": "Collingwood",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-26T05:36:19.805857+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Doubt over Lachie Sullivan",
+      "body": "Lachie Sullivan pulled up sore with a concussion and is in doubt for this week.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Concussion"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Collingwood"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-05-26T05:36:19.805857+00:00",
+      "age_label": "22m ago",
+      "seen_count": 3,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
+      "players": [
+        {
+          "pid": 531,
+          "name": "Lachie Sullivan"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Brayden Fiorini",
+      "pid": 393,
+      "team": "Essendon",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-26T05:36:19.805857+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Brayden Fiorini under an injury cloud",
+      "body": "Brayden Fiorini is in doubt after a back complaint.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Back"
+        },
+        {
+          "l": "ETA",
+          "v": "TBC"
+        },
+        {
+          "l": "Club",
+          "v": "Essendon"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-05-26T05:36:19.805857+00:00",
+      "age_label": "22m ago",
+      "seen_count": 3,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
+      "players": [
+        {
+          "pid": 393,
+          "name": "Brayden Fiorini"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Zak Johnson",
+      "pid": 430,
+      "team": "Essendon",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-26T05:36:19.805857+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Zak Johnson under an injury cloud",
+      "body": "Zak Johnson is in doubt after a foot complaint.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Foot"
+        },
+        {
+          "l": "ETA",
+          "v": "TBC"
+        },
+        {
+          "l": "Club",
+          "v": "Essendon"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-05-26T05:36:19.805857+00:00",
+      "age_label": "22m ago",
+      "seen_count": 3,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
+      "players": [
+        {
+          "pid": 430,
+          "name": "Zak Johnson"
+        }
+      ]
+    },
+    {
+      "id": 8,
       "type": "news",
       "category": "general",
       "urgent": true,
       "player": "Oscar Allen",
-      "pid": null,
+      "pid": 427,
       "team": null,
       "pos": null,
       "source": "AFL.com.au",
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "4h ago",
       "headline": "Oscar Allen \u2014 OUT: Foot (8-10 weeks)",
       "body": "Oscar Allen has been ruled OUT with a foot Estimated return: 8-10 weeks.",
       "signal": "sell",
@@ -110,26 +482,150 @@
       "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
       "players": [
         {
-          "pid": null,
+          "pid": 427,
           "name": "Oscar Allen"
         }
       ],
       "ai_summary": "Oscar Allen is sidelined 8-10 weeks with a foot injury \u2014 trade him out immediately as he's done for the fantasy season's run home."
     },
     {
-      "id": 3,
+      "id": 9,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Brandon Walker",
+      "pid": 549,
+      "team": "Fremantle",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-26T05:36:19.805857+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Watch: Brandon Walker",
+      "body": "Whispers Brandon Walker is racing the clock on a concussion ahead of the weekend.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Concussion"
+        },
+        {
+          "l": "ETA",
+          "v": "TBC"
+        },
+        {
+          "l": "Club",
+          "v": "Fremantle"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-05-26T05:36:19.805857+00:00",
+      "age_label": "22m ago",
+      "seen_count": 3,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
+      "players": [
+        {
+          "pid": 549,
+          "name": "Brandon Walker"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Jhye Clark",
+      "pid": 502,
+      "team": "Geelong",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-05-26T05:36:19.805857+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Jhye Clark under an injury cloud",
+      "body": "Jhye Clark is in doubt after a concussion complaint.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Concussion"
+        },
+        {
+          "l": "ETA",
+          "v": "TBC"
+        },
+        {
+          "l": "Club",
+          "v": "Geelong"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-05-26T05:36:19.805857+00:00",
+      "age_label": "22m ago",
+      "seen_count": 3,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
+      "players": [
+        {
+          "pid": 502,
+          "name": "Jhye Clark"
+        }
+      ]
+    },
+    {
+      "id": 11,
       "type": "news",
       "category": "general",
       "urgent": true,
       "player": "Noah Answerth",
-      "pid": null,
+      "pid": 539,
       "team": null,
       "pos": null,
       "source": "AFL.com.au",
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "4h ago",
       "headline": "Noah Answerth \u2014 OUT: Concussion (1 week)",
       "body": "Noah Answerth has been ruled OUT with a concussion Estimated return: 1 week.",
       "signal": "sell",
@@ -167,14 +663,14 @@
       "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
       "players": [
         {
-          "pid": null,
+          "pid": 539,
           "name": "Noah Answerth"
         }
       ],
       "ai_summary": "Answerth is OUT for one week with concussion \u2014 sub him out of your defence and look elsewhere for cover."
     },
     {
-      "id": 4,
+      "id": 12,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -186,7 +682,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "4h ago",
       "headline": "Eric Hipwood \u2014 OUT: Knee (3 weeks)",
       "body": "Eric Hipwood has been ruled OUT with a knee Estimated return: 3 weeks.",
       "signal": "sell",
@@ -231,19 +727,19 @@
       "ai_summary": "Hipwood is sidelined for three weeks with a knee injury \u2014 trade him out or bench him if you're holding. Not a fantasy must-have anyway, so cutting losses is the safe play."
     },
     {
-      "id": 5,
+      "id": 13,
       "type": "news",
       "category": "general",
       "urgent": true,
       "player": "Lincoln McCarthy",
-      "pid": null,
+      "pid": 387,
       "team": null,
       "pos": null,
       "source": "AFL.com.au",
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "4h ago",
       "headline": "Lincoln McCarthy \u2014 OUT: Hamstring (3 weeks)",
       "body": "Lincoln McCarthy has been ruled OUT with a hamstring Estimated return: 3 weeks.",
       "signal": "sell",
@@ -281,14 +777,14 @@
       "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
       "players": [
         {
-          "pid": null,
+          "pid": 387,
           "name": "Lincoln McCarthy"
         }
       ],
       "ai_summary": "Lincoln McCarthy is sidelined for three weeks with a hamstring injury. Trade him out or bench him \u2014 he's no fantasy use until at least Round [+3]."
     },
     {
-      "id": 6,
+      "id": 14,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -300,7 +796,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "4h ago",
       "headline": "Henry Smith \u2014 OUT: Foot (5-6 weeks)",
       "body": "Henry Smith has been ruled OUT with a foot Estimated return: 5-6 weeks.",
       "signal": "sell",
@@ -345,7 +841,7 @@
       "ai_summary": "Smith is sidelined for 5-6 weeks with a foot injury \u2014 drop him in all formats and free up the cash."
     },
     {
-      "id": 7,
+      "id": 15,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -357,7 +853,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "4h ago",
       "headline": "Reece Torrent \u2014 OUT: Ankle (6-8 weeks)",
       "body": "Reece Torrent has been ruled OUT with a ankle Estimated return: 6-8 weeks.",
       "signal": "sell",
@@ -398,122 +894,11 @@
           "pid": null,
           "name": "Reece Torrent"
         }
-      ]
+      ],
+      "ai_summary": "Torrent is sidelined 6-8 weeks with an ankle injury \u2014 trade him out immediately and reinvest the cash elsewhere."
     },
     {
-      "id": 8,
-      "type": "news",
-      "category": "general",
-      "urgent": true,
-      "player": "Rob Monahan",
-      "pid": null,
-      "team": null,
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
-      "headline": "Rob Monahan \u2014 OUT: Shoulder (Season)",
-      "body": "Rob Monahan has been ruled OUT with a shoulder Estimated return: Season.",
-      "signal": "sell",
-      "signalConf": 88,
-      "tags": [
-        "Injury Out",
-        "Shoulder",
-        "Season"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "OUT"
-        },
-        {
-          "l": "Injury",
-          "v": "Shoulder"
-        },
-        {
-          "l": "ETA",
-          "v": "Season"
-        }
-      ],
-      "relevance": 100,
-      "_source": "afl_injury_page",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-05-26T01:31:24.302983+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 1,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
-      "players": [
-        {
-          "pid": null,
-          "name": "Rob Monahan"
-        }
-      ]
-    },
-    {
-      "id": 9,
-      "type": "news",
-      "category": "general",
-      "urgent": true,
-      "player": "Jesse Motlop",
-      "pid": null,
-      "team": null,
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
-      "headline": "Jesse Motlop \u2014 OUT: Knee (Season)",
-      "body": "Jesse Motlop has been ruled OUT with a knee Estimated return: Season.",
-      "signal": "sell",
-      "signalConf": 88,
-      "tags": [
-        "Injury Out",
-        "Knee",
-        "Season"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "OUT"
-        },
-        {
-          "l": "Injury",
-          "v": "Knee"
-        },
-        {
-          "l": "ETA",
-          "v": "Season"
-        }
-      ],
-      "relevance": 100,
-      "_source": "afl_injury_page",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-05-26T01:31:24.302983+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 1,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
-      "players": [
-        {
-          "pid": null,
-          "name": "Jesse Motlop"
-        }
-      ]
-    },
-    {
-      "id": 10,
+      "id": 16,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -525,7 +910,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "4h ago",
       "headline": "Joel Cochran \u2014 OUT: AC joint (2-4 weeks)",
       "body": "Joel Cochran has been ruled OUT with a ac joint Estimated return: 2-4 weeks.",
       "signal": "sell",
@@ -566,122 +951,11 @@
           "pid": null,
           "name": "Joel Cochran"
         }
-      ]
+      ],
+      "ai_summary": "Cochran is sidelined for 2-4 weeks with an AC joint injury \u2014 trade him out or bench him immediately to avoid donuts."
     },
     {
-      "id": 11,
-      "type": "news",
-      "category": "general",
-      "urgent": true,
-      "player": "Reef McInnes",
-      "pid": null,
-      "team": null,
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
-      "headline": "Reef McInnes \u2014 OUT: Knee (Season)",
-      "body": "Reef McInnes has been ruled OUT with a knee Estimated return: Season.",
-      "signal": "sell",
-      "signalConf": 88,
-      "tags": [
-        "Injury Out",
-        "Knee",
-        "Season"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "OUT"
-        },
-        {
-          "l": "Injury",
-          "v": "Knee"
-        },
-        {
-          "l": "ETA",
-          "v": "Season"
-        }
-      ],
-      "relevance": 100,
-      "_source": "afl_injury_page",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-05-26T01:31:24.302983+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 1,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
-      "players": [
-        {
-          "pid": null,
-          "name": "Reef McInnes"
-        }
-      ]
-    },
-    {
-      "id": 12,
-      "type": "news",
-      "category": "general",
-      "urgent": true,
-      "player": "Oscar Steene",
-      "pid": null,
-      "team": null,
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
-      "headline": "Oscar Steene \u2014 OUT: Knee (Season)",
-      "body": "Oscar Steene has been ruled OUT with a knee Estimated return: Season.",
-      "signal": "sell",
-      "signalConf": 88,
-      "tags": [
-        "Injury Out",
-        "Knee",
-        "Season"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "OUT"
-        },
-        {
-          "l": "Injury",
-          "v": "Knee"
-        },
-        {
-          "l": "ETA",
-          "v": "Season"
-        }
-      ],
-      "relevance": 100,
-      "_source": "afl_injury_page",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-05-26T01:31:24.302983+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 1,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
-      "players": [
-        {
-          "pid": null,
-          "name": "Oscar Steene"
-        }
-      ]
-    },
-    {
-      "id": 13,
+      "id": 17,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -693,7 +967,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "4h ago",
       "headline": "Angus Clarke \u2014 OUT: Foot (2 weeks)",
       "body": "Angus Clarke has been ruled OUT with a foot Estimated return: 2 weeks.",
       "signal": "sell",
@@ -734,10 +1008,11 @@
           "pid": null,
           "name": "Angus Clarke"
         }
-      ]
+      ],
+      "ai_summary": "Clarke is sidelined for two weeks with a foot injury \u2014 bench him now and look elsewhere for short-term cover."
     },
     {
-      "id": 14,
+      "id": 18,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -749,7 +1024,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "4h ago",
       "headline": "Lewis Hayes \u2014 OUT: Knee (1 week)",
       "body": "Lewis Hayes has been ruled OUT with a knee Estimated return: 1 week.",
       "signal": "sell",
@@ -790,22 +1065,23 @@
           "pid": null,
           "name": "Lewis Hayes"
         }
-      ]
+      ],
+      "ai_summary": "Hayes is sidelined for one week with a knee issue. Bench him now and monitor for his expected return next round."
     },
     {
-      "id": 15,
+      "id": 19,
       "type": "news",
       "category": "general",
       "urgent": true,
       "player": "Isaac Kako",
-      "pid": null,
+      "pid": 418,
       "team": null,
       "pos": null,
       "source": "AFL.com.au",
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-05-26T01:31:24.302983+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "4h ago",
       "headline": "Isaac Kako \u2014 OUT: Back (5 weeks)",
       "body": "Isaac Kako has been ruled OUT with a back Estimated return: 5 weeks.",
       "signal": "sell",
@@ -843,13 +1119,14 @@
       "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
       "players": [
         {
-          "pid": null,
+          "pid": 418,
           "name": "Isaac Kako"
         }
-      ]
+      ],
+      "ai_summary": "Kako is sidelined for five weeks with a back injury \u2014 trade him out now if you can't afford the donut. Look elsewhere for cash-cow rookie options."
     },
     {
-      "id": 16,
+      "id": 20,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -861,7 +1138,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-26T01:16:00+00:00",
-      "timeLabel": "15m ago",
+      "timeLabel": "4h ago",
       "headline": "Team whispers: Kingsley discusses potential returns of key duo",
       "body": "Stay up to date with all the latest teams news ahead of round 12.",
       "link": "https://www.afl.com.au/news/1528203/team-whispers-live-all-the-latest-selection-news-ahead-of-round-12",
@@ -886,7 +1163,7 @@
       "scrapedAt": "2026-05-26T01:31:24.382982+00:00"
     },
     {
-      "id": 17,
+      "id": 21,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -898,7 +1175,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-26T01:06:00+00:00",
-      "timeLabel": "25m ago",
+      "timeLabel": "4h ago",
       "headline": "The full list of nominees for the 2026 Mid-Season Rookie Draft",
       "body": "Check out the full list of players who have nominated for the AFL Mid-Season Rookie Draft.",
       "link": "https://www.afl.com.au/news/1528197/the-full-list-of-nominees-for-the-2026-mid-season-rookie-draft",
@@ -925,7 +1202,7 @@
       "ai_full": true
     },
     {
-      "id": 18,
+      "id": 22,
       "type": "analysis",
       "category": "price",
       "urgent": false,
@@ -937,7 +1214,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-26T00:30:00+00:00",
-      "timeLabel": "1h ago",
+      "timeLabel": "5h ago",
       "headline": "Fantasy stocktake: Who to buy and sell ahead of R12",
       "body": "Roy explores all the Fantasy trade options ahead of round 12.",
       "link": "https://www.afl.com.au/news/1527953/fantasy-stocktake-who-to-buy-and-sell-ahead-of-r12",
@@ -963,7 +1240,7 @@
       "ai_summary": "Roy breaks down the key buys and sells heading into Round 12, helping coaches nail their trades before lockout."
     },
     {
-      "id": 19,
+      "id": 23,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -975,7 +1252,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-26T00:23:00+00:00",
-      "timeLabel": "1h ago",
+      "timeLabel": "5h ago",
       "headline": "Why coaching contenders will be wary of vacant Essendon job",
       "body": "The litany of sacked coaches at Essendon in the past 20 years makes for grim reading if you're a young prospective senior coach, writes Cal Twomey.",
       "link": "https://www.afl.com.au/news/1528196/why-coaching-contenders-will-be-wary-of-vacant-essendon-bombers-job-after-brad-scott-sacking",
@@ -1000,7 +1277,7 @@
       "scrapedAt": "2026-05-26T01:10:32.635160+00:00"
     },
     {
-      "id": 20,
+      "id": 24,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1012,7 +1289,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-25T20:00:00+00:00",
-      "timeLabel": "5h ago",
+      "timeLabel": "9h ago",
       "headline": "The 25 is back: Who will rise, who will fall in our May rankings?",
       "body": "Welcome back to The 25, where AFL.com.au's team of experts rank the best players in the game.",
       "link": "https://www.afl.com.au/news/1527990/the-25-is-back-who-will-rise-who-will-fall-in-our-may-rankings",
@@ -1038,7 +1315,7 @@
       "ai_summary": "AFL.com.au's expert player rankings return for May, spotlighting the league's top 25 performers. Worth a look to gauge which stars are surging or sliding \u2014 handy intel for trade and captaincy calls."
     },
     {
-      "id": 21,
+      "id": 25,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1050,7 +1327,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-25T20:00:00+00:00",
-      "timeLabel": "5h ago",
+      "timeLabel": "9h ago",
       "headline": "What do Justin Bieber, Cam Mooney and this draft prospect have in common?",
       "body": "Draft hopeful Archie Hill was at a surprising career crossroads before choosing to pursue footy.",
       "link": "https://www.afl.com.au/news/1527984/what-do-justin-bieber-cam-mooney-and-draft-prospect-archie-hill-have-in-common",
@@ -1076,7 +1353,7 @@
       "ai_summary": "Draft prospect Archie Hill nearly chose a different path before committing to footy \u2014 one to watch as a potential late-draft smoky for fantasy keeper leagues."
     },
     {
-      "id": 22,
+      "id": 26,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1088,7 +1365,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-25T20:00:00+00:00",
-      "timeLabel": "5h ago",
+      "timeLabel": "9h ago",
       "headline": "You'll never guess what sport this draft hopeful almost chose over footy",
       "body": "Draft hopeful Archie Hill was at a surprising career crossroads before choosing to pursue footy.",
       "link": "https://www.afl.com.au/news/1527984/what-do-justin-bieber-cam-mooney-and-draft-prospect-archie-hill-have-in-common",
@@ -1114,7 +1391,7 @@
       "ai_summary": "Draft prospect Archie Hill nearly ditched footy for another sport before committing to the AFL path \u2014 one to file away for future rookie watchlists."
     },
     {
-      "id": 23,
+      "id": 27,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1126,7 +1403,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-25T09:59:00+00:00",
-      "timeLabel": "15h ago",
+      "timeLabel": "19h ago",
       "headline": "Demons forward retires after tough run with injuries",
       "body": "Demons forward Shane McAdam has retired.",
       "link": "https://www.afl.com.au/news/1528155/melbourne-demons-forward-shane-mcadam-retires-after-tough-run-with-injuries",
@@ -1158,7 +1435,7 @@
       ]
     },
     {
-      "id": 24,
+      "id": 28,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1170,7 +1447,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-25T08:42:00+00:00",
-      "timeLabel": "16h ago",
+      "timeLabel": "21h ago",
       "headline": "Final draft order: Your club's picks for Mid-Season Rookie Draft",
       "body": "See how many picks your club has at Tuesday night's Mid-Season Rookie Draft.",
       "link": "https://www.afl.com.au/news/1527997/draft-order-list-spots-and-more-where-your-clubs-list-sits-for-the-2026-mid-season-rookie-draft",
@@ -1196,7 +1473,7 @@
       "ai_summary": "The Mid-Season Rookie Draft order is locked in for Tuesday night \u2014 check how many picks your club holds and start scouting potential fantasy-relevant call-ups. Keep an eye out for cheap rookies who could slot straight into senior sides and become must-have cash cows."
     },
     {
-      "id": 25,
+      "id": 29,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1208,7 +1485,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-25T08:10:00+00:00",
-      "timeLabel": "17h ago",
+      "timeLabel": "21h ago",
       "headline": "LISTEN: A guide to the Mid-Season Draft, paying tribute to Neale Daniher",
       "body": "Join Cal Twomey and Josh Gabelich for AFL Daily.",
       "link": "https://www.afl.com.au/news/1528074/listen-a-guide-to-the-mid-season-draft-paying-tribute-to-neale-daniher",
@@ -1234,7 +1511,7 @@
       "ai_summary": "Cal Twomey and Josh Gabelich break down the Mid-Season Draft on AFL Daily, while also paying tribute to Neale Daniher. A must-listen for coaches hunting fresh rookie cash cows."
     },
     {
-      "id": 26,
+      "id": 30,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1246,7 +1523,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-25T06:30:00+00:00",
-      "timeLabel": "19h ago",
+      "timeLabel": "23h ago",
       "headline": "MATCH REVIEW: Lion cited for staging, Giant fined for strike",
       "body": "The Match Review Officer's findings are in from Sunday's round 11 games.",
       "link": "https://www.afl.com.au/news/1528046/match-review-brisbane-lions-cam-rayner-fined-for-staging-greater-western-sydney-giant-connor-idun-cited-for-strike",
@@ -1272,7 +1549,7 @@
       "ai_summary": "Brisbane's been hit with a staging charge while a GWS Giant cops a fine for striking \u2014 no suspensions to derail your fantasy lineups this week."
     },
     {
-      "id": 27,
+      "id": 31,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1284,7 +1561,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-25T04:02:00+00:00",
-      "timeLabel": "21h ago",
+      "timeLabel": "1d ago",
       "headline": "Your club's likely picks at the 2026 Mid-Season Draft",
       "body": "See how many picks your club is set to have at Tuesday night's Mid-Season Rookie Draft.",
       "link": "https://www.afl.com.au/news/1527997/draft-order-list-spots-and-more-where-your-clubs-list-sits-for-the-2026-mid-season-rookie-draft",
@@ -1310,7 +1587,7 @@
       "ai_summary": "Tuesday night's Mid-Season Rookie Draft is locked in, with each club's projected pick haul now revealed. Keep an eye on incoming rookies for cheap cash-cow potential in your fantasy side."
     },
     {
-      "id": 28,
+      "id": 32,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1322,7 +1599,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-25T02:12:00+00:00",
-      "timeLabel": "23h ago",
+      "timeLabel": "1d ago",
       "headline": "LISTEN: How to attack the bye rounds",
       "body": "Calvin, Roy and Warnie pick up the pieces from a dramatic weekend.",
       "link": "https://www.afl.com.au/news/1527952/listen-how-to-attack-the-bye-rounds-in-afl-fantasy",
@@ -1348,7 +1625,7 @@
       "ai_summary": "Calvin, Roy and Warnie break down a chaotic round and map out how to navigate the looming bye rounds. Essential listening for coaches plotting trades and structure."
     },
     {
-      "id": 29,
+      "id": 33,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1392,7 +1669,7 @@
       ]
     },
     {
-      "id": 30,
+      "id": 34,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1430,7 +1707,7 @@
       "ai_summary": "The 2026 Telstra AFL Mid-Season Rookie Draft is locked in, with a full rundown of every club's picks and the top contenders set to be called up. Fantasy coaches should be ready to pounce on cheap rookies who could slot straight into senior sides."
     },
     {
-      "id": 31,
+      "id": 35,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1468,7 +1745,7 @@
       "ai_summary": "The 2026 Telstra AFL Mid-Season Rookie Draft guide is out \u2014 your one-stop shop for order, eligibility and key dates. Fantasy coaches, start scouting potential cash cows now to pounce on bye-round bargains."
     },
     {
-      "id": 32,
+      "id": 36,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -1512,16 +1789,16 @@
       "is_rumour": true,
       "first_seen": "2026-05-24T09:58:45.316447+00:00",
       "age_label": "1d ongoing",
-      "seen_count": 18,
+      "seen_count": 21,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
       "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
       "players": [
         {
           "pid": 281,
@@ -1530,7 +1807,7 @@
       ]
     },
     {
-      "id": 33,
+      "id": 37,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -1574,16 +1851,16 @@
       "is_rumour": true,
       "first_seen": "2026-05-24T09:58:45.316447+00:00",
       "age_label": "1d ongoing",
-      "seen_count": 18,
+      "seen_count": 21,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
       "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
       "players": [
         {
           "pid": 166,
@@ -1592,7 +1869,7 @@
       ]
     },
     {
-      "id": 34,
+      "id": 38,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -1636,268 +1913,20 @@
       "is_rumour": true,
       "first_seen": "2026-05-24T09:58:45.316447+00:00",
       "age_label": "1d ongoing",
-      "seen_count": 18,
+      "seen_count": 21,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
       "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
       "players": [
         {
           "pid": 197,
           "name": "Adam Saad"
-        }
-      ]
-    },
-    {
-      "id": 35,
-      "type": "rumour",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Kane McAuliffe",
-      "pid": 167,
-      "team": "Richmond",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-05-24T09:58:45.316447+00:00",
-      "timeLabel": "1d ago",
-      "headline": "Kane McAuliffe on the watchlist",
-      "body": "Kane McAuliffe flagged with an achilles injury.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Achilles"
-        },
-        {
-          "l": "ETA",
-          "v": "TBC"
-        },
-        {
-          "l": "Club",
-          "v": "Richmond"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-05-24T09:58:45.316447+00:00",
-      "age_label": "1d ongoing",
-      "seen_count": 18,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 1d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
-      "players": [
-        {
-          "pid": 167,
-          "name": "Kane McAuliffe"
-        }
-      ]
-    },
-    {
-      "id": 36,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Corey Wagner",
-      "pid": 239,
-      "team": "Fremantle",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-05-24T09:58:45.316447+00:00",
-      "timeLabel": "1d ago",
-      "headline": "Watch: Corey Wagner",
-      "body": "Whispers Corey Wagner is racing the clock on an adductor injury ahead of the weekend.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Adductor"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Fremantle"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-05-24T09:58:45.316447+00:00",
-      "age_label": "1d ongoing",
-      "seen_count": 18,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 1d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
-      "players": [
-        {
-          "pid": 239,
-          "name": "Corey Wagner"
-        }
-      ]
-    },
-    {
-      "id": 37,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Alex Davies",
-      "pid": 302,
-      "team": "Gold Coast",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-05-24T09:58:45.316447+00:00",
-      "timeLabel": "1d ago",
-      "headline": "Watch: Alex Davies",
-      "body": "Whispers Alex Davies is racing the clock on a foot injury ahead of the weekend.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Foot"
-        },
-        {
-          "l": "ETA",
-          "v": "TBC"
-        },
-        {
-          "l": "Club",
-          "v": "Gold Coast"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-05-24T09:58:45.316447+00:00",
-      "age_label": "1d ongoing",
-      "seen_count": 18,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 1d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
-      "players": [
-        {
-          "pid": 302,
-          "name": "Alex Davies"
-        }
-      ]
-    },
-    {
-      "id": 38,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Jack Gunston",
-      "pid": 109,
-      "team": "Hawthorn",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-05-24T09:58:45.316447+00:00",
-      "timeLabel": "1d ago",
-      "headline": "Jack Gunston on the watchlist",
-      "body": "Jack Gunston flagged with a foot injury.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Foot"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Hawthorn"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-05-24T09:58:45.316447+00:00",
-      "age_label": "1d ongoing",
-      "seen_count": 18,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 1d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
-      "players": [
-        {
-          "pid": 109,
-          "name": "Jack Gunston"
         }
       ]
     },
@@ -1944,17 +1973,17 @@
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
-      "player": "Jack Scrimshaw",
-      "pid": 338,
-      "team": "Hawthorn",
+      "player": "Corey Wagner",
+      "pid": 239,
+      "team": "Fremantle",
       "pos": null,
       "source": "AFL.com.au",
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-05-24T09:58:45.316447+00:00",
       "timeLabel": "1d ago",
-      "headline": "Watch: Jack Scrimshaw",
-      "body": "Whispers Jack Scrimshaw is racing the clock on a knee injury ahead of the weekend.",
+      "headline": "Watch: Corey Wagner",
+      "body": "Whispers Corey Wagner is racing the clock on an adductor injury ahead of the weekend.",
       "signal": "hold",
       "signalConf": 88,
       "tags": [
@@ -1968,15 +1997,15 @@
         },
         {
           "l": "Injury",
-          "v": "Knee"
+          "v": "Adductor"
         },
         {
           "l": "ETA",
-          "v": "TBC"
+          "v": "Test"
         },
         {
           "l": "Club",
-          "v": "Hawthorn"
+          "v": "Fremantle"
         }
       ],
       "relevance": 80,
@@ -1984,20 +2013,20 @@
       "is_rumour": true,
       "first_seen": "2026-05-24T09:58:45.316447+00:00",
       "age_label": "1d ongoing",
-      "seen_count": 18,
+      "seen_count": 21,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
       "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
       "players": [
         {
-          "pid": 338,
-          "name": "Jack Scrimshaw"
+          "pid": 239,
+          "name": "Corey Wagner"
         }
       ]
     },
@@ -2006,79 +2035,17 @@
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
-      "player": "Caleb Windsor",
-      "pid": 311,
-      "team": "Melbourne",
+      "player": "Alex Davies",
+      "pid": 302,
+      "team": "Gold Coast",
       "pos": null,
       "source": "AFL.com.au",
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-05-24T09:58:45.316447+00:00",
       "timeLabel": "1d ago",
-      "headline": "Caleb Windsor under an injury cloud",
-      "body": "Caleb Windsor is in doubt after a toe complaint.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Toe"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Melbourne"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-05-24T09:58:45.316447+00:00",
-      "age_label": "1d ongoing",
-      "seen_count": 18,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 1d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
-      "players": [
-        {
-          "pid": 311,
-          "name": "Caleb Windsor"
-        }
-      ]
-    },
-    {
-      "id": 42,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Rhyan Mansell",
-      "pid": 102,
-      "team": "Richmond",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-05-24T09:58:45.316447+00:00",
-      "timeLabel": "1d ago",
-      "headline": "Watch: Rhyan Mansell",
-      "body": "Whispers Rhyan Mansell is racing the clock on a foot injury ahead of the weekend.",
+      "headline": "Watch: Alex Davies",
+      "body": "Whispers Alex Davies is racing the clock on a foot injury ahead of the weekend.",
       "signal": "hold",
       "signalConf": 88,
       "tags": [
@@ -2100,7 +2067,7 @@
         },
         {
           "l": "Club",
-          "v": "Richmond"
+          "v": "Gold Coast"
         }
       ],
       "relevance": 80,
@@ -2108,25 +2075,25 @@
       "is_rumour": true,
       "first_seen": "2026-05-24T09:58:45.316447+00:00",
       "age_label": "1d ongoing",
-      "seen_count": 18,
+      "seen_count": 21,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
       "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
       "players": [
         {
-          "pid": 102,
-          "name": "Rhyan Mansell"
+          "pid": 302,
+          "name": "Alex Davies"
         }
       ]
     },
     {
-      "id": 43,
+      "id": 42,
       "type": "analysis",
       "category": "price",
       "urgent": false,
@@ -2164,131 +2131,7 @@
       "ai_summary": "AFL Fantasy has dropped its TPP/DPP updates for Classic and Draft, with a host of players gaining extra position eligibility. Time to revisit your squad structure and unlock fresh flexibility ahead of the season."
     },
     {
-      "id": 44,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Hunter Clark",
-      "pid": 315,
-      "team": "St Kilda",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-05-24T09:58:45.316447+00:00",
-      "timeLabel": "1d ago",
-      "headline": "Hunter Clark on the watchlist",
-      "body": "Hunter Clark flagged with a knee injury.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Knee"
-        },
-        {
-          "l": "ETA",
-          "v": "TBC"
-        },
-        {
-          "l": "Club",
-          "v": "St Kilda"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-05-24T09:58:45.316447+00:00",
-      "age_label": "1d ongoing",
-      "seen_count": 18,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 1d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
-      "players": [
-        {
-          "pid": 315,
-          "name": "Hunter Clark"
-        }
-      ]
-    },
-    {
-      "id": 45,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Jack Higgins",
-      "pid": 273,
-      "team": "St Kilda",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-05-24T09:58:45.316447+00:00",
-      "timeLabel": "1d ago",
-      "headline": "Watch: Jack Higgins",
-      "body": "Whispers Jack Higgins is racing the clock on a knee injury ahead of the weekend.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Knee"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "St Kilda"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-05-24T09:58:45.316447+00:00",
-      "age_label": "1d ongoing",
-      "seen_count": 18,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 1d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
-      "players": [
-        {
-          "pid": 273,
-          "name": "Jack Higgins"
-        }
-      ]
-    },
-    {
-      "id": 46,
+      "id": 43,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2326,7 +2169,7 @@
       "ai_summary": "The Bulldogs edged Melbourne in a nail-biter to bank a crucial win. Check the box scores for fantasy-relevant output from key Dogs and Dees."
     },
     {
-      "id": 47,
+      "id": 44,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2364,7 +2207,7 @@
       "ai_summary": "Don't sleep on Fremantle's emerging young gun\u2014he's burning opponents when left unattended and shaping as a must-watch fantasy option. Round 11 also flagged GWS keeping their finals hopes alive and Richmond unearthing a cut-price recruit worth a look."
     },
     {
-      "id": 48,
+      "id": 45,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2376,7 +2219,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-24T05:22:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "headline": "Giant killers! Historic blitz sees GWS demolish reigning premiers",
       "body": "A 14-goal third-quarter has set Greater Western Sydney up for a shellacking of Brisbane.",
       "link": "https://www.afl.com.au/news/1527078/giant-killers-historic-blitz-sees-gws-demolish-reigning-premiers",
@@ -2402,7 +2245,7 @@
       "ai_summary": "GWS unleashed a record-breaking 14-goal third quarter to humiliate reigning premiers Brisbane. Expect huge fantasy scores from Giants midfielders and forwards, while Lions owners brace for ugly numbers across the board."
     },
     {
-      "id": 49,
+      "id": 46,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2414,7 +2257,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-24T04:15:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "headline": "Dogs, Dees lock in final teams for important clash. Follow LIVE",
       "body": "Follow all the action from Sunday's round 11 games.",
       "link": "https://www.afl.com.au/news/1522888/follow-it-live-greater-western-sydney-giants-v-brisbane-lions-western-bulldogs-v-narrm-demons-afl-round-11-2026",
@@ -2440,7 +2283,7 @@
       "ai_summary": "Bulldogs and Demons have confirmed final teams for Sunday's crucial Round 11 clash \u2014 check your lockouts and finalise trades now. Live coverage rolling across all Sunday games."
     },
     {
-      "id": 50,
+      "id": 47,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2452,7 +2295,7 @@
       "sourceHandle": "@abcsport",
       "reliability": 88,
       "time": "2026-05-24T02:02:26+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "headline": "Giants create AFL history with onslaught, Dogs down Dees in classic",
       "body": "Greater Western Sydney has left reigning premier Brisbane reeling with a record-breaking goal surge, while the Bulldogs get home in a see-sawing contest against the Demons.",
       "link": "https://www.abc.net.au/news/2026-05-24/afl-round-11-sunday-giants-lions-bulldogs-demons/106715568",
@@ -2477,7 +2320,7 @@
       "ai_summary": "GWS unleashed a historic goal blitz to smash reigning premier Brisbane \u2014 Lions owners should brace for ugly scores, while Giants attackers are must-watch. The Bulldogs edged Melbourne in a thriller, keeping their high-scoring mids firmly in fantasy calculations."
     },
     {
-      "id": 51,
+      "id": 48,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2514,7 +2357,7 @@
       "ai_summary": "Fremantle are humming and could welcome key stars back for a tough Gabba clash with Brisbane in Round 12 \u2014 monitor returning Dockers for potential POD value. Meanwhile, Lyon's \"bizarre\" handling of Wilkie raises a selection cloud worth watching before lockout."
     },
     {
-      "id": 52,
+      "id": 49,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2558,7 +2401,7 @@
       ]
     },
     {
-      "id": 53,
+      "id": 50,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2596,7 +2439,7 @@
       "ai_summary": "GWS has appointed two new First Nations leaders off-field to address the league-wide decline in Indigenous talent. No direct fantasy impact, but signals the Giants' long-term investment in player development pathways."
     },
     {
-      "id": 54,
+      "id": 51,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2634,7 +2477,7 @@
       "ai_summary": "Brisbane are scratchy but far from done \u2014 keep faith with your Lions premiums, as a form spike looks imminent."
     },
     {
-      "id": 55,
+      "id": 52,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2678,7 +2521,7 @@
       ]
     },
     {
-      "id": 56,
+      "id": 53,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2722,7 +2565,7 @@
       "ai_summary": "Scott Pendlebury has no plans to retire after breaking the all-time AFL games record, signalling the Pies champ remains a viable midfield-forward option for fantasy coaches chasing durable, cash-cow-proof veterans."
     },
     {
-      "id": 57,
+      "id": 54,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2760,7 +2603,7 @@
       "ai_summary": "Carlton are 2-0 under new coach Josh Fraser after dispatching Port Adelaide, with the Blues' midfield rolling and looking like a fertile hunting ground for fantasy points."
     },
     {
-      "id": 58,
+      "id": 55,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2798,7 +2641,7 @@
       "ai_summary": "Taylor booted five in a standout state-league showing, while a returning Hawks star and a debuting new Eagle headlined a busy weekend across the VFL, SANFL and WAFL. Worth monitoring for any AFL recalls that could shake up fantasy lineups."
     },
     {
-      "id": 59,
+      "id": 56,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2836,7 +2679,7 @@
       "ai_summary": "Geelong's emphatic win over Sydney stamps them as genuine flag threats, boosting the fantasy appeal of Cats premiums. Swans owners should monitor output closely after the streak-snapping loss exposed some cracks."
     },
     {
-      "id": 60,
+      "id": 57,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2874,7 +2717,7 @@
       "ai_summary": "North Melbourne have finally broken their drought, joining the list of clubs to seal a win with a goal after the siren. Worth a look at how your club stacks up on the all-time list of last-gasp winners and losers."
     },
     {
-      "id": 61,
+      "id": 58,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2912,7 +2755,7 @@
       "ai_summary": "Three players hit with fines from Friday night's round 11 clashes, with no suspensions handed down \u2014 meaning fantasy coaches can breathe easy and lock them in."
     },
     {
-      "id": 62,
+      "id": 59,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2950,7 +2793,7 @@
       "ai_summary": "North Melbourne nearly broke their club record for biggest comeback in a stunning win over the Suns \u2014 check where your club's greatest comeback ranks."
     },
     {
-      "id": 63,
+      "id": 60,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2994,7 +2837,7 @@
       "ai_summary": "Zurhaar's after-the-siren goal seals a stunning Roos comeback, boosting his fantasy relevance as a forward option in form. Gold Coast owners should be wary of late-game collapses denting their players' scoring upside."
     },
     {
-      "id": 64,
+      "id": 61,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -3006,7 +2849,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-05-23T05:14:00+00:00",
-      "timeLabel": "2d ago",
+      "timeLabel": "3d ago",
       "headline": "Bombers learn severity of injuries after brutal Dreamtime outing",
       "body": "The Bombers have confirmed the severity of several of the injuries they suffered on Friday night.",
       "link": "https://www.afl.com.au/news/1525169/essendon-bombers-learn-severity-of-injuries-after-brutal-dreamtime-at-the-g-outing",
@@ -3033,7 +2876,7 @@
       "ai_full": true
     },
     {
-      "id": 65,
+      "id": 62,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -3045,7 +2888,7 @@
       "sourceHandle": "@abcsport",
       "reliability": 88,
       "time": "2026-05-23T03:28:43+00:00",
-      "timeLabel": "2d ago",
+      "timeLabel": "3d ago",
       "headline": "Brent Harvey is about to lose his place in AFL history",
       "body": "Brent 'Boomer' Harvey has enjoyed being the AFL/VFL games record holder for the past decade, and says he could have played more if he'd accepted an offer from other clubs to extend his career.",
       "link": "https://www.abc.net.au/news/2026-05-23/brent-harvey-reflects-on-scott-pendlebury-games-record/106711776",
@@ -3089,7 +2932,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 66,
+      "id": 63,
       "ai_summary": "No fantasy-relevant news here \u2014 the article is a behind-the-scenes piece on footy's top social media guru, not player form, injuries or selection. Safe to skip for your team decisions."
     },
     {
@@ -3111,7 +2954,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 67,
+      "id": 64,
       "ai_summary": "This article is about Formula 1, not AFL, so there are no fantasy implications for SuperCoach or AFL Fantasy coaches. No selection, injury, role, form or price points can be drawn for AFL purposes. Coaches should disregard for fantasy considerations.",
       "ai_full": true
     },
@@ -3134,7 +2977,8 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 68
+      "id": 65,
+      "ai_summary": "Every VFL game is now streaming live and free via AFL.com.au \u2014 a handy tool for fantasy coaches tracking returning stars, emerging rookies and form watches. Bookmark it to scout potential cash cows and monitor injury comebacks in real time."
     },
     {
       "type": "news",
@@ -3155,7 +2999,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 69
+      "id": 66
     },
     {
       "type": "news",
@@ -3176,14 +3020,14 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 70,
+      "id": 67,
       "players": [
         {
-          "pid": null,
+          "pid": 484,
           "name": "Oscar Adams"
         }
       ],
-      "pid": null
+      "pid": 484
     },
     {
       "type": "news",
@@ -3204,7 +3048,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 71
+      "id": 68
     },
     {
       "type": "news",
@@ -3225,7 +3069,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 72
+      "id": 69
     },
     {
       "type": "news",
@@ -3246,7 +3090,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 73
+      "id": 70
     },
     {
       "type": "news",
@@ -3267,7 +3111,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 74
+      "id": 71
     },
     {
       "type": "news",
@@ -3288,7 +3132,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 75
+      "id": 72
     },
     {
       "type": "news",
@@ -3309,7 +3153,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 76
+      "id": 73
     },
     {
       "type": "news",
@@ -3330,7 +3174,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 77
+      "id": 74
     },
     {
       "type": "news",
@@ -3351,7 +3195,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 78,
+      "id": 75,
       "players": [
         {
           "pid": null,
@@ -3379,7 +3223,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 79
+      "id": 76
     },
     {
       "type": "news",
@@ -3400,7 +3244,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 80
+      "id": 77
     },
     {
       "type": "news",
@@ -3421,7 +3265,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 81,
+      "id": 78,
       "players": [
         {
           "pid": 142,
@@ -3449,7 +3293,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 82
+      "id": 79
     },
     {
       "type": "news",
@@ -3470,7 +3314,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 83
+      "id": 80
     },
     {
       "type": "news",
@@ -3491,7 +3335,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 84
+      "id": 81
     },
     {
       "type": "news",
@@ -3505,14 +3349,14 @@
       "reliability": 65,
       "time": "2026-05-22T05:23:32+00:00",
       "first_seen": "2026-05-22T05:23:32+00:00",
-      "timeLabel": "3d ago",
+      "timeLabel": "4d ago",
       "link": "https://news.google.com/rss/articles/CBMi9wFBVV95cUxQem5MVHRqOTY0RWZBYVdiWFNwejlmakROYldSbmJpcFV5R2w2bXd1MXRqV29WOThZbTJJMWhZNkJHMmJBdDd0cUNCTjdYYmVNN1lmQ1FfTnU5U3dOeWVoYUlUVUFtQjFaT1JBSG5mcllabWdLTE5IVjVwOWgzU0QtNl9DT2htTHdHSy1Zb3Zsb2U2WFkwSnFKS0M4ZF93UGxkYzNIcTc3Ui02WmtFREFOSVl4WlBVeDE1enFZdEctZlJXb1Jqbm95Mmp6eldvZG5RMUp1OHZDSGdfYkhFYXFsZjBhTGNCMjliXzJza25Vb0luYUliZURZ0gH8AUFVX3lxTE5ST2ZtNFhsRGNuaEQtNkxHMUpDcmM3c2owUHlOa09IdzNaVHhWSmR2MFRvRjFYMmhGbkxxU1FKOC01WjVlQ0tySnctc0cxT3NoT1Y4TzZ0U0VaSzktZTBQY0pHNEpkNUVoQUEyU3BPNkx3dG1yUDVpV0xCZ3JGblNYUWxLNC1PMElYNFVLUDJkNlFrdmdWdG5rT1RyNE9nSG9udjRFbkZ2aW1JUVl6emJhbVVKTmxBQ1o2cFhwMzU1MnBLY2xVOWlmQUhvVmtIR3pYRjRkZTJYMDBNdFM2QS1UM2RxczN0X0ozSmM0ZVVoTndQSHNLODZmdExXZA?oc=5",
       "is_rumour": false,
       "tags": [
         "News"
       ],
       "_source": "fast_fill",
-      "id": 85,
+      "id": 82,
       "players": [
         {
           "pid": 98,
@@ -3533,14 +3377,14 @@
       "reliability": 65,
       "time": "2026-05-22T02:30:28+00:00",
       "first_seen": "2026-05-22T02:30:28+00:00",
-      "timeLabel": "3d ago",
+      "timeLabel": "4d ago",
       "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxNUDJjbWljQnpvbHVSREJtZDdRUTlTRWdBR24xZ0h3RG1yU092YjFiNl9ocG9Yalp1N3BaTmdjVjlxeTlnUkdXSzVEamVWaGdWR3dEVEtpYmFaOTZMUl96MVJFY0lZZHYxSk9LZGt2eGhCTTgxelhxakNHaEhBelhJcDZ4N05nTUZUUXM4MnZtZEZ0akZz?oc=5",
       "is_rumour": false,
       "tags": [
         "News"
       ],
       "_source": "fast_fill",
-      "id": 86,
+      "id": 83,
       "players": [
         {
           "pid": null,
@@ -3568,10 +3412,10 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 87
+      "id": 84
     },
     {
-      "id": 88,
+      "id": 85,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -3615,16 +3459,16 @@
       "is_rumour": true,
       "first_seen": "2026-05-21T23:28:57.435066+00:00",
       "age_label": "4d ongoing",
-      "seen_count": 44,
+      "seen_count": 47,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
       "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
       "players": [
         {
           "pid": 92,
@@ -3651,7 +3495,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 89
+      "id": 86
     },
     {
       "type": "news",
@@ -3672,7 +3516,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 90
+      "id": 87
     },
     {
       "type": "news",
@@ -3693,7 +3537,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 91,
+      "id": 88,
       "players": [
         {
           "pid": 48,
@@ -3721,7 +3565,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 92
+      "id": 89
     },
     {
       "type": "news",
@@ -3742,7 +3586,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 93
+      "id": 90
     },
     {
       "type": "news",
@@ -3763,7 +3607,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 94
+      "id": 91
     },
     {
       "type": "news",
@@ -3784,7 +3628,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 95
+      "id": 92
     },
     {
       "type": "news",
@@ -3805,7 +3649,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 96,
+      "id": 93,
       "players": [
         {
           "pid": 305,
@@ -3833,7 +3677,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 97
+      "id": 94
     },
     {
       "type": "news",
@@ -3854,7 +3698,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 98
+      "id": 95
     },
     {
       "type": "news",
@@ -3875,7 +3719,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 99
+      "id": 96
     },
     {
       "type": "news",
@@ -3896,7 +3740,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 100
+      "id": 97
     },
     {
       "type": "news",
@@ -3917,7 +3761,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 101
+      "id": 98
     },
     {
       "type": "news",
@@ -3938,7 +3782,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 102
+      "id": 99
     },
     {
       "type": "news",
@@ -3959,7 +3803,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 103,
+      "id": 100,
       "players": [
         {
           "pid": 4,
@@ -3987,7 +3831,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 104
+      "id": 101
     },
     {
       "type": "news",
@@ -4008,7 +3852,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 105
+      "id": 102
     },
     {
       "type": "news",
@@ -4029,7 +3873,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 106,
+      "id": 103,
       "players": [
         {
           "pid": 162,
@@ -4057,7 +3901,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 107
+      "id": 104
     },
     {
       "type": "news",
@@ -4078,7 +3922,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 108
+      "id": 105
     },
     {
       "type": "news",
@@ -4099,7 +3943,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 109
+      "id": 106
     },
     {
       "type": "news",
@@ -4120,7 +3964,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 110
+      "id": 107
     },
     {
       "type": "news",
@@ -4141,7 +3985,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 111
+      "id": 108
     },
     {
       "type": "news",
@@ -4162,7 +4006,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 112
+      "id": 109
     },
     {
       "type": "news",
@@ -4176,14 +4020,14 @@
       "reliability": 65,
       "time": "2026-05-21T05:39:47+00:00",
       "first_seen": "2026-05-21T05:39:47+00:00",
-      "timeLabel": "4d ago",
+      "timeLabel": "5d ago",
       "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOeHFVVkdUVWhKVXFZNE1nYTR5b2o1R0wtVjZ2VDdYRGNNMVF6SWw3bFFEaFdqSmtaQWVvQlFpeWo5eXZ6elM0TmhPRUdPX1BhaGpxN0Z5dE5mRjdhX3pLVm1KbkxBV1ludW5JMnNTQjczVXZzYXRhMUhrRHdlb2R2dm1qNV85ZENNTEJiT2lCaW9sTzZqb2RERXVhNlpkbXJjdzc1M3Jn?oc=5",
       "is_rumour": false,
       "tags": [
         "News"
       ],
       "_source": "fast_fill",
-      "id": 113
+      "id": 110
     },
     {
       "type": "news",
@@ -4197,14 +4041,14 @@
       "reliability": 65,
       "time": "2026-05-21T03:57:09+00:00",
       "first_seen": "2026-05-21T03:57:09+00:00",
-      "timeLabel": "4d ago",
+      "timeLabel": "5d ago",
       "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxOMkFucHprWTVsM2pscGpESzdiZjVpMFNGbjhVWjF0Qk1adjJudjlYQWhhck5WNXFQSjEzNTFUb092RFJvUmlTcmZMS3FCZzZuaFRkVWFIVzVPOXFEd3JUYkNyWERVNm5lNExwRjI0MFpHTDZUWlhkOTBFLWVla091NU1OLXBCZTNJaFBn?oc=5",
       "is_rumour": false,
       "tags": [
         "News"
       ],
       "_source": "fast_fill",
-      "id": 114
+      "id": 111
     },
     {
       "type": "news",
@@ -4218,14 +4062,14 @@
       "reliability": 65,
       "time": "2026-05-21T03:42:07+00:00",
       "first_seen": "2026-05-21T03:42:07+00:00",
-      "timeLabel": "4d ago",
+      "timeLabel": "5d ago",
       "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNYjhWd2p0Vkd0TXhVNjByR0tqUVlqQW5XYUU4S2ZaRW1MNlhPUFZSRGtKRWJWVGF4bHdONkhuOE5UYlFJa3RvV1dvdVg0VXJKNjZhdjVIRE5hSWJsaFdJakdjU2FJcVhmaU1fNVZ2TGpsSkMycTBkRVBGcENOSWNockJuZVQ0ejJaejQyRlV0dWV4X2FRNWl3SUktMU9xZXBMTmVPZU1jYTdDU1E?oc=5",
       "is_rumour": false,
       "tags": [
         "News"
       ],
       "_source": "fast_fill",
-      "id": 115
+      "id": 112
     },
     {
       "type": "news",
@@ -4246,7 +4090,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 116
+      "id": 113
     },
     {
       "type": "news",
@@ -4267,10 +4111,10 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 117
+      "id": 114
     },
     {
-      "id": 118,
+      "id": 115,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -4314,16 +4158,16 @@
       "is_rumour": true,
       "first_seen": "2026-05-20T21:25:01.379467+00:00",
       "age_label": "5d ongoing",
-      "seen_count": 66,
+      "seen_count": 69,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 5d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-05-26T01:31:24.379438+00:00",
+      "_seen": "2026-05-26T05:58:48.787529+00:00",
       "_padded": true,
-      "scrapedAt": "2026-05-26T01:31:24.382982+00:00",
+      "scrapedAt": "2026-05-26T05:58:48.790154+00:00",
       "players": [
         {
           "pid": 56,
@@ -4350,7 +4194,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 119
+      "id": 116
     },
     {
       "type": "news",
@@ -4371,7 +4215,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 120
+      "id": 117
     },
     {
       "type": "news",
@@ -4392,7 +4236,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 121
+      "id": 118
     },
     {
       "type": "news",
@@ -4413,7 +4257,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 122
+      "id": 119
     },
     {
       "type": "news",
@@ -4434,7 +4278,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 123
+      "id": 120
     },
     {
       "type": "news",
@@ -4448,14 +4292,14 @@
       "reliability": 65,
       "time": "2026-05-20T04:58:24+00:00",
       "first_seen": "2026-05-20T04:58:24+00:00",
-      "timeLabel": "5d ago",
+      "timeLabel": "6d ago",
       "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPRnA1eEc1RkF6cjJ0RmVVcVhXd3B6Q0R3MDE1U0xJSWdkNTEwM2IwS1JwR2FEUnNUTnBtWVB4bTAySUpYRXVST1VsSWdBRzhzdWdqcERuUE95dzg4QjlXek9mQWxjeWlaRV93bVlxWVhTaldKTDJmM0E2cFFkSVZpT2cwX1dPeEVqUS1aRmZtaWhkQzFOV29EQWJTd1lkVHRabmExcDdkUmJtbW8wdlRnaGczYi1Oa0lCUlVQdw?oc=5",
       "is_rumour": false,
       "tags": [
         "News"
       ],
       "_source": "fast_fill",
-      "id": 124
+      "id": 121
     },
     {
       "type": "news",
@@ -4469,14 +4313,14 @@
       "reliability": 65,
       "time": "2026-05-20T04:00:00+00:00",
       "first_seen": "2026-05-20T04:00:00+00:00",
-      "timeLabel": "5d ago",
+      "timeLabel": "6d ago",
       "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNSFZwTlQtdHFIY0dEQVJlVkJSQlFvelVGNWZpdHBkQ3VQUHJWNFFWUkE5LUJBNVFvNHRKRVdZSV91SUtnMEVSRFJXRWszcXFWZnlpM3hxeTRzNXRkUXJZS1EzSWltTVdLaXlXRzJDb3Q3ZzM1Uy05TS1SQ3g1Q1IyUGZGZml0SGxXdGZoQlNPY1d0enF6dTFCTU9HN0pRc0U1YmtN?oc=5",
       "is_rumour": false,
       "tags": [
         "News"
       ],
       "_source": "fast_fill",
-      "id": 125
+      "id": 122
     },
     {
       "type": "news",
@@ -4497,7 +4341,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 126,
+      "id": 123,
       "players": [
         {
           "pid": 184,
@@ -4525,14 +4369,14 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 127,
+      "id": 124,
       "players": [
         {
           "pid": 252,
           "name": "Michael Frederick"
         },
         {
-          "pid": null,
+          "pid": 469,
           "name": "Alex Pearce"
         }
       ],
@@ -4557,7 +4401,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 128
+      "id": 125
     },
     {
       "type": "news",
@@ -4578,7 +4422,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 129
+      "id": 126
     },
     {
       "type": "news",
@@ -4599,7 +4443,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 130
+      "id": 127
     },
     {
       "type": "news",
@@ -4620,10 +4464,10 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 131
+      "id": 128
     },
     {
-      "id": 132,
+      "id": 129,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -4683,10 +4527,10 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 133
+      "id": 130
     },
     {
-      "id": 134,
+      "id": 131,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -4746,7 +4590,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 135
+      "id": 132
     },
     {
       "type": "news",
@@ -4767,7 +4611,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 136
+      "id": 133
     },
     {
       "type": "news",
@@ -4788,7 +4632,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 137
+      "id": 134
     },
     {
       "type": "news",
@@ -4809,7 +4653,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 138
+      "id": 135
     },
     {
       "type": "news",
@@ -4830,7 +4674,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 139,
+      "id": 136,
       "players": [
         {
           "pid": 218,
@@ -4858,7 +4702,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 140
+      "id": 137
     },
     {
       "type": "news",
@@ -4879,7 +4723,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 141
+      "id": 138
     },
     {
       "type": "news",
@@ -4900,7 +4744,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 142
+      "id": 139
     },
     {
       "type": "news",
@@ -4921,7 +4765,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 143
+      "id": 140
     },
     {
       "type": "news",
@@ -4942,7 +4786,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 144
+      "id": 141
     },
     {
       "type": "news",
@@ -4963,7 +4807,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 145
+      "id": 142
     },
     {
       "type": "news",
@@ -4984,7 +4828,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 146
+      "id": 143
     },
     {
       "type": "news",
@@ -5005,7 +4849,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 147
+      "id": 144
     },
     {
       "type": "news",
@@ -5026,7 +4870,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 148
+      "id": 145
     },
     {
       "type": "news",
@@ -5047,7 +4891,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 149
+      "id": 146
     },
     {
       "type": "news",
@@ -5068,7 +4912,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 150
+      "id": 147
     },
     {
       "type": "news",
@@ -5089,7 +4933,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 151
+      "id": 148
     },
     {
       "type": "news",
@@ -5110,7 +4954,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 152
+      "id": 149
     },
     {
       "type": "news",
@@ -5131,7 +4975,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 153
+      "id": 150
     },
     {
       "type": "news",
@@ -5152,7 +4996,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 154
+      "id": 151
     },
     {
       "type": "news",
@@ -5173,7 +5017,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 155
+      "id": 152
     },
     {
       "type": "news",
@@ -5194,7 +5038,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 156
+      "id": 153
     },
     {
       "type": "news",
@@ -5215,7 +5059,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 157
+      "id": 154
     },
     {
       "type": "news",
@@ -5236,7 +5080,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 158
+      "id": 155
     },
     {
       "type": "news",
@@ -5257,10 +5101,10 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 159
+      "id": 156
     },
     {
-      "id": 160,
+      "id": 157,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -5315,7 +5159,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 161,
+      "id": 158,
       "players": [
         {
           "pid": null,
@@ -5343,7 +5187,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 162
+      "id": 159
     },
     {
       "type": "news",
@@ -5364,7 +5208,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 163
+      "id": 160
     },
     {
       "type": "news",
@@ -5385,7 +5229,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 164
+      "id": 161
     },
     {
       "type": "news",
@@ -5406,7 +5250,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 165
+      "id": 162
     },
     {
       "type": "news",
@@ -5427,7 +5271,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 166
+      "id": 163
     },
     {
       "type": "news",
@@ -5448,7 +5292,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 167
+      "id": 164
     },
     {
       "type": "news",
@@ -5469,7 +5313,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 168
+      "id": 165
     },
     {
       "type": "news",
@@ -5490,7 +5334,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 169
+      "id": 166
     },
     {
       "type": "news",
@@ -5511,7 +5355,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 170
+      "id": 167
     },
     {
       "type": "news",
@@ -5532,7 +5376,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 171
+      "id": 168
     },
     {
       "type": "news",
@@ -5553,7 +5397,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 172
+      "id": 169
     },
     {
       "type": "news",
@@ -5574,7 +5418,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 173
+      "id": 170
     },
     {
       "type": "news",
@@ -5595,7 +5439,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 174
+      "id": 171
     },
     {
       "type": "news",
@@ -5616,7 +5460,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 175
+      "id": 172
     },
     {
       "type": "news",
@@ -5637,7 +5481,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 176
+      "id": 173
     },
     {
       "type": "news",
@@ -5658,7 +5502,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 177
+      "id": 174
     },
     {
       "type": "news",
@@ -5679,7 +5523,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 178,
+      "id": 175,
       "players": [
         {
           "pid": 109,
@@ -5707,7 +5551,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 179
+      "id": 176
     },
     {
       "type": "news",
@@ -5728,7 +5572,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 180
+      "id": 177
     },
     {
       "type": "news",
@@ -5749,7 +5593,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 181,
+      "id": 178,
       "players": [
         {
           "pid": 183,
@@ -5777,7 +5621,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 182
+      "id": 179
     },
     {
       "type": "news",
@@ -5798,7 +5642,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 183
+      "id": 180
     },
     {
       "type": "news",
@@ -5819,7 +5663,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 184,
+      "id": 181,
       "players": [
         {
           "pid": null,
@@ -5847,7 +5691,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 185
+      "id": 182
     },
     {
       "type": "news",
@@ -5868,7 +5712,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 186
+      "id": 183
     },
     {
       "type": "news",
@@ -5889,7 +5733,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 187
+      "id": 184
     },
     {
       "type": "news",
@@ -5910,7 +5754,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 188
+      "id": 185
     },
     {
       "type": "news",
@@ -5931,7 +5775,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 189
+      "id": 186
     },
     {
       "type": "news",
@@ -5952,7 +5796,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 190
+      "id": 187
     },
     {
       "type": "news",
@@ -5973,7 +5817,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 191
+      "id": 188
     },
     {
       "type": "news",
@@ -5994,7 +5838,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 192
+      "id": 189
     },
     {
       "type": "news",
@@ -6015,7 +5859,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 193
+      "id": 190
     },
     {
       "type": "news",
@@ -6036,7 +5880,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 194
+      "id": 191
     },
     {
       "type": "news",
@@ -6057,7 +5901,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 195
+      "id": 192
     },
     {
       "type": "news",
@@ -6078,7 +5922,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 196
+      "id": 193
     },
     {
       "type": "news",
@@ -6099,7 +5943,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 197
+      "id": 194
     },
     {
       "type": "news",
@@ -6120,7 +5964,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 198
+      "id": 195
     },
     {
       "type": "news",
@@ -6141,7 +5985,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 199
+      "id": 196
     },
     {
       "type": "news",
@@ -6162,7 +6006,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 200
+      "id": 197
     },
     {
       "type": "news",
@@ -6183,7 +6027,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 201
+      "id": 198
     },
     {
       "type": "news",
@@ -6204,7 +6048,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 202
+      "id": 199
     },
     {
       "type": "news",
@@ -6225,7 +6069,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 203
+      "id": 200
     },
     {
       "type": "news",
@@ -6246,7 +6090,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 204
+      "id": 201
     },
     {
       "type": "news",
@@ -6267,7 +6111,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 205
+      "id": 202
     },
     {
       "type": "news",
@@ -6288,7 +6132,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 206
+      "id": 203
     },
     {
       "type": "news",
@@ -6309,7 +6153,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 207
+      "id": 204
     },
     {
       "type": "news",
@@ -6330,7 +6174,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 208
+      "id": 205
     },
     {
       "type": "news",
@@ -6351,7 +6195,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 209
+      "id": 206
     },
     {
       "type": "news",
@@ -6372,7 +6216,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 210
+      "id": 207
     },
     {
       "type": "news",
@@ -6393,7 +6237,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 211
+      "id": 208
     },
     {
       "type": "news",
@@ -6414,7 +6258,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 212
+      "id": 209
     },
     {
       "type": "news",
@@ -6435,7 +6279,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 213
+      "id": 210
     },
     {
       "type": "news",
@@ -6456,13 +6300,13 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 214
+      "id": 211
     },
     {
       "type": "news",
       "category": "general",
       "urgent": false,
-      "player": "",
+      "player": "Chris Scerri",
       "headline": "Chris Scerri (Fremantle Dockers) - AFL Stats, News, Contract & Player Profile - SuperCoach & AFL Fantasy - Zero Hanger",
       "body": "Chris Scerri (Fremantle Dockers) AFL Stats, News, Contract & Player Profile SuperCoach & AFL Fantasy\u00a0\u00a0Zero Hanger.",
       "source": "news.google.com",
@@ -6477,7 +6321,14 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 215
+      "id": 212,
+      "players": [
+        {
+          "pid": 493,
+          "name": "Chris Scerri"
+        }
+      ],
+      "pid": 493
     },
     {
       "type": "news",
@@ -6498,7 +6349,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 216
+      "id": 213
     },
     {
       "type": "news",
@@ -6519,7 +6370,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 217
+      "id": 214
     },
     {
       "type": "news",
@@ -6540,7 +6391,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 218
+      "id": 215
     },
     {
       "type": "news",
@@ -6561,7 +6412,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 219
+      "id": 216
     },
     {
       "type": "news",
@@ -6582,7 +6433,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 220
+      "id": 217
     },
     {
       "type": "news",
@@ -6603,7 +6454,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 221
+      "id": 218
     },
     {
       "type": "news",
@@ -6624,7 +6475,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 222
+      "id": 219
     },
     {
       "type": "news",
@@ -6645,7 +6496,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 223
+      "id": 220
     },
     {
       "type": "news",
@@ -6666,7 +6517,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 224
+      "id": 221
     },
     {
       "type": "news",
@@ -6687,7 +6538,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 225
+      "id": 222
     },
     {
       "type": "news",
@@ -6708,7 +6559,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 226,
+      "id": 223,
       "players": [
         {
           "pid": 310,
@@ -6736,7 +6587,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 227
+      "id": 224
     },
     {
       "type": "news",
@@ -6757,7 +6608,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 228
+      "id": 225
     },
     {
       "type": "news",
@@ -6778,7 +6629,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 229
+      "id": 226
     },
     {
       "type": "news",
@@ -6799,7 +6650,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 230
+      "id": 227
     },
     {
       "type": "news",
@@ -6820,7 +6671,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 231
+      "id": 228
     },
     {
       "type": "news",
@@ -6841,7 +6692,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 232
+      "id": 229
     },
     {
       "type": "news",
@@ -6862,7 +6713,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 233
+      "id": 230
     },
     {
       "type": "news",
@@ -6883,7 +6734,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 234
+      "id": 231
     },
     {
       "type": "news",
@@ -6904,7 +6755,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 235
+      "id": 232
     },
     {
       "type": "news",
@@ -6925,7 +6776,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 236
+      "id": 233
     },
     {
       "type": "news",
@@ -6946,7 +6797,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 237
+      "id": 234
     },
     {
       "type": "news",
@@ -6967,7 +6818,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 238
+      "id": 235
     },
     {
       "type": "news",
@@ -6988,7 +6839,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 239
+      "id": 236
     },
     {
       "type": "news",
@@ -7009,7 +6860,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 240
+      "id": 237
     },
     {
       "type": "news",
@@ -7030,13 +6881,13 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 241
+      "id": 238
     },
     {
       "type": "news",
       "category": "general",
       "urgent": false,
-      "player": "",
+      "player": "Jack Watkins",
       "headline": "Jack Watkins (Port Adelaide Power) - AFL Stats, News, Contract & Player Profile - SuperCoach & AFL Fantasy - Zero Hanger",
       "body": "Jack Watkins (Port Adelaide Power) AFL Stats, News, Contract & Player Profile SuperCoach & AFL Fantasy\u00a0\u00a0Zero Hanger.",
       "source": "news.google.com",
@@ -7051,7 +6902,14 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 242
+      "id": 239,
+      "players": [
+        {
+          "pid": 543,
+          "name": "Jack Watkins"
+        }
+      ],
+      "pid": 543
     },
     {
       "type": "news",
@@ -7072,7 +6930,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 243
+      "id": 240
     },
     {
       "type": "news",
@@ -7093,7 +6951,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 244
+      "id": 241
     },
     {
       "type": "news",
@@ -7114,7 +6972,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 245
+      "id": 242
     },
     {
       "type": "news",
@@ -7135,7 +6993,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 246
+      "id": 243
     },
     {
       "type": "news",
@@ -7156,7 +7014,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 247
+      "id": 244
     },
     {
       "type": "news",
@@ -7177,7 +7035,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 248
+      "id": 245
     },
     {
       "type": "news",
@@ -7198,7 +7056,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 249,
+      "id": 246,
       "players": [
         {
           "pid": 1,
@@ -7226,7 +7084,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 250
+      "id": 247
     },
     {
       "type": "news",
@@ -7247,7 +7105,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 251
+      "id": 248
     },
     {
       "type": "news",
@@ -7268,7 +7126,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 252,
+      "id": 249,
       "players": [
         {
           "pid": 11,
@@ -7300,7 +7158,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 253
+      "id": 250
     },
     {
       "type": "news",
@@ -7321,7 +7179,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 254
+      "id": 251
     },
     {
       "type": "news",
@@ -7342,7 +7200,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 255,
+      "id": 252,
       "players": [
         {
           "pid": 3,
@@ -7374,7 +7232,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 256
+      "id": 253
     },
     {
       "type": "news",
@@ -7395,7 +7253,7 @@
         "News"
       ],
       "_source": "fast_fill",
-      "id": 257
+      "id": 254
     }
   ]
 }

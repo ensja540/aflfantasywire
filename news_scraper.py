@@ -3181,6 +3181,31 @@ def main():
     if _demoted:
         log.info(f"Demoted {_demoted} player-less injury items to general news")
 
+    # ── Feed quality gate ──
+    # Drop items that don't carry enough information to be worth a feed slot, and
+    # long-term/season-ending injuries (those are reference state shown on the
+    # player card, not weekly news — and tend to be stale, e.g. a player hurt in
+    # January re-listed in a later medical-room article).
+    def _keep_in_feed(it):
+        body = (it.get("body") or "").strip()
+        head = (it.get("headline") or "").strip()
+        typ = it.get("type")
+        blob = f"{it.get('eta','')} {head} {body}".lower()
+        # An injury-list item (type injury, or a demoted one keeping the
+        # "Name — OUT: BodyPart (eta)" shape) that's season-ending/indefinite is
+        # long-term reference, not weekly news — drop it.
+        _injfmt = typ == "injury" or bool(re.search(r"[-—]\s*(out|test|tbc|sus)\b", head.lower()))
+        if _injfmt and re.search(r"\bseason\b|indefinite|\bcareer\b", blob):
+            return False
+        # Truly no info (the earlier body-quality gates already drop <30-char and
+        # headline-echo bodies, so this only catches genuinely empty items).
+        if typ in ("news", "analysis") and not body:
+            return False
+        return True
+    _preq = len(items)
+    items = [it for it in items if _keep_in_feed(it)]
+    log.info(f"Feed quality gate: kept {len(items)}/{_preq} items (dropped thin / season-ending)")
+
     # Final type breakdown for visibility.
     _tb = {}
     for i in items:
