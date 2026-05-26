@@ -1571,7 +1571,7 @@ def main():
     # ── 7. Merge and build final player list ──
     log.info("Merging data sources...")
     players = []
-    for i, sc in enumerate(sc_players[:350], 1):
+    for i, sc in enumerate(sc_players[:600], 1):
         nk  = name_key(sc["name"])
         nk_last = name_key(sc["name"].split()[-1])
         dt  = dt_lookup.get(nk) or dt_lookup.get(nk_last)
