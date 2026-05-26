@@ -3198,11 +3198,6 @@ def main():
         head = (it.get("headline") or "").strip()
         typ = it.get("type")
         blob = f"{it.get('eta','')} {head} {body}".lower()
-        # Undatable Google News items: a news.google redirect link with no
-        # pubISO can't be aged (Google surfaces old/evergreen articles), so it
-        # shows a misleading "Nd ago" off its first-seen date — drop it.
-        if not it.get("pubISO") and "news.google" in (it.get("link") or ""):
-            return False
         # An injury-list item (type injury, or a demoted one keeping the
         # "Name — OUT: BodyPart (eta)" shape) that's season-ending/indefinite is
         # long-term reference, not weekly news — drop it.
