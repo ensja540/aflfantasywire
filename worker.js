@@ -25,6 +25,69 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // On-demand full-article summary: fetch the source article server-side
+    // (no CORS limits, key stays server-side), extract its text, and summarise
+    // it with Claude. Falls back to the snippet we already have when the source
+    // can't be fetched (paywall/block).
+    if (url.pathname === "/api/article-summary") {
+      if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
+      if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: CORS });
+      if (!env.ANTHROPIC_API_KEY) return json({ error: { message: "AI proxy missing ANTHROPIC_API_KEY." } }, 500);
+
+      const limited = await rateLimited(request, env);
+      if (limited) return limited;
+
+      let payload;
+      try { payload = await request.json(); } catch { payload = {}; }
+      const artUrl = (payload.url || "").trim();
+      const headline = (payload.headline || "").slice(0, 300);
+      let text = (payload.text || "").trim();
+
+      if (artUrl && /^https?:\/\//i.test(artUrl)) {
+        try {
+          const ctrl = new AbortController();
+          const to = setTimeout(() => ctrl.abort(), 8000);
+          const r = await fetch(artUrl, {
+            headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" },
+            redirect: "follow",
+            signal: ctrl.signal,
+          });
+          clearTimeout(to);
+          if (r.ok) {
+            const full = extractArticleText(await r.text());
+            if (full.length > text.length) text = full;
+          }
+        } catch (_) { /* fall back to the snippet */ }
+      }
+
+      text = text.slice(0, 9000);
+      if (!text || text.length < 40) return json({ summary: "" });
+
+      const prompt =
+        "Summarise this AFL article for a fantasy footy (SuperCoach/AFL Fantasy) app in 3-5 sentences. " +
+        "Lead with what matters to fantasy coaches — selection, injury, role, form, price implications. " +
+        "Plain text, no preamble, no markdown.\n\n" +
+        (headline ? "Headline: " + headline + "\n\n" : "") + "Article:\n" + text;
+
+      const upstream = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": env.ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 700,
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+      if (!upstream.ok) return json({ summary: "" });
+      const data = await upstream.json();
+      const summary = (data.content && data.content[0] && data.content[0].text || "").trim();
+      return json({ summary });
+    }
+
     if (url.pathname === "/api/ai") {
       if (request.method === "OPTIONS") {
         return new Response(null, { headers: CORS });
@@ -79,4 +142,43 @@ function json(obj, status = 200) {
     status,
     headers: { "content-type": "application/json", ...CORS },
   });
+}
+
+// Returns a 429 Response when the client IP is over the hourly AI budget (and
+// reserves a slot otherwise), or null when there's no limit / KV isn't bound.
+async function rateLimited(request, env) {
+  if (!env.RATE_LIMIT) return null;
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const bucket = Math.floor(Date.now() / 3600000);
+  const key = `rl:${ip}:${bucket}`;
+  const used = parseInt((await env.RATE_LIMIT.get(key)) || "0", 10);
+  if (used >= RATE_LIMIT) {
+    return new Response(
+      JSON.stringify({ error: { message: `Rate limit reached: ${RATE_LIMIT} AI requests per hour. Try again later.` } }),
+      { status: 429, headers: { "content-type": "application/json", "retry-after": "3600", ...CORS } }
+    );
+  }
+  await env.RATE_LIMIT.put(key, String(used + 1), { expirationTtl: 3600 });
+  return null;
+}
+
+// Best-effort readable-text extraction from an article's HTML: drop scripts and
+// styles, prefer paragraph text, and fall back to a full tag-strip.
+function extractArticleText(html) {
+  html = html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ");
+  const ps = [];
+  const re = /<p\b[^>]*>([\s\S]*?)<\/p>/gi;
+  let m;
+  while ((m = re.exec(html))) {
+    const t = m[1].replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
+    if (t.length > 40) ps.push(t);
+  }
+  let text = ps.join("\n");
+  if (text.length < 400) {
+    text = html.replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
+  }
+  return text;
 }
