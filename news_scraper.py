@@ -3047,13 +3047,39 @@ def fast_fill():
 AI_ENDPOINT = "https://aflfantasywire.ensor-jack.workers.dev/api/ai"
 
 
-def ai_summarise(headline, body):
-    """1-2 sentence AI summary of a news item (fantasy angle). Returns '' on any
-    failure so the scrape never breaks. Called only for NEW items, so this is a
-    handful of calls per run at most."""
+def fetch_article_text(session, url, cap=9000):
+    """Fetch a news article and extract its readable paragraph text (best-effort).
+    Returns '' on any failure (paywall/block/network) so the scrape never breaks."""
+    if not url or not url.lower().startswith("http"):
+        return ""
     try:
-        q = ("In 1-2 punchy sentences, summarise this AFL news for fantasy coaches. "
-             f"Headline: {headline}. Detail: {body}. Plain text, no preamble.")
+        r = session.get(url, timeout=10)
+        if not r or r.status_code != 200:
+            return ""
+        soup = BeautifulSoup(r.text, "lxml")
+        for t in soup(["script", "style", "noscript"]):
+            t.extract()
+        ps = [p.get_text(" ", strip=True) for p in soup.find_all("p")]
+        text = "\n".join(x for x in ps if len(x) > 40)
+        if len(text) < 400:
+            text = soup.get_text(" ", strip=True)
+        return re.sub(r"\s+", " ", text).strip()[:cap]
+    except Exception:
+        return ""
+
+
+def ai_summarise(headline, body, full=False):
+    """AI summary of a news item (fantasy angle). `full` produces a 3-4 sentence
+    summary of a whole article; otherwise a 1-2 sentence snippet summary. Returns
+    '' on any failure so the scrape never breaks."""
+    try:
+        if full:
+            q = ("Summarise this AFL article for fantasy (SuperCoach/AFL Fantasy) coaches in "
+                 "3-4 sentences, leading with selection, injury, role, form and price "
+                 f"implications. Headline: {headline}. Article: {body}. Plain text, no preamble.")
+        else:
+            q = ("In 1-2 punchy sentences, summarise this AFL news for fantasy coaches. "
+                 f"Headline: {headline}. Detail: {body}. Plain text, no preamble.")
         r = requests.post(AI_ENDPOINT, json={
             "model": "claude-opus-4-7", "max_tokens": 2000,
             "thinking": {"type": "adaptive"}, "output_config": {"effort": "low"},
@@ -3180,20 +3206,32 @@ def main():
 
     # ── AI summaries for NEW news items only (cheap: ~1-2 new/cycle). Items
     # carried from the archive keep their cached summary; never re-summarise. ──
-    _ai_budget = 4
+    _asess = requests.Session()
+    _asess.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"})
+    _ai_budget = 6
     for _it in items:
         if _ai_budget <= 0:
             break
         if _it.get("ai_summary") or _it.get("type") not in ("news", "analysis", "rumour"):
             continue
-        _body = (_it.get("body") or "")[:400]
-        if not _body:
+        _snippet = (_it.get("body") or "")[:400]
+        # Pull the full article so the summary reflects the whole piece, not just
+        # the RSS snippet. Falls back to the snippet when the source can't be
+        # fetched (paywall/block). The richer summary is marked ai_full so the
+        # app shows it instantly instead of re-summarising on click.
+        _article = fetch_article_text(_asess, _it.get("link", ""))
+        _src = _article if len(_article) > len(_snippet) else _snippet
+        if not _src:
             continue
-        _summ = ai_summarise(_it.get("headline", ""), _body)
+        _is_full = bool(_article and len(_article) > 400)
+        _summ = ai_summarise(_it.get("headline", ""), _src[:6000], full=_is_full)
         if _summ:
             _it["ai_summary"] = _summ
+            if _is_full:
+                _it["ai_full"] = True
             _ai_budget -= 1
-    log.info(f"AI summaries: {sum(1 for _i in items if _i.get('ai_summary'))} items carry a summary")
+    log.info(f"AI summaries: {sum(1 for _i in items if _i.get('ai_summary'))} items "
+             f"({sum(1 for _i in items if _i.get('ai_full'))} from the full article)")
 
     output = {
         "scraped_at":  datetime.now().isoformat(),
