@@ -2,33 +2,32 @@
 """
 AFLFantasyWire — #SuperCoach feed
 =================================
-Pulls recent AFL #SuperCoach tweets via the X v2 recent-search API and writes
-the best handful to supercoach_tweets.json for the site to render as cards.
+Pulls recent AFL #SuperCoach tweets via the X v2 recent-search API and ADDS the
+newest relevant ones to supercoach_tweets.json (accumulating, deduped by id,
+newest first, capped at KEEP). Run once per tweet we post (the tweet_bot calls
+this with --add=2 after a successful post), so the buzz feed grows alongside our
+own posting cadence.
 
 #SuperCoach is also used by NRL/cricket SuperCoach, so the query is AFL-biased
-and results are post-filtered to drop other codes and AFLW (AFL men's only).
+and results are post-filtered to drop other codes, AFLW, and our own account.
 
-Throttled to one search per REFRESH_MIN minutes to conserve API credits.
-
-  python supercoach_feed.py           # refresh if stale
-  python supercoach_feed.py --force   # refresh now
+  python supercoach_feed.py            # add ADD_DEFAULT new tweets
+  python supercoach_feed.py --add=2    # add up to 2 new tweets
 """
 import json, sys, re
 from pathlib import Path
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 import requests
 
 BASE = Path(__file__).parent
 OUT = BASE / "supercoach_tweets.json"
-REFRESH_MIN = 30
-KEEP = 6
+KEEP = 8            # max tweets retained in the buzz feed
+ADD_DEFAULT = 2     # new tweets added per run
 
-# AFL signal required (so we don't surface NRL/cricket #supercoach).
 AFL_RE = re.compile(r"\bafl\b|aflfantasy|#aflfantasy|dream\s?team|footy|"
                     r"\bmid\b|\bruck\b|\bdefender\b|\bforward\b|break-?even|"
                     r"captain|cash cow|trade|round \d", re.I)
-# Drop other codes / women's footy.
 BLOCK_RE = re.compile(r"\bnrl\b|rugby league|\bnba\b|cricket|netball|"
                       r"\baflw\b|women", re.I)
 
@@ -45,19 +44,25 @@ def load_env():
     return env
 
 
-def stale():
+def existing_tweets():
     try:
-        prev = json.loads(OUT.read_text(encoding="utf-8"))
-        last = datetime.fromisoformat(prev["fetched_at"])
-        return (datetime.now(timezone.utc) - last) > timedelta(minutes=REFRESH_MIN)
+        return json.loads(OUT.read_text(encoding="utf-8")).get("tweets", [])
     except Exception:
-        return True
+        return []
 
 
 def main():
-    if not stale() and "--force" not in sys.argv:
-        print("supercoach_feed: recent, skipping")
-        return
+    add_n = ADD_DEFAULT
+    for a in sys.argv:
+        if a.startswith("--add="):
+            try:
+                add_n = int(a.split("=", 1)[1])
+            except Exception:
+                pass
+
+    have = existing_tweets()
+    have_ids = {t.get("id") for t in have}
+
     env = load_env()
     bearer = env.get("X_BEARER_TOKEN")
     if not bearer:
@@ -81,20 +86,21 @@ def main():
         return
     d = r.json()
     users = {u["id"]: u for u in d.get("includes", {}).get("users", [])}
-    out = []
+
+    fresh = []
     for t in d.get("data", []):
+        if t.get("id") in have_ids:
+            continue  # already in the feed
         text = (t.get("text") or "").strip()
         if BLOCK_RE.search(text) or not AFL_RE.search(text):
             continue
         if len(re.sub(r"https?://\S+", "", text).strip()) < 25:
-            continue  # basically just a link
-        u = users.get(t.get("author_id"), {})
-        if not u.get("username"):
             continue
-        if u.get("username", "").lower() == "aflfantasywire":
-            continue  # don't surface our own tweets in the buzz feed
+        u = users.get(t.get("author_id"), {})
+        if not u.get("username") or u.get("username", "").lower() == "aflfantasywire":
+            continue
         pm = t.get("public_metrics", {})
-        out.append({
+        fresh.append({
             "id": t["id"],
             "text": text,
             "name": u.get("name", ""),
@@ -106,15 +112,25 @@ def main():
             "retweets": pm.get("retweet_count", 0),
             "url": f"https://twitter.com/{u.get('username','i')}/status/{t['id']}",
         })
-        if len(out) >= KEEP:
+        if len(fresh) >= add_n:
             break
-    if not out:
-        print("supercoach_feed: no AFL #supercoach tweets matched — keeping existing file")
+
+    if not fresh:
+        print("supercoach_feed: no new AFL #supercoach tweets — feed unchanged")
         return
+
+    # Accumulate: newest first, dedup by id, cap KEEP.
+    seen, kept = set(), []
+    for t in sorted(fresh + have, key=lambda x: x.get("created_at", ""), reverse=True):
+        if t.get("id") in seen:
+            continue
+        seen.add(t["id"])
+        kept.append(t)
+    kept = kept[:KEEP]
     OUT.write_text(json.dumps(
-        {"fetched_at": datetime.now(timezone.utc).isoformat(), "tweets": out},
+        {"fetched_at": datetime.now(timezone.utc).isoformat(), "tweets": kept},
         indent=2), encoding="utf-8")
-    print(f"supercoach_feed: wrote {len(out)} tweets")
+    print(f"supercoach_feed: added {len(fresh)} new, {len(kept)} total")
 
 
 if __name__ == "__main__":

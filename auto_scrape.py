@@ -155,7 +155,8 @@ def _data_signature() -> str:
     ids excluded) so we can tell whether the data actually changed."""
     players = _normalized(BASE_DIR / "players.json", "players")
     news    = _normalized(BASE_DIR / "news.json", "news")
-    return hashlib.sha256((players + "\x00" + news).encode("utf-8")).hexdigest()
+    buzz    = _normalized(BASE_DIR / "supercoach_tweets.json", "tweets")
+    return hashlib.sha256((players + "\x00" + news + "\x00" + buzz).encode("utf-8")).hexdigest()
 
 
 def commit_and_push(timestamp: str, force: bool = False) -> tuple[bool, str]:
@@ -276,14 +277,6 @@ def run_once() -> None:
                     f"Push FAILED ({push_msg})")
     else:
         bits.append("Skipped push (both scrapers failed).")
-
-    # Refresh the #SuperCoach buzz feed (self-throttled to ~30 min in the script).
-    try:
-        subprocess.run([sys.executable, str(BASE_DIR / "supercoach_feed.py")],
-                       cwd=str(BASE_DIR), capture_output=True, text=True,
-                       encoding="utf-8", errors="replace", env=_UTF8_ENV, timeout=60)
-    except Exception as e:
-        log.warning(f"supercoach_feed failed: {e}")
 
     # Scheduled tweet — self-throttled to 5/day, spaced, 6am-11pm AEST. No-ops
     # outside the window / once today's quota is met, so it's safe to call here
