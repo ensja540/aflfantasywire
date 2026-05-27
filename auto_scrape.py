@@ -277,6 +277,23 @@ def run_once() -> None:
     else:
         bits.append("Skipped push (both scrapers failed).")
 
+    # Scheduled tweet — self-throttled to 5/day, spaced, 6am-11pm AEST. No-ops
+    # outside the window / once today's quota is met, so it's safe to call here
+    # every cycle.
+    try:
+        tw = subprocess.run(
+            [sys.executable, str(BASE_DIR / "tweet_bot.py"), "--auto"],
+            cwd=str(BASE_DIR), capture_output=True, text=True,
+            encoding="utf-8", errors="replace", env=_UTF8_ENV, timeout=120,
+        )
+        tail = (tw.stdout or "").strip().splitlines()
+        if tail:
+            log.info("tweet_bot: " + tail[-1])
+            if any("[ok] posted" in ln for ln in tail):
+                bits.append("Tweeted.")
+    except Exception as e:
+        log.warning(f"tweet_bot --auto failed: {e}")
+
     _status(f"Scraping... done. {' '.join(bits)} Next run in 5 min.")
     _endline()
     log.info("Run complete — " + " | ".join(bits))

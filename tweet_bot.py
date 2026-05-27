@@ -147,6 +147,38 @@ def load_log():
         return {"posted": []}
 
 
+def aest_now():
+    """Current time in Melbourne (handles AEST/AEDT); falls back to UTC+10."""
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo("Australia/Melbourne"))
+    except Exception:
+        from datetime import timezone, timedelta
+        return datetime.now(timezone.utc) + timedelta(hours=10)
+
+
+def should_auto_post(log):
+    """Gate for --auto: post only during 6am–11pm AEST, max DAILY_TARGET/day,
+    spaced so 5 tweets spread across the ~17h window (≈3h apart). Returns
+    (ok, reason)."""
+    now = aest_now()
+    if not (6 <= now.hour < 23):
+        return False, f"outside posting window (AEST {now:%H:%M})"
+    today = now.strftime("%Y-%m-%d")
+    todays = [e for e in log.get("posted", []) if (e.get("at_aest", "")[:10] == today)]
+    if len(todays) >= DAILY_TARGET:
+        return False, f"already posted {len(todays)}/{DAILY_TARGET} today"
+    if todays:
+        last = max(e.get("at_aest", "") for e in todays)
+        try:
+            gap_h = (now - datetime.fromisoformat(last)).total_seconds() / 3600
+            if gap_h < 2.8:
+                return False, f"only {gap_h:.1f}h since last (spacing ~3h)"
+        except Exception:
+            pass
+    return True, f"clear to post ({len(todays)}/{DAILY_TARGET} today, AEST {now:%H:%M})"
+
+
 def pick(players, news, log):
     """Pick up to DAILY_TARGET varied tweets not posted in the last 14 days."""
     recent = {(e["pid"], e["angle"]) for e in log.get("posted", [])[-200:]}
@@ -189,10 +221,23 @@ def post_tweet(text, env):
 
 def main():
     do_post = "--post" in sys.argv
+    count = DAILY_TARGET
+    for a in sys.argv:
+        if a.startswith("--count="):
+            try:
+                count = int(a.split("=", 1)[1])
+            except Exception:
+                pass
     players = _load("players.json", "players")
     news = _load("news.json", "news")
     log = load_log()
-    chosen = pick(players, news, log)
+    if "--auto" in sys.argv:
+        ok, why = should_auto_post(log)
+        print(f"[auto] {why}")
+        if not ok:
+            return
+        do_post, count = True, 1
+    chosen = pick(players, news, log)[:count]
 
     print(f"=== {len(chosen)} tweets ({'POSTING' if do_post else 'PREVIEW'}) ===")
     for i, (kind, pid, angle, text) in enumerate(chosen, 1):
@@ -219,7 +264,8 @@ def main():
                 pass
             print(f"  [ok] posted ({tid}): {text[:60]}")
             posted.append({"pid": pid, "angle": angle, "id": tid,
-                           "at": datetime.now().isoformat(), "text": text})
+                           "at": datetime.now().isoformat(),
+                           "at_aest": aest_now().isoformat(), "text": text})
         else:
             print(f"  [FAIL] ({code}): {body[:300]}")
             # Stop on auth/credit errors so we don't hammer.
