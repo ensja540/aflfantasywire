@@ -66,6 +66,7 @@ export default {
       const prompt =
         "Summarise this AFL article for a fantasy footy (SuperCoach/AFL Fantasy) app in 3-5 sentences. " +
         "Lead with what matters to fantasy coaches — selection, injury, role, form, price implications. " +
+        "Name the specific players and clubs by their full names and cite concrete numbers; never use vague references like 'a player' or 'the player'. " +
         "Plain text, no preamble, no markdown.\n\n" +
         (headline ? "Headline: " + headline + "\n\n" : "") + "Article:\n" + text;
 

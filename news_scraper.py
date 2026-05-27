@@ -3185,9 +3185,15 @@ def ai_summarise(headline, body, full=False):
         if full:
             q = ("Summarise this AFL article for fantasy (SuperCoach/AFL Fantasy) coaches in "
                  "3-4 sentences, leading with selection, injury, role, form and price "
-                 f"implications. Headline: {headline}. Article: {body}. Plain text, no preamble.")
+                 "implications. Always name the specific players and clubs involved using their "
+                 "FULL names, and cite concrete numbers (scores, average, price, break-even) "
+                 "where given. Never use vague references like 'a player', 'the player', "
+                 "'a club' or 'the team' — name them. "
+                 f"Headline: {headline}. Article: {body}. Plain text, no preamble.")
         else:
             q = ("In 1-2 punchy sentences, summarise this AFL news for fantasy coaches. "
+                 "Name the specific player(s) and club using FULL names plus any concrete "
+                 "numbers — never write 'a player' or 'the player'. "
                  f"Headline: {headline}. Detail: {body}. Plain text, no preamble.")
         r = requests.post(AI_ENDPOINT, json={
             "model": "claude-opus-4-7", "max_tokens": 2000,
