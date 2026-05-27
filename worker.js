@@ -154,7 +154,7 @@ export default {
           max_tokens: 1000,
           messages: [{ role: "user", content: [
             { type: "image", source: { type: "base64", media_type: mt, data: b64 } },
-            { type: "text", text: "This is a screenshot of an AFL fantasy (SuperCoach/AFL Fantasy) team. List every AFL player's full name you can read, one per line, names only \u2014 no positions, prices, numbers, club names or other text." }
+            { type: "text", text: "This is a screenshot of an AFL fantasy (SuperCoach/AFL Fantasy) team. List ONLY the player names clearly readable in the image, exactly as written, one per line. Do NOT guess, infer, autocomplete or add any name that is not plainly visible. Names only \u2014 no positions, prices, numbers, clubs or other text." }
           ]}]
         })
       });
