@@ -3281,6 +3281,10 @@ def main():
                     _tms.append(_t)
         if _tms:
             _it["teams"] = _tms
+        # Team-announcement items often have no article URL; point them at the
+        # AFL team-selection page so the feed's "View teams" link works.
+        if not _it.get("link") and (_it.get("type") == "selection" or _it.get("category") == "team_news" or (_it.get("headline", "") or "").upper().startswith("TEAMS")):
+            _it["link"] = AFL_TEAMS_PAGE
 
     # ── Feed quality gate ──
     # Drop items that don't carry enough information to be worth a feed slot, and
