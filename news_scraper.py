@@ -331,12 +331,51 @@ def find_players_all(text, max_n=4):
         if not m:
             continue
         prev = m.group(1) or ""
-        if prev:
-            if prev == pl["first"] or (1 <= len(prev) <= 2 and prev[0] == pl["first"][0]):
-                found.setdefault(pl["full"], {"pid": pl["pid"], "name": pl["name"]})
-        elif len(_SURNAME_FIRSTS.get(last, ())) == 1:
+        unique = len(_SURNAME_FIRSTS.get(last, ())) == 1
+        # A surname unique to one tracked player is tagged wherever it appears.
+        # A shared surname is only tagged when the first name / initial precedes it
+        # (we can't otherwise tell which same-surname player is meant).
+        if unique or prev == pl["first"] or (prev and 1 <= len(prev) <= 2 and prev[0] == pl["first"][0]):
             found.setdefault(pl["full"], {"pid": pl["pid"], "name": pl["name"]})
     return list(found.values())[:max_n]
+
+
+# AFL clubs by full name + nicknames. Ordered so club-specific multi-word names
+# are consumed first (so "North Melbourne" doesn't also tag Melbourne, etc.).
+_TEAM_PATTERNS = [
+    ("North Melbourne",  [r"north melbourne", r"kangaroos", r"\broos\b"]),
+    ("Port Adelaide",    [r"port adelaide", r"\bpower\b"]),
+    ("Gold Coast",       [r"gold coast", r"\bsuns\b"]),
+    ("West Coast",       [r"west coast", r"\beagles\b"]),
+    ("Western Bulldogs", [r"western bulldogs", r"\bbulldogs\b", r"\bdoggies\b", r"\bdogs\b"]),
+    ("St Kilda",         [r"st\.? kilda", r"\bsaints\b"]),
+    ("GWS Giants",       [r"\bgws\b", r"greater western sydney", r"\bgiants\b"]),
+    ("Sydney",           [r"sydney swans", r"\bswans\b", r"\bsydney\b"]),
+    ("Adelaide",         [r"\badelaide\b", r"\bcrows\b"]),
+    ("Brisbane",         [r"brisbane lions", r"\bbrisbane\b", r"\blions\b"]),
+    ("Carlton",          [r"\bcarlton\b", r"\bblues\b"]),
+    ("Collingwood",      [r"\bcollingwood\b", r"magpies", r"\bpies\b"]),
+    ("Essendon",         [r"\bessendon\b", r"bombers", r"\bdons\b"]),
+    ("Fremantle",        [r"\bfremantle\b", r"dockers", r"\bfreo\b"]),
+    ("Geelong",          [r"\bgeelong\b", r"\bcats\b"]),
+    ("Hawthorn",         [r"\bhawthorn\b", r"\bhawks\b"]),
+    ("Melbourne",        [r"\bmelbourne\b", r"demons", r"\bdees\b"]),
+    ("Richmond",         [r"\brichmond\b", r"\btigers\b"]),
+]
+
+
+def find_teams(text):
+    """Return every AFL club mentioned in the text (full name or nickname).
+    Club-specific names are consumed first so overlaps (North Melbourne vs
+    Melbourne, Port Adelaide vs Adelaide, Sydney Swans vs Sydney) don't double up."""
+    residual = (text or "").lower()
+    found = []
+    for team, pats in _TEAM_PATTERNS:
+        if any(re.search(p, residual) for p in pats):
+            found.append(team)
+            for p in pats:
+                residual = re.sub(p, " ", residual)
+    return found
 
 # ── FOOTYWIRE INJURY LIST ─────────────────────────────────────────────────────
 
@@ -3188,6 +3227,27 @@ def main():
     if _demoted:
         log.info(f"Demoted {_demoted} player-less injury items to general news")
 
+    # ── Exhaustive tagging (runs BEFORE the quality gate) ──
+    # Tag every tracked player AND every AFL club mentioned anywhere in the item.
+    # Done here so the gate below can drop anything that's still untagged — the
+    # feed should never carry an item with no player and no club tag.
+    for _it in items:
+        _blob = (_it.get("headline", "") or "") + " " + (_it.get("body", "") or "")
+        _pls = find_players_all(_blob)
+        if not _pls and _it.get("pid") and _it.get("player"):
+            _pls = [{"pid": _it["pid"], "name": _it["player"]}]
+        if _pls:
+            _it["players"] = _pls
+            if not _it.get("pid"):
+                _it["pid"] = _pls[0]["pid"]
+                _it["player"] = _pls[0]["name"]
+        _tms = find_teams(_blob)
+        # Structured injury/selection items carry a club in "team" — keep it.
+        if _it.get("team") and _it["team"] not in _tms:
+            _tms = [_it["team"]] + _tms
+        if _tms:
+            _it["teams"] = _tms
+
     # ── Feed quality gate ──
     # Drop items that don't carry enough information to be worth a feed slot, and
     # long-term/season-ending injuries (those are reference state shown on the
@@ -3207,6 +3267,11 @@ def main():
         # Truly no info (the earlier body-quality gates already drop <30-char and
         # headline-echo bodies, so this only catches genuinely empty items).
         if typ in ("news", "analysis") and not body:
+            return False
+        # No tag, no slot: every feed item must name at least one current player
+        # or AFL club (tagging ran just above). Untagged items are too generic to
+        # be useful and clutter the feed.
+        if not it.get("players") and not it.get("teams"):
             return False
         return True
     _preq = len(items)
@@ -3245,18 +3310,8 @@ def main():
         item["id"] = i
         # Final pass: strip fantasy/financial advice from every body (incl. items
         # restored from the archive, which never went through the quality gate).
+        # Player/club tagging already ran before the quality gate above.
         item["body"] = _strip_fantasy_advice(item.get("body"))
-        # Tag every tracked player the article mentions, so the feed can show a
-        # chip per player (not just the first match). Falls back to the existing
-        # single player/pid when text matching finds none.
-        _pls = find_players_all((item.get("headline", "") or "") + " " + (item.get("body", "") or ""))
-        if not _pls and item.get("pid") and item.get("player"):
-            _pls = [{"pid": item["pid"], "name": item["player"]}]
-        if _pls:
-            item["players"] = _pls
-            if not item.get("pid"):
-                item["pid"] = _pls[0]["pid"]
-                item["player"] = _pls[0]["name"]
 
     # ── Degenerate-scrape guard ──
     # When every web source blips out at once (rate limit, network drop) a run
