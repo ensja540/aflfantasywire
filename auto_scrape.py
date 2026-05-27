@@ -45,7 +45,13 @@ _no_change_streak  = 0
 # Fields that change every run regardless of real data (timestamps, ids,
 # recomputed relevance). Excluded from the change signature so timestamp-only
 # churn (e.g. "1h ago" -> "2h ago") doesn't look like a real update.
-_VOLATILE_FIELDS = {"id", "time", "timeLabel", "scrapedAt", "relevance", "urgent", "status"}
+_VOLATILE_FIELDS = {
+    "id", "time", "timeLabel", "scrapedAt", "relevance", "urgent", "status",
+    # Per-cycle bookkeeping that changes even when nothing substantive does —
+    # excluding these means we only push on real content changes.
+    "_scraped_at", "seen_count", "age_label", "first_seen", "last_seen",
+    "last_status", "status_changed", "status_label", "stale_after_days",
+}
 
 
 # Detailed log to file, terse status line to stdout.
