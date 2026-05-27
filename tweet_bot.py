@@ -85,17 +85,18 @@ def classic_tweets(players):
         if not avg or len(played_scores(p)) < 3:
             continue
         gap = avg3 - avg
+        l3 = scoreline(played_scores(p), 3)
+        own_bit = f", {own}% owned" if own else ""
         if gap >= RISE_GAP and 0 < be < avg3:
-            own_bit = f", and sits at {own}% ownership" if own else ""
             out.append(("classic", p["id"], "crise",
-                        f"{p['name']} is averaging {round(avg3)} over his past three rounds "
-                        f"({round(avg)} for the season) with a break-even of {be} at {money(price)}"
-                        f"{own_bit}. One to keep an eye on. {HASHTAGS}"))
+                        f"{p['name']} trending up: {round(avg3)} avg over his past three ({l3}), "
+                        f"up from {round(avg)} for the season. Break-even {be} at {money(price)}"
+                        f"{own_bit} — one to keep an eye on. {HASHTAGS}"))
         elif gap <= FALL_GAP and be > avg3:
             out.append(("classic", p["id"], "cfall",
-                        f"{p['name']}'s three-round average has eased to {round(avg3)} "
-                        f"({round(avg)} for the year) with a break-even of {be} — his price looks "
-                        f"under pressure. Something to weigh up. {HASHTAGS}"))
+                        f"{p['name']} cooling off: {round(avg3)} over his past three ({l3}) vs "
+                        f"{round(avg)} for the year. With a break-even of {be} his price looks set "
+                        f"to dip. Something to weigh up. {HASHTAGS}"))
     return out
 
 
@@ -109,18 +110,20 @@ def draft_tweets(players):
         avg3 = p.get("scAvg3") or 0
         gap = avg3 - avg
         last5 = ps[-5:]
+        l5 = scoreline(ps, 5)
         if len(last5) >= 5 and min(last5) >= 85 and avg3 >= 100:
             out.append(("draft", p["id"], "dcons",
-                        f"{p['name']} hasn't dropped below {min(last5)} in his past five "
-                        f"({scoreline(ps)}). Steady production worth a look in Draft. {HASHTAGS}"))
+                        f"{p['name']} keeps producing in Draft: {l5}, no return below {min(last5)} "
+                        f"in five weeks ({round(avg3)} three-round average). Steady. {HASHTAGS}"))
         elif gap >= RISE_GAP:
             out.append(("draft", p["id"], "drise",
-                        f"{p['name']} has lifted his recent output: {scoreline(ps)} across his "
-                        f"past games. Form worth keeping an eye on for Draft sides. {HASHTAGS}"))
+                        f"{p['name']} on the rise: {l5} across his past five, lifting his "
+                        f"three-round average to {round(avg3)} ({round(avg)} season). "
+                        f"Form worth a look in Draft. {HASHTAGS}"))
         elif gap <= FALL_GAP:
             out.append(("draft", p["id"], "dfall",
-                        f"{p['name']}'s recent output has eased ({scoreline(ps)}). "
-                        f"Form to monitor before locking him into your Draft side. {HASHTAGS}"))
+                        f"{p['name']}'s output has eased: {l5}, three-round average ({round(avg3)}) "
+                        f"now below his season mark ({round(avg)}). Form to monitor in Draft. {HASHTAGS}"))
     return out
 
 
@@ -193,8 +196,9 @@ def pick(players, news, log):
         pools[k].sort(key=lambda t: pid_gap.get(t[1], 0), reverse=True)
 
     chosen, used_pids = [], set()
-    # Order of preference: up to 2 breaking, then alternate classic/draft.
-    order = (["breaking"] * 2) + (["classic", "draft"] * DAILY_TARGET)
+    # Numbers/form/trends only — alternate Classic and Draft. (Injury "team news"
+    # items were dropped: they weren't genuinely breaking or insightful.)
+    order = ["classic", "draft"] * DAILY_TARGET
     for kind in order:
         if len(chosen) >= DAILY_TARGET:
             break
