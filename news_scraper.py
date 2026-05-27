@@ -3242,9 +3242,13 @@ def main():
                 _it["pid"] = _pls[0]["pid"]
                 _it["player"] = _pls[0]["name"]
         _tms = find_teams(_blob)
-        # Structured injury/selection items carry a club in "team" — keep it.
-        if _it.get("team") and _it["team"] not in _tms:
-            _tms = [_it["team"]] + _tms
+        # Structured injury/selection items carry a club in "team"; canonicalise
+        # it through find_teams so "Collingwood Magpies"/"Collingwood FC" collapse
+        # to the same "Collingwood" tag instead of duplicating.
+        if _it.get("team"):
+            for _t in find_teams(_it["team"]):
+                if _t not in _tms:
+                    _tms.append(_t)
         if _tms:
             _it["teams"] = _tms
 
