@@ -135,6 +135,36 @@ export default {
       });
     }
 
+    // ── Team screenshot -> player names (Claude vision) ──
+    if (url.pathname === "/api/extract-team") {
+      if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
+      if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: CORS });
+      if (!env.ANTHROPIC_API_KEY) return json({ names: [], error: "AI not configured" }, 500);
+      const limited = await rateLimited(request, env);
+      if (limited) return limited;
+      let p; try { p = await request.json(); } catch { p = {}; }
+      const b64 = (p.image_base64 || "").replace(/^data:[^,]+,/, "");
+      const mt = p.media_type || "image/png";
+      if (!b64) return json({ names: [] });
+      const upstream = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 1000,
+          messages: [{ role: "user", content: [
+            { type: "image", source: { type: "base64", media_type: mt, data: b64 } },
+            { type: "text", text: "This is a screenshot of an AFL fantasy (SuperCoach/AFL Fantasy) team. List every AFL player's full name you can read, one per line, names only \u2014 no positions, prices, numbers, club names or other text." }
+          ]}]
+        })
+      });
+      if (!upstream.ok) return json({ names: [] });
+      const data = await upstream.json();
+      const txt = (data.content && data.content[0] && data.content[0].text) || "";
+      const names = txt.split("\n").map(x => x.replace(/^[-*\d.\s]+/, "").trim()).filter(x => x.length > 2 && /[a-z]/i.test(x)).slice(0, 40);
+      return json({ names });
+    }
+
     // ── Web Push: VAPID public key (client needs it to subscribe) ──
     if (url.pathname === "/api/vapid") {
       return json({ publicKey: env.VAPID_PUBLIC || "" });
