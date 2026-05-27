@@ -150,13 +150,33 @@ def _normalized(path: Path, list_key: str) -> str:
         return ""
 
 
+# Front-end / Worker code + PWA assets that should auto-deploy alongside data.
+# An edit to any of these triggers a commit+push just like a data change.
+CODE_FILES = ["index.html", "worker.js", "manifest.json", "sw.js", "push.js"]
+
+
+def _code_signature() -> str:
+    """Hash the raw bytes of the deployed code/asset files, so an edit to the
+    site bundle or Worker (not just scraped data) also triggers a push."""
+    h = hashlib.sha256()
+    for name in CODE_FILES:
+        try:
+            h.update((BASE_DIR / name).read_bytes())
+        except Exception:
+            pass
+        h.update(b"\x00")
+    return h.hexdigest()
+
+
 def _data_signature() -> str:
     """Hash the substantive content of players.json + news.json (timestamps and
-    ids excluded) so we can tell whether the data actually changed."""
+    ids excluded) plus the deployed code files, so we push whenever either the
+    scraped data OR the site/Worker code changes."""
     players = _normalized(BASE_DIR / "players.json", "players")
     news    = _normalized(BASE_DIR / "news.json", "news")
     buzz    = _normalized(BASE_DIR / "supercoach_tweets.json", "tweets")
-    return hashlib.sha256((players + "\x00" + news + "\x00" + buzz).encode("utf-8")).hexdigest()
+    code    = _code_signature()
+    return hashlib.sha256((players + "\x00" + news + "\x00" + buzz + "\x00" + code).encode("utf-8")).hexdigest()
 
 
 def commit_and_push(timestamp: str, force: bool = False) -> tuple[bool, str]:
@@ -182,7 +202,9 @@ def commit_and_push(timestamp: str, force: bool = False) -> tuple[bool, str]:
         log.info("No changes — skipping push")
         return True, "no changes"
 
-    ok, _ = git_step(["add", "players.json", "news.json", "news_history.json", "supercoach_tweets.json"])
+    add_list = ["players.json", "news.json", "news_history.json", "supercoach_tweets.json"]
+    add_list += [f for f in CODE_FILES if (BASE_DIR / f).exists()]
+    ok, _ = git_step(["add"] + add_list)
     if not ok:
         return False, "git add failed"
 
