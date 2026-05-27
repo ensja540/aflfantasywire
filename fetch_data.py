@@ -1349,21 +1349,19 @@ def injury_risk_score(games, injury_status=""):
     """Availability/durability-based injury-risk score (0-100, higher = riskier)
     from games played over the most recent seasons, plus current status."""
     if not games:
-        return None, ""
+        return None, "", None
     yrs = sorted(games)
-    last5 = [games[y] for y in yrs[-5:]]
-    avg5 = sum(last5) / len(last5)
+    last3 = [games[y] for y in yrs[-3:]]
     FULL = 22.0
-    risk = max(0.0, min(1.0, 1 - min(avg5, FULL) / FULL)) * 100
-    if len(last5) >= 2:
-        prior = sum(last5[:-1]) / len(last5[:-1])
-        if prior and last5[-1] < 0.7 * prior:
-            risk += 12
-    if (injury_status or "").lower() in ("out", "test", "tbc", "doubtful", "sus"):
-        risk += 12
-    risk = int(max(0, min(100, round(risk))))
-    label = "Low" if risk < 30 else "Moderate" if risk < 60 else "High"
-    return risk, label
+    # average games MISSED per season over the rolling last 3 seasons
+    missed = sum(max(0.0, FULL - g) for g in last3) / len(last3)
+    if missed < 2:
+        label, risk = "Low", int(round(missed / 2 * 29))
+    elif missed < 4:
+        label, risk = "Medium", int(round(30 + (missed - 2) / 2 * 29))
+    else:
+        label, risk = "High", min(100, int(round(60 + (missed - 4) * 10)))
+    return risk, label, round(missed, 1)
 
 
 def fetch_careers(session, players, sc_players):
@@ -1418,9 +1416,9 @@ def fetch_careers(session, players, sc_players):
         av = {int(y): float(v) for y, v in rec.get("avgs", {}).items()}
         yrs = sorted(g)
         p["gamesBySeason"] = [{"y": y, "g": g[y], "a": av.get(y, 0)} for y in yrs[-5:]]
-        risk, label = injury_risk_score(g, p.get("injuryStatus", ""))
+        risk, label, missed = injury_risk_score(g, p.get("injuryStatus", ""))
         if risk is not None:
-            p["injuryRisk"], p["injuryRiskLabel"] = risk, label
+            p["injuryRisk"], p["injuryRiskLabel"], p["injuryMissed"] = risk, label, missed
         merged += 1
     log.info(f"Career: fetched {done} this run, merged {merged} players (cache {len(cache)})")
 
