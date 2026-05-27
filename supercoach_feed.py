@@ -64,7 +64,7 @@ def main():
         print("supercoach_feed: no X_BEARER_TOKEN")
         return
     query = ("#supercoach (AFL OR #AFLFantasy OR fantasy OR footy) "
-             "-is:retweet -is:reply -nrl lang:en")
+             "-is:retweet -is:reply -nrl -from:AFLFantasyWire lang:en")
     try:
         r = requests.get(
             "https://api.twitter.com/2/tweets/search/recent",
@@ -91,6 +91,8 @@ def main():
         u = users.get(t.get("author_id"), {})
         if not u.get("username"):
             continue
+        if u.get("username", "").lower() == "aflfantasywire":
+            continue  # don't surface our own tweets in the buzz feed
         pm = t.get("public_metrics", {})
         out.append({
             "id": t["id"],
