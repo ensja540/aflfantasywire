@@ -3201,7 +3201,16 @@ _WAFFLE = re.compile(
     r"\byou'?ve provided\b|"
     r"\bthe (full |complete )?article (text|content)\b|"
     r"\b(isn'?t|aren'?t|not) (included|shown|provided)\b|"
-    r"\bas an ai\b|\bI (cannot|can'?t|am unable|'?m unable)\b",
+    r"\bas an ai\b|\bI (cannot|can'?t|am unable|'?m unable)\b|"
+    r"\blight on specifics\b|\blacks? specifics\b|\bno specifics\b|\bshort on (specifics|detail)\b|"
+    r"\bno (concrete |confirmed )?(names|specifics|detail|info)\b|"
+    r"\b(no |without )?(player |confirmed )?names? (were |are )?(not )?(provided|given|mentioned|confirmed|specified)\b|"
+    r"\bwithout (confirmed )?names\b|"
+    r"\bno (injury )?(timelines?|details?) (were |are )?(provided|given|confirmed)\b|"
+    r"\bwait for confirmation\b|\bbefore burning trades\b|\bspeculative\b|"
+    r"\ba (geelong|carlton|melbourne|adelaide|brisbane|collingwood|essendon|fremantle|hawthorn|"
+    r"richmond|sydney|cats|blues|demons|crows|lions|magpies|bombers|dockers|hawks|tigers|swans|"
+    r"saints|suns|giants|eagles|kangaroos|power|bulldogs) player\b",
     re.I)
 
 
