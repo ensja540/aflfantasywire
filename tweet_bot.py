@@ -270,13 +270,6 @@ def main():
             posted.append({"pid": pid, "angle": angle, "id": tid,
                            "at": datetime.now().isoformat(),
                            "at_aest": aest_now().isoformat(), "text": text})
-            # Pull 2 fresh #SuperCoach tweets into the live feed each time we post.
-            try:
-                subprocess.run([sys.executable, str(BASE / "supercoach_feed.py"), "--add=2"],
-                               cwd=str(BASE), capture_output=True, text=True,
-                               encoding="utf-8", errors="replace", timeout=60)
-            except Exception:
-                pass
         else:
             print(f"  [FAIL] ({code}): {body[:300]}")
             # Stop on auth/credit errors so we don't hammer.

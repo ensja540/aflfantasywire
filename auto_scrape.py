@@ -278,6 +278,18 @@ def run_once() -> None:
     else:
         bits.append("Skipped push (both scrapers failed).")
 
+    # SuperCoach live feed — pulls at most once per AM/arvo/PM window (3x/day,
+    # AEST); no-ops otherwise, so it's safe to call every cycle.
+    try:
+        fr = subprocess.run([sys.executable, str(BASE_DIR / "supercoach_feed.py"), "--auto"],
+                            cwd=str(BASE_DIR), capture_output=True, text=True,
+                            encoding="utf-8", errors="replace", env=_UTF8_ENV, timeout=60)
+        ft = (fr.stdout or "").strip().splitlines()
+        if ft:
+            log.info("supercoach_feed: " + ft[-1])
+    except Exception as e:
+        log.warning(f"supercoach_feed failed: {e}")
+
     # Scheduled tweet — self-throttled to 5/day, spaced, 6am-11pm AEST. No-ops
     # outside the window / once today's quota is met, so it's safe to call here
     # every cycle.
