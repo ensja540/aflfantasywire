@@ -321,6 +321,7 @@ def find_players_all(text, max_n=4):
     residual = t
     for full in list(found):
         residual = residual.replace(full, " ")
+    _allfirst = set().union(*_SURNAME_FIRSTS.values()) if _SURNAME_FIRSTS else set()
     for pl in sorted(_PLAYERS_IDX, key=lambda p: -len(p["last"])):
         if pl["full"] in found:
             continue
@@ -332,10 +333,15 @@ def find_players_all(text, max_n=4):
             continue
         prev = m.group(1) or ""
         unique = len(_SURNAME_FIRSTS.get(last, ())) == 1
+        # A different, recognised given name in front of the surname means a
+        # different person — even for a unique surname (e.g. "Jesse Wardlaw" must
+        # not tag George Wardlaw, "Dan ..." vs a tracked "Daniel" is fine because
+        # only real first names count). Skip those.
+        conflict = bool(prev) and prev != pl["first"] and prev in _allfirst
         # A surname unique to one tracked player is tagged wherever it appears.
         # A shared surname is only tagged when the first name / initial precedes it
         # (we can't otherwise tell which same-surname player is meant).
-        if unique or prev == pl["first"] or (prev and 1 <= len(prev) <= 2 and prev[0] == pl["first"][0]):
+        if not conflict and (unique or prev == pl["first"] or (prev and 1 <= len(prev) <= 2 and prev[0] == pl["first"][0])):
             found.setdefault(pl["full"], {"pid": pl["pid"], "name": pl["name"]})
     return list(found.values())[:max_n]
 
@@ -349,7 +355,7 @@ _TEAM_PATTERNS = [
     ("West Coast",       [r"west coast", r"\beagles\b"]),
     ("Western Bulldogs", [r"western bulldogs", r"\bbulldogs\b", r"\bdoggies\b", r"\bdogs\b"]),
     ("St Kilda",         [r"st\.? kilda", r"\bsaints\b"]),
-    ("GWS Giants",       [r"\bgws\b", r"greater western sydney", r"\bgiants\b"]),
+    ("GWS Giants",       [r"\bgws\b", r"greater western sydney", r"western sydney", r"\bgiants\b"]),
     ("Sydney",           [r"sydney swans", r"\bswans\b", r"\bsydney\b"]),
     ("Adelaide",         [r"\badelaide\b", r"\bcrows\b"]),
     ("Brisbane",         [r"brisbane lions", r"\bbrisbane\b", r"\blions\b"]),
@@ -375,6 +381,11 @@ def find_teams(text):
             found.append(team)
             for p in pats:
                 residual = re.sub(p, " ", residual)
+    # GWS's full name ("Greater Western Sydney") contains "Sydney". If we matched
+    # the Giants but there's no explicit Swans signal, a Sydney tag is spurious
+    # (the word came from the GWS name / the city) — drop it.
+    if "GWS Giants" in found and "Sydney" in found and not re.search(r"\bswans\b", (text or "").lower()):
+        found.remove("Sydney")
     return found
 
 # ── FOOTYWIRE INJURY LIST ─────────────────────────────────────────────────────
