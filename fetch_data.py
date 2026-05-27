@@ -1333,7 +1333,13 @@ def parse_career_games(html):
         for row in t.find_all("tr"):
             cells = [c.get_text(strip=True) for c in row.find_all(["td", "th"])]
             if len(cells) >= 2 and re.fullmatch(r"20\d\d", cells[0]) and re.fullmatch(r"\d{1,2}", cells[1]):
-                out[int(cells[0])] = int(cells[1])
+                _avg = 0.0
+                if len(cells) >= 3:
+                    try:
+                        _avg = round(float(cells[2]), 1)
+                    except Exception:
+                        _avg = 0.0
+                out[int(cells[0])] = (int(cells[1]), _avg)
         if len(out) >= 3:
             return out
     return {}
@@ -1393,7 +1399,9 @@ def fetch_careers(session, players, sc_players):
                 continue
             g = parse_career_games(r.text)
             if g:
-                cache[nk] = {"games": {str(y): v for y, v in g.items()}, "ts": now.isoformat()}
+                cache[nk] = {"games": {str(y): v[0] for y, v in g.items()},
+                             "avgs": {str(y): v[1] for y, v in g.items()},
+                             "ts": now.isoformat()}
                 done += 1
         except Exception:
             continue
@@ -1407,8 +1415,9 @@ def fetch_careers(session, players, sc_players):
         if not rec or not rec.get("games"):
             continue
         g = {int(y): int(v) for y, v in rec["games"].items()}
+        av = {int(y): float(v) for y, v in rec.get("avgs", {}).items()}
         yrs = sorted(g)
-        p["gamesBySeason"] = [{"y": y, "g": g[y]} for y in yrs[-5:]]
+        p["gamesBySeason"] = [{"y": y, "g": g[y], "a": av.get(y, 0)} for y in yrs[-5:]]
         risk, label = injury_risk_score(g, p.get("injuryStatus", ""))
         if risk is not None:
             p["injuryRisk"], p["injuryRiskLabel"] = risk, label
