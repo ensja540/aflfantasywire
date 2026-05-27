@@ -3387,8 +3387,11 @@ def main():
     _NOTREL = re.compile(
         r"not\s+(?:directly\s+)?(?:fantasy[- ]?)?relevant|"
         r"no\s+(?:direct\s+)?fantasy\s+relevance|"
-        r"not\s+relevant\s+(?:to|for)\s+fantasy|"
-        r"(?:limited|little|no|minimal)\s+fantasy\s+(?:relevance|value|impact|implications?)",
+        r"not\s+relevant\s+(?:to|for)\s+(?:fantasy|super\s?coach)|"
+        r"no\s+relevance\s+(?:to|for)\s+[\w, ]{0,40}(?:fantasy|super\s?coach)|"
+        r"no\s+[\w, ]{0,50}implications?\s+for\s+(?:fantasy|super\s?coach)|"
+        r"(?:limited|little|no|minimal|not)\s+(?:fantasy|super\s?coach)\s+"
+        r"(?:relevance|value|impact|implications?|interest)",
         re.I)
     _prerel = len(items)
     items = [it for it in items if not (it.get("ai_summary") and _NOTREL.search(it["ai_summary"]))]
