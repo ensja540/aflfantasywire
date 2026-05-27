@@ -3210,7 +3210,13 @@ _WAFFLE = re.compile(
     r"\bwait for confirmation\b|\bbefore burning trades\b|\bspeculative\b|"
     r"\ba (geelong|carlton|melbourne|adelaide|brisbane|collingwood|essendon|fremantle|hawthorn|"
     r"richmond|sydney|cats|blues|demons|crows|lions|magpies|bombers|dockers|hawks|tigers|swans|"
-    r"saints|suns|giants|eagles|kangaroos|power|bulldogs) player\b",
+    r"saints|suns|giants|eagles|kangaroos|power|bulldogs) (player|star|gun|midfielder|defender|forward|ruckman|ruck)\b|"
+    r"\ba (?:young |veteran |key |big |small )?player\b|"
+    r"\bfiller\b|\bmostly (navigation|nav)\b|"
+    r"\bno [a-z ]{0,30}(detail|details|specifics)\b|"
+    r"\bwithout (named|confirmed )?(players|names)\b|\bno (named|confirmed) players?\b|\bnamed players\b|"
+    r"\bbefore locking in\b|\bhold (off |your )?trades?\b|\buntil (official|confirmed) team|"
+    r"\bofficial team (list|sheet)|\bconfirmed teams\b",
     re.I)
 
 
