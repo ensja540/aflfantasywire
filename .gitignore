@@ -5,6 +5,9 @@ __pycache__/
 
 # Local config (may contain API keys / cookies)
 config.json
+.env
+.env.*
+!.env.example
 
 # Raw scrape dumps + debug artifacts (regenerated on every run)
 scrape.log
