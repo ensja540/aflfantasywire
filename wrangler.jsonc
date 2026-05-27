@@ -12,11 +12,9 @@
   },
   "compatibility_flags": [
     "nodejs_compat"
+  ],
+  "kv_namespaces": [
+    { "binding": "RATE_LIMIT", "id": "4529470f79dd476b95f5be410940a826" },
+    { "binding": "SUBS", "id": "ed46c7575111448ca8a7734dea2e541b" }
   ]
-  // Optional AI-proxy rate limiting (10 req/IP/hour). The worker skips it
-  // gracefully when this binding is absent, so it's left out by default to
-  // keep `wrangler deploy` working out of the box. To enable:
-  //   1) wrangler kv namespace create RATE_LIMIT
-  //   2) add the printed id here, e.g.:
-  //      "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "<paste-id>" }]
 }
