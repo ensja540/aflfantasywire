@@ -89,12 +89,12 @@ def classic_tweets(players):
         own_bit = f", {own}% owned" if own else ""
         if gap >= RISE_GAP and 0 < be < avg3:
             out.append(("classic", p["id"], "crise",
-                        f"Classic: {p['name']} trending up, {round(avg3)} average over his "
+                        f"{p['name']} trending up, {round(avg3)} average over his "
                         f"past three ({l3}), up from {round(avg)} for the season. "
                         f"Break-even {be} at {money(price)}{own_bit}. {HASHTAGS}"))
         elif gap <= FALL_GAP and be > avg3:
             out.append(("classic", p["id"], "cfall",
-                        f"Classic: {p['name']} cooling off, {round(avg3)} over his past "
+                        f"{p['name']} cooling off, {round(avg3)} over his past "
                         f"three ({l3}) vs {round(avg)} for the year. Break-even {be} at "
                         f"{money(price)}, price set to slide. {HASHTAGS}"))
     return out
@@ -113,15 +113,15 @@ def draft_tweets(players):
         l5 = scoreline(ps, 5)
         if len(last5) >= 5 and min(last5) >= 85 and avg3 >= 100:
             out.append(("draft", p["id"], "dcons",
-                        f"Draft: {p['name']} keeps producing, {l5}, no return below "
+                        f"{p['name']} keeps producing, {l5}, no return below "
                         f"{min(last5)} in five weeks ({round(avg3)} three-round average). {HASHTAGS}"))
         elif gap >= RISE_GAP:
             out.append(("draft", p["id"], "drise",
-                        f"Draft: {p['name']} on the rise, {l5} across his past five, "
+                        f"{p['name']} on the rise, {l5} across his past five, "
                         f"three-round average up to {round(avg3)} ({round(avg)} season). {HASHTAGS}"))
         elif gap <= FALL_GAP:
             out.append(("draft", p["id"], "dfall",
-                        f"Draft: {p['name']}'s output has eased, {l5}, three-round average "
+                        f"{p['name']}'s output has eased, {l5}, three-round average "
                         f"({round(avg3)}) now below his season mark ({round(avg)}). {HASHTAGS}"))
     return out
 
