@@ -28,7 +28,7 @@ _UTF8_ENV = {**os.environ, "PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
 BASE_DIR     = Path(__file__).resolve().parent
 LOG_PATH     = BASE_DIR / "scrape.log"
 SIG_PATH     = BASE_DIR / ".scrape_sig"
-INTERVAL_SEC = 5 * 60   # 5 minutes
+INTERVAL_SEC = 15 * 60   # 15 minutes
 
 # Per-script subprocess timeout. fetch_data.py fetches ~350 games-log pages
 # sequentially with polite delays (~2s/player to avoid Footywire rate-limiting),
@@ -37,7 +37,7 @@ INTERVAL_SEC = 5 * 60   # 5 minutes
 SCRIPT_TIMEOUT_SEC = 20 * 60   # 20 minutes
 
 # Even when the content signature is unchanged, force a push after this many
-# consecutive no-change runs (~30 min at a 5-min interval) so the deployed site
+# consecutive no-change runs (~90 min at a 15-min interval) so the deployed site
 # never goes stale and we can confirm the loop is alive from the commit history.
 MAX_NO_CHANGE_RUNS = 6
 _no_change_streak  = 0
@@ -329,7 +329,7 @@ def run_once() -> None:
     except Exception as e:
         log.warning(f"tweet_bot --auto failed: {e}")
 
-    _status(f"Scraping... done. {' '.join(bits)} Next run in 5 min.")
+    _status(f"Scraping... done. {' '.join(bits)} Next run in {INTERVAL_SEC // 60} min.")
     _endline()
     log.info("Run complete — " + " | ".join(bits))
 
