@@ -2337,7 +2337,12 @@ def _is_aflw(item):
     """True if a news item is about AFLW / women's football — excluded because
     this app tracks the men's AFL competition only."""
     text = f"{item.get('headline','')} {item.get('body','')} {item.get('player','')}".lower()
-    if "aflw" in text or "women" in text:
+    link = (item.get('link', '') or "").lower()
+    # AFL.com.au / club AFLW articles live under an /aflw/ path — strongest signal,
+    # and catches AFLW pieces whose body never spells out "AFLW"/"women".
+    if "/aflw" in link or "aflw." in link or "/womens" in link or "womens-football" in link:
+        return True
+    if any(w in text for w in ("aflw", "women", "women's", "womens", "female")):
         return True
     # Exclude other sports that share surnames with AFL players.
     return any(w in text for w in ("nrl", "rugby", "cricket", "netball", "a-league", "soccer", "casualty ward"))
@@ -3375,6 +3380,20 @@ def main():
             _ai_budget -= 1
     log.info(f"AI summaries: {sum(1 for _i in items if _i.get('ai_summary'))} items "
              f"({sum(1 for _i in items if _i.get('ai_full'))} from the full article)")
+
+    # ── Drop items the AI judged not fantasy-relevant ──
+    # If a generated summary explicitly says the piece has no/limited fantasy
+    # relevance, it doesn't belong in the feed.
+    _NOTREL = re.compile(
+        r"not\s+(?:directly\s+)?(?:fantasy[- ]?)?relevant|"
+        r"no\s+(?:direct\s+)?fantasy\s+relevance|"
+        r"not\s+relevant\s+(?:to|for)\s+fantasy|"
+        r"(?:limited|little|no|minimal)\s+fantasy\s+(?:relevance|value|impact|implications?)",
+        re.I)
+    _prerel = len(items)
+    items = [it for it in items if not (it.get("ai_summary") and _NOTREL.search(it["ai_summary"]))]
+    if len(items) != _prerel:
+        log.info(f"Not-fantasy-relevant filter: dropped {_prerel - len(items)} item(s) by AI summary")
 
     output = {
         "scraped_at":  datetime.now().isoformat(),
