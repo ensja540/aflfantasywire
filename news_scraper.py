@@ -301,6 +301,12 @@ def find_player(text, player_idx=None):
     return None, None
 
 
+_NAME_ALIASES = {
+    "Daniel Butler": "Dan Butler",
+    "Harry Petty": "Harrison Petty",
+}
+
+
 def find_players_all(text, max_n=4):
     """Like find_player, but return EVERY confidently-matched tracked player in
     the text as [{pid, name}] (up to max_n), so an article can carry tags for
@@ -3253,6 +3259,8 @@ def main():
         if not _pls and _it.get("pid") and _it.get("player"):
             _pls = [{"pid": _it["pid"], "name": _it["player"]}]
         if _pls:
+            for _pp in _pls:
+                _pp["name"] = _NAME_ALIASES.get(_pp["name"], _pp["name"])
             _it["players"] = _pls
             if not _it.get("pid"):
                 _it["pid"] = _pls[0]["pid"]

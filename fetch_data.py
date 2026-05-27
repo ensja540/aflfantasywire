@@ -1311,9 +1311,21 @@ def build_player(sc, dt, injuries, selections, rank):
 LAST_PLAYERS = []
 
 
+# Display-name fixes: sources use a formal/short variant; map to the name
+# fans use. Extend as needed.
+NAME_ALIASES = {
+    "Daniel Butler": "Dan Butler",
+    "Harry Petty": "Harrison Petty",
+}
+
+
 def write_output(players, sc_players=None, dt_players=None, injuries=None, selections=None):
     """Write players.json. Safe to call with a partial list (e.g. from the crash
     handler) — source counts fall back sensibly when the extras aren't passed."""
+    for _p in players:
+        _a = NAME_ALIASES.get(_p.get("name"))
+        if _a:
+            _p["name"] = _a
     output = {
         "scraped_at":   datetime.now().isoformat(),
         "round":        "Current",
