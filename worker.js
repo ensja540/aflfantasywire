@@ -132,10 +132,70 @@ export default {
       });
     }
 
+    // ── Web Push: VAPID public key (client needs it to subscribe) ──
+    if (url.pathname === "/api/vapid") {
+      return json({ publicKey: env.VAPID_PUBLIC || "" });
+    }
+
+    // ── Web Push: store a device's push subscription + its watchlist ──
+    // Backed by the SUBS KV namespace; the sender (notify.py) reads them via
+    // /api/subscriptions and pushes news matching each watchlist.
+    if (url.pathname === "/api/subscribe") {
+      if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
+      if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: CORS });
+      if (!env.SUBS) return json({ error: "push storage not configured" }, 500);
+      let p; try { p = await request.json(); } catch { p = {}; }
+      const sub = p.subscription;
+      if (!sub || !sub.endpoint) return json({ error: "missing subscription" }, 400);
+      const key = "sub:" + (await sha256(sub.endpoint));
+      await env.SUBS.put(key, JSON.stringify({
+        subscription: sub,
+        watchlist: Array.isArray(p.watchlist) ? p.watchlist.map(String) : [],
+        updated: new Date().toISOString(),
+      }));
+      return json({ ok: true });
+    }
+
+    if (url.pathname === "/api/unsubscribe") {
+      if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
+      if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: CORS });
+      if (!env.SUBS) return json({ ok: true });
+      let p; try { p = await request.json(); } catch { p = {}; }
+      const endpoint = (p.endpoint || (p.subscription && p.subscription.endpoint) || "").trim();
+      if (endpoint) await env.SUBS.delete("sub:" + (await sha256(endpoint)));
+      return json({ ok: true });
+    }
+
+    // List all stored subscriptions (for the home-machine sender). Gated by a
+    // shared secret so it isn't world-readable.
+    if (url.pathname === "/api/subscriptions") {
+      if (!env.SUBS) return json({ subscriptions: [] });
+      if (!env.PUSH_LIST_SECRET || url.searchParams.get("secret") !== env.PUSH_LIST_SECRET) {
+        return new Response("Unauthorized", { status: 401, headers: CORS });
+      }
+      const out = [];
+      let cursor;
+      do {
+        const list = await env.SUBS.list({ prefix: "sub:", cursor });
+        for (const k of list.keys) {
+          const v = await env.SUBS.get(k.name);
+          if (v) { try { out.push(JSON.parse(v)); } catch (_) {} }
+        }
+        cursor = list.list_complete ? null : list.cursor;
+      } while (cursor);
+      return json({ subscriptions: out });
+    }
+
     // Everything else: serve the static site assets.
     return env.ASSETS.fetch(request);
   },
 };
+
+// Hex SHA-256 of a string (used to key subscriptions by endpoint).
+async function sha256(s) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
