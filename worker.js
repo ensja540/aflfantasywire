@@ -86,6 +86,8 @@ export default {
       if (!upstream.ok) return json({ summary: "" });
       const data = await upstream.json();
       const summary = (data.content && data.content[0] && data.content[0].text || "").trim();
+      // Reject meta/refusal "waffle" (model asking for the article text).
+      if (/\bI'?d be (happy|glad) to\b|\bI (don'?t|do not) (see|have)\b|(could|can) you (please )?(share|provide|paste)|please (share|provide|paste)|you'?ve provided|the (full |complete )?article (text|content)|\bas an ai\b|\bI (cannot|can'?t|am unable)\b/i.test(summary)) return json({ summary: "" });
       return json({ summary });
     }
 

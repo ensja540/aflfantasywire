@@ -3177,6 +3177,21 @@ def fetch_article_text(session, url, cap=9000):
         return ""
 
 
+# Meta/refusal 'waffle' the model emits when it didn't get the article text
+# (e.g. "I'd be happy to help... I don't see the full article text..."). These
+# are never shown — we fall back to the View article link instead.
+_WAFFLE = re.compile(
+    r"\bI'?d be (happy|glad) to\b|"
+    r"\bI (don'?t|do not) (see|have)\b|"
+    r"\b(could|can) you (please )?(share|provide|paste|send)\b|"
+    r"\bplease (share|provide|paste|send)\b|"
+    r"\byou'?ve provided\b|"
+    r"\bthe (full |complete )?article (text|content)\b|"
+    r"\b(isn'?t|aren'?t|not) (included|shown|provided)\b|"
+    r"\bas an ai\b|\bI (cannot|can'?t|am unable|'?m unable)\b",
+    re.I)
+
+
 def ai_summarise(headline, body, full=False):
     """AI summary of a news item (fantasy angle). `full` produces a 3-4 sentence
     summary of a whole article; otherwise a 1-2 sentence snippet summary. Returns
@@ -3203,8 +3218,9 @@ def ai_summarise(headline, body, full=False):
         K = r.json()
         if not r.ok or K.get("error"):
             return ""
-        return " ".join(b.get("text", "") for b in K.get("content", [])
+        _out = " ".join(b.get("text", "") for b in K.get("content", [])
                         if b.get("type") == "text").strip()
+        return "" if _WAFFLE.search(_out) else _out
     except Exception as e:
         log.warning(f"ai_summarise failed: {e}")
         return ""
@@ -3415,6 +3431,14 @@ def main():
     items = [it for it in items if not (it.get("ai_summary") and _NOTREL.search(it["ai_summary"]))]
     if len(items) != _prerel:
         log.info(f"Not-fantasy-relevant filter: dropped {_prerel - len(items)} item(s) by AI summary")
+    _waf = 0
+    for it in items:
+        if it.get("ai_summary") and _WAFFLE.search(it["ai_summary"]):
+            it["ai_summary"] = ""
+            it.pop("ai_full", None)
+            _waf += 1
+    if _waf:
+        log.info(f"Blanked {_waf} waffle/refusal AI summaries")
 
     output = {
         "scraped_at":  datetime.now().isoformat(),
