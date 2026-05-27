@@ -354,6 +354,19 @@ def find_players_all(text, max_n=4):
 
 # AFL clubs by full name + nicknames. Ordered so club-specific multi-word names
 # are consumed first (so "North Melbourne" doesn't also tag Melbourne, etc.).
+def _expand_name(nm):
+    """Expand a 'F.Surname' tag to the player's full name via the index when it
+    resolves to exactly one tracked player (e.g. 'W.Day' -> 'Will Day')."""
+    if not nm:
+        return nm
+    m = re.match(r"^([A-Za-z])\.\s*([A-Za-z][A-Za-z'\-]{2,})$", nm.strip())
+    if not m:
+        return nm
+    init, last = m.group(1).lower(), m.group(2).lower()
+    cands = [pl for pl in _PLAYERS_IDX if pl["last"] == last and pl["first"][:1] == init]
+    return cands[0]["name"] if len(cands) == 1 else nm
+
+
 _TEAM_PATTERNS = [
     ("North Melbourne",  [r"north melbourne", r"kangaroos", r"\broos\b"]),
     ("Port Adelaide",    [r"port adelaide", r"\bpower\b"]),
@@ -3276,6 +3289,8 @@ def main():
     # Done here so the gate below can drop anything that's still untagged — the
     # feed should never carry an item with no player and no club tag.
     for _it in items:
+        if _it.get("player"):
+            _it["player"] = _expand_name(_it["player"])
         _blob = (_it.get("headline", "") or "") + " " + (_it.get("body", "") or "")
         _pls = find_players_all(_blob)
         if not _pls and _it.get("pid") and _it.get("player"):
