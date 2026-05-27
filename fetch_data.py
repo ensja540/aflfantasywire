@@ -24,7 +24,7 @@ OUTPUT
 """
 
 import json, re, time, logging, sys, traceback
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -1319,6 +1319,103 @@ NAME_ALIASES = {
 }
 
 
+CAREERS_PATH = BASE_DIR / "careers.json"
+CAREER_TTL_DAYS = 7          # refresh each player's career data weekly
+CAREER_TIME_LIMIT = 120      # seconds per run (incremental — fills over a few runs)
+
+
+def parse_career_games(html):
+    """Parse a Footywire /pu- profile page for games played per season.
+    The season table rows look like [year, games, average]. Returns {year:int -> games:int}."""
+    soup = BeautifulSoup(html, "lxml")
+    for t in soup.find_all("table"):
+        out = {}
+        for row in t.find_all("tr"):
+            cells = [c.get_text(strip=True) for c in row.find_all(["td", "th"])]
+            if len(cells) >= 2 and re.fullmatch(r"20\d\d", cells[0]) and re.fullmatch(r"\d{1,2}", cells[1]):
+                out[int(cells[0])] = int(cells[1])
+        if len(out) >= 3:
+            return out
+    return {}
+
+
+def injury_risk_score(games, injury_status=""):
+    """Availability/durability-based injury-risk score (0-100, higher = riskier)
+    from games played over the most recent seasons, plus current status."""
+    if not games:
+        return None, ""
+    yrs = sorted(games)
+    last5 = [games[y] for y in yrs[-5:]]
+    avg5 = sum(last5) / len(last5)
+    FULL = 22.0
+    risk = max(0.0, min(1.0, 1 - min(avg5, FULL) / FULL)) * 100
+    if len(last5) >= 2:
+        prior = sum(last5[:-1]) / len(last5[:-1])
+        if prior and last5[-1] < 0.7 * prior:
+            risk += 12
+    if (injury_status or "").lower() in ("out", "test", "tbc", "doubtful", "sus"):
+        risk += 12
+    risk = int(max(0, min(100, round(risk))))
+    label = "Low" if risk < 30 else "Moderate" if risk < 60 else "High"
+    return risk, label
+
+
+def fetch_careers(session, players, sc_players):
+    """Incrementally fetch each current player's career games-per-season (cached
+    weekly in careers.json) and merge gamesBySeason + injuryRisk into players."""
+    try:
+        cache = json.loads(CAREERS_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        cache = {}
+    url_by_name = {name_key(s["name"]): s.get("profile_url", "")
+                   for s in sc_players if s.get("profile_url")}
+    now = datetime.now(timezone.utc)
+
+    def _stale(rec):
+        try:
+            return (now - datetime.fromisoformat(rec.get("ts"))) > timedelta(days=CAREER_TTL_DAYS)
+        except Exception:
+            return True
+
+    todo = [(name_key(p["name"]), url_by_name.get(name_key(p["name"])))
+            for p in players
+            if url_by_name.get(name_key(p["name"]))
+            and (name_key(p["name"]) not in cache or _stale(cache[name_key(p["name"])]))]
+    log.info(f"Career fetch: {len(todo)} players due (cap {CAREER_TIME_LIMIT}s)")
+    start, done = time.time(), 0
+    for nk, url in todo:
+        if time.time() - start > CAREER_TIME_LIMIT:
+            log.info(f"Career fetch: time cap hit after {done}")
+            break
+        try:
+            r = get(session, url, retries=1, timeout=8)
+            if not r:
+                continue
+            g = parse_career_games(r.text)
+            if g:
+                cache[nk] = {"games": {str(y): v for y, v in g.items()}, "ts": now.isoformat()}
+                done += 1
+        except Exception:
+            continue
+    try:
+        CAREERS_PATH.write_text(json.dumps(cache), encoding="utf-8")
+    except Exception:
+        pass
+    merged = 0
+    for p in players:
+        rec = cache.get(name_key(p["name"]))
+        if not rec or not rec.get("games"):
+            continue
+        g = {int(y): int(v) for y, v in rec["games"].items()}
+        yrs = sorted(g)
+        p["gamesBySeason"] = [{"y": y, "g": g[y]} for y in yrs[-5:]]
+        risk, label = injury_risk_score(g, p.get("injuryStatus", ""))
+        if risk is not None:
+            p["injuryRisk"], p["injuryRiskLabel"] = risk, label
+        merged += 1
+    log.info(f"Career: fetched {done} this run, merged {merged} players (cache {len(cache)})")
+
+
 def write_output(players, sc_players=None, dt_players=None, injuries=None, selections=None):
     """Write players.json. Safe to call with a partial list (e.g. from the crash
     handler) — source counts fall back sensibly when the extras aren't passed."""
@@ -1627,6 +1724,10 @@ def main():
     log.info(f"Form fill: updated {filled} players (per-round scores / 3-rnd avg)")
 
     # ── 7. Write output ──
+    try:
+        fetch_careers(session, players, sc_players)
+    except Exception as _e:
+        log.warning(f"Career fetch failed: {_e}")
     global LAST_PLAYERS
     LAST_PLAYERS = players
     write_output(players, sc_players, dt_players, injuries, selections)
