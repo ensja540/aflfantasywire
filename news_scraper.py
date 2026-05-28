@@ -684,7 +684,8 @@ def _classify_headline(text):
                             "line-up", "lineup", "squad", "to debut", "late out",
                             "late change", "selection")):
         return "selection", "team_news"
-    if any(k in t for k in ("injury", "injured", "ruled out", " out for", "sidelined",
+    if any(k in t for k in ("injur",  # stem: matches injury/injured/injuries/injuring
+                            "ruled out", " out for", "sidelined",
                             "tbc", "hamstring", "knee", "ankle", "calf", "shoulder",
                             "concussion", "groin", "quad", "corked", "achilles",
                             "soreness", "setback", "scan", "surgery", "suspend",
@@ -878,6 +879,96 @@ def extract_player_mentions(article_text, headline, article_url, source, time_st
     return items
 
 
+def extract_players_from_url(url, source, time_str, headline=""):
+    """Per-player news items derived from the article URL slug.
+
+    Publishers like AFL.com.au often name players directly in the URL
+    (`.../with-tom-papley`) even when their RSS description is a generic
+    one-liner ("Sydney will be forced to make several changes..."). When the
+    description is too short for `extract_player_mentions`, the slug is the
+    only place the player's name lives in the feed payload.
+
+    Safety: ONLY full-name patterns are used (surname-only is too risky on
+    slug-words like 'monday'/'today'); cap at 5 players per URL.
+    """
+    if not url:
+        return []
+    from urllib.parse import urlparse
+    slug = urlparse(url).path.rstrip("/").split("/")[-1]
+    text = slug.replace("-", " ").replace("_", " ")
+    if len(text) < 8:
+        return []
+
+    patterns = _name_patterns(BASE_DIR / "players.json")
+    if not patterns:
+        return []
+
+    matched, seen_pids = [], set()
+    for pattern, player, is_full in patterns:
+        if not is_full:
+            continue
+        if pattern.search(text):
+            pid_p = player.get("id")
+            if pid_p in seen_pids:
+                continue
+            seen_pids.add(pid_p)
+            matched.append(player)
+            if len(matched) >= 5:
+                break
+    if not matched:
+        return []
+
+    # Classify from the headline plus the slug words.
+    sl = (headline + " " + text).lower()
+    if any(w in sl for w in ("ruled out", "out for the season", "season-ending",
+                              "season ending")):
+        item_type, category = "injury", "injury_out"
+    elif any(w in sl for w in ("injur", "sidelined", "doubt",  # 'injur' stem catches injury/injured/injuries
+                                "hamstring", "knee", "ankle", "calf", "shoulder",
+                                "concussion", "groin", "quad", "soreness",
+                                "achilles", "setback")):
+        item_type, category = "injury", "injury_tbc"
+    elif any(w in sl for w in ("named", "recalled", "dropped", "omitted",
+                                "selected", "late out")):
+        item_type, category = "selection", "team_news"
+    else:
+        item_type, category = "news", "general"
+
+    out = []
+    handle = "@" + re.sub(r"\W", "", (source or "").lower())[:12]
+    for match in matched:
+        player_name = match.get("name") or ""
+        body = (headline or f"{player_name} mentioned in this article").strip()
+        out.append({
+            "id":           None,
+            "type":         item_type,
+            "category":     category,
+            "urgent":       item_type == "injury" and category == "injury_out",
+            "player":       player_name,
+            "pid":          match.get("id"),
+            "team":         match.get("team"),
+            "pos":          None,
+            "source":       source,
+            "sourceHandle": handle,
+            "reliability":  70,
+            "time":         time_str or "",
+            "timeLabel":    time_str or "",
+            "headline":     (player_name + ": " + body)[:150],
+            "body":         body[:400],
+            "link":         url,
+            "signal":       "sell" if category == "injury_out"
+                            else "hold" if category == "injury_tbc" else None,
+            "signalConf":   60,
+            "tags":         [category.replace("_", " ").title(), player_name],
+            "stats":        [],
+            "is_rumour":    False,
+            "relevance":    65,
+            "_source":      "url_slug",
+            "pubISO":       None,
+        })
+    return out
+
+
 def _rss_item_to_news(item, source_name, reliability, player_idx):
     """Build a news item dict from one RSS <item> element, or None if not
     relevant. `item` is an xml.etree element."""
@@ -987,6 +1078,16 @@ def _parse_rss_feed(session, feed_url, source_name, reliability, player_idx):
             time_lbl = it.get("timeLabel") or it.get("time") or ""
             out.extend(extract_player_mentions(body_text, head, link, source_name,
                                                 time_lbl, seen_keys=seen_keys))
+            # URL slug fallback: catches articles whose RSS description is too
+            # short for body-based extraction but whose URL names the player.
+            slug_extracts = extract_players_from_url(link, source_name, time_lbl,
+                                                      headline=head)
+            already_pids = {x.get("pid") for x in out}
+            for sub in slug_extracts:
+                if sub.get("pid") in already_pids:
+                    continue
+                out.append(sub)
+                already_pids.add(sub.get("pid"))
     return out
 
 
@@ -1194,6 +1295,16 @@ def scrape_google_news(session, player_idx):
             for sub in extract_player_mentions(_clean, headline, link, publisher,
                                                 time_label, seen_keys=gn_seen_keys):
                 items.append(sub)
+            # Also try the article URL slug — many publishers (notably afl.com.au)
+            # name the player in the URL when the RSS description is generic.
+            slug_extracts = extract_players_from_url(link, publisher, time_label,
+                                                      headline=headline)
+            slug_pids_already = {x.get("pid") for x in items[-6:]}
+            for sub in slug_extracts:
+                if sub.get("pid") in slug_pids_already:
+                    continue
+                items.append(sub)
+                slug_pids_already.add(sub.get("pid"))
 
         log.info(f"Google News: '{query}' -> {kept} items")
         time.sleep(0.6)
