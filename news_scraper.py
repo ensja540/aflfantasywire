@@ -304,6 +304,7 @@ def find_player(text, player_idx=None):
 _NAME_ALIASES = {
     "Daniel Butler": "Dan Butler",
     "Harry Petty": "Harrison Petty",
+    "Lachlan Ash": "Lachie Ash",
 }
 
 
