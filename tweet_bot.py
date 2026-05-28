@@ -9,12 +9,13 @@ BRAND RULES (enforced here, not free-text — so we can't hallucinate):
   - Every tweet ends with "#SuperCoach #AFLFantasy".
   - Tone: informative + a light steer ("one to keep an eye on", "worth a look").
   - No slang / dismissive terms.
-  - Tweets are built ONLY from verifiable numbers (scores, 3-rd avg, season avg,
-    floor/ceiling, consistency, ownership). We NEVER state a cause/role/why a
-    score moved.
-  - Classic tweets lead with form and a unique data insight (recent streak,
-    scoring spread, consistency); price/BE are gate signals only, not in the
-    tweet text. Draft tweets stay form-only.
+  - Tweets are built ONLY from verifiable numbers (3-game / 5-game / season
+    averages, last-N scoreline, consistency rating, ownership). We NEVER state
+    a cause/role/why a score moved.
+  - Layout uses 📈/📉/🎯 lead-emoji, blank lines for breathing room, both 3 and
+    5-game averages side-by-side, and the consistency rating as a footer line.
+  - Price/BE are gate signals only — not in the tweet text. Classic still uses
+    BE for the rise/fall trigger; draft stays form-only.
   - Breaking only when an item is genuinely fresh (NewsHistory status == "new").
 
 USAGE
@@ -76,32 +77,10 @@ def played_scores(p):
     return [s for s in (p.get("scores") or []) if s and s > 0]
 
 
-def _data_insight(p):
-    """One short factual data tail for a tweet (or '' if nothing notable).
-    The point is to add a number the casual feeds don't surface — streak floor,
-    scoring spread, or consistency — rather than restating price every time."""
-    ps = played_scores(p)
-    floor   = int(p.get("floor")   or 0)
-    ceiling = int(p.get("ceiling") or 0)
-    con     = int(p.get("consistency") or 0)
-    # Streak — a uniformly-high recent floor is the most compelling.
-    if len(ps) >= 5:
-        low5 = min(ps[-5:])
-        if low5 >= 90:
-            return f"Hasn't dropped below {low5}SC in five weeks"
-        if low5 >= 75:
-            return f"Five-week floor of {low5}SC"
-    # Spread — flags boom/bust profiles.
-    if floor and ceiling and (ceiling - floor) >= 50:
-        return f"Swings between {floor} and {ceiling}SC this year"
-    # Consistency tail when neither streak nor spread applies.
-    if con >= 80:
-        return f"{con}% consistency rating across the season"
-    if con and con <= 55:
-        return f"{con}% consistency rating, volatile profile"
-    if floor and ceiling:
-        return f"Floor {floor}SC, ceiling {ceiling}SC this year"
-    return ""
+def _avg_n(ps, n):
+    """Mean of the most recent n played scores (0 if fewer)."""
+    s = ps[-n:]
+    return round(sum(s) / len(s)) if s else 0
 
 
 def classic_tweets(players):
@@ -111,26 +90,30 @@ def classic_tweets(players):
         avg3 = p.get("scAvg3") or 0
         be = p.get("breakeven") or 0
         own = p.get("owned") or 0
-        if not avg or len(played_scores(p)) < 3:
+        consistency = int(p.get("consistency") or 0)
+        ps = played_scores(p)
+        if not avg or len(ps) < 3:
             continue
+        avg5 = _avg_n(ps, 5)
         gap = avg3 - avg
-        l3 = scoreline(played_scores(p), 3)
-        own_bit = f" {own}% owned." if own else ""
-        insight = _data_insight(p)
-        tail = f" {insight}." if insight else ""
-        # BE gate retained — it's a useful signal filter — but the price/BE
-        # numbers are no longer in the tweet text (the brief is to lead with
-        # unique data analysis, not restate the price chart).
+        l3 = scoreline(ps, 3)
+        own_bit = f"\n{own}% owned" if own else ""
+        # BE gate retained — it's a useful signal filter — but the BE number
+        # itself stays out of the tweet text.
         if gap >= RISE_GAP and 0 < be < avg3:
             out.append(("classic", p["id"], "crise",
-                        f"{p['name']} trending up, {round(avg3)}SC over his "
-                        f"past three ({l3}), up from {round(avg)}SC for the season."
-                        f"{tail}{own_bit} {HASHTAGS}"))
+                        f"\U0001F4C8 {p['name']} trending up\n\n"
+                        f"3-game: {round(avg3)}SC | 5-game: {avg5}SC | Season: {round(avg)}SC\n"
+                        f"Last 3: {l3}\n\n"
+                        f"Consistency rating: {consistency}%{own_bit}\n\n"
+                        f"{HASHTAGS}"))
         elif gap <= FALL_GAP and be > avg3:
             out.append(("classic", p["id"], "cfall",
-                        f"{p['name']} cooling off, {round(avg3)}SC over his past "
-                        f"three ({l3}) vs {round(avg)}SC for the year."
-                        f"{tail} {HASHTAGS}"))
+                        f"\U0001F4C9 {p['name']} cooling off\n\n"
+                        f"3-game: {round(avg3)}SC | 5-game: {avg5}SC | Season: {round(avg)}SC\n"
+                        f"Last 3: {l3}\n\n"
+                        f"Consistency rating: {consistency}%\n\n"
+                        f"{HASHTAGS}"))
     return out
 
 
@@ -142,21 +125,33 @@ def draft_tweets(players):
             continue
         avg = p.get("scAvg") or 0
         avg3 = p.get("scAvg3") or 0
+        consistency = int(p.get("consistency") or 0)
         gap = avg3 - avg
         last5 = ps[-5:]
+        avg5 = _avg_n(ps, 5)
         l5 = scoreline(ps, 5)
         if len(last5) >= 5 and min(last5) >= 85 and avg3 >= 100:
             out.append(("draft", p["id"], "dcons",
-                        f"{p['name']} keeps producing, {l5}, no return below "
-                        f"{min(last5)}SC in five weeks ({round(avg3)}SC three-round average). {HASHTAGS}"))
+                        f"\U0001F3AF {p['name']} keeps producing\n\n"
+                        f"3-game: {round(avg3)}SC | 5-game: {avg5}SC\n"
+                        f"Last 5: {l5}\n"
+                        f"Five-week floor: {min(last5)}SC\n\n"
+                        f"Consistency rating: {consistency}%\n\n"
+                        f"{HASHTAGS}"))
         elif gap >= RISE_GAP:
             out.append(("draft", p["id"], "drise",
-                        f"{p['name']} on the rise, {l5} across his past five, "
-                        f"three-round average up to {round(avg3)}SC ({round(avg)}SC season). {HASHTAGS}"))
+                        f"\U0001F4C8 {p['name']} on the rise\n\n"
+                        f"3-game: {round(avg3)}SC | 5-game: {avg5}SC | Season: {round(avg)}SC\n"
+                        f"Last 5: {l5}\n\n"
+                        f"Consistency rating: {consistency}%\n\n"
+                        f"{HASHTAGS}"))
         elif gap <= FALL_GAP:
             out.append(("draft", p["id"], "dfall",
-                        f"{p['name']}'s output has eased, {l5}, three-round average "
-                        f"({round(avg3)}SC) now below his season mark ({round(avg)}SC). {HASHTAGS}"))
+                        f"\U0001F4C9 {p['name']}'s output has eased\n\n"
+                        f"3-game: {round(avg3)}SC | 5-game: {avg5}SC | Season: {round(avg)}SC\n"
+                        f"Last 5: {l5}\n\n"
+                        f"Consistency rating: {consistency}%\n\n"
+                        f"{HASHTAGS}"))
     return out
 
 
