@@ -203,10 +203,12 @@ React keys must be passed directly to JSX without using spread:
 body.light{
   --bg:#eceef2;--s1:#ffffff;--s2:#f5f6f9;--s3:#e6e9ef;--s4:#d8dce4;
   --b1:rgba(0,0,0,0.14);--b2:rgba(0,0,0,0.22);
-  --tx:#1f2937;--mu:#4b5563;--di:#6b7280;
-  --buy:#0a4596;--sell:#a82a08;--hold:#39465a;
-  --gold:#856200;--grass:#0e451d;
-  --g:21,128,61;--r:185,28,28;--grn:#157a37;--rd:#c11f1f;--th:rgba(var(--g),0.3);--tl:rgba(var(--g),0.05);--thr:rgba(var(--r),0.3);--tlr:rgba(var(--r),0.05);
+  /* Slightly lighter text greys; accents pulled up the saturation scale so they
+     read as vivid rather than muted on white. tx still hits ~9:1 contrast. */
+  --tx:#2d3748;--mu:#64748b;--di:#94a3b8;
+  --buy:#2563eb;--sell:#ea580c;--hold:#64748b;
+  --gold:#d97706;--grass:#16a34a;
+  --g:22,163,74;--r:220,38,38;--grn:#22c55e;--rd:#ef4444;--th:rgba(var(--g),0.3);--tl:rgba(var(--g),0.05);--thr:rgba(var(--r),0.3);--tlr:rgba(var(--r),0.05);
   --shadow:0 2px 12px rgba(0,0,0,0.08);
 }
 body.light .sidebar{background:#ffffff!important}
