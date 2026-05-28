@@ -36,16 +36,60 @@ HISTORY_PATH = BASE_DIR / "news_history.json"
 
 def _key(item):
     """
-    Stable key for an item based on player + category.
-    Two items with the same key are about the same issue.
+    Stable key for an item based on player NAME + category.
+
+    We use the player's NAME (not pid) because Footywire renumbers players
+    between scrapes — a player who drops off the active list and reappears
+    gets a fresh pid, which made the previous pid-based key lose history and
+    re-tag every reappearance as 'new'. Cooper Lord shifting from pid 184 to
+    186 mid-week was the trigger for this change.
     """
-    pid  = str(item.get("pid") or "")
+    name = (item.get("player") or "").strip().lower()
     cat  = item.get("category", "general")
-    # For non-player items (price updates, general news) use headline hash
-    if not pid:
+    if not name:
+        # Non-player items: hash the headline so identical re-posts share a key.
         h = hashlib.md5(item.get("headline","")[:60].encode()).hexdigest()[:8]
         return f"noPlayer_{cat}_{h}"
-    return f"p{pid}_{cat}"
+    name_slug = re.sub(r"[^a-z0-9]+", "_", name).strip("_")
+    return f"n_{name_slug}_{cat}"
+
+
+def _migrate_legacy_keys(items):
+    """Convert any legacy `p{pid}_{cat}` history entries to the new name-based
+    keys, preserving first_seen / seen_count etc. Merges into an existing
+    name-keyed entry if one already exists. Runs once per load."""
+    legacy = [k for k in items if k.startswith("p") and "_" in k and k[1:].split("_")[0].isdigit()]
+    if not legacy:
+        return items, 0
+    migrated = 0
+    for old_k in legacy:
+        v = items[old_k]
+        if not isinstance(v, dict):
+            continue
+        last_item = v.get("last_item") or {}
+        new_k = _key(last_item)
+        if new_k.startswith("noPlayer_"):
+            # Couldn't recover a player name; just drop the legacy entry.
+            del items[old_k]
+            continue
+        existing = items.get(new_k)
+        if existing is None:
+            items[new_k] = v
+        else:
+            # Merge: keep the EARLIEST first_seen, the LATEST last_seen, and
+            # max seen_count + fingerprint of the newer record.
+            if v.get("first_seen", "") < existing.get("first_seen", ""):
+                existing["first_seen"] = v["first_seen"]
+            if v.get("last_seen", "") > existing.get("last_seen", ""):
+                existing["last_seen"]   = v.get("last_seen")
+                existing["last_fp"]     = v.get("last_fp", existing.get("last_fp"))
+                existing["last_status"] = v.get("last_status", existing.get("last_status"))
+                existing["last_item"]   = v.get("last_item", existing.get("last_item"))
+            existing["seen_count"] = (existing.get("seen_count", 0)
+                                      + v.get("seen_count", 0))
+        del items[old_k]
+        migrated += 1
+    return items, migrated
 
 
 def _fingerprint(item):
@@ -146,6 +190,15 @@ class NewsHistory:
                 # Backfill new top-level keys on older history files
                 data.setdefault("player_status",   {})
                 data.setdefault("team_selections", {})
+                # One-time migration: convert legacy pid-based keys to the
+                # name-based scheme so a player who got a new pid doesn't
+                # appear as brand-new in the feed.
+                items = data.get("items") or {}
+                if isinstance(items, dict):
+                    items, n = _migrate_legacy_keys(items)
+                    data["items"] = items
+                    if n:
+                        print(f"[news_history] migrated {n} legacy pid-keyed entries to name-keyed")
                 return data
             except Exception:
                 pass
