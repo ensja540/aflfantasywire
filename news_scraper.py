@@ -890,6 +890,14 @@ def _rss_item_to_news(item, source_name, reliability, player_idx):
     except Exception:
         time_label = ""
 
+    # Drop stale items. The Roar's RSS in particular re-surfaces articles months
+    # old (pre-season previews, "unsigned guns" lists) with their original
+    # pubDate — without this gate they appear as fresh news. 7-day window is
+    # broader than Google News's 3-day window because AFL RSS legitimately
+    # carries longer-form pieces that linger across a week.
+    if pub_iso is not None and mins > 7 * 24 * 60:
+        return None
+
     signal = None
     if cat == "injury_out":    signal = "sell"
     elif cat == "injury_tbc":  signal = "hold"
