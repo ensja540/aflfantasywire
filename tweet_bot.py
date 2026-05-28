@@ -10,9 +10,11 @@ BRAND RULES (enforced here, not free-text — so we can't hallucinate):
   - Tone: informative + a light steer ("one to keep an eye on", "worth a look").
   - No slang / dismissive terms.
   - Tweets are built ONLY from verifiable numbers (scores, 3-rd avg, season avg,
-    break-even, price, ownership). We NEVER state a cause/role/why a score moved.
-  - Classic tweets may use price / break-even / ownership. Draft tweets use form
-    only — never price/BE/ownership.
+    floor/ceiling, consistency, ownership). We NEVER state a cause/role/why a
+    score moved.
+  - Classic tweets lead with form and a unique data insight (recent streak,
+    scoring spread, consistency); price/BE are gate signals only, not in the
+    tweet text. Draft tweets stay form-only.
   - Breaking only when an item is genuinely fresh (NewsHistory status == "new").
 
 USAGE
@@ -74,29 +76,61 @@ def played_scores(p):
     return [s for s in (p.get("scores") or []) if s and s > 0]
 
 
+def _data_insight(p):
+    """One short factual data tail for a tweet (or '' if nothing notable).
+    The point is to add a number the casual feeds don't surface — streak floor,
+    scoring spread, or consistency — rather than restating price every time."""
+    ps = played_scores(p)
+    floor   = int(p.get("floor")   or 0)
+    ceiling = int(p.get("ceiling") or 0)
+    con     = int(p.get("consistency") or 0)
+    # Streak — a uniformly-high recent floor is the most compelling.
+    if len(ps) >= 5:
+        low5 = min(ps[-5:])
+        if low5 >= 90:
+            return f"Hasn't dropped below {low5}SC in five weeks"
+        if low5 >= 75:
+            return f"Five-week floor of {low5}SC"
+    # Spread — flags boom/bust profiles.
+    if floor and ceiling and (ceiling - floor) >= 50:
+        return f"Swings between {floor} and {ceiling}SC this year"
+    # Consistency tail when neither streak nor spread applies.
+    if con >= 80:
+        return f"{con}% consistency rating across the season"
+    if con and con <= 55:
+        return f"{con}% consistency rating, volatile profile"
+    if floor and ceiling:
+        return f"Floor {floor}SC, ceiling {ceiling}SC this year"
+    return ""
+
+
 def classic_tweets(players):
     out = []
     for p in players:
         avg = p.get("scAvg") or 0
         avg3 = p.get("scAvg3") or 0
         be = p.get("breakeven") or 0
-        price = p.get("price") or 0
         own = p.get("owned") or 0
         if not avg or len(played_scores(p)) < 3:
             continue
         gap = avg3 - avg
         l3 = scoreline(played_scores(p), 3)
-        own_bit = f", {own}% owned" if own else ""
+        own_bit = f" {own}% owned." if own else ""
+        insight = _data_insight(p)
+        tail = f" {insight}." if insight else ""
+        # BE gate retained — it's a useful signal filter — but the price/BE
+        # numbers are no longer in the tweet text (the brief is to lead with
+        # unique data analysis, not restate the price chart).
         if gap >= RISE_GAP and 0 < be < avg3:
             out.append(("classic", p["id"], "crise",
                         f"{p['name']} trending up, {round(avg3)}SC over his "
-                        f"past three ({l3}), up from {round(avg)}SC for the season. "
-                        f"Now {money(price)}{own_bit}. {HASHTAGS}"))
+                        f"past three ({l3}), up from {round(avg)}SC for the season."
+                        f"{tail}{own_bit} {HASHTAGS}"))
         elif gap <= FALL_GAP and be > avg3:
             out.append(("classic", p["id"], "cfall",
                         f"{p['name']} cooling off, {round(avg3)}SC over his past "
-                        f"three ({l3}) vs {round(avg)}SC for the year. Now "
-                        f"{money(price)}, price set to slide. {HASHTAGS}"))
+                        f"three ({l3}) vs {round(avg)}SC for the year."
+                        f"{tail} {HASHTAGS}"))
     return out
 
 
