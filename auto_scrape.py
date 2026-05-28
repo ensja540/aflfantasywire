@@ -306,6 +306,18 @@ def run_once() -> None:
     else:
         bits.append("Skipped push (both scrapers failed).")
 
+    # Web Push — notify subscribers of fresh news matching their watchlist.
+    # No-ops if there are no subs / no fresh matches, so safe every cycle.
+    try:
+        nf = subprocess.run([sys.executable, str(BASE_DIR / "notify.py")],
+                            cwd=str(BASE_DIR), capture_output=True, text=True,
+                            encoding="utf-8", errors="replace", env=_UTF8_ENV, timeout=120)
+        nt = (nf.stdout or "").strip().splitlines()
+        if nt:
+            log.info("notify: " + nt[-1])
+    except Exception as e:
+        log.warning(f"notify failed: {e}")
+
     # SuperCoach live feed — pulls at most once per AM/arvo/PM window (3x/day,
     # AEST); no-ops otherwise, so it's safe to call every cycle.
     try:

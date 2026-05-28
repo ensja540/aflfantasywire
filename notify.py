@@ -145,6 +145,71 @@ def _endpoint_key(endpoint):
     return hashlib.sha256(endpoint.encode("utf-8")).hexdigest()[:16]
 
 
+TEST_PAYLOAD = {
+    "title": "Test — AFLFantasyWire",
+    "body": "Push notifications are working!",
+    "url": "https://aflfantasywire.com",
+    "tag": "afw-test",
+}
+
+
+def run_test():
+    """Send one fixed test notification to every stored subscriber, ignoring
+    watchlists and freshness. Verifies the push pipeline end-to-end:
+        python notify.py --test
+    """
+    _load_env()
+    base = os.environ.get("AFW_BASE", "https://aflfantasywire.com").rstrip("/")
+    secret = os.environ.get("PUSH_LIST_SECRET")
+    priv = os.environ.get("VAPID_PRIVATE_KEY")
+    subject = os.environ.get("VAPID_SUBJECT")
+    if not (secret and priv and subject):
+        print("notify: missing PUSH_LIST_SECRET / VAPID_PRIVATE_KEY / VAPID_SUBJECT in .env; cannot send test.")
+        return
+
+    from pywebpush import webpush, WebPushException
+
+    vapid = _build_vapid(priv)
+    claims_base = {"sub": subject}
+
+    try:
+        r = requests.get(base + "/api/subscriptions", params={"secret": secret}, timeout=SEND_TIMEOUT)
+        r.raise_for_status()
+        subs = r.json().get("subscriptions", [])
+    except Exception as e:
+        print("notify: could not fetch subscriptions:", e)
+        return
+    if not subs:
+        print("notify: no subscriptions stored; nothing to test.")
+        return
+
+    payload = json.dumps(TEST_PAYLOAD)
+    sent = 0
+    pruned = 0
+    for entry in subs:
+        sub = entry.get("subscription") or {}
+        endpoint = sub.get("endpoint")
+        if not endpoint:
+            continue
+        try:
+            webpush(subscription_info=sub, data=payload,
+                    vapid_private_key=vapid, vapid_claims=dict(claims_base),
+                    timeout=SEND_TIMEOUT)
+            sent += 1
+        except WebPushException as e:
+            code = getattr(getattr(e, "response", None), "status_code", None)
+            if code in (404, 410):
+                try:
+                    requests.post(base + "/api/unsubscribe",
+                                  json={"endpoint": endpoint}, timeout=SEND_TIMEOUT)
+                except Exception:
+                    pass
+                pruned += 1
+            else:
+                print("notify: test send failed (%s) for %s" % (code, _endpoint_key(endpoint)))
+    print("notify: test sent %d notification(s); pruned %d dead subscription(s)." % (sent, pruned))
+
+
 def run():
     _load_env()
     base = os.environ.get("AFW_BASE", "https://aflfantasywire.com").rstrip("/")
@@ -240,7 +305,10 @@ def run():
 
 if __name__ == "__main__":
     try:
-        run()
+        if "--test" in sys.argv[1:]:
+            run_test()
+        else:
+            run()
     except Exception as e:
         print("notify: fatal:", e)
         sys.exit(1)
