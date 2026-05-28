@@ -305,6 +305,7 @@ _NAME_ALIASES = {
     "Daniel Butler": "Dan Butler",
     "Harry Petty": "Harrison Petty",
     "Lachlan Ash": "Lachie Ash",
+    "Cal Wilkie": "Callum Wilkie",
 }
 
 
@@ -735,6 +736,13 @@ def _name_patterns(players_json_path):
         last = n.split()[-1].lower()
         surname_count[last] = surname_count.get(last, 0) + 1
 
+    # Build an inverse alias map: canonical name -> set of alias spellings.
+    # E.g. {"Callum Wilkie": {"Cal Wilkie"}}. Lets us match nicknames/short forms
+    # in article text against the canonical player record.
+    inv_alias = {}
+    for alias_name, canonical in _NAME_ALIASES.items():
+        inv_alias.setdefault(canonical, set()).add(alias_name)
+
     patterns = []
     for p in player_list:
         n = (p.get("name") or "").strip()
@@ -745,6 +753,10 @@ def _name_patterns(players_json_path):
         # because the full name is specific enough that miscasing in the source
         # text is unlikely to cause a false hit.
         patterns.append((re.compile(r"\b" + re.escape(n) + r"\b", re.IGNORECASE), p, True))
+        # Also accept any registered alias spellings (e.g. "Cal Wilkie" → Callum
+        # Wilkie's record). Treated as full-name matches so they take priority.
+        for alt in inv_alias.get(n, ()):
+            patterns.append((re.compile(r"\b" + re.escape(alt) + r"\b", re.IGNORECASE), p, True))
         # Surname-only — only safe when this surname uniquely identifies one
         # player. With 66 shared surnames (3 Berrys, 2 Daicos, 4 Reids…) using
         # surname alone would systematically mis-attribute mentions.
@@ -780,7 +792,7 @@ def extract_player_mentions(article_text, headline, article_url, source, time_st
     article_seen_pids = set()
     if seen_keys is None:
         seen_keys = set()
-    MAX_PER_ARTICLE = 3
+    MAX_PER_ARTICLE = 5
 
     for sentence in sentences:
         if len(items) >= MAX_PER_ARTICLE:
@@ -789,24 +801,24 @@ def extract_player_mentions(article_text, headline, article_url, source, time_st
         if len(body) < 20:
             continue
 
-        match = None
+        # Collect every distinct player mentioned in this sentence — a single
+        # sentence in a review piece often lists multiple players ("Murphy Reid
+        # impressed while teammate Patrick Voss…"), and breaking after the first
+        # match would drop the rest.
+        sentence_matches = []
+        seen_in_sentence = set()
         for pattern, player, _is_full in patterns:
             if pattern.search(body):
-                match = player
-                break
-        if not match:
+                pid_p = player.get("id")
+                if pid_p in seen_in_sentence:
+                    continue
+                seen_in_sentence.add(pid_p)
+                sentence_matches.append(player)
+        if not sentence_matches:
             continue
 
-        pid_val = match.get("id")
-        if pid_val in article_seen_pids:
-            continue
-        article_seen_pids.add(pid_val)
-
-        key = (pid_val, body[:60].lower())
-        if key in seen_keys:
-            continue
-        seen_keys.add(key)
-
+        # Classify once per sentence; every player in this sentence inherits the
+        # same type/category since they share the same body text.
         sl = body.lower()
         if any(w in sl for w in ("ruled out", "will miss", "out for the season",
                                  "season-ending", "season ending")):
@@ -821,35 +833,48 @@ def extract_player_mentions(article_text, headline, article_url, source, time_st
         else:
             item_type, category = "news", "general"
 
-        player_name = match.get("name") or ""
-        handle = "@" + re.sub(r"\W", "", (source or "").lower())[:12]
-        items.append({
-            "id":           None,
-            "type":         item_type,
-            "category":     category,
-            "urgent":       item_type == "injury" and category == "injury_out",
-            "player":       player_name,
-            "pid":          pid_val,
-            "team":         match.get("team"),
-            "pos":          None,
-            "source":       source,
-            "sourceHandle": handle,
-            "reliability":  65,
-            "time":         time_str or "",
-            "timeLabel":    time_str or "",
-            "headline":     (player_name + ": " + body)[:150],
-            "body":         body[:400],
-            "link":         article_url,
-            "signal":       "sell" if category == "injury_out"
-                            else "hold" if category == "injury_tbc" else None,
-            "signalConf":   55,
-            "tags":         [category.replace("_", " ").title(), player_name],
-            "stats":        [],
-            "is_rumour":    False,
-            "relevance":    60,
-            "_source":      "article_parse",
-            "pubISO":       None,
-        })
+      # Emit one item per distinct player matched in this sentence (dedup against
+      # article-level + caller-level seen sets).
+        for match in sentence_matches:
+            if len(items) >= MAX_PER_ARTICLE:
+                break
+            pid_val = match.get("id")
+            if pid_val in article_seen_pids:
+                continue
+            article_seen_pids.add(pid_val)
+            key = (pid_val, body[:60].lower())
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            player_name = match.get("name") or ""
+            handle = "@" + re.sub(r"\W", "", (source or "").lower())[:12]
+            items.append({
+                "id":           None,
+                "type":         item_type,
+                "category":     category,
+                "urgent":       item_type == "injury" and category == "injury_out",
+                "player":       player_name,
+                "pid":          pid_val,
+                "team":         match.get("team"),
+                "pos":          None,
+                "source":       source,
+                "sourceHandle": handle,
+                "reliability":  65,
+                "time":         time_str or "",
+                "timeLabel":    time_str or "",
+                "headline":     (player_name + ": " + body)[:150],
+                "body":         body[:400],
+                "link":         article_url,
+                "signal":       "sell" if category == "injury_out"
+                                else "hold" if category == "injury_tbc" else None,
+                "signalConf":   55,
+                "tags":         [category.replace("_", " ").title(), player_name],
+                "stats":        [],
+                "is_rumour":    False,
+                "relevance":    60,
+                "_source":      "article_parse",
+                "pubISO":       None,
+            })
     return items
 
 
