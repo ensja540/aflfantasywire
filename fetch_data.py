@@ -1321,6 +1321,52 @@ NAME_ALIASES = {
 }
 
 
+# Players we want news-tagged even if they aren't on Footywire's active stats
+# list (long-term injuries, off-contract rookies, mid-season signings). They get
+# placeholder stats so the news extractor's name lookup matches them; they won't
+# show up in Rankings/Waiver because their averages are 0. IDs are in a high
+# range (9000+) to make them obviously synthetic and avoid colliding with
+# Footywire's IDs.
+MANUAL_EXTRAS = [
+    {"id": 9001, "name": "Will Day",       "team": "Hawthorn",   "pos": "MID", "positions": ["MID"]},
+    {"id": 9002, "name": "Marcus Herbert", "team": "West Coast", "pos": "FWD", "positions": ["FWD"]},
+]
+
+
+def _build_extras(existing_names):
+    """Return a list of synthetic player records for the manual extras that
+    aren't already covered by Footywire's roster."""
+    out = []
+    for x in MANUAL_EXTRAS:
+        if x["name"] in existing_names:
+            continue
+        team = x["team"]
+        colours = TEAM_COLOURS.get(team, {"tc": "#888888", "tb": "rgba(128,128,128,0.14)"})
+        parts = x["name"].split()
+        init = (parts[0][:1] + parts[-1][:1]).upper() if parts else ""
+        out.append({
+            "id": x["id"], "name": x["name"], "init": init,
+            "team": team, "pos": x["pos"], "positions": x["positions"],
+            "tc": colours["tc"], "tb": colours["tb"],
+            "signal": None, "signalConf": 0,
+            "rank": 999, "afRank": 999, "owned": 0, "classicOwned": 0,
+            "classicAvg": 0, "classicAvg3": 0, "classicProj": 0, "classicPrice": 0,
+            "scAvg": 0, "scAvg3": 0, "lastScore": 0, "lastRound": "",
+            "dtAvg": 0, "dtAvg3": 0, "dtLast": 0,
+            "price": 0, "priceDelta": 0, "breakeven": 0, "dtBe": 0,
+            "disposals": 0, "clearances": 0, "tackles": 0, "goals": 0, "marks": 0, "hitouts": 0,
+            "roundStats": [], "scores": [], "dtScores": [], "prices": [],
+            "ceiling": 0, "floor": 0, "consistency": 0,
+            "bshCommunity": {"buy": 0, "hold": 0, "sell": 0},
+            "injuryStatus": "unknown", "injuryDetail": "",
+            "tags": ["Watch"], "bshReason": "",
+            "scheduleRating": [], "news": [],
+            "_source": "manual_extras",
+            "gamesBySeason": [], "injuryRisk": 0, "injuryRiskLabel": "Unknown", "injuryMissed": 0,
+        })
+    return out
+
+
 CAREERS_PATH = BASE_DIR / "careers.json"
 CAREER_TTL_DAYS = 7          # refresh each player's career data weekly
 CAREER_TIME_LIMIT = 120      # seconds per run (incremental — fills over a few runs)
@@ -1737,6 +1783,15 @@ def main():
         fetch_careers(session, players, sc_players)
     except Exception as _e:
         log.warning(f"Career fetch failed: {_e}")
+
+    # Append manual extras (long-term injured / unsigned players we want news
+    # to tag) — they're skipped if Footywire has already brought them in.
+    _existing = {p.get("name") for p in players if isinstance(p, dict)}
+    _extras = _build_extras(_existing)
+    if _extras:
+        players.extend(_extras)
+        log.info(f"Manual extras: added {len(_extras)} ({', '.join(x['name'] for x in _extras)})")
+
     global LAST_PLAYERS
     LAST_PLAYERS = players
     write_output(players, sc_players, dt_players, injuries, selections)
