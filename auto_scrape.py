@@ -42,6 +42,13 @@ SCRIPT_TIMEOUT_SEC = 20 * 60   # 20 minutes
 MAX_NO_CHANGE_RUNS = 6
 _no_change_streak  = 0
 
+# Run the Claude-powered quality agent (agent_monitor.py) every Nth cycle.
+# Interval = 15 min × 2 = ~30 min between agent checks. Agent fixes news.json
+# in place; the next push picks them up. It also writes proposed_upstream_fixes
+# .json for human review (Pass 2) — never commits or pushes code itself.
+AGENT_RUN_EVERY    = 2
+_agent_run_counter = 0
+
 # Fields that change every run regardless of real data (timestamps, ids,
 # recomputed relevance). Excluded from the change signature so timestamp-only
 # churn (e.g. "1h ago" -> "2h ago") doesn't look like a real update.
@@ -317,6 +324,26 @@ def run_once() -> None:
             log.info("notify: " + nt[-1])
     except Exception as e:
         log.warning(f"notify failed: {e}")
+
+    # Claude quality agent — runs every AGENT_RUN_EVERY cycles (~30 min).
+    # No-ops when ANTHROPIC_API_KEY is missing. Applies safe fixes to news.json
+    # only; never edits source code. Writes proposed_upstream_fixes.json for
+    # human review when applicable.
+    global _agent_run_counter
+    _agent_run_counter += 1
+    if _agent_run_counter >= AGENT_RUN_EVERY:
+        _agent_run_counter = 0
+        try:
+            ar = subprocess.run([sys.executable, str(BASE_DIR / "agent_monitor.py")],
+                                cwd=str(BASE_DIR), capture_output=True, text=True,
+                                encoding="utf-8", errors="replace",
+                                env=_UTF8_ENV, timeout=180)
+            at = (ar.stdout or "").strip().splitlines()
+            for ln in at:
+                if ln.strip():
+                    log.info("agent: " + ln.strip())
+        except Exception as e:
+            log.warning(f"agent monitor failed: {e}")
 
     # SuperCoach live feed — pulls at most once per AM/arvo/PM window (3x/day,
     # AEST); no-ops otherwise, so it's safe to call every cycle.
