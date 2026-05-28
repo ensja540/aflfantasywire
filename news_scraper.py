@@ -695,6 +695,163 @@ def _classify_headline(text):
     return "news", "general"
 
 
+# Per-player extraction: turn a long article body (a podcast review, multi-player
+# analysis piece, etc.) into one news item per uniquely-identifiable player so
+# those mentions are tagged individually instead of buried in a single blob.
+#
+# Safety rules — without these, naive substring matching mass-mis-tags the feed:
+#   * Word-boundary regex (\b...\b): "Day" must not match "Monday"/"matchday".
+#   * Shared surnames (Smith/Daicos/Berry/Reid… 66 of them in our roster) are
+#     ONLY matched on the full name; surname-only matches are kept for surnames
+#     that uniquely identify one player.
+#   * Cap of MAX_PER_ARTICLE items so a podcast naming 12 players doesn't flood
+#     news.json; one item per (pid) per article.
+#   * Caller-shared `seen_keys` set dedupes (pid, body-prefix) across articles
+#     in the same scrape run.
+_NAME_PATTERNS_CACHE = None  # built once per scrape, keyed on players.json mtime
+
+
+def _name_patterns(players_json_path):
+    """Build (and cache) the (regex, player, is_full_name) match list."""
+    global _NAME_PATTERNS_CACHE
+    mtime = players_json_path.stat().st_mtime if players_json_path.exists() else 0
+    if _NAME_PATTERNS_CACHE and _NAME_PATTERNS_CACHE[0] == mtime:
+        return _NAME_PATTERNS_CACHE[1]
+
+    try:
+        with open(players_json_path, encoding="utf-8") as f:
+            pdata = json.load(f)
+    except Exception:
+        _NAME_PATTERNS_CACHE = (mtime, [])
+        return []
+    player_list = pdata.get("players", pdata) if isinstance(pdata, dict) else pdata
+
+    surname_count = {}
+    for p in player_list:
+        n = (p.get("name") or "").strip()
+        if not n:
+            continue
+        last = n.split()[-1].lower()
+        surname_count[last] = surname_count.get(last, 0) + 1
+
+    patterns = []
+    for p in player_list:
+        n = (p.get("name") or "").strip()
+        if not n:
+            continue
+        last = n.split()[-1]
+        # Full name pattern — always added, always preferred. Case-insensitive
+        # because the full name is specific enough that miscasing in the source
+        # text is unlikely to cause a false hit.
+        patterns.append((re.compile(r"\b" + re.escape(n) + r"\b", re.IGNORECASE), p, True))
+        # Surname-only — only safe when this surname uniquely identifies one
+        # player. With 66 shared surnames (3 Berrys, 2 Daicos, 4 Reids…) using
+        # surname alone would systematically mis-attribute mentions.
+        # Case-SENSITIVE here: surnames are proper nouns, always capitalised in
+        # real prose, but several ("May", "Day", "Read", "Sweet", "Long", "King",
+        # "Ross") are common English words. Matching case-sensitively means we
+        # tag "Archie May" but not the verb "may".
+        if surname_count.get(last.lower(), 0) == 1 and len(last) >= 3:
+            patterns.append((re.compile(r"\b" + re.escape(last) + r"\b"), p, False))
+    # Try full-name matches before surname-only matches.
+    patterns.sort(key=lambda t: 0 if t[2] else 1)
+    _NAME_PATTERNS_CACHE = (mtime, patterns)
+    return patterns
+
+
+def extract_player_mentions(article_text, headline, article_url, source, time_str,
+                            seen_keys=None):
+    """Return per-player news items extracted from `article_text`.
+
+    Empty list when there's nothing usable (no body, body too short, or no
+    matching players). See the comment above for the safety rules.
+    """
+    if not article_text or len(article_text) < 200:
+        return []
+
+    patterns = _name_patterns(BASE_DIR / "players.json")
+    if not patterns:
+        return []
+
+    sentences = re.split(r"(?<=[.!?])\s+", article_text.strip())
+
+    items = []
+    article_seen_pids = set()
+    if seen_keys is None:
+        seen_keys = set()
+    MAX_PER_ARTICLE = 3
+
+    for sentence in sentences:
+        if len(items) >= MAX_PER_ARTICLE:
+            break
+        body = sentence.strip()
+        if len(body) < 20:
+            continue
+
+        match = None
+        for pattern, player, _is_full in patterns:
+            if pattern.search(body):
+                match = player
+                break
+        if not match:
+            continue
+
+        pid_val = match.get("id")
+        if pid_val in article_seen_pids:
+            continue
+        article_seen_pids.add(pid_val)
+
+        key = (pid_val, body[:60].lower())
+        if key in seen_keys:
+            continue
+        seen_keys.add(key)
+
+        sl = body.lower()
+        if any(w in sl for w in ("ruled out", "will miss", "out for the season",
+                                 "season-ending", "season ending")):
+            item_type, category = "injury", "injury_out"
+        elif any(w in sl for w in ("injured", "injury", "hamstring", "knee", "shoulder",
+                                   "calf", "concussion", "ankle", "groin", "quad",
+                                   "soreness", "setback", "sidelined", "achilles")):
+            item_type, category = "injury", "injury_tbc"
+        elif any(w in sl for w in ("named", "recalled", "dropped", "omitted",
+                                   "selected", "late out", "late change", " returns")):
+            item_type, category = "selection", "team_news"
+        else:
+            item_type, category = "news", "general"
+
+        player_name = match.get("name") or ""
+        handle = "@" + re.sub(r"\W", "", (source or "").lower())[:12]
+        items.append({
+            "id":           None,
+            "type":         item_type,
+            "category":     category,
+            "urgent":       item_type == "injury" and category == "injury_out",
+            "player":       player_name,
+            "pid":          pid_val,
+            "team":         match.get("team"),
+            "pos":          None,
+            "source":       source,
+            "sourceHandle": handle,
+            "reliability":  65,
+            "time":         time_str or "",
+            "timeLabel":    time_str or "",
+            "headline":     (player_name + ": " + body)[:150],
+            "body":         body[:400],
+            "link":         article_url,
+            "signal":       "sell" if category == "injury_out"
+                            else "hold" if category == "injury_tbc" else None,
+            "signalConf":   55,
+            "tags":         [category.replace("_", " ").title(), player_name],
+            "stats":        [],
+            "is_rumour":    False,
+            "relevance":    60,
+            "_source":      "article_parse",
+            "pubISO":       None,
+        })
+    return items
+
+
 def _rss_item_to_news(item, source_name, reliability, player_idx):
     """Build a news item dict from one RSS <item> element, or None if not
     relevant. `item` is an xml.etree element."""
@@ -781,10 +938,21 @@ def _parse_rss_feed(session, feed_url, source_name, reliability, player_idx):
         return out
     feed_items = root.findall(".//item")
     log.info(f"  {source_name}: {len(feed_items)} raw items ({feed_url})")
+    seen_keys = set()  # dedupe (pid, body-prefix) for per-player extracts in this feed
     for item in feed_items:
         it = _rss_item_to_news(item, source_name, reliability, player_idx)
         if it:
             out.append(it)
+            # Also split the article snippet into per-player mentions so a podcast
+            # review listing multiple players surfaces as individual items.
+            content = item.findtext("{http://purl.org/rss/1.0/modules/content/}encoded") or ""
+            desc    = item.findtext("description") or ""
+            body_text = BeautifulSoup(content or desc, "lxml").get_text(" ", strip=True)
+            head     = item.findtext("title") or ""
+            link     = item.findtext("link") or ""
+            time_lbl = it.get("timeLabel") or it.get("time") or ""
+            out.extend(extract_player_mentions(body_text, head, link, source_name,
+                                                time_lbl, seen_keys=seen_keys))
     return out
 
 
@@ -861,6 +1029,7 @@ def scrape_google_news(session, player_idx):
     feed (and the only working source for the rumour mill)."""
     from urllib.parse import quote
     items = []
+    gn_seen_keys = set()  # dedupe extracted per-player mentions across all queries
     for query, reliability, is_rumour in GOOGLE_NEWS_QUERIES:
         url = GOOGLE_NEWS_RSS.format(q=quote(query))
         r = fetch(session, url)
@@ -986,6 +1155,11 @@ def scrape_google_news(session, player_idx):
                 "pubISO":       pub_iso,
             })
             kept += 1
+            # Extract per-player mentions from the article snippet so multi-player
+            # pieces (podcast reviews etc.) aren't reduced to a single blob.
+            for sub in extract_player_mentions(_clean, headline, link, publisher,
+                                                time_label, seen_keys=gn_seen_keys):
+                items.append(sub)
 
         log.info(f"Google News: '{query}' -> {kept} items")
         time.sleep(0.6)
