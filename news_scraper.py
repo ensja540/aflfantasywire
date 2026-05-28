@@ -2914,11 +2914,22 @@ def reclassify_item(item):
         return item
     headline = (item.get("headline", "") + " " + item.get("body", "")).lower()
 
-    # Injury keywords - highest priority
-    if any(x in headline for x in ["out:", "tbc:", "hamstring", "knee", "shoulder", "concussion",
-                                   "ankle", "calf", "foot", "hip", "groin", "ruled out", "will miss",
-                                   "injury", "injured", "soreness", "sore", "managed",
-                                   "test his fitness", "race the clock", "in doubt"]):
+    # Injury keywords — highest priority. Distinguish:
+    #   * phrase matches: substring is fine (':' / spaces prevent collisions)
+    #   * word matches:  require \b boundaries so "foot" doesn't catch "footy",
+    #     "hip" doesn't catch "championship", "sore" doesn't catch "scoreboard".
+    #     This bug was reclassifying nearly every AFL article as injury_tbc
+    #     because "footy" is everywhere in the prose.
+    _INJ_PHRASES = ("out:", "tbc:", "ruled out", "will miss",
+                    "test his fitness", "race the clock", "in doubt")
+    _INJ_WORDS = ("hamstring", "knee", "shoulder", "concussion", "ankle", "calf",
+                  "foot", "hip", "groin", "injury", "injured", "soreness", "sore",
+                  "managed")
+    _is_injury = (
+        any(p in headline for p in _INJ_PHRASES)
+        or any(re.search(r"\b" + re.escape(w) + r"\b", headline) for w in _INJ_WORDS)
+    )
+    if _is_injury:
         item["type"] = "injury"
         item["category"] = "injury_out" if any(x in headline for x in ["out:", "ruled out", "will miss", "season"]) else "injury_tbc"
         return item
@@ -2970,11 +2981,15 @@ def enforce_category(item):
             item["_skip"] = True
             return item
 
-    injury_words = ["out:", "tbc:", "hamstring", "knee", "shoulder", "concussion",
-                    "ankle", "calf", "foot injury", "hip", "groin", "ruled out",
-                    "will miss", "injured", "soreness", "fracture", "strain",
-                    "torn", "managed", "racing the clock", "in doubt", "test his fitness"]
-    if any(w in text for w in injury_words):
+    # See `reclassify_item` above for why word boundaries matter for the short
+    # single-word keys — "hip" must NOT match "championship", etc.
+    _enf_phrases = ("out:", "tbc:", "foot injury", "ruled out", "will miss",
+                    "racing the clock", "in doubt", "test his fitness")
+    _enf_words = ("hamstring", "knee", "shoulder", "concussion", "ankle", "calf",
+                  "hip", "groin", "injured", "soreness", "fracture", "strain",
+                  "torn", "managed")
+    if (any(p in text for p in _enf_phrases)
+            or any(re.search(r"\b" + re.escape(w) + r"\b", text) for w in _enf_words)):
         item["type"] = "injury"
         item["category"] = "injury_out" if any(w in text for w in ["out:", "ruled out", "will miss", "season", "6-8 weeks", "4-6 weeks"]) else "injury_tbc"
         return item
