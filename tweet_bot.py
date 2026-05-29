@@ -19,6 +19,11 @@ BRAND RULES (enforced here, not free-text — so we can't hallucinate):
        B. DECLINE  — season avg > 80 AND both 3-game and 5-game avgs < 80
     Both windows on the same side of the 80 threshold = a sustained shift,
     not a one-game spike. The "consistent producer" template was removed.
+  - CTA SLOT (1 per day) — drives traffic to the site. Either a
+    rank-callout for a top-100 in-form player ("Ranked #15 in our live
+    SuperCoach rankings … see the full top 200: aflfantasywire.com") or
+    a generic risers callout. Mixed at a 1:2 ratio with stats tweets so
+    at DAILY_TARGET=3 the day reads as: 1 CTA / round-recap + 2 stats.
   - Breaking only when an item is genuinely fresh (NewsHistory status == "new").
 
 USAGE
@@ -212,6 +217,79 @@ def should_auto_post(log):
     return True, f"clear to post ({len(todays)}/{DAILY_TARGET} today, AEST {now:%H:%M})"
 
 
+SITE_URL = "aflfantasywire.com"
+
+
+def cta_tweets(players, log):
+    """Drive traffic to the site — at most 1 per day.
+
+    Two templates rotate based on what the data supports:
+
+      A. PLAYER RANK CALLOUT — a top-100 SC ranker who's also trending up.
+         "Bailey Dale is in form … ranked #15 in our live SuperCoach
+          rankings. See the full top 200: aflfantasywire.com"
+
+      B. GENERIC RISERS CALLOUT — when no single player is the obvious
+         hero of the day, surface that "N players are surging" and link
+         to the full list.
+
+    Per-day cap is enforced by scanning tweeted.json for any angle
+    starting with `cta_` posted today.
+    """
+    today = datetime.now().strftime("%Y-%m-%d")
+    for e in log.get("posted") or []:
+        ang = e.get("angle") or ""
+        if ang.startswith("cta_") and (e.get("at") or "")[:10] == today:
+            return []
+
+    # ── Template A: top-100 player who's trending up ──────────────────
+    candidates = []
+    for p in players:
+        avg  = p.get("scAvg")  or 0
+        avg3 = p.get("scAvg3") or 0
+        rank = p.get("rank")   or 999
+        if rank > 100 or avg < 60 or avg3 < 95:
+            continue
+        gap = avg3 - avg
+        if gap < 12:
+            continue
+        candidates.append((gap, p, rank))
+    if candidates:
+        # Largest 3-vs-season gap first — explicit key because the tuple
+        # contains a dict (not orderable in Python 3 when gaps tie).
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        gap, p, rank = candidates[0]
+        consistency = int(p.get("consistency") or 0)
+        return [(
+            "cta", p["id"], "cta_rank",
+            f"\U0001F4C8 {p['name']} is in form\n\n"
+            f"3-game: {round(p.get('scAvg3') or 0)}SC | "
+            f"Season: {round(p.get('scAvg') or 0)}SC\n"
+            f"Consistency: {consistency}%\n"
+            f"Ranked #{rank} in our live SuperCoach rankings\n\n"
+            f"See the full top 200: {SITE_URL}\n"
+            f"{HASHTAGS}"
+        )]
+
+    # ── Template B: generic risers callout (fallback) ─────────────────
+    n_risers = sum(
+        1 for p in players
+        if (p.get("scAvg3") or 0) - (p.get("scAvg") or 0) >= 18
+        and (p.get("scAvg") or 0) > 60
+        and (p.get("rank") or 999) <= 200
+    )
+    if n_risers >= 3:
+        return [(
+            "cta", 0, "cta_risers",
+            f"\U0001F4C8 {n_risers} players surging into trade-up territory this week.\n\n"
+            f"See the full risers list with 3-game / 5-game / season averages:\n"
+            f"{SITE_URL}\n\n"
+            f"{HASHTAGS}"
+        )]
+
+    return []
+
+
 def top10_tweet(players, log, current_round, min_players=250):
     """A single round-recap tweet with the round's top 10 SuperCoach scorers.
 
@@ -352,9 +430,11 @@ def pick(players, news, log):
 
     chosen, used_pids = [], set()
 
-    # Top-10 round recap goes first. Once per round, gated on enough games
-    # being in. Counts toward DAILY_TARGET like any other tweet.
-    chosen.extend(top10_tweet(players, log, current_round))
+    # Special slot — at most ONE per day. Round-recap (top10) takes priority
+    # when enough games are in; otherwise a CTA promotes a site section.
+    # Ratio: 1 special : 2 stats tweets (DAILY_TARGET=3 → 1 special + 2 stats).
+    specials = top10_tweet(players, log, current_round) or cta_tweets(players, log)
+    chosen.extend(specials)
     # Numbers/form/trends only — alternate Classic and Draft. (Injury "team news"
     # items were dropped: they weren't genuinely breaking or insightful.)
     order = ["classic", "draft"] * DAILY_TARGET
