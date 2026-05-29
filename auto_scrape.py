@@ -99,16 +99,11 @@ def _fetch_data_check() -> tuple[bool, str | None, str]:
     ``new_sig`` to ``.fetch_data_sig`` after a successful fetch_data run so
     the next cycle can skip if Footywire's stats page is unchanged.
     """
-    # 12-hour safety floor: never let player data go stale forever even if
-    # Footywire's content hash happens to drift identically.
-    try:
-        age_hours = (time.time() - FETCH_DATA_SIG_PATH.stat().st_mtime) / 3600
-        if age_hours > FETCH_DATA_MAX_GAP_HOURS:
-            return True, None, f"safety refresh ({int(age_hours)}h since last run)"
-    except FileNotFoundError:
-        return True, None, "first run"
-
-    # Cheap probe — single GET of the SC stats page, hash the body.
+    # Probe Footywire FIRST so we always have a fresh sig to save — even on
+    # first run. Previous version returned (True, None, "first run") if the
+    # sig file was missing, which meant `fetch_sig` stayed None, the sig
+    # never got written, and we hit "first run" again next cycle (i.e. the
+    # gate did nothing, fetch_data ran every cycle).
     try:
         req = urllib.request.Request(
             FW_SC_STATS_URL,
@@ -116,16 +111,24 @@ def _fetch_data_check() -> tuple[bool, str | None, str]:
         )
         with urllib.request.urlopen(req, timeout=15) as r:
             body = r.read(200_000)
+        new_sig = hashlib.sha256(body).hexdigest()
     except Exception as e:
-        # Probe failed — fall back to running so we don't silently stop the
-        # data pipeline because of a transient network issue.
+        # Probe failed — fall back to running so a transient network blip
+        # doesn't silently stop the data pipeline.
         return True, None, f"probe failed ({e})"
 
-    new_sig = hashlib.sha256(body).hexdigest()
+    # 12-hour safety floor: run regardless of hash equality.
+    try:
+        age_hours = (time.time() - FETCH_DATA_SIG_PATH.stat().st_mtime) / 3600
+        if age_hours > FETCH_DATA_MAX_GAP_HOURS:
+            return True, new_sig, f"safety refresh ({int(age_hours)}h since last run)"
+    except FileNotFoundError:
+        return True, new_sig, "first run"
+
     try:
         prev = FETCH_DATA_SIG_PATH.read_text(encoding="utf-8").strip()
     except FileNotFoundError:
-        prev = ""
+        return True, new_sig, "first run"
 
     if new_sig == prev:
         return False, new_sig, "Footywire stats unchanged"

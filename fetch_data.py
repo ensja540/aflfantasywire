@@ -1626,8 +1626,15 @@ def main():
     # Keep the games-log phase short so fetch_data never hits the 20-min
     # subprocess timeout. Only the top players get per-round form; a hard time
     # cap stops the phase early when Footywire is slow or rate-limiting.
-    MAX_GAMES_LOG = 50
-    GAMES_LOG_TIME_LIMIT = 180  # 3 minutes max
+    # Bumped to cover all players from games played in the current round.
+    # 4 teams × ~22 players per game = ~88 game participants per fixture day;
+    # top-50 missed most of them outside the elite players. 300 covers the
+    # tail (e.g. a fringe player who scores 100). 10-min cap keeps the
+    # phase from blowing past the 20-min auto_scrape timeout if Footywire
+    # is slow. Effective rate is ~2 s/page through the polite delay in
+    # `get()`, so 10 min ≈ 300 logs.
+    MAX_GAMES_LOG = 300
+    GAMES_LOG_TIME_LIMIT = 600  # 10 minutes max
     log.info(f"Fetching games log for top {MAX_GAMES_LOG} players (pg- URL)...")
     games_log_start = time.time()
     for i, p in enumerate(sc_players[:MAX_GAMES_LOG]):
