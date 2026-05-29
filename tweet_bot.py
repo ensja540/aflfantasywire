@@ -218,6 +218,12 @@ def should_auto_post(log):
 
 
 SITE_URL = "aflfantasywire.com"
+# Tab deep-links — the index.html hash router reads these on load and seeds
+# localStorage.afw_tab so the app boots straight into the right tab.
+LINK_RANKINGS = f"https://{SITE_URL}/#rankings"
+LINK_RISERS   = f"https://{SITE_URL}/#risers"
+LINK_FALLERS  = f"https://{SITE_URL}/#fallers"
+LINK_WAIVER   = f"https://{SITE_URL}/#waiver"
 
 
 def cta_tweets(players, log):
@@ -267,7 +273,7 @@ def cta_tweets(players, log):
             f"Season: {round(p.get('scAvg') or 0)}SC\n"
             f"Consistency: {consistency}%\n"
             f"Ranked #{rank} in our live SuperCoach rankings\n\n"
-            f"See the full top 200: {SITE_URL}\n"
+            f"See the full top 200: {LINK_RANKINGS}\n"
             f"{HASHTAGS}"
         )]
 
@@ -283,7 +289,7 @@ def cta_tweets(players, log):
             "cta", 0, "cta_risers",
             f"\U0001F4C8 {n_risers} players surging into trade-up territory this week.\n\n"
             f"See the full risers list with 3-game / 5-game / season averages:\n"
-            f"{SITE_URL}\n\n"
+            f"{LINK_RISERS}\n\n"
             f"{HASHTAGS}"
         )]
 
