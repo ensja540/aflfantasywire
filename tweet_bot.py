@@ -40,7 +40,7 @@ except Exception:
 BASE = Path(__file__).parent
 HASHTAGS = "#SuperCoach #AFLFantasy"
 TWEETED_LOG = BASE / "tweeted.json"
-DAILY_TARGET = 5
+DAILY_TARGET = 3
 # RISE_GAP / FALL_GAP no longer used — the trend gate is now an absolute
 # threshold (both 3-game and 5-game on the same side of 80 as season-avg's
 # inverse). Removed to keep the rules in one place.

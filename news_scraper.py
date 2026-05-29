@@ -1382,6 +1382,49 @@ def _find_nitter_rss_base(session):
     return None
 
 
+_TWITTER_RSS_STATE = BASE_DIR / ".twitter_rss_state"
+
+
+def _twitter_rss_should_pull():
+    """Mirror supercoach_feed's AM/arvo/PM windowing so this fetcher runs
+    at most 3x per day in AEST. Off-window cycles no-op; an in-window cycle
+    only fetches once per slot per day. Persists the last slot+date in
+    `.twitter_rss_state` (gitignored)."""
+    try:
+        from zoneinfo import ZoneInfo
+        aest = ZoneInfo("Australia/Melbourne")
+    except Exception:
+        return True, "no tz info — fetch anyway"
+    now = datetime.now(aest)
+    h = now.hour
+    slot = ("am" if 6 <= h < 12 else "arvo" if 12 <= h < 17
+            else "pm" if 17 <= h < 23 else None)
+    if not slot:
+        return False, f"outside AM/arvo/PM windows (AEST {now:%H:%M})"
+    try:
+        prev = _TWITTER_RSS_STATE.read_text(encoding="utf-8").strip()
+        # state format: "YYYY-MM-DD|slot"
+        if prev == f"{now:%Y-%m-%d}|{slot}":
+            return False, f"already pulled the {slot} slot today"
+    except FileNotFoundError:
+        pass
+    return True, f"{slot} slot due (AEST {now:%H:%M})"
+
+
+def _twitter_rss_mark_pulled():
+    try:
+        from zoneinfo import ZoneInfo
+        aest = ZoneInfo("Australia/Melbourne")
+        now = datetime.now(aest)
+        h = now.hour
+        slot = ("am" if 6 <= h < 12 else "arvo" if 12 <= h < 17
+                else "pm" if 17 <= h < 23 else None)
+        if slot:
+            _TWITTER_RSS_STATE.write_text(f"{now:%Y-%m-%d}|{slot}", encoding="utf-8")
+    except Exception as e:
+        log.warning(f"Could not save twitter_rss state: {e}")
+
+
 def scrape_twitter_rss(session, player_idx):
     """
     Pull AFL fantasy chatter from Nitter RSS feeds — more reliable and faster
@@ -1395,16 +1438,25 @@ def scrape_twitter_rss(session, player_idx):
     Rumours older than RUMOUR_MAX_AGE_HOURS (6h) are dropped as stale; official
     news is kept up to NEWS_MAX_AGE_HOURS (24h). pubDate (RFC-822) drives both
     the recency gate and the "5m ago" / "2h ago" timeLabel.
+
+    Gated to 3x/day (AM/arvo/PM windows, AEST) — see `_twitter_rss_should_pull`.
     """
     from email.utils import parsedate_to_datetime
 
     items = []
+    should, why = _twitter_rss_should_pull()
+    if not should:
+        log.info(f"Twitter RSS: skipped — {why}")
+        return items
     now   = datetime.now(timezone.utc)
 
     base = _find_nitter_rss_base(session)
     if not base:
         log.warning("Twitter RSS: no working Nitter RSS instance found — skipping")
         return items
+    # Past this point we're committed to a real fetch; mark the slot consumed
+    # so a transient instance outage doesn't burn extra runs in the same slot.
+    _twitter_rss_mark_pulled()
 
     for handle, source_name, reliability, is_official in TWITTER_RSS_ACCOUNTS:
         r = fetch(session, f"{base}/{handle}/rss")
