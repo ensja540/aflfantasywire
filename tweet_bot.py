@@ -212,6 +212,75 @@ def should_auto_post(log):
     return True, f"clear to post ({len(todays)}/{DAILY_TARGET} today, AEST {now:%H:%M})"
 
 
+def top10_tweet(players, log, current_round, min_players=250):
+    """A single round-recap tweet with the round's top 10 SuperCoach scorers.
+
+    Fires AT MOST ONCE per round. Will only fire when at least `min_players`
+    have a score for the current round — otherwise the top-10 would be the
+    top-of-Saturday-afternoon snapshot, not the actual round result. Once
+    posted, it's gated out for the rest of the round.
+
+    Uses `pid=0` (which is not a real player id) as a sentinel so the
+    standard per-player-per-round dedup leaves it alone.
+    """
+    if not current_round:
+        return []
+
+    # Already tweeted this round? Skip.
+    for e in log.get("posted") or []:
+        if e.get("angle") != "top10":
+            continue
+        try:
+            if int(e.get("round") or 0) == current_round:
+                return []
+        except (TypeError, ValueError):
+            pass
+
+    # Collect everyone who scored in the current round.
+    scored = []
+    for p in players or []:
+        try:
+            if int(p.get("lastRound") or 0) != current_round:
+                continue
+        except (TypeError, ValueError):
+            continue
+        scores = p.get("scores") or []
+        if scores and isinstance(scores[-1], (int, float)) and scores[-1] > 0:
+            scored.append((int(scores[-1]), p.get("name") or ""))
+
+    if len(scored) < min_players:
+        return []  # Wait until more games are in — current snapshot is partial.
+
+    scored.sort(reverse=True)
+    top = scored[:10]
+
+    def _shorten(name, mode="full"):
+        parts = name.split()
+        if len(parts) < 2:
+            return name
+        if mode == "initial":          # "B. Grundy"
+            return parts[0][0] + ". " + " ".join(parts[1:])
+        if mode == "lastname":         # "Grundy"
+            return parts[-1]
+        return name                    # "Brodie Grundy"
+
+    # Try progressively shorter formats until we fit ~278 chars.
+    for mode in ("full", "initial", "lastname"):
+        header = f"\U0001F3C6 Round {current_round} Top 10"
+        lines = [f"{i}. {_shorten(n, mode)} {s}SC"
+                 for i, (s, n) in enumerate(top, 1)]
+        text = header + "\n\n" + "\n".join(lines) + f"\n\n{HASHTAGS}"
+        if len(text) <= 278:
+            return [("topweek", 0, "top10", text)]
+
+    # Last resort: keep it under the limit even if a few names are clipped.
+    lines = [f"{i}. {_shorten(n, 'lastname')[:10]} {s}"
+             for i, (s, n) in enumerate(top, 1)]
+    text = (f"\U0001F3C6 R{current_round} Top 10\n\n"
+            + "\n".join(lines) + f"\n\n{HASHTAGS}")
+    return [("topweek", 0, "top10", text)]
+
+
 def _current_round(players):
     """Highest lastRound across all players — best proxy for 'this round'."""
     rs = []
@@ -282,6 +351,10 @@ def pick(players, news, log):
         pools[k].sort(key=lambda t: pid_gap.get(t[1], 0), reverse=True)
 
     chosen, used_pids = [], set()
+
+    # Top-10 round recap goes first. Once per round, gated on enough games
+    # being in. Counts toward DAILY_TARGET like any other tweet.
+    chosen.extend(top10_tweet(players, log, current_round))
     # Numbers/form/trends only — alternate Classic and Draft. (Injury "team news"
     # items were dropped: they weren't genuinely breaking or insightful.)
     order = ["classic", "draft"] * DAILY_TARGET
