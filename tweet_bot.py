@@ -12,10 +12,13 @@ BRAND RULES (enforced here, not free-text — so we can't hallucinate):
   - Tweets are built ONLY from verifiable numbers (3-game / 5-game / season
     averages, last-N scoreline, consistency rating, ownership). We NEVER state
     a cause/role/why a score moved.
-  - Layout uses 📈/📉/🎯 lead-emoji, blank lines for breathing room, both 3 and
+  - Layout uses 📈/📉 lead-emoji, blank lines for breathing room, both 3 and
     5-game averages side-by-side, and the consistency rating as a footer line.
-  - Price/BE are gate signals only — not in the tweet text. Classic still uses
-    BE for the rise/fall trigger; draft stays form-only.
+  - STRICT trend gate — only two categories qualify:
+       A. BREAKOUT — season avg < 80 AND both 3-game and 5-game avgs > 80
+       B. DECLINE  — season avg > 80 AND both 3-game and 5-game avgs < 80
+    Both windows on the same side of the 80 threshold = a sustained shift,
+    not a one-game spike. The "consistent producer" template was removed.
   - Breaking only when an item is genuinely fresh (NewsHistory status == "new").
 
 USAGE
@@ -38,8 +41,9 @@ BASE = Path(__file__).parent
 HASHTAGS = "#SuperCoach #AFLFantasy"
 TWEETED_LOG = BASE / "tweeted.json"
 DAILY_TARGET = 5
-RISE_GAP = 18   # 3-rd avg minus season avg to count as "rising"
-FALL_GAP = -18
+# RISE_GAP / FALL_GAP no longer used — the trend gate is now an absolute
+# threshold (both 3-game and 5-game on the same side of 80 as season-avg's
+# inverse). Removed to keep the rules in one place.
 
 
 def load_env():
@@ -88,26 +92,29 @@ def classic_tweets(players):
     for p in players:
         avg = p.get("scAvg") or 0
         avg3 = p.get("scAvg3") or 0
-        be = p.get("breakeven") or 0
         own = p.get("owned") or 0
         consistency = int(p.get("consistency") or 0)
         ps = played_scores(p)
-        if not avg or len(ps) < 3:
+        # Need at least 5 played scores so avg5 is meaningful — otherwise
+        # avg5 collapses to avg3 and the "both windows agree" gate is hollow.
+        if not avg or len(ps) < 5:
             continue
         avg5 = _avg_n(ps, 5)
-        gap = avg3 - avg
         l3 = scoreline(ps, 3)
         own_bit = f"\n{own}% owned" if own else ""
-        # BE gate retained — it's a useful signal filter — but the BE number
-        # itself stays out of the tweet text.
-        if gap >= RISE_GAP and 0 < be < avg3:
+        # Strict trend gates — only two categories are tweet-worthy:
+        #   A: BREAKOUT — season < 80 but BOTH 3-game and 5-game > 80
+        #      (low-base player now producing consistently).
+        #   B: DECLINE — season > 80 but BOTH 3-game and 5-game < 80
+        #      (premium that's faded over a sustained window, not a one-week dip).
+        if avg < 80 and avg3 > 80 and avg5 > 80:
             out.append(("classic", p["id"], "crise",
                         f"\U0001F4C8 {p['name']} trending up\n\n"
                         f"3-game: {round(avg3)}SC | 5-game: {avg5}SC | Season: {round(avg)}SC\n"
                         f"Last 3: {l3}\n\n"
                         f"Consistency rating: {consistency}%{own_bit}\n\n"
                         f"{HASHTAGS}"))
-        elif gap <= FALL_GAP and be > avg3:
+        elif avg > 80 and avg3 < 80 and avg5 < 80:
             out.append(("classic", p["id"], "cfall",
                         f"\U0001F4C9 {p['name']} cooling off\n\n"
                         f"3-game: {round(avg3)}SC | 5-game: {avg5}SC | Season: {round(avg)}SC\n"
@@ -121,31 +128,26 @@ def draft_tweets(players):
     out = []
     for p in players:
         ps = played_scores(p)
-        if len(ps) < 4:
+        # Same minimum as classic — 5 played games so avg5 is real.
+        if len(ps) < 5:
             continue
         avg = p.get("scAvg") or 0
+        if not avg:
+            continue
         avg3 = p.get("scAvg3") or 0
-        consistency = int(p.get("consistency") or 0)
-        gap = avg3 - avg
-        last5 = ps[-5:]
         avg5 = _avg_n(ps, 5)
+        consistency = int(p.get("consistency") or 0)
         l5 = scoreline(ps, 5)
-        if len(last5) >= 5 and min(last5) >= 85 and avg3 >= 100:
-            out.append(("draft", p["id"], "dcons",
-                        f"\U0001F3AF {p['name']} keeps producing\n\n"
-                        f"3-game: {round(avg3)}SC | 5-game: {avg5}SC\n"
-                        f"Last 5: {l5}\n"
-                        f"Five-week floor: {min(last5)}SC\n\n"
-                        f"Consistency rating: {consistency}%\n\n"
-                        f"{HASHTAGS}"))
-        elif gap >= RISE_GAP:
+        # Same two-category gate as classic. The "consistent producer" (dcons)
+        # template was removed — the brief is only A (breakout) or B (decline).
+        if avg < 80 and avg3 > 80 and avg5 > 80:
             out.append(("draft", p["id"], "drise",
                         f"\U0001F4C8 {p['name']} on the rise\n\n"
                         f"3-game: {round(avg3)}SC | 5-game: {avg5}SC | Season: {round(avg)}SC\n"
                         f"Last 5: {l5}\n\n"
                         f"Consistency rating: {consistency}%\n\n"
                         f"{HASHTAGS}"))
-        elif gap <= FALL_GAP:
+        elif avg > 80 and avg3 < 80 and avg5 < 80:
             out.append(("draft", p["id"], "dfall",
                         f"\U0001F4C9 {p['name']}'s output has eased\n\n"
                         f"3-game: {round(avg3)}SC | 5-game: {avg5}SC | Season: {round(avg)}SC\n"
