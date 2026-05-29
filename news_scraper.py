@@ -2382,6 +2382,16 @@ def scrape_club_news(session, player_idx):
                     title   = article.get("title","") or article.get("heading","")
                     summary = article.get("summary","") or article.get("description","") or article.get("subtitle","")
                     pub     = article.get("publishedDate","") or article.get("published","")
+                    # Build the article URL — AFL.com.au format is
+                    # `/news/{id}/{slug}`. The CMS gives both fields.
+                    art_id   = article.get("id") or article.get("contentId") or ""
+                    art_slug = article.get("urlSegment") or article.get("slug") or ""
+                    if art_id and art_slug:
+                        art_url = f"https://www.afl.com.au/news/{art_id}/{art_slug}"
+                    elif art_id:
+                        art_url = f"https://www.afl.com.au/news/{art_id}"
+                    else:
+                        art_url = article.get("url") or article.get("link") or ""
 
                     full_text = title + " " + summary
                     result = classify_item(full_text, title)
@@ -2433,6 +2443,7 @@ def scrape_club_news(session, player_idx):
                         "timeLabel":   time_label,
                         "headline":    title[:150],
                         "body":        summary[:400],
+                        "link":        art_url,
                         "signal":      signal,
                         "signalConf":  80,
                         "tags":        [cat.replace("_"," ").title(), team_name],
@@ -2462,6 +2473,12 @@ def scrape_club_news(session, player_idx):
             title = headline_el.get_text(strip=True)
             summary_el = card.find(["p","span"], class_=re.compile("summary|desc|lead|excerpt", re.I))
             summary = summary_el.get_text(strip=True) if summary_el else ""
+            # Article link — every card has an <a href="/news/..."> wrapping
+            # the headline or the card. Without this the front-end has nothing
+            # to deep-link to.
+            a_el = card.find("a", href=re.compile(r"/news/"))
+            href = a_el.get("href", "") if a_el else ""
+            art_url = href if href.startswith("http") else (f"https://www.afl.com.au{href}" if href else "")
 
             full_text = title + " " + summary
             result = classify_item(full_text, title)
@@ -2489,6 +2506,7 @@ def scrape_club_news(session, player_idx):
                 "timeLabel":   "recent",
                 "headline":    title[:150],
                 "body":        summary[:400],
+                "link":        art_url,
                 "signal":      signal,
                 "signalConf":  75,
                 "tags":        [cat.replace("_"," ").title(), team_name],
