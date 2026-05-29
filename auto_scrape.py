@@ -18,6 +18,7 @@ import os
 import subprocess
 import sys
 import time
+import urllib.request
 from datetime import datetime
 from pathlib import Path
 
@@ -29,6 +30,15 @@ BASE_DIR     = Path(__file__).resolve().parent
 LOG_PATH     = BASE_DIR / "scrape.log"
 SIG_PATH     = BASE_DIR / ".scrape_sig"
 INTERVAL_SEC = 15 * 60   # 15 minutes
+
+# Footywire's SuperCoach stats page is the source-of-truth for player
+# averages. We hash it once per cycle and only run fetch_data.py (which
+# pulls ~350 games-log pages) when the hash changes — i.e., when a new
+# game has actually completed and Footywire has processed the scores.
+# 12-hour safety refresh covers any case where the hash drifts without us.
+FW_SC_STATS_URL          = "https://www.footywire.com/afl/footy/supercoach_stats"
+FETCH_DATA_SIG_PATH      = BASE_DIR / ".fetch_data_sig"
+FETCH_DATA_MAX_GAP_HOURS = 12
 
 # Per-script subprocess timeout. fetch_data.py fetches ~350 games-log pages
 # sequentially with polite delays (~2s/player to avoid Footywire rate-limiting),
@@ -80,6 +90,46 @@ def _status(msg: str) -> None:
 def _endline() -> None:
     sys.stdout.write("\n")
     sys.stdout.flush()
+
+
+def _fetch_data_check() -> tuple[bool, str | None, str]:
+    """Decide whether `fetch_data.py` needs to run this cycle.
+
+    Returns ``(should_run, new_sig_or_None, reason)``. The caller persists
+    ``new_sig`` to ``.fetch_data_sig`` after a successful fetch_data run so
+    the next cycle can skip if Footywire's stats page is unchanged.
+    """
+    # 12-hour safety floor: never let player data go stale forever even if
+    # Footywire's content hash happens to drift identically.
+    try:
+        age_hours = (time.time() - FETCH_DATA_SIG_PATH.stat().st_mtime) / 3600
+        if age_hours > FETCH_DATA_MAX_GAP_HOURS:
+            return True, None, f"safety refresh ({int(age_hours)}h since last run)"
+    except FileNotFoundError:
+        return True, None, "first run"
+
+    # Cheap probe — single GET of the SC stats page, hash the body.
+    try:
+        req = urllib.request.Request(
+            FW_SC_STATS_URL,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
+        )
+        with urllib.request.urlopen(req, timeout=15) as r:
+            body = r.read(200_000)
+    except Exception as e:
+        # Probe failed — fall back to running so we don't silently stop the
+        # data pipeline because of a transient network issue.
+        return True, None, f"probe failed ({e})"
+
+    new_sig = hashlib.sha256(body).hexdigest()
+    try:
+        prev = FETCH_DATA_SIG_PATH.read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
+        prev = ""
+
+    if new_sig == prev:
+        return False, new_sig, "Footywire stats unchanged"
+    return True, new_sig, "Footywire stats changed"
 
 
 def run_script(script_name: str) -> tuple[bool, str]:
@@ -280,8 +330,22 @@ def run_once() -> None:
     timestamp = started.strftime("%Y-%m-%d %H:%M:%S")
     log.info(f"=== Auto-scrape run @ {timestamp} ===")
 
-    _status("Scraping... fetch_data.py")
-    fetch_ok, fetch_msg = run_script("fetch_data.py")
+    # Only re-fetch player stats when Footywire's SC stats page has actually
+    # changed (i.e. a game has finished and scores are processed). Each run
+    # of fetch_data.py hammers ~350 games-log pages over ~12 minutes; the
+    # ~95% of cycles where nothing has changed get skipped here.
+    should_fetch, fetch_sig, fetch_reason = _fetch_data_check()
+    if should_fetch:
+        _status("Scraping... fetch_data.py")
+        fetch_ok, fetch_msg = run_script("fetch_data.py")
+        if fetch_ok and fetch_sig:
+            try:
+                FETCH_DATA_SIG_PATH.write_text(fetch_sig, encoding="utf-8")
+            except Exception as _e:
+                log.warning(f"Could not save fetch_data signature: {_e}")
+    else:
+        log.info(f"fetch_data skipped: {fetch_reason}")
+        fetch_ok, fetch_msg = True, f"skipped — {fetch_reason}"
 
     _status("Scraping... news_scraper.py")
     news_ok, news_msg = run_script("news_scraper.py")

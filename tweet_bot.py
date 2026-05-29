@@ -212,13 +212,69 @@ def should_auto_post(log):
     return True, f"clear to post ({len(todays)}/{DAILY_TARGET} today, AEST {now:%H:%M})"
 
 
+def _current_round(players):
+    """Highest lastRound across all players — best proxy for 'this round'."""
+    rs = []
+    for p in players or []:
+        r = p.get("lastRound")
+        try:
+            r = int(r)
+            if r > 0:
+                rs.append(r)
+        except (TypeError, ValueError):
+            continue
+    return max(rs) if rs else 0
+
+
+def _pid_round_history(log):
+    """Map pid -> list of (round, angle) for every prior posted tweet."""
+    out = {}
+    for e in log.get("posted") or []:
+        pid = e.get("pid")
+        if pid is None:
+            continue
+        try:
+            rnd = int(e.get("round") or 0)
+        except (TypeError, ValueError):
+            rnd = 0
+        ang = e.get("angle") or ""
+        out.setdefault(pid, []).append((rnd, ang))
+    return out
+
+
+def _expand_for_momentum(text, angle):
+    """Rewrite the lead so a follow-up tweet about the same trend reads as
+    an update (`momentum building` / `slide deepening`) instead of restating
+    the same headline as last round."""
+    if angle in ("crise", "drise"):
+        text = text.replace(" trending up", " — momentum building", 1)
+        text = text.replace(" on the rise",  " — momentum building", 1)
+    else:
+        text = text.replace(" cooling off",         " — slide deepening", 1)
+        text = text.replace("'s output has eased", "'s slide is deepening", 1)
+    return text
+
+
 def pick(players, news, log):
-    """Pick up to DAILY_TARGET varied tweets not posted in the last 14 days."""
-    recent = {(e["pid"], e["angle"]) for e in log.get("posted", [])[-200:]}
+    """Pick up to DAILY_TARGET varied tweets.
+
+    Dedup rules (per user spec):
+      * One tweet per player per round — strict, regardless of angle. If
+        a player already got any tweet this round, they're locked out.
+      * If a player was tweeted in the IMMEDIATELY previous round with the
+        SAME angle and the trend still qualifies under the new rules, the
+        text is rewritten via `_expand_for_momentum` so it reads like a
+        follow-up update rather than a repeat headline.
+    """
+    current_round = _current_round(players)
+    hist = _pid_round_history(log)
+    tweeted_this_round = {pid for pid, evs in hist.items()
+                          if any(r == current_round for r, _ in evs)}
+
     pools = {
         "breaking": breaking_tweets(news),
-        "classic": classic_tweets(players),
-        "draft": draft_tweets(players),
+        "classic":  classic_tweets(players),
+        "draft":    draft_tweets(players),
     }
     # Rank classic/draft by how strong the move is (biggest |avg3-avg| first).
     pid_gap = {p["id"]: abs((p.get("scAvg3") or 0) - (p.get("scAvg") or 0)) for p in players}
@@ -232,11 +288,18 @@ def pick(players, news, log):
     for kind in order:
         if len(chosen) >= DAILY_TARGET:
             break
-        for cand in pools.get(kind, []):
-            _, pid, angle, text = cand
-            if (pid, angle) in recent or pid in used_pids or len(text) > 278:
+        for cand in list(pools.get(kind, [])):
+            ttype, pid, angle, text = cand
+            if pid in tweeted_this_round or pid in used_pids:
                 continue
-            chosen.append(cand)
+            # If the same angle was tweeted in the previous round → frame
+            # this one as a momentum-continues update.
+            if current_round and any(r == current_round - 1 and a == angle
+                                      for r, a in hist.get(pid, [])):
+                text = _expand_for_momentum(text, angle)
+            if len(text) > 278:
+                continue
+            chosen.append((ttype, pid, angle, text))
             used_pids.add(pid)
             pools[kind].remove(cand)
             break
@@ -288,6 +351,7 @@ def main():
             return
 
     posted = log.get("posted", [])
+    current_round = _current_round(players)
     for kind, pid, angle, text in chosen:
         code, body = post_tweet(text, env)
         if code in (200, 201):
@@ -297,7 +361,10 @@ def main():
             except Exception:
                 pass
             print(f"  [ok] posted ({tid}): {text[:60]}")
-            posted.append({"pid": pid, "angle": angle, "id": tid,
+            # `round` lets the next run dedup per-player-per-round and decide
+            # whether to expand the same trend with "momentum building" text.
+            posted.append({"pid": pid, "angle": angle, "round": current_round,
+                           "id": tid,
                            "at": datetime.now().isoformat(),
                            "at_aest": aest_now().isoformat(), "text": text})
         else:
