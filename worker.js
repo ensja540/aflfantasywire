@@ -21,21 +21,40 @@ const CORS = {
 // AI proxy abuse guard: max requests per client IP per rolling hour.
 const RATE_LIMIT = 10;
 
-// HARD KILL-SWITCH for every Anthropic-API-calling route.
-// Default is BLOCKED. Cloudflare Workers > Settings > Variables > add
-// `ALLOW_ANTHROPIC=1` (plain text or secret, doesn't matter) to re-enable.
-// While blocked, /api/ai, /api/article-summary, /api/extract-team all return
-// 503 immediately WITHOUT touching the Anthropic API, so no charges accrue.
-function anthropicBlocked(env) {
-  return env.ALLOW_ANTHROPIC !== "1";
+// KILL-SWITCHES for every Anthropic-API-calling route. Default is BLOCKED
+// on each. Set the matching env var in Cloudflare Workers > Settings >
+// Variables (plain text or secret, doesn't matter) to re-enable individual
+// routes. Use the master switch when re-enabling everything in one go.
+//
+//   ALLOW_ANTHROPIC=1     — re-enables ALL routes (master)
+//   ALLOW_EXTRACT_TEAM=1  — re-enables /api/extract-team only (your screenshot
+//                           import tool — admin-facing, not visitor-driven)
+//   ALLOW_AI=1            — re-enables /api/ai (visitor-driven AI Analyst tab)
+//   ALLOW_SUMMARY=1       — re-enables /api/article-summary (per-article AI
+//                           summaries on the news feed)
+//
+// While a route is blocked it returns 503 immediately WITHOUT touching the
+// Anthropic API, so no charges accrue.
+function anthropicAllowed(env, route) {
+  if (env.ALLOW_ANTHROPIC === "1") return true;
+  if (route === "extract-team" && env.ALLOW_EXTRACT_TEAM === "1") return true;
+  if (route === "ai"           && env.ALLOW_AI === "1")           return true;
+  if (route === "summary"      && env.ALLOW_SUMMARY === "1")      return true;
+  return false;
 }
-function anthropicBlockResponse() {
+function anthropicBlockResponse(route) {
+  const flag = route === "extract-team" ? "ALLOW_EXTRACT_TEAM"
+             : route === "summary"      ? "ALLOW_SUMMARY"
+             : route === "ai"           ? "ALLOW_AI"
+             : "ALLOW_ANTHROPIC";
   return json({
     error: {
-      message: "AI features are disabled by the account holder to prevent " +
-               "API charges. To re-enable, set ALLOW_ANTHROPIC=1 in the " +
-               "Worker's environment variables.",
+      message: "AI features for this route are disabled by the account " +
+               "holder to prevent API charges. To re-enable just this " +
+               "route, set " + flag + "=1 in the Worker's environment " +
+               "variables.",
       code: "ANTHROPIC_BLOCKED",
+      route,
     },
   }, 503);
 }
@@ -52,7 +71,7 @@ export default {
       if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
       if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: CORS });
       if (!env.ANTHROPIC_API_KEY) return json({ error: { message: "AI proxy missing ANTHROPIC_API_KEY." } }, 500);
-      if (anthropicBlocked(env)) return anthropicBlockResponse();
+      if (!anthropicAllowed(env, "summary")) return anthropicBlockResponse("summary");
 
       const limited = await rateLimited(request, env);
       if (limited) return limited;
@@ -121,7 +140,7 @@ export default {
       if (!env.ANTHROPIC_API_KEY) {
         return json({ error: { message: "AI proxy is missing the ANTHROPIC_API_KEY secret." } }, 500);
       }
-      if (anthropicBlocked(env)) return anthropicBlockResponse();
+      if (!anthropicAllowed(env, "ai")) return anthropicBlockResponse("ai");
 
       // Rate limit: 10 requests per IP per hour (KV-backed hourly bucket).
       // Skips gracefully if the RATE_LIMIT KV namespace isn't bound yet.
@@ -161,7 +180,7 @@ export default {
       if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
       if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: CORS });
       if (!env.ANTHROPIC_API_KEY) return json({ names: [], error: "AI not configured" }, 500);
-      if (anthropicBlocked(env)) return anthropicBlockResponse();
+      if (!anthropicAllowed(env, "extract-team")) return anthropicBlockResponse("extract-team");
       const limited = await rateLimited(request, env);
       if (limited) return limited;
       let p; try { p = await request.json(); } catch { p = {}; }
