@@ -21,6 +21,25 @@ const CORS = {
 // AI proxy abuse guard: max requests per client IP per rolling hour.
 const RATE_LIMIT = 10;
 
+// HARD KILL-SWITCH for every Anthropic-API-calling route.
+// Default is BLOCKED. Cloudflare Workers > Settings > Variables > add
+// `ALLOW_ANTHROPIC=1` (plain text or secret, doesn't matter) to re-enable.
+// While blocked, /api/ai, /api/article-summary, /api/extract-team all return
+// 503 immediately WITHOUT touching the Anthropic API, so no charges accrue.
+function anthropicBlocked(env) {
+  return env.ALLOW_ANTHROPIC !== "1";
+}
+function anthropicBlockResponse() {
+  return json({
+    error: {
+      message: "AI features are disabled by the account holder to prevent " +
+               "API charges. To re-enable, set ALLOW_ANTHROPIC=1 in the " +
+               "Worker's environment variables.",
+      code: "ANTHROPIC_BLOCKED",
+    },
+  }, 503);
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -33,6 +52,7 @@ export default {
       if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
       if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: CORS });
       if (!env.ANTHROPIC_API_KEY) return json({ error: { message: "AI proxy missing ANTHROPIC_API_KEY." } }, 500);
+      if (anthropicBlocked(env)) return anthropicBlockResponse();
 
       const limited = await rateLimited(request, env);
       if (limited) return limited;
@@ -101,6 +121,7 @@ export default {
       if (!env.ANTHROPIC_API_KEY) {
         return json({ error: { message: "AI proxy is missing the ANTHROPIC_API_KEY secret." } }, 500);
       }
+      if (anthropicBlocked(env)) return anthropicBlockResponse();
 
       // Rate limit: 10 requests per IP per hour (KV-backed hourly bucket).
       // Skips gracefully if the RATE_LIMIT KV namespace isn't bound yet.
@@ -140,6 +161,7 @@ export default {
       if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
       if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: CORS });
       if (!env.ANTHROPIC_API_KEY) return json({ names: [], error: "AI not configured" }, 500);
+      if (anthropicBlocked(env)) return anthropicBlockResponse();
       const limited = await rateLimited(request, env);
       if (limited) return limited;
       let p; try { p = await request.json(); } catch { p = {}; }
