@@ -115,14 +115,14 @@ def classic_tweets(players):
         if avg < 80 and avg3 > 80 and avg5 > 80:
             out.append(("classic", p["id"], "crise",
                         f"\U0001F4C8 {p['name']} trending up\n\n"
-                        f"3-game: {round(avg3)}SC | 5-game: {avg5}SC | Season: {round(avg)}SC\n"
+                        f"3-game avg: {round(avg3)}SC | 5-game avg: {avg5}SC | Season avg: {round(avg)}SC\n"
                         f"Last 3: {l3}\n\n"
                         f"Consistency rating: {consistency}%{own_bit}\n\n"
                         f"{HASHTAGS}"))
         elif avg > 80 and avg3 < 80 and avg5 < 80:
             out.append(("classic", p["id"], "cfall",
                         f"\U0001F4C9 {p['name']} cooling off\n\n"
-                        f"3-game: {round(avg3)}SC | 5-game: {avg5}SC | Season: {round(avg)}SC\n"
+                        f"3-game avg: {round(avg3)}SC | 5-game avg: {avg5}SC | Season avg: {round(avg)}SC\n"
                         f"Last 3: {l3}\n\n"
                         f"Consistency rating: {consistency}%\n\n"
                         f"{HASHTAGS}"))
@@ -148,14 +148,14 @@ def draft_tweets(players):
         if avg < 80 and avg3 > 80 and avg5 > 80:
             out.append(("draft", p["id"], "drise",
                         f"\U0001F4C8 {p['name']} on the rise\n\n"
-                        f"3-game: {round(avg3)}SC | 5-game: {avg5}SC | Season: {round(avg)}SC\n"
+                        f"3-game avg: {round(avg3)}SC | 5-game avg: {avg5}SC | Season avg: {round(avg)}SC\n"
                         f"Last 5: {l5}\n\n"
                         f"Consistency rating: {consistency}%\n\n"
                         f"{HASHTAGS}"))
         elif avg > 80 and avg3 < 80 and avg5 < 80:
             out.append(("draft", p["id"], "dfall",
                         f"\U0001F4C9 {p['name']}'s output has eased\n\n"
-                        f"3-game: {round(avg3)}SC | 5-game: {avg5}SC | Season: {round(avg)}SC\n"
+                        f"3-game avg: {round(avg3)}SC | 5-game avg: {avg5}SC | Season avg: {round(avg)}SC\n"
                         f"Last 5: {l5}\n\n"
                         f"Consistency rating: {consistency}%\n\n"
                         f"{HASHTAGS}"))
@@ -269,9 +269,9 @@ def cta_tweets(players, log):
         return [(
             "cta", p["id"], "cta_rank",
             f"\U0001F4C8 {p['name']} is in form\n\n"
-            f"3-game: {round(p.get('scAvg3') or 0)}SC | "
-            f"Season: {round(p.get('scAvg') or 0)}SC\n"
-            f"Consistency: {consistency}%\n"
+            f"3-game avg: {round(p.get('scAvg3') or 0)}SC | "
+            f"Season avg: {round(p.get('scAvg') or 0)}SC\n"
+            f"Consistency rating: {consistency}%\n"
             f"Ranked #{rank} in our live SuperCoach rankings\n\n"
             f"See the full top 200: {LINK_RANKINGS}\n"
             f"{HASHTAGS}"
