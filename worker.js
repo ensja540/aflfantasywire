@@ -21,38 +21,43 @@ const CORS = {
 // AI proxy abuse guard: max requests per client IP per rolling hour.
 const RATE_LIMIT = 10;
 
-// KILL-SWITCHES for every Anthropic-API-calling route. Default is BLOCKED
-// on each. Set the matching env var in Cloudflare Workers > Settings >
-// Variables (plain text or secret, doesn't matter) to re-enable individual
-// routes. Use the master switch when re-enabling everything in one go.
+// KILL-SWITCHES for every Anthropic-API-calling route.
 //
-//   ALLOW_ANTHROPIC=1     — re-enables ALL routes (master)
-//   ALLOW_EXTRACT_TEAM=1  — re-enables /api/extract-team only (your screenshot
-//                           import tool — admin-facing, not visitor-driven)
-//   ALLOW_AI=1            — re-enables /api/ai (visitor-driven AI Analyst tab)
-//   ALLOW_SUMMARY=1       — re-enables /api/article-summary (per-article AI
-//                           summaries on the news feed)
+// DEFAULTS:
+//   /api/extract-team — ALLOWED. Admin-only tool (team screenshot upload),
+//                       no visitor-facing UI calls it, traffic is naturally
+//                       low. Set BLOCK_EXTRACT_TEAM=1 to disable.
+//   /api/ai           — BLOCKED. Visitor-driven AI Analyst tab; an unbounded
+//                       traffic source. Set ALLOW_AI=1 to enable.
+//   /api/article-summary — BLOCKED. Visitor-driven per-article summaries
+//                          on the news feed. Set ALLOW_SUMMARY=1 to enable.
+//
+// Master switches:
+//   ALLOW_ANTHROPIC=1 — force-enables every route regardless of others.
+//   BLOCK_ANTHROPIC=1 — force-blocks every route regardless of others.
 //
 // While a route is blocked it returns 503 immediately WITHOUT touching the
 // Anthropic API, so no charges accrue.
 function anthropicAllowed(env, route) {
+  if (env.BLOCK_ANTHROPIC === "1") return false;
   if (env.ALLOW_ANTHROPIC === "1") return true;
-  if (route === "extract-team" && env.ALLOW_EXTRACT_TEAM === "1") return true;
-  if (route === "ai"           && env.ALLOW_AI === "1")           return true;
-  if (route === "summary"      && env.ALLOW_SUMMARY === "1")      return true;
+  if (route === "extract-team") return env.BLOCK_EXTRACT_TEAM !== "1";  // default ALLOW
+  if (route === "ai")           return env.ALLOW_AI === "1";            // default BLOCK
+  if (route === "summary")      return env.ALLOW_SUMMARY === "1";       // default BLOCK
   return false;
 }
 function anthropicBlockResponse(route) {
-  const flag = route === "extract-team" ? "ALLOW_EXTRACT_TEAM"
-             : route === "summary"      ? "ALLOW_SUMMARY"
-             : route === "ai"           ? "ALLOW_AI"
-             : "ALLOW_ANTHROPIC";
+  // extract-team default-allows; the only way it gets here is via
+  // BLOCK_EXTRACT_TEAM=1 or BLOCK_ANTHROPIC=1, so the unblock flag differs.
+  const flag = route === "extract-team" ? "remove BLOCK_EXTRACT_TEAM (or BLOCK_ANTHROPIC)"
+             : route === "summary"      ? "set ALLOW_SUMMARY=1"
+             : route === "ai"           ? "set ALLOW_AI=1"
+             :                            "set ALLOW_ANTHROPIC=1";
   return json({
     error: {
       message: "AI features for this route are disabled by the account " +
-               "holder to prevent API charges. To re-enable just this " +
-               "route, set " + flag + "=1 in the Worker's environment " +
-               "variables.",
+               "holder to prevent API charges. To re-enable, " + flag + " " +
+               "in the Worker's environment variables.",
       code: "ANTHROPIC_BLOCKED",
       route,
     },
