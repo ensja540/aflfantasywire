@@ -1777,6 +1777,18 @@ def main():
                                                p.get("breakeven") or 0)
                 if ph:
                     p["prices"] = ph
+            # Also populate lastScore + lastRound from the windowed rounds —
+            # otherwise these stay at "" / 0 (game-log fetch only covers the
+            # top MAX_GAMES_LOG players, so Isaac Heeney etc. were invisible
+            # to the "top scorers of the round" widget despite having scores
+            # in their `scores` array).
+            #
+            # The rounds list is right-aligned to cur_rnd (window ends at
+            # cur_rnd), so rounds[-1] is the cur_rnd score; if it's 0 they
+            # didn't play this round and we leave lastRound/lastScore alone.
+            if cur_rnd and rounds and rounds[-1] > 0:
+                p["lastScore"] = rounds[-1]
+                p["lastRound"] = cur_rnd
         elif rec and rec.get("avg3"):
             p["scAvg3"] = round(rec["avg3"], 1)
         if rec and rec.get("cons_pct"):
