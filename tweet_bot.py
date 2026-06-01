@@ -217,6 +217,104 @@ def should_auto_post(log):
     return True, f"clear to post ({len(todays)}/{DAILY_TARGET} today, AEST {now:%H:%M})"
 
 
+# AFL Pulse API — the public matches endpoint already used by news_scraper.
+# 85 is 2026 Toyota AFL Premiership; update annually when the new season
+# ID drops (or fetch /afl/v2/compseasons to lookup by year).
+AFL_API_SEASON_ID = 85
+FIXTURE_CACHE_PATH = BASE / ".fixture_cache.json"
+FIXTURE_CACHE_TTL_HOURS = 168  # 7 days — fixture rarely changes once set
+
+
+# Mapping from the API's team names (e.g. "Gold Coast SUNS") to the team names
+# used in our players.json ("Gold Coast"). The API names are inconsistent —
+# some have nicknames, some don't.
+_TEAM_API_TO_OURS = {
+    "Adelaide Crows":    "Adelaide",
+    "Brisbane Lions":    "Brisbane",
+    "Carlton":           "Carlton",
+    "Collingwood":       "Collingwood",
+    "Essendon":          "Essendon",
+    "Fremantle":         "Fremantle",
+    "Geelong Cats":      "Geelong",
+    "Gold Coast SUNS":   "Gold Coast",
+    "GWS GIANTS":        "GWS Giants",
+    "Hawthorn":          "Hawthorn",
+    "Melbourne":         "Melbourne",
+    "North Melbourne":   "North Melbourne",
+    "Port Adelaide":     "Port Adelaide",
+    "Richmond":          "Richmond",
+    "St Kilda":          "St Kilda",
+    "Sydney Swans":      "Sydney",
+    "West Coast Eagles": "West Coast",
+    "Western Bulldogs":  "Western Bulldogs",
+}
+
+
+def fetch_round_fixture(round_num, season_id=AFL_API_SEASON_ID):
+    """Return the set of team names playing in the given round, mapped to
+    our players.json team naming. Returns None on network failure (callers
+    should fall back to a sensible default rather than blocking).
+
+    Cached to .fixture_cache.json for FIXTURE_CACHE_TTL_HOURS so we don't
+    hit the AFL API every tweet pick cycle.
+    """
+    cache_key = f"r{round_num}_s{season_id}"
+    # Cache read
+    try:
+        cache = json.loads(FIXTURE_CACHE_PATH.read_text(encoding="utf-8"))
+        rec = cache.get(cache_key)
+        if rec:
+            from datetime import timezone
+            fetched_at = datetime.fromisoformat(rec["fetched_at"])
+            age_h = (datetime.now(timezone.utc)
+                     - fetched_at.replace(tzinfo=timezone.utc)
+                     if fetched_at.tzinfo is None else
+                     datetime.now(timezone.utc) - fetched_at
+                    ).total_seconds() / 3600
+            if age_h < FIXTURE_CACHE_TTL_HOURS:
+                return set(rec["teams"])
+    except Exception:
+        cache = {}
+
+    # Live fetch
+    try:
+        import requests
+        r = requests.get(
+            "https://aflapi.afl.com.au/afl/v2/matches",
+            params={"compSeasonId": season_id, "roundNumber": round_num,
+                    "pageSize": 20},
+            headers={"User-Agent": "Mozilla/5.0"},
+            timeout=10,
+        )
+        if not r.ok:
+            return None
+        matches = r.json().get("matches", []) or []
+    except Exception:
+        return None
+
+    teams = set()
+    for m in matches:
+        for side in ("home", "away"):
+            api_name = (m.get(side, {}).get("team", {}).get("name") or "").strip()
+            ours = _TEAM_API_TO_OURS.get(api_name)
+            if ours:
+                teams.add(ours)
+    if not teams:
+        return None
+
+    # Persist cache
+    try:
+        cache[cache_key] = {
+            "teams": sorted(teams),
+            "fetched_at": datetime.now().isoformat(),
+        }
+        FIXTURE_CACHE_PATH.write_text(json.dumps(cache, indent=2),
+                                       encoding="utf-8")
+    except Exception:
+        pass
+    return teams
+
+
 SITE_URL = "aflfantasywire.com"
 # Tab deep-links — the index.html hash router reads these on load and seeds
 # localStorage.afw_tab so the app boots straight into the right tab.
@@ -350,11 +448,10 @@ def top10_tweet(players, log, current_round, min_players=275, min_teams=18):
     if len(scored) < min_players:
         return []  # Wait until more games are in — current snapshot is partial.
 
-    # Team-count gate: a complete round has every AFL team represented in
-    # current-round scorers. The player-count gate alone can be satisfied
-    # by 12 teams' worth of data while 3 fixtures' worth are still
-    # unprocessed by Footywire (this is exactly what missed West Coast
-    # from the R12 recap).
+    # Team-coverage gate: derive which teams ACTUALLY play this round from
+    # the AFL fixture API (handles byes — R12 2026 has 4 byes, so only
+    # 14 teams play). Hold the recap until every team that played has at
+    # least one player processed for this round.
     teams_seen = set()
     for p in players or []:
         try:
@@ -367,8 +464,18 @@ def top10_tweet(players, log, current_round, min_players=275, min_teams=18):
             t = (p.get("team") or "").strip()
             if t:
                 teams_seen.add(t)
-    if len(teams_seen) < min_teams:
-        return []  # Some fixtures are still unprocessed — hold off.
+
+    teams_playing = fetch_round_fixture(current_round)
+    if teams_playing is None:
+        # Fixture lookup failed — fall back to the static min_teams floor.
+        if len(teams_seen) < min_teams:
+            return []
+    else:
+        # We know exactly which teams played. Every one of them must have
+        # at least one player processed before we publish the top 10.
+        missing = teams_playing - teams_seen
+        if missing:
+            return []  # Footywire still catching up on one or more fixtures.
 
     scored.sort(reverse=True)
     top = scored[:10]
