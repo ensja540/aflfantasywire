@@ -296,19 +296,28 @@ def cta_tweets(players, log):
     return []
 
 
-def top10_tweet(players, log, current_round, min_players=275):
+def top10_tweet(players, log, current_round, min_players=275, min_teams=18):
     """A single round-recap tweet with the round's top 10 SuperCoach scorers.
 
-    Fires AT MOST ONCE per round. Will only fire when at least `min_players`
-    have a score for the current round — i.e. essentially all games are in.
+    Fires AT MOST ONCE per round. Two gates must both pass:
 
-    Calibration: an AFL round is 9 games × ~44 players ≈ 396 player slots,
-    BUT Footywire's per-round publication trickles slowly for non-elite
-    players. A complete round in our scrape typically tops out around
-    280-300. 275 means the last game's elite scorers are processed (which
-    is what users will look for in a 'who finished the round on top'
-    recap) without setting an unreachable bar. The previous threshold of
-    250 let the recap fire after 6 games with one fixture still pending.
+      * `min_players` players have a positive current-round score (catches
+        "lots of players in" but vulnerable to partial games — a half-played
+        fixture can push us over the threshold even if a team's data is
+        entirely absent).
+      * `min_teams` unique TEAMS are represented in current-round scorers.
+        This is the more reliable "is the round actually complete" gate —
+        18 means every team has had at least one of their players'
+        scores processed by Footywire. The reason the R12 recap missed
+        West Coast originally: their game ran but Footywire's per-round
+        score publication for that fixture lagged by ~24h. The
+        player-count gate (250+) was satisfied by the other 12 teams.
+
+    Use min_teams=18 for regular rounds; bye rounds will need a lower
+    explicit value passed in.
+
+    Uses `pid=0` (which is not a real player id) as a sentinel so the
+    standard per-player-per-round dedup leaves it alone.
 
     Uses `pid=0` (which is not a real player id) as a sentinel so the
     standard per-player-per-round dedup leaves it alone.
@@ -340,6 +349,26 @@ def top10_tweet(players, log, current_round, min_players=275):
 
     if len(scored) < min_players:
         return []  # Wait until more games are in — current snapshot is partial.
+
+    # Team-count gate: a complete round has every AFL team represented in
+    # current-round scorers. The player-count gate alone can be satisfied
+    # by 12 teams' worth of data while 3 fixtures' worth are still
+    # unprocessed by Footywire (this is exactly what missed West Coast
+    # from the R12 recap).
+    teams_seen = set()
+    for p in players or []:
+        try:
+            if int(p.get("lastRound") or 0) != current_round:
+                continue
+        except (TypeError, ValueError):
+            continue
+        scores2 = p.get("scores") or []
+        if scores2 and isinstance(scores2[-1], (int, float)) and scores2[-1] > 0:
+            t = (p.get("team") or "").strip()
+            if t:
+                teams_seen.add(t)
+    if len(teams_seen) < min_teams:
+        return []  # Some fixtures are still unprocessed — hold off.
 
     scored.sort(reverse=True)
     top = scored[:10]
