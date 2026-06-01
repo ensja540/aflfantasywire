@@ -36,3 +36,11 @@ proposed_upstream_fixes.json
 .fetch_data_sig
 .twitter_rss_state
 .fixture_cache.json
+
+# JS dev — local-only
+node_modules/
+_check.js
+_tmp_*.py
+
+# Scraper signature cache
+.scrape_sig

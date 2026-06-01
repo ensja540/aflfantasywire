@@ -1832,15 +1832,19 @@ def main():
         # When the strict hit's team disagrees with the Footywire team, fall
         # through to the (last_name, team) tuple key instead.
         ft_team = normalise_team(p.get("team", ""))
-        co = classic_lookup.get(nk)
-        if co and normalise_team(co.get("_squad_team", "")) != ft_team:
-            co = None
         _ft_parts = p["name"].split()
         _ft_first = _ft_parts[0] if _ft_parts else ""
         _ft_last  = _ft_parts[-1] if _ft_parts else ""
-        co = (co
-              or classic_lookup.get((name_key(_ft_first),
-                                     name_key(_ft_last), ft_team)))
+        co_strict = classic_lookup.get(nk)
+        co_team = classic_lookup.get((name_key(_ft_first),
+                                      name_key(_ft_last), ft_team))
+        # Prefer team-matched entry. If strict-key entry has a wrong team AND
+        # there's no team-keyed sibling on our team, we still take the strict
+        # entry's POSITIONS — players who change clubs mid-season (Petracca
+        # → Gold Coast 2026 while AFL Classic still lists Melbourne) keep
+        # their dual-position eligibility regardless of squad. Ownership /
+        # price come from the strict entry too; team is from Footywire.
+        co = co_team or co_strict
         if co:
             p["classic_owned"] = co["classic_owned"]
             p["classic_avg"]   = co["classic_avg"]

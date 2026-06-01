@@ -825,11 +825,22 @@ def _has_fantasy_specifics(text):
         return True
     if re.search(r"\b(?:3|5|three|five)[- ]?(?:game|round)?\s*avg\b", t):
         return True
-    # Weak signals (need 2+ to count)
+    # Specific player-action verbs that imply actionable selection/injury news.
+    # A vague "trades / fantasy / Eagles assets" macro piece without ANY of
+    # these never carries a per-player decision.
+    if re.search(r"\b(?:ruled out|ruled in|named for|named to|recalled|"
+                 r"omitted|dropped|rested|selected to|set to (?:debut|return|play)|"
+                 r"injured|injury concern|hamstring|concussion|soft[- ]tissue|"
+                 r"calf strain|ankle|achilles|shoulder|knee|"
+                 r"made (?:the )?captain|captain pick|stand[- ]?in skipper)\b", t):
+        return True
+    # Weak signals (need 3+ — tightened from 2 because broad commentary
+    # pieces about venues / travel / club finances trivially clear 2).
     weak = 0
-    for w in ("supercoach", "fantasy", "trade", "ownership", "breakeven", "break-even"):
+    for w in ("supercoach", "fantasy", "trade", "ownership", "breakeven",
+              "break-even", "captaincy", "coach", "round "):
         if w in t: weak += 1
-    return weak >= 2
+    return weak >= 3
 
 
 def extract_player_mentions(article_text, headline, article_url, source, time_str,
