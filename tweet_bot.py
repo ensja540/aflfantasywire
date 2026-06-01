@@ -490,19 +490,25 @@ def top10_tweet(players, log, current_round, min_players=275, min_teams=18):
             return parts[-1]
         return name                    # "Brodie Grundy"
 
-    # Try progressively shorter formats until we fit ~278 chars.
-    for mode in ("full", "initial", "lastname"):
-        header = f"\U0001F3C6 Round {current_round} Top 10"
-        lines = [f"{i}. {_shorten(n, mode)} {s}SC"
-                 for i, (s, n) in enumerate(top, 1)]
-        text = header + "\n\n" + "\n".join(lines) + f"\n\n{HASHTAGS}"
-        if len(text) <= 278:
-            return [("topweek", 0, "top10", text)]
+    # Try progressively shorter formats until we fit ~278 chars. The header
+    # carries the "SuperCoach scores" framing so each row's score doesn't need
+    # an "SC" suffix — cleaner and shorter.
+    for header in (
+        f"\U0001F3C6 Top 10 SuperCoach Player Scores — Round {current_round}",
+        f"\U0001F3C6 Top 10 SuperCoach Scores — Round {current_round}",
+        f"\U0001F3C6 R{current_round} Top 10 SuperCoach Scores",
+    ):
+        for mode in ("full", "initial", "lastname"):
+            lines = [f"{i}. {_shorten(n, mode)} {s}"
+                     for i, (s, n) in enumerate(top, 1)]
+            text = header + "\n\n" + "\n".join(lines) + f"\n\n{HASHTAGS}"
+            if len(text) <= 278:
+                return [("topweek", 0, "top10", text)]
 
-    # Last resort: keep it under the limit even if a few names are clipped.
+    # Last resort: clip names hard to stay under the limit.
     lines = [f"{i}. {_shorten(n, 'lastname')[:10]} {s}"
              for i, (s, n) in enumerate(top, 1)]
-    text = (f"\U0001F3C6 R{current_round} Top 10\n\n"
+    text = (f"\U0001F3C6 R{current_round} Top 10 SC Scores\n\n"
             + "\n".join(lines) + f"\n\n{HASHTAGS}")
     return [("topweek", 0, "top10", text)]
 
