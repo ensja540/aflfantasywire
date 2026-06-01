@@ -773,14 +773,49 @@ def _name_patterns(players_json_path):
     return patterns
 
 
+def _has_fantasy_specifics(text):
+    """Detect whether an article body has CONCRETE fantasy-relevant data —
+    scores, prices, break-evens, averages, ownership, trade specifics.
+
+    Articles without any of these are essentially commentary or vague
+    selection prose ("set to return next round", "must trade or bench
+    bye players") — we shouldn't surface them as per-player news items
+    because there's nothing actionable to learn.
+    """
+    if not text:
+        return False
+    t = text.lower()
+    # Strong signals: any one of these = concrete fantasy data
+    if re.search(r"\b\d{2,3}\s*(sc|af|dt)\b", t):  # 117SC, 105AF
+        return True
+    if re.search(r"\$\s*\d", t):                    # $677k, $1.05m
+        return True
+    if re.search(r"\b(?:break[- ]?even|be)\s*(?:of|:)?\s*\d", t):
+        return True
+    if re.search(r"\b\d{2,3}%\s*(?:owned|ownership|consistency)", t):
+        return True
+    if re.search(r"\baverag(?:e|ing)\s+\d{2,3}\b", t):
+        return True
+    if re.search(r"\b(?:3|5|three|five)[- ]?(?:game|round)?\s*avg\b", t):
+        return True
+    # Weak signals (need 2+ to count)
+    weak = 0
+    for w in ("supercoach", "fantasy", "trade", "ownership", "breakeven", "break-even"):
+        if w in t: weak += 1
+    return weak >= 2
+
+
 def extract_player_mentions(article_text, headline, article_url, source, time_str,
                             seen_keys=None):
     """Return per-player news items extracted from `article_text`.
 
-    Empty list when there's nothing usable (no body, body too short, or no
-    matching players). See the comment above for the safety rules.
+    Empty list when there's nothing usable (no body, body too short, no
+    matching players, or no concrete fantasy data — generic "set to return"
+    selection prose gets filtered).
     """
     if not article_text or len(article_text) < 200:
+        return []
+    if not _has_fantasy_specifics(article_text + " " + (headline or "")):
         return []
 
     patterns = _name_patterns(BASE_DIR / "players.json")

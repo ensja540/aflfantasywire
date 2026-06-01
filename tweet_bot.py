@@ -344,6 +344,15 @@ def consistency_tweets(players, log):
         rank = p.get("rank") or 999
         if rank > 150:
             continue
+        # Per spec: skip top-5 ranked players unless they're actually
+        # trending (3-game vs season avg gap ≥ 18 either way). Those
+        # players are universally known — talking about them on a slow
+        # day adds little insight.
+        if rank <= 5:
+            avg  = p.get("scAvg")  or 0
+            avg3 = p.get("scAvg3") or 0
+            if abs(avg3 - avg) < 18:
+                continue
         con = int(p.get("consistency") or 0)
         if con >= 85:
             high_cands.append((-con, p.get("rank") or 999, p, con))
