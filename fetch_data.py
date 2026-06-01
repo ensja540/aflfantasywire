@@ -640,12 +640,22 @@ def fetch_classic_ownership(session):
         nk    = name_key(name)
         stats = p.get("stats") or {}
 
+        # AFL Classic encodes positions as ints: 1=DEF, 2=MID, 3=RUC, 4=FWD.
+        # Convert to our codes here so downstream consumers don't repeat the
+        # mapping. A player listed as [2, 4] is dual MID/FWD and SHOULD appear
+        # under both position filters on the site.
+        _POS_INT = {1: "DEF", 2: "MID", 3: "RUC", 4: "FWD"}
+        raw_positions = p.get("positions") or []
+        positions = [_POS_INT[int(x)] for x in raw_positions
+                     if isinstance(x, (int, float)) and int(x) in _POS_INT]
+
         result[nk] = {
             "classic_owned": float(stats.get("owned_by") or 0),
             "classic_avg":   float(stats.get("avg_points") or 0),
             "classic_avg3":  float(stats.get("last_3_avg") or 0),
             "classic_proj":  float(stats.get("proj_avg") or 0),
             "classic_price": int(p.get("cost") or 0),
+            "classic_positions": positions,
         }
 
     log.info(f"AFL Fantasy Classic: parsed {len(result)} players (ownership)")
@@ -1738,6 +1748,12 @@ def main():
             p["classic_avg3"]  = co["classic_avg3"]
             p["classic_proj"]  = co["classic_proj"]
             p["classic_price"] = co["classic_price"]
+            # AFL Classic is the canonical source for dual-position eligibility
+            # (e.g. Petracca [MID, FWD], Bailey Smith [MID, FWD]). It has ~193
+            # multi-position players, vs ~72 captured by the Footywire flags
+            # alone. Prefer Classic positions when present.
+            if co.get("classic_positions"):
+                p["sc_positions"] = co["classic_positions"]
 
     # ── 7. Merge and build final player list ──
     log.info("Merging data sources...")
