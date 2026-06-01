@@ -43,7 +43,7 @@ except Exception:
     pass
 
 BASE = Path(__file__).parent
-HASHTAGS = "#SuperCoach #AFLFantasy"
+HASHTAGS = "#SuperCoach"
 TWEETED_LOG = BASE / "tweeted.json"
 DAILY_TARGET = 3
 # RISE_GAP / FALL_GAP no longer used — the trend gate is now an absolute

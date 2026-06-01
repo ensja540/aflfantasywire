@@ -1134,6 +1134,9 @@ def build_player(sc, dt, injuries, selections, rank):
     pos   = normalise_pos(sc.get("pos","") or dt.get("pos",""))
     positions = sc.get("sc_positions") or [pos]
     if pos not in positions: positions = [pos] + positions
+    # AFL Fantasy Classic positions (separate list — see merge step). Falls
+    # back to SC positions when Classic has no entry for the player.
+    aflf_positions = sc.get("aflf_positions") or positions[:]
     col   = TEAM_COLOURS.get(team, {"tc":"#888","tb":"rgba(100,100,100,0.1)"})
 
     sc_avg   = sc.get("sc_avg", 0) or 0
@@ -1252,6 +1255,7 @@ def build_player(sc, dt, injuries, selections, rank):
         "team": team,
         "pos": pos,
         "positions": positions,
+        "aflfPositions": aflf_positions,
         "tc": col["tc"],
         "tb": col["tb"],
 
@@ -1328,6 +1332,17 @@ NAME_ALIASES = {
     "Harry Petty": "Harrison Petty",
     "Lachlan Ash": "Lachie Ash",
     "Cal Wilkie": "Callum Wilkie",
+}
+
+
+# Manual SC position overrides for cases where Footywire's playerflag is wrong
+# or stale. Keyed by (name, team) so we don't accidentally affect different
+# players sharing a name (e.g. two Bailey Williams: West Coast = RUC/FWD per
+# user feedback; Western Bulldogs Bailey Williams stays Footywire-default).
+# AFL Fantasy Classic positions live in a separate field (aflfPositions) and
+# are NOT touched by these overrides.
+SC_POSITION_OVERRIDES = {
+    ("Bailey Williams", "West Coast"): ["RUC", "FWD"],
 }
 
 
@@ -1748,12 +1763,13 @@ def main():
             p["classic_avg3"]  = co["classic_avg3"]
             p["classic_proj"]  = co["classic_proj"]
             p["classic_price"] = co["classic_price"]
-            # AFL Classic is the canonical source for dual-position eligibility
-            # (e.g. Petracca [MID, FWD], Bailey Smith [MID, FWD]). It has ~193
-            # multi-position players, vs ~72 captured by the Footywire flags
-            # alone. Prefer Classic positions when present.
+            # Keep AFL Fantasy Classic positions in a SEPARATE field — SC
+            # (Footywire) and AFL Fantasy (Classic) disagree on dual
+            # eligibility (e.g. Bailey Smith is MID-only in SC but MID/FWD
+            # in Classic; Petracca is dual in Classic, MID-only in SC).
+            # The site's game toggle picks the right list at filter time.
             if co.get("classic_positions"):
-                p["sc_positions"] = co["classic_positions"]
+                p["aflf_positions"] = co["classic_positions"]
 
     # ── 7. Merge and build final player list ──
     log.info("Merging data sources...")
@@ -1763,6 +1779,12 @@ def main():
         nk_last = name_key(sc["name"].split()[-1])
         dt  = dt_lookup.get(nk) or dt_lookup.get(nk_last)
         player = build_player(sc, dt, injuries, selections, i)
+        # Apply team-scoped SC position overrides (manual corrections where
+        # Footywire's playerflag is wrong/stale).
+        ov = SC_POSITION_OVERRIDES.get((player["name"], player["team"]))
+        if ov:
+            player["positions"] = list(ov)
+            player["pos"] = ov[0]
         players.append(player)
 
     # Sort by SC rank
