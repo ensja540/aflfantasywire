@@ -27,10 +27,12 @@ const RATE_LIMIT = 10;
 //   /api/extract-team — ALLOWED. Admin-only tool (team screenshot upload),
 //                       no visitor-facing UI calls it, traffic is naturally
 //                       low. Set BLOCK_EXTRACT_TEAM=1 to disable.
-//   /api/ai           — BLOCKED. Visitor-driven AI Analyst tab; an unbounded
-//                       traffic source. Set ALLOW_AI=1 to enable.
+//   /api/ai           — ALLOWED. Visitor-driven AI Analyst tab. Rate-limited
+//                       to RATE_LIMIT requests per IP per hour as a cost
+//                       circuit-breaker. Set BLOCK_AI=1 to disable.
 //   /api/article-summary — BLOCKED. Visitor-driven per-article summaries
-//                          on the news feed. Set ALLOW_SUMMARY=1 to enable.
+//                          on the news feed; can fire many times per visit.
+//                          Set ALLOW_SUMMARY=1 to enable.
 //
 // Master switches:
 //   ALLOW_ANTHROPIC=1 — force-enables every route regardless of others.
@@ -42,16 +44,16 @@ function anthropicAllowed(env, route) {
   if (env.BLOCK_ANTHROPIC === "1") return false;
   if (env.ALLOW_ANTHROPIC === "1") return true;
   if (route === "extract-team") return env.BLOCK_EXTRACT_TEAM !== "1";  // default ALLOW
-  if (route === "ai")           return env.ALLOW_AI === "1";            // default BLOCK
+  if (route === "ai")           return env.BLOCK_AI !== "1";            // default ALLOW
   if (route === "summary")      return env.ALLOW_SUMMARY === "1";       // default BLOCK
   return false;
 }
 function anthropicBlockResponse(route) {
-  // extract-team default-allows; the only way it gets here is via
-  // BLOCK_EXTRACT_TEAM=1 or BLOCK_ANTHROPIC=1, so the unblock flag differs.
+  // extract-team and ai default-allow; the only way they get here is via
+  // BLOCK_X=1 or BLOCK_ANTHROPIC=1, so the unblock flag differs.
   const flag = route === "extract-team" ? "remove BLOCK_EXTRACT_TEAM (or BLOCK_ANTHROPIC)"
+             : route === "ai"           ? "remove BLOCK_AI (or BLOCK_ANTHROPIC)"
              : route === "summary"      ? "set ALLOW_SUMMARY=1"
-             : route === "ai"           ? "set ALLOW_AI=1"
              :                            "set ALLOW_ANTHROPIC=1";
   return json({
     error: {
