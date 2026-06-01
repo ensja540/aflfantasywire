@@ -21,7 +21,7 @@ import requests
 
 BASE = Path(__file__).parent
 OUT = BASE / "supercoach_tweets.json"
-KEEP = 250          # accumulate tweets; only drop the oldest past this cap
+KEEP = 10           # keep only the 10 most recent — oldest drop off (FIFO)
 MAX_RESULTS = 10    # smallest batch the API allows — keeps read-cost low
 
 AFL_RE = re.compile(r"\bafl\b|aflfantasy|#aflfantasy|dream\s?team|footy|"

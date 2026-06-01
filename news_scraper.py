@@ -773,6 +773,33 @@ def _name_patterns(players_json_path):
     return patterns
 
 
+_PODCAST_HEADLINE_RE = re.compile(
+    r"^\s*(?:LISTEN|WATCH|VIDEO|PODCAST|AUDIO|REPLAY|EXCLUSIVE INTERVIEW)\b\s*[:—–-]",
+    re.I,
+)
+_PODCAST_BODY_RE = re.compile(
+    r"\b(?:on this episode|on the podcast|listen (?:on|to)|"
+    r"subscribe (?:on|to)|hit play|tune in|"
+    r"hosted by|on the show|new episode|on this week's)\b",
+    re.I,
+)
+
+
+def _is_podcast_promo(headline, body=""):
+    """True for podcast/audio promo pieces with no substantive article text —
+    e.g. "LISTEN: Bombers must make Hird call". These never carry concrete
+    fantasy data because the actual analysis is in the audio, not the page."""
+    if not headline:
+        return False
+    if _PODCAST_HEADLINE_RE.search(headline):
+        return True
+    # Headlines like "AFL Daily" / "Footy Confidential" with a short stub body
+    # often indicate audio-only promos.
+    if body and len(body) < 280 and _PODCAST_BODY_RE.search(body):
+        return True
+    return False
+
+
 def _has_fantasy_specifics(text):
     """Detect whether an article body has CONCRETE fantasy-relevant data —
     scores, prices, break-evens, averages, ownership, trade specifics.
@@ -814,6 +841,8 @@ def extract_player_mentions(article_text, headline, article_url, source, time_st
     selection prose gets filtered).
     """
     if not article_text or len(article_text) < 200:
+        return []
+    if _is_podcast_promo(headline, article_text):
         return []
     if not _has_fantasy_specifics(article_text + " " + (headline or "")):
         return []
@@ -1102,13 +1131,22 @@ def _parse_rss_feed(session, feed_url, source_name, reliability, player_idx):
     for item in feed_items:
         it = _rss_item_to_news(item, source_name, reliability, player_idx)
         if it:
+            # Skip podcast/audio promos outright — the actual analysis lives
+            # in the audio, the page body never carries the concrete numbers
+            # that make an item useful, so they'd just be noise in the feed.
+            head_pre = item.findtext("title") or ""
+            content_pre = item.findtext("{http://purl.org/rss/1.0/modules/content/}encoded") or ""
+            desc_pre    = item.findtext("description") or ""
+            body_pre    = BeautifulSoup(content_pre or desc_pre, "lxml").get_text(" ", strip=True)
+            if _is_podcast_promo(head_pre, body_pre):
+                continue
             out.append(it)
             # Also split the article snippet into per-player mentions so a podcast
             # review listing multiple players surfaces as individual items.
-            content = item.findtext("{http://purl.org/rss/1.0/modules/content/}encoded") or ""
-            desc    = item.findtext("description") or ""
-            body_text = BeautifulSoup(content or desc, "lxml").get_text(" ", strip=True)
-            head     = item.findtext("title") or ""
+            content = content_pre
+            desc    = desc_pre
+            body_text = body_pre
+            head     = head_pre
             link     = item.findtext("link") or ""
             time_lbl = it.get("timeLabel") or it.get("time") or ""
             out.extend(extract_player_mentions(body_text, head, link, source_name,

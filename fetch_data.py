@@ -652,7 +652,14 @@ def fetch_classic_ownership(session):
         if not first and not last: continue
         name  = f"{first} {last}".strip()
         nk    = name_key(name)
-        nk_last_team = (name_key(last), SQUAD_TO_TEAM.get(p.get("squad_id")))
+        # Triple key: (first word of first_name, last_name, team). The first
+        # word matters because Classic stores e.g. "Bailey J." (West Coast)
+        # vs "Bailey" (Bulldogs) — same first word, distinct teams; and ALSO
+        # "Jack Williams" also lives on West Coast, so a (last, team) key
+        # would silently overwrite Bailey J. with Jack.
+        _first_word = first.split()[0] if first.split() else ""
+        nk_first_last_team = (name_key(_first_word), name_key(last),
+                              SQUAD_TO_TEAM.get(p.get("squad_id")))
         stats = p.get("stats") or {}
 
         # AFL Classic encodes positions as ints: 1=DEF, 2=MID, 3=RUC, 4=FWD.
@@ -676,12 +683,12 @@ def fetch_classic_ownership(session):
         # Strict key: first+last+nothing-else. ALWAYS use this if both sides
         # have matching first names (no middle initials).
         result[nk] = entry
-        # Tuple key: (last_name, team). Lets us disambiguate when one side has
-        # a middle initial ("Bailey J. Williams" vs "Bailey Williams"). Without
-        # this we used to fall back to a bare last-name match, which returned
-        # whichever Williams was last inserted = wrong half the time.
-        if nk_last_team[1]:
-            result[nk_last_team] = entry
+        # Triple key: (first_word, last_name, team). Handles two collisions
+        # at once: Bailey J. vs Bailey (different teams) AND Jack Williams
+        # vs Bailey J. Williams on the SAME team. A bare (last_name, team)
+        # tuple would silently overwrite same-team same-surname siblings.
+        if nk_first_last_team[2]:
+            result[nk_first_last_team] = entry
 
     log.info(f"AFL Fantasy Classic: parsed {len(result)} players (ownership)")
     return result
@@ -1367,7 +1374,8 @@ NAME_ALIASES = {
 # AFL Fantasy Classic positions live in a separate field (aflfPositions) and
 # are NOT touched by these overrides.
 SC_POSITION_OVERRIDES = {
-    ("Bailey Williams", "West Coast"): ["RUC", "FWD"],
+    ("Bailey Williams", "West Coast"):       ["RUC", "FWD"],
+    ("Bailey Williams", "Western Bulldogs"): ["DEF", "MID"],
 }
 
 
@@ -1521,6 +1529,33 @@ def fetch_careers(session, players, sc_players):
     log.info(f"Career: fetched {done} this run, merged {merged} players (cache {len(cache)})")
 
 
+def _compute_injury_rating(p, current_round):
+    """% of team games played in trailing ~24 months — current season to date
+    plus the previous full season (capped at 22 home-and-away games).
+
+    Returns int 0-100, or None for players with no historical games data
+    (rookies pre-debut, missing gamesBySeason). A player who debuted only in
+    the current season counts against the current-season denominator alone,
+    so a rookie playing every game scores 100, not ~35.
+    """
+    seasons = {row.get("y"): row.get("g", 0)
+               for row in (p.get("gamesBySeason") or [])
+               if row.get("y") is not None}
+    if not seasons:
+        return None
+    cur_year = max(seasons)
+    played = possible = 0.0
+    if cur_year in seasons:
+        possible += current_round
+        played   += min(seasons[cur_year], current_round)
+    if seasons.get(cur_year - 1, 0) > 0:
+        possible += 22
+        played   += min(seasons[cur_year - 1], 22)
+    if possible == 0:
+        return None
+    return max(0, min(100, round(100 * played / possible)))
+
+
 def write_output(players, sc_players=None, dt_players=None, injuries=None, selections=None):
     """Write players.json. Safe to call with a partial list (e.g. from the crash
     handler) — source counts fall back sensibly when the extras aren't passed."""
@@ -1528,6 +1563,14 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
         _a = NAME_ALIASES.get(_p.get("name"))
         if _a:
             _p["name"] = _a
+    # Inject trailing-24-month availability now that gamesBySeason is merged.
+    _cur_round = max((_p.get("lastRound") or 0) for _p in players) or 1
+    for _p in players:
+        _r = _compute_injury_rating(_p, _cur_round)
+        if _r is not None:
+            _p["injuryRating"] = _r
+        else:
+            _p.pop("injuryRating", None)
     output = {
         "scraped_at":   datetime.now().isoformat(),
         "round":        "Current",
@@ -1781,14 +1824,23 @@ def main():
     classic_lookup = fetch_classic_ownership(session)
     for p in sc_players:
         nk = name_key(p["name"])
-        # Prefer strict first+last match. Fall back to (last_name, team) which
-        # correctly disambiguates same-last-name players who differ by middle
-        # initial in AFL Classic (e.g. Bailey J. Williams West Coast vs Bailey
-        # Williams Western Bulldogs). The bare last-name fallback is gone —
-        # it was returning whichever Williams was last inserted.
-        co = (classic_lookup.get(nk)
-              or classic_lookup.get((name_key(p["name"].split()[-1]),
-                                     normalise_team(p.get("team","")))))
+        # Strict first+last match — but only trust it when teams agree, because
+        # AFL Classic distinguishes Bailey J. Williams (West Coast) from Bailey
+        # Williams (Bulldogs) on the FIRST-name side; the Footywire "Bailey
+        # Williams" with no middle initial therefore strict-key-matches the
+        # Bulldogs entry regardless of which Eagle/Doggie we're processing.
+        # When the strict hit's team disagrees with the Footywire team, fall
+        # through to the (last_name, team) tuple key instead.
+        ft_team = normalise_team(p.get("team", ""))
+        co = classic_lookup.get(nk)
+        if co and normalise_team(co.get("_squad_team", "")) != ft_team:
+            co = None
+        _ft_parts = p["name"].split()
+        _ft_first = _ft_parts[0] if _ft_parts else ""
+        _ft_last  = _ft_parts[-1] if _ft_parts else ""
+        co = (co
+              or classic_lookup.get((name_key(_ft_first),
+                                     name_key(_ft_last), ft_team)))
         if co:
             p["classic_owned"] = co["classic_owned"]
             p["classic_avg"]   = co["classic_avg"]
