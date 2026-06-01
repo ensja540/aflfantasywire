@@ -324,6 +324,64 @@ LINK_FALLERS  = f"https://{SITE_URL}/#fallers"
 LINK_WAIVER   = f"https://{SITE_URL}/#waiver"
 
 
+def consistency_tweets(players, log):
+    """Occasional feature on a notable-consistency player.
+       High ≥ 85%: 'Start with confidence'
+       Low  ≤ 45%: 'Play with caution'
+    At most one per day. Requires ≥5 played games so the % is statistically
+    meaningful, and player rank ≤ 150 so we're featuring relevant players."""
+    today = datetime.now().strftime("%Y-%m-%d")
+    for e in log.get("posted") or []:
+        ang = e.get("angle") or ""
+        if ang.startswith("cons_") and (e.get("at") or "")[:10] == today:
+            return []
+
+    high_cands, low_cands = [], []
+    for p in players:
+        scores = p.get("scores") or []
+        if sum(1 for s in scores if s and s > 0) < 5:
+            continue
+        rank = p.get("rank") or 999
+        if rank > 150:
+            continue
+        con = int(p.get("consistency") or 0)
+        if con >= 85:
+            high_cands.append((-con, p.get("rank") or 999, p, con))
+        elif 0 < con <= 45:
+            low_cands.append((con, p.get("rank") or 999, p, con))
+
+    # Alternate high/low day-by-day so the feed varies. Fall back to whichever
+    # bucket has a candidate when one is empty.
+    pick_high = (datetime.now().toordinal() % 2 == 0)
+    if pick_high and high_cands:
+        high_cands.sort(key=lambda x: (x[0], x[1]))
+        _, _, p, con = high_cands[0]
+        emoji, framing, angle = "\U0001F3AF", "Start with confidence", "cons_high"
+    elif low_cands:
+        low_cands.sort(key=lambda x: (x[0], x[1]))
+        _, _, p, con = low_cands[0]
+        emoji, framing, angle = "\U000026A0️", "Play with caution", "cons_low"
+    elif high_cands:
+        high_cands.sort(key=lambda x: (x[0], x[1]))
+        _, _, p, con = high_cands[0]
+        emoji, framing, angle = "\U0001F3AF", "Start with confidence", "cons_high"
+    else:
+        return []
+
+    rank = p.get("rank") or 999
+    avg  = round(p.get("scAvg")  or 0)
+    avg3 = round(p.get("scAvg3") or 0)
+    text = (
+        f"{emoji} {p['name']} — {con}% consistency rating.\n"
+        f"{framing}.\n\n"
+        f"3-game avg: {avg3}SC | Season avg: {avg}SC\n"
+        f"Ranked #{rank} in our live SuperCoach rankings.\n\n"
+        f"Full breakdowns and player form:\n{LINK_RANKINGS}\n"
+        f"{HASHTAGS}"
+    )
+    return [("cta", p["id"], angle, text)]
+
+
 def cta_tweets(players, log):
     """Drive traffic to the site — at most 1 per day.
 
@@ -585,10 +643,14 @@ def pick(players, news, log):
 
     chosen, used_pids = [], set()
 
-    # Special slot — at most ONE per day. Round-recap (top10) takes priority
-    # when enough games are in; otherwise a CTA promotes a site section.
-    # Ratio: 1 special : 2 stats tweets (DAILY_TARGET=3 → 1 special + 2 stats).
-    specials = top10_tweet(players, log, current_round) or cta_tweets(players, log)
+    # Special slot — at most ONE per day. Priority order:
+    #   1. Round-recap (top10) when the round is complete
+    #   2. Consistency feature (high/low cons player)
+    #   3. CTA (rank-callout or risers callout)
+    # Ratio across the daily 3 tweets: 1 special : 2 stats.
+    specials = (top10_tweet(players, log, current_round)
+                or consistency_tweets(players, log)
+                or cta_tweets(players, log))
     chosen.extend(specials)
     # Numbers/form/trends only — alternate Classic and Draft. (Injury "team news"
     # items were dropped: they weren't genuinely breaking or insightful.)

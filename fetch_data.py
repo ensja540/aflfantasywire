@@ -632,12 +632,27 @@ def fetch_classic_ownership(session):
         log.warning(f"AFL Fantasy Classic: unexpected payload shape ({type(data).__name__})")
         return result
 
+    # AFL Classic squad_id -> our team name. Derived empirically (not strictly
+    # alphabetical because Gold Coast / GWS get IDs in the 1000-range).
+    SQUAD_TO_TEAM = {
+        10:  "Adelaide",         20:  "Brisbane",
+        30:  "Carlton",          40:  "Collingwood",
+        50:  "Essendon",         60:  "Fremantle",
+        70:  "Geelong",          80:  "Hawthorn",
+        90:  "Melbourne",        100: "North Melbourne",
+        110: "Port Adelaide",    120: "Richmond",
+        130: "St Kilda",         140: "Western Bulldogs",
+        150: "West Coast",       160: "Sydney",
+        1000: "Gold Coast",      1010: "GWS Giants",
+    }
+
     for p in players:
         first = (p.get("first_name") or "").strip()
         last  = (p.get("last_name")  or "").strip()
         if not first and not last: continue
         name  = f"{first} {last}".strip()
         nk    = name_key(name)
+        nk_last_team = (name_key(last), SQUAD_TO_TEAM.get(p.get("squad_id")))
         stats = p.get("stats") or {}
 
         # AFL Classic encodes positions as ints: 1=DEF, 2=MID, 3=RUC, 4=FWD.
@@ -649,14 +664,24 @@ def fetch_classic_ownership(session):
         positions = [_POS_INT[int(x)] for x in raw_positions
                      if isinstance(x, (int, float)) and int(x) in _POS_INT]
 
-        result[nk] = {
+        entry = {
             "classic_owned": float(stats.get("owned_by") or 0),
             "classic_avg":   float(stats.get("avg_points") or 0),
             "classic_avg3":  float(stats.get("last_3_avg") or 0),
             "classic_proj":  float(stats.get("proj_avg") or 0),
             "classic_price": int(p.get("cost") or 0),
             "classic_positions": positions,
+            "_squad_team":   SQUAD_TO_TEAM.get(p.get("squad_id")),
         }
+        # Strict key: first+last+nothing-else. ALWAYS use this if both sides
+        # have matching first names (no middle initials).
+        result[nk] = entry
+        # Tuple key: (last_name, team). Lets us disambiguate when one side has
+        # a middle initial ("Bailey J. Williams" vs "Bailey Williams"). Without
+        # this we used to fall back to a bare last-name match, which returned
+        # whichever Williams was last inserted = wrong half the time.
+        if nk_last_team[1]:
+            result[nk_last_team] = entry
 
     log.info(f"AFL Fantasy Classic: parsed {len(result)} players (ownership)")
     return result
@@ -1756,7 +1781,14 @@ def main():
     classic_lookup = fetch_classic_ownership(session)
     for p in sc_players:
         nk = name_key(p["name"])
-        co = classic_lookup.get(nk) or classic_lookup.get(name_key(p["name"].split()[-1]))
+        # Prefer strict first+last match. Fall back to (last_name, team) which
+        # correctly disambiguates same-last-name players who differ by middle
+        # initial in AFL Classic (e.g. Bailey J. Williams West Coast vs Bailey
+        # Williams Western Bulldogs). The bare last-name fallback is gone —
+        # it was returning whichever Williams was last inserted.
+        co = (classic_lookup.get(nk)
+              or classic_lookup.get((name_key(p["name"].split()[-1]),
+                                     normalise_team(p.get("team","")))))
         if co:
             p["classic_owned"] = co["classic_owned"]
             p["classic_avg"]   = co["classic_avg"]
