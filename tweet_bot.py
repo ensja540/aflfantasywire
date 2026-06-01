@@ -296,13 +296,15 @@ def cta_tweets(players, log):
     return []
 
 
-def top10_tweet(players, log, current_round, min_players=250):
+def top10_tweet(players, log, current_round, min_players=380):
     """A single round-recap tweet with the round's top 10 SuperCoach scorers.
 
     Fires AT MOST ONCE per round. Will only fire when at least `min_players`
-    have a score for the current round — otherwise the top-10 would be the
-    top-of-Saturday-afternoon snapshot, not the actual round result. Once
-    posted, it's gated out for the rest of the round.
+    have a score for the current round — i.e. essentially all games are in.
+    An AFL round has ~9 games × 44 players ≈ 396 player slots, so 380 means
+    the last game's stats have been processed before the recap goes out.
+    (Previously this was 250, which let the recap fire after 6 games, missing
+    Monday-equivalent results.)
 
     Uses `pid=0` (which is not a real player id) as a sentinel so the
     standard per-player-per-round dedup leaves it alone.
