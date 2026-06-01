@@ -202,14 +202,38 @@ export default {
           max_tokens: 1000,
           messages: [{ role: "user", content: [
             { type: "image", source: { type: "base64", media_type: mt, data: b64 } },
-            { type: "text", text: "This is a screenshot of an AFL fantasy (SuperCoach/AFL Fantasy) team. List ONLY the player names clearly readable in the image, exactly as written, one per line. Do NOT guess, infer, autocomplete or add any name that is not plainly visible. Names only \u2014 no positions, prices, numbers, clubs or other text." }
+            { type: "text", text: "This is a screenshot of an AFL fantasy (SuperCoach/AFL Fantasy) team. Output ONLY plain player names, one per line, exactly as written. No prefixes, no bullets, no numbering, no positions, no prices, no clubs, no commentary, no apologies, no quotes. If you cannot clearly read any player name, output the single token NONE and nothing else. Do NOT guess, infer or autocomplete." }
           ]}]
         })
       });
       if (!upstream.ok) return json({ names: [] });
       const data = await upstream.json();
       const txt = (data.content && data.content[0] && data.content[0].text) || "";
-      const names = txt.split("\n").map(x => x.replace(/^[-*\d.\s]+/, "").trim()).filter(x => x.length > 2 && /[a-z]/i.test(x)).slice(0, 40);
+      // Reject prose lines: real names are short, 2-4 words, every word starts
+      // uppercase, and none of the words are common English fillers. Stops
+      // Claude's apologetic responses ("I can see this is a fantasy AFL team
+      // screenshot, but the image quality is too low...") being treated as
+      // names when the OCR fails.
+      const FILLER = new Set(["I","Im","Ive","The","This","That","These","Those","To","Is","Are","Was","Were","Be","Been","Can","Cannot","Cant","Could","Would","Should","See","Read","Make","Out","Without","With","From","For","Of","On","In","At","An","A","And","Or","But","No","Not","None","Sorry","Apologies","Unfortunately","However","Note","Names","Name","Player","Players","Team","Image","Screenshot","Quality","Resolution","Provide","Need","Higher","Clearer","Blurry","Low","Risk","Risking","Guessing","Inferring","Visible","Plainly","Listing","Following","Here","Are"]);
+      const lineOk = (s) => {
+        if (!s || s.length < 3 || s.length > 40) return false;
+        if (/[!?:;()\[\]{}<>@#$%^&*=_/\\|"]/.test(s)) return false;
+        if (/\d/.test(s)) return false;
+        const words = s.split(/\s+/);
+        if (words.length < 2 || words.length > 4) return false;
+        for (const w of words) {
+          if (!w) return false;
+          if (FILLER.has(w)) return false;
+          // each word: starts uppercase, may contain letters / apostrophe /
+          // hyphen / single dot for initials (e.g. "T.J.", "O'Brien").
+          if (!/^[A-Z][A-Za-z'.\-]*$/.test(w)) return false;
+        }
+        return true;
+      };
+      const names = txt.split(/\r?\n/)
+        .map(x => x.replace(/^[\s\-*\u2022]+/, "").replace(/^\d+[.)\s]+/, "").trim())
+        .filter(lineOk)
+        .slice(0, 40);
       return json({ names });
     }
 
