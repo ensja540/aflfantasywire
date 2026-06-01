@@ -370,8 +370,8 @@ def cta_tweets(players, log):
             f"3-game avg: {round(p.get('scAvg3') or 0)}SC | "
             f"Season avg: {round(p.get('scAvg') or 0)}SC\n"
             f"Consistency rating: {consistency}%\n"
-            f"Ranked #{rank} in our live SuperCoach rankings\n\n"
-            f"See the full top 200: {LINK_RANKINGS}\n"
+            f"Currently sitting at #{rank} in our live SuperCoach rankings.\n\n"
+            f"Full rankings, breakdowns and form data:\n{LINK_RANKINGS}\n"
             f"{HASHTAGS}"
         )]
 
@@ -385,8 +385,9 @@ def cta_tweets(players, log):
     if n_risers >= 3:
         return [(
             "cta", 0, "cta_risers",
-            f"\U0001F4C8 {n_risers} players surging into trade-up territory this week.\n\n"
-            f"See the full risers list with 3-game / 5-game / season averages:\n"
+            f"\U0001F4C8 {n_risers} players in trade-up form this week — "
+            f"3-game averages climbing well clear of season marks.\n\n"
+            f"Full list with form windows and breakdowns:\n"
             f"{LINK_RISERS}\n\n"
             f"{HASHTAGS}"
         )]
