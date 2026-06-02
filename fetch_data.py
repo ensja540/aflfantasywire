@@ -2134,6 +2134,24 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
         if _a:
             _p["name"] = _a
     reconcile_injuries(players)
+    # Backend sub-category (role) for every player, from position + profile:
+    #   DEF >15 disposals -> Half Back (else Key Defender)
+    #   FWD >15 disposals -> Half Forward (else Key Forward)
+    #   MID with extremely low consistency (<=45) -> Winger (else Midfielder)
+    for _p in players:
+        _pos = (_p.get("pos") or "").upper()
+        _d = _p.get("disposals") or 0
+        _c = _p.get("consistency")
+        if _pos == "DEF":
+            _p["role"] = "Half Back" if _d > 15 else "Key Defender"
+        elif _pos == "FWD":
+            _p["role"] = "Half Forward" if _d > 15 else "Key Forward"
+        elif _pos == "MID":
+            _p["role"] = "Winger" if (_c is not None and _c <= 45) else "Midfielder"
+        elif _pos == "RUC":
+            _p["role"] = "Ruck"
+        else:
+            _p["role"] = _pos
     # Inject trailing-24-month availability now that gamesBySeason is merged.
     _cur_round = max((_p.get("lastRound") or 0) for _p in players) or 1
     for _p in players:
