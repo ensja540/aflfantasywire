@@ -611,6 +611,25 @@ def _pid_round_history(log):
     return out
 
 
+def _recently_tweeted_pids(log, days=14):
+    """pids tweeted within the last `days` — a per-player cooldown so the
+    same player is not featured more than once per fortnight."""
+    from datetime import timedelta
+    cutoff = datetime.now() - timedelta(days=days)
+    out = set()
+    for e in log.get("posted") or []:
+        pid = e.get("pid")
+        if not pid:  # None / 0 sentinel
+            continue
+        ts = (e.get("at") or "").split("+")[0].replace("Z", "")
+        try:
+            if datetime.fromisoformat(ts) >= cutoff:
+                out.add(pid)
+        except Exception:
+            continue
+    return out
+
+
 def _expand_for_momentum(text, angle):
     """Rewrite the lead so a follow-up tweet about the same trend reads as
     an update (`momentum building` / `slide deepening`) instead of restating
@@ -623,6 +642,17 @@ def _expand_for_momentum(text, angle):
         text = text.replace("'s output has eased", "'s slide is deepening", 1)
     return text
 
+
+def _add_hook(text, angle):
+    """Append a CTA link to the full risers/fallers list before the hashtags."""
+    h = ("Full risers list 👉 " + SITE_URL + "/#risers" if angle in ("crise", "drise")
+         else "Full fallers list 👉 " + SITE_URL + "/#fallers" if angle in ("cfall", "dfall")
+         else "")
+    if not h:
+        return text
+    if HASHTAGS in text:
+        return text.replace(HASHTAGS, h + "\n\n" + HASHTAGS, 1)
+    return text + "\n\n" + h
 
 def pick(players, news, log):
     """Pick up to DAILY_TARGET varied tweets.
@@ -639,6 +669,7 @@ def pick(players, news, log):
     hist = _pid_round_history(log)
     tweeted_this_round = {pid for pid, evs in hist.items()
                           if any(r == current_round for r, _ in evs)}
+    recent14 = _recently_tweeted_pids(log, 14)  # 1 tweet per player / 2 weeks
 
     pools = {
         "breaking": breaking_tweets(news),
@@ -660,7 +691,7 @@ def pick(players, news, log):
     specials = (top10_tweet(players, log, current_round)
                 or consistency_tweets(players, log)
                 or cta_tweets(players, log))
-    chosen.extend(specials)
+    chosen.extend([s for s in specials if not s[1] or s[1] not in recent14])
     # Numbers/form/trends only — alternate Classic and Draft. (Injury "team news"
     # items were dropped: they weren't genuinely breaking or insightful.)
     order = ["classic", "draft"] * DAILY_TARGET
@@ -669,13 +700,14 @@ def pick(players, news, log):
             break
         for cand in list(pools.get(kind, [])):
             ttype, pid, angle, text = cand
-            if pid in tweeted_this_round or pid in used_pids:
+            if pid in tweeted_this_round or pid in used_pids or pid in recent14:
                 continue
             # If the same angle was tweeted in the previous round → frame
             # this one as a momentum-continues update.
             if current_round and any(r == current_round - 1 and a == angle
                                       for r, a in hist.get(pid, [])):
                 text = _expand_for_momentum(text, angle)
+            text = _add_hook(text, angle)
             if len(text) > 278:
                 continue
             chosen.append((ttype, pid, angle, text))
