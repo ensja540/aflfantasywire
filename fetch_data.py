@@ -507,7 +507,7 @@ def parse_player_games(html):
     result = {
         "pos": "",
         "sc_rounds":  [], "sc_scores":  [], "af_scores":  [], "opponents": [],
-        "disposals":  [], "marks":      [], "goals":      [], "kicks": [], "handballs": [],
+        "disposals":  [], "marks":      [], "goals":      [], "behinds": [], "kicks": [], "handballs": [],
         "tackles":    [], "hitouts":    [], "clearances": [],
     }
 
@@ -551,6 +551,7 @@ def parse_player_games(html):
         i_d     = ci("d")
         i_m     = ci("m")
         i_g     = ci("g")
+        i_b     = ci("b")
         i_t     = ci("t")
         i_ho    = ci("ho")
         i_cl    = ci("cl")
@@ -583,6 +584,7 @@ def parse_player_games(html):
             result["disposals"].append(parse_int(i_d))
             result["marks"].append(parse_int(i_m))
             result["goals"].append(parse_int(i_g))
+            result["behinds"].append(parse_int(i_b))
             result["tackles"].append(parse_int(i_t))
             result["hitouts"].append(parse_int(i_ho))
             result["clearances"].append(parse_int(i_cl))
@@ -593,7 +595,7 @@ def parse_player_games(html):
     # latest round sits at the end, matching the rest of the pipeline (which
     # treats [-1] as "most recent").
     parallel = ("sc_rounds","sc_scores","af_scores","opponents","disposals","marks",
-                "goals","kicks","handballs","tackles","hitouts","clearances")
+                "goals","behinds","kicks","handballs","tackles","hitouts","clearances")
     for k in parallel:
         result[k].reverse()
 
@@ -1491,6 +1493,7 @@ def build_player(sc, dt, injuries, selections, rank):
         "hitouts":    sc.get("hitouts",    0),
         "kicks":      sc.get("kicks",      0),
         "handballs":  sc.get("handballs",  0),
+        "behinds":    sc.get("behinds",    0),
         "gamesPlayed": sc.get("gamesPlayed", 0),
 
         "roundStats": sc.get("round_stats", []),
@@ -1986,7 +1989,7 @@ def main():
                 _o = _opps[idx] if idx < len(_opps) else None
                 rs.append({"r": gr[idx] if idx < len(gr) else f"R{idx+1}",
                            "sc": sc_s, "dt": _g("af_scores"), "dis": _g("disposals"),
-                           "mk": _g("marks"), "tk": _g("tackles"), "gl": _g("goals"),
+                           "mk": _g("marks"), "tk": _g("tackles"), "gl": _g("goals"), "b": _g("behinds"),
                            "k": _g("kicks"), "hb": _g("handballs"), "opp": _o})
                 # Attribute this score to the opponent that conceded it (DvP).
                 if _o and sc_s and sc_s > 0:
@@ -2032,6 +2035,7 @@ def main():
             p["disposals"]  = avg_of("disposals")
             p["marks"]      = avg_of("marks")
             p["goals"]      = avg_of("goals")
+            p["behinds"]    = avg_of("behinds")
             p["kicks"]      = avg_of("kicks")
             p["handballs"]  = avg_of("handballs")
             p["tackles"]    = avg_of("tackles")
@@ -2184,11 +2188,19 @@ def main():
             _tf = pp.get("teamFactor") or 1
             for _sk in _STAT_KEYS:
                 _savg = pp.get(_sk) or 0
-                if not _savg:
+                # Behinds feed the goals forecast (scoring chances) at 3 behinds
+                # = 1 goal — not shown as a stat, just an indicator of future goals.
+                _bxtra = (pp.get("behinds") or 0) / 3.0 if _sk == "goals" else 0
+                if not _savg and not _bxtra:
                     continue
                 _rs3 = [r.get(_RK[_sk]) for r in (pp.get("roundStats") or []) if r.get(_RK[_sk]) is not None][-3:]
                 _a3 = sum(_rs3) / len(_rs3) if _rs3 else _savg
-                _base = 0.55 * _a3 + 0.45 * _savg
+                if _sk == "goals":
+                    _b3l = [r.get("b") for r in (pp.get("roundStats") or []) if r.get("b") is not None][-3:]
+                    _b3x = (sum(_b3l) / len(_b3l) if _b3l else (pp.get("behinds") or 0)) / 3.0
+                    _base = 0.55 * (_a3 + _b3x) + 0.45 * (_savg + _bxtra)
+                else:
+                    _base = 0.55 * _a3 + 0.45 * _savg
                 _mm = _sm.get(_sk, 1)
                 _sp[_sk] = round(_base * _mm * _tf, 1)
             if _sp:
