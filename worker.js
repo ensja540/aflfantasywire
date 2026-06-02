@@ -291,8 +291,14 @@ export default {
       return json({ subscriptions: out });
     }
 
-    // Everything else: serve the static site assets.
-    return env.ASSETS.fetch(request);
+    // Everything else: serve static assets, with an SPA fallback to index.html
+    // for clean app routes (e.g. /predict, /risers) that are not real files,
+    // so deep links and refreshes load the app instead of 404ing.
+    const assetRes = await env.ASSETS.fetch(request);
+    if (assetRes.status === 404 && request.method === "GET" && !url.pathname.slice(1).includes(".")) {
+      return env.ASSETS.fetch(new Request(new URL("/", request.url), request));
+    }
+    return assetRes;
   },
 };
 
