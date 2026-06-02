@@ -620,6 +620,7 @@ _TEAM_ABBR = {
 }
 
 def fetch_upcoming_fixture(session, cur_round, n=5, season_id=AFL_API_SEASON_ID):
+    _r1 = set()  # teams playing the immediate next round (others have a bye)
     """Return {our_team_name: [opponent_team_name, ...]} for the next ``n`` rounds
     after ``cur_round``, via the public AFL matches API. Opponent names are run
     through normalise_team so they key-match the points-conceded table (which is
@@ -643,6 +644,9 @@ def fetch_upcoming_fixture(session, cur_round, n=5, season_id=AFL_API_SEASON_ID)
             if h and a and h != "Unknown" and a != "Unknown":
                 out.setdefault(h, []).append(a)
                 out.setdefault(a, []).append(h)
+                if k == 1:
+                    _r1.add(h); _r1.add(a)
+    out["_r1"] = _r1
     return out
 
 
@@ -1536,6 +1540,7 @@ NAME_ALIASES = {
     "Lachlan Ash": "Lachie Ash",
     "Cal Wilkie": "Callum Wilkie",
     "Bradley Hill": "Brad Hill",
+    "Zach Williams": "Zac Williams",
 }
 
 
@@ -2135,6 +2140,8 @@ def main():
             _formF = 1 + (_wr - 0.5) * 0.10 if _wr is not None else 1
             _pp["teamFactor"] = round(max(0.9, min(1.1, 0.5 * _foF + 0.5 * _formF)), 3)
             _rp = _trp.get(_t, 0)
+            if _fx.get("_r1"):
+                _pp["byeNext"] = _t not in _fx["_r1"]
             _pp["teamRoundsPlayed"] = _rp
             _gp = _pp.get("gamesPlayed")
             if _rp > 0 and _gp is not None:
