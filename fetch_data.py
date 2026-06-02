@@ -1965,6 +1965,59 @@ def build_dvp(players):
         log.error(f"DvP write failed: {_e}")
 
 
+AFL_INJURIES_PATH = BASE_DIR / "afl_injuries.json"
+
+
+def reconcile_injuries(players):
+    """Verify injuryStatus against the official AFL medical-room snapshot
+    (afl_injuries.json: the weekly afl.com.au list). Players ON the list take its
+    status; players NOT on the list are forced 'available' so stale Footywire
+    false positives (e.g. a recovered player still flagged) are cleared. Matched
+    by club + surname (+ first initial) to survive name-form differences."""
+    try:
+        afl = json.loads(AFL_INJURIES_PATH.read_text(encoding="utf-8"))
+    except Exception as _e:
+        log.warning(f"No AFL injury snapshot to reconcile against: {_e}")
+        return
+    entries = afl.get("players") or {}
+    if not entries:
+        return
+    from collections import defaultdict
+    by_nk, by_ln = defaultdict(list), defaultdict(list)
+    for p in players:
+        tm = normalise_team(p.get("team", ""))
+        nm = p.get("name", "")
+        if not nm:
+            continue
+        by_nk[(tm, name_key(nm))].append(p)
+        by_ln[(tm, nm.split()[-1].lower())].append(p)
+    matched = set()
+    for an, info in entries.items():
+        club = normalise_team(info.get("club", ""))
+        cand = list(by_nk.get((club, name_key(an)), []))
+        if not cand and an:
+            ln, fi = an.split()[-1].lower(), an[0].lower()
+            same_ln = by_ln.get((club, ln), [])
+            cand = [p for p in same_ln if p.get("name", "")[:1].lower() == fi] or same_ln
+        for p in cand:
+            p["injuryStatus"] = info.get("status", "out")
+            _det = info.get("injury", "")
+            if info.get("eta"):
+                _det = (_det + " (" + info["eta"] + ")").strip()
+            p["injuryDetail"] = _det
+            matched.add(id(p))
+    cleared = 0
+    for p in players:
+        if id(p) not in matched and p.get("injuryStatus") in ("out", "test"):
+            p["injuryStatus"] = "available"
+            p["injuryDetail"] = ""
+            if isinstance(p.get("tags"), list) and "OUT" in p["tags"]:
+                p["tags"] = [t for t in p["tags"] if t != "OUT"]
+            cleared += 1
+    log.info(f"Injury reconcile vs AFL R{afl.get('round','?')} list: "
+             f"{len(matched)} confirmed, {cleared} false positives cleared")
+
+
 def write_output(players, sc_players=None, dt_players=None, injuries=None, selections=None):
     """Write players.json. Safe to call with a partial list (e.g. from the crash
     handler) — source counts fall back sensibly when the extras aren't passed."""
@@ -1972,6 +2025,7 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
         _a = NAME_ALIASES.get(_p.get("name"))
         if _a:
             _p["name"] = _a
+    reconcile_injuries(players)
     # Inject trailing-24-month availability now that gamesBySeason is merged.
     _cur_round = max((_p.get("lastRound") or 0) for _p in players) or 1
     for _p in players:
