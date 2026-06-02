@@ -1916,13 +1916,13 @@ def main():
                 def _g(key, ix=idx):
                     arr = games.get(key) or []
                     return arr[ix] if ix < len(arr) and arr[ix] is not None else 0
+                _opps = games.get("opponents") or []
+                _o = _opps[idx] if idx < len(_opps) else None
                 rs.append({"r": gr[idx] if idx < len(gr) else f"R{idx+1}",
                            "sc": sc_s, "dt": _g("af_scores"), "dis": _g("disposals"),
                            "mk": _g("marks"), "tk": _g("tackles"), "gl": _g("goals"),
-                           "k": _g("kicks"), "hb": _g("handballs")})
+                           "k": _g("kicks"), "hb": _g("handballs"), "opp": _o})
                 # Attribute this score to the opponent that conceded it (DvP).
-                _opps = games.get("opponents") or []
-                _o = _opps[idx] if idx < len(_opps) else None
                 if _o and sc_s and sc_s > 0:
                     _pp = (p.get("pos") or "MID").upper()
                     _conc_all.setdefault(_o, []).append(sc_s)
@@ -2118,6 +2118,25 @@ def main():
                 _sp[_sk] = round(_base * _mm * _tf, 1)
             if _sp:
                 pp["statPred"] = _sp
+            # Form-vs-opposition signal: judge recent trend against the toughness
+            # of the last 3 opponents faced (tough = concedes few SC points).
+            _rs = pp.get("roundStats") or []
+            _ropp = [r.get("opp") for r in _rs[-3:] if r.get("opp")]
+            _tough = None
+            if _ropp:
+                _ts = [1 - _n01(_all_mean[o], _amin, _amax) for o in _ropp if o in _all_mean]
+                if _ts:
+                    _tough = sum(_ts) / len(_ts)
+            _sa = pp.get("scAvg") or 0
+            _delta = (pp.get("scAvg3") or _sa) - _sa
+            if _tough is not None and _sa > 0:
+                _dt = _sa * 0.06
+                _sig = ("buy"  if (_delta < -_dt and _tough > 0.55)
+                        else "sell" if (_delta > _dt and _tough < 0.45)
+                        else "hold" if (_delta >= -_dt and _tough > 0.55)
+                        else None)
+                if _sig:
+                    pp["formSignal"] = {"sig": _sig, "tough": round(_tough, 2), "trend": round(_delta, 1)}
             _ratings = []
             for _opp in _opps[:5]:
                 _parts, _ws = [], []
