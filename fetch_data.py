@@ -619,6 +619,75 @@ _TEAM_ABBR = {
     "West Coast":"WCE","Western Bulldogs":"WBD",
 }
 
+# ── Head-coach changes ────────────────────────────────────────────────────
+# A defence's concession patterns belong to its coach, so matchup data from a
+# different coach is misleading. For each team (as the OPPONENT conceding), its
+# matchup data is valid only from this 2026 round onward; earlier 2026 games AND
+# all of 2025 are under the old coach and disregarded for that team.
+COACH_CHANGE_2026_ROUND = {"Melbourne": 0, "Carlton": 10, "Essendon": 10}
+# 2025 history is disregarded for ANY team whose coach has changed since then.
+COACH_CHANGED_TEAMS = set(COACH_CHANGE_2026_ROUND)
+
+
+def _coach_valid_2026(opp, rnd):
+    """True if a 2026 round's conceded data reflects the team's CURRENT coach."""
+    r = COACH_CHANGE_2026_ROUND.get(opp)
+    if r is None:
+        return True
+    try:
+        return int(rnd) >= r
+    except (TypeError, ValueError):
+        return True
+
+
+HIST_LOG_TIME_LIMIT = 540  # seconds budget for the 2025 history pass
+_DVP_2025 = {}  # opp -> pos -> stat -> [values]; last-season position-vs-team
+
+
+def fetch_dvp_2025(session, sc_players, limit=380):
+    """Fetch 2025 game logs (Footywire pg-...?year=2025) and aggregate a
+    position-vs-team matrix for last season. Teams whose coach has changed since
+    2025 (COACH_CHANGED_TEAMS) are skipped — their old-coach data misleads."""
+    import time as _time
+    _DVP_2025.clear()
+    start = _time.time()
+    skey = [("disposals", "disposals"), ("kicks", "kicks"), ("handballs", "handballs"),
+            ("marks", "marks"), ("tackles", "tackles"), ("goals", "goals")]
+    done = 0
+    for p in sc_players[:limit]:
+        if _time.time() - start > HIST_LOG_TIME_LIMIT:
+            log.warning("2025 history pass hit time budget")
+            break
+        pu = p.get("profile_url", "")
+        if not pu:
+            continue
+        pg = pu.replace("/pu-", "/pg-")
+        sep = "&" if "?" in pg else "?"
+        r = get(session, pg + sep + "year=2025", retries=1, timeout=8)
+        if not r:
+            continue
+        gh = parse_player_games(r.text)
+        pos = (gh.get("pos") or p.get("pos") or "MID").upper()
+        if pos not in ("DEF", "MID", "RUC", "FWD"):
+            pos = "MID"
+        opps = gh.get("opponents") or []
+        scs = gh.get("sc_scores") or []
+        for idx in range(len(opps)):
+            opp = opps[idx]
+            if not opp or opp in COACH_CHANGED_TEAMS:
+                continue
+            d = _DVP_2025.setdefault(opp, {}).setdefault(pos, {})
+            sc = scs[idx] if idx < len(scs) else None
+            if sc:
+                d.setdefault("sc", []).append(sc)
+            for k, full in skey:
+                arr = gh.get(k) or []
+                v = arr[idx] if idx < len(arr) and arr[idx] is not None else None
+                if v is not None:
+                    d.setdefault(full, []).append(v)
+        done += 1
+    log.info(f"2025 history: {done} players -> DvP across {len(_DVP_2025)} teams")
+
 def fetch_upcoming_fixture(session, cur_round, n=5, season_id=AFL_API_SEASON_ID):
     _r1 = set()  # teams playing the immediate next round (others have a bye)
     """Return {our_team_name: [opponent_team_name, ...]} for the next ``n`` rounds
@@ -1840,7 +1909,7 @@ def build_dvp(players):
             if (r.get("r") or 0) < 1:   # exclude Opening Round from matchup data
                 continue
             opp = r.get("opp")
-            if not opp:
+            if not opp or not _coach_valid_2026(opp, r.get("r")):
                 continue
             for sk, full in _DVP_STATS:
                 v = r.get(sk)
@@ -1861,9 +1930,29 @@ def build_dvp(players):
                 cell_t[ps] = cell
         if cell_t:
             teams[t] = cell_t
+    # 2025 historical layer (coach-changed teams already excluded at fetch time)
+    hlg = defaultdict(lambda: defaultdict(list))
+    hist_teams = {}
+    for t, pd in _DVP_2025.items():
+        cell_t = {}
+        for ps, sd in pd.items():
+            cell = {}
+            for sk, vals in sd.items():
+                if len(vals) >= 4:
+                    m = round(sum(vals) / len(vals), 1)
+                    cell[sk] = {"avg": m, "n": len(vals)}
+                    hlg[ps][sk].append(m)
+            if cell:
+                cell_t[ps] = cell
+        if cell_t:
+            hist_teams[t] = cell_t
+    hist_league = {ps: {sk: round(sum(v) / len(v), 1) for sk, v in sd.items()} for ps, sd in hlg.items()}
     out = {
         "league": league,
         "teams": teams,
+        "teamsHist": hist_teams,
+        "leagueHist": hist_league,
+        "coachChanged": sorted(COACH_CHANGED_TEAMS),
         "abbr": {t: _TEAM_ABBR.get(t, t[:3].upper()) for t in teams},
         "stats": [f for _, f in _DVP_STATS],
         "positions": sorted(pos_set),
@@ -2143,12 +2232,14 @@ def main():
                 if _o and sc_s and sc_s > 0:
                     _pp = (p.get("pos") or "MID").upper()
                     _rnd0 = gr[idx] if idx < len(gr) else 1
-                    if _rnd0 >= 1:  # SC points conceded = fantasy rounds only
-                        _conc_all.setdefault(_o, []).append(sc_s)
-                        _conc_pos.setdefault(_o, {}).setdefault(_pp, []).append(sc_s)
-                    # Raw-stat conceded profiles include Round 0.
-                    for _sk in ("disposals", "kicks", "handballs", "marks", "tackles", "behinds", "goals"):
-                        _conc_stat.setdefault(_o, {}).setdefault(_pp, {}).setdefault(_sk, []).append(_g(_sk))
+                    # Disregard games where this opponent had a different coach.
+                    if _coach_valid_2026(_o, _rnd0):
+                        if isinstance(_rnd0, int) and _rnd0 >= 1:  # SC pts = fantasy rounds only
+                            _conc_all.setdefault(_o, []).append(sc_s)
+                            _conc_pos.setdefault(_o, {}).setdefault(_pp, []).append(sc_s)
+                        # Raw-stat conceded profiles include Round 0.
+                        for _sk in ("disposals", "kicks", "handballs", "marks", "tackles", "behinds", "goals"):
+                            _conc_stat.setdefault(_o, {}).setdefault(_pp, {}).setdefault(_sk, []).append(_g(_sk))
             p["round_stats"] = rs
 
             # Last 7 SC scores (right-pad with 0s if fewer played games)
@@ -2269,6 +2360,10 @@ def main():
         # win/loss form. Kept to a gentle ~0.9-1.1 multiplier so it nudges, not
         # dominates (the player's own avg already reflects their team somewhat).
         _form = fetch_recent_form(session, _cr, n=5)
+        try:
+            fetch_dvp_2025(session, sc_players)
+        except Exception as _e:
+            log.error(f"2025 DvP fetch failed: {_e}")
         _ptsc = fetch_points_conceded(session, _cr)
         _lg_pts = (sum(_ptsc.values()) / len(_ptsc)) if _ptsc else 0
         _trp = fetch_team_rounds_played(session, _cr)
@@ -2319,6 +2414,20 @@ def main():
                 for _sk, _m in _sd.items():
                     _lg.setdefault(_pp2, {}).setdefault(_sk, []).append(_m)
         _lg_mean = {pp2: {sk: sum(v) / len(v) for sk, v in sd.items()} for pp2, sd in _lg.items()}
+        # 2025 historical means for a light matchup blend
+        _cs_mean_2025, _cs_n_2025 = {}, {}
+        for _t, _pd in _DVP_2025.items():
+            for _pp2, _sd in _pd.items():
+                _cs_n_2025.setdefault(_t, {})[_pp2] = len(_sd.get("disposals") or [])
+                for _sk, _vals in _sd.items():
+                    if _vals:
+                        _cs_mean_2025.setdefault(_t, {}).setdefault(_pp2, {})[_sk] = sum(_vals) / len(_vals)
+        _lg2 = {}
+        for _t, _pd in _cs_mean_2025.items():
+            for _pp2, _sd in _pd.items():
+                for _sk, _m in _sd.items():
+                    _lg2.setdefault(_pp2, {}).setdefault(_sk, []).append(_m)
+        _lg_mean_2025 = {pp2: {sk: sum(v) / len(v) for sk, v in sd.items()} for pp2, sd in _lg2.items()}
         _STAT_KEYS = ("disposals", "kicks", "handballs", "marks", "tackles", "behinds", "goals")
         _RK = {"disposals": "dis", "kicks": "k", "handballs": "hb", "marks": "mk", "tackles": "tk", "behinds": "b", "goals": "gl"}
         for pp in players:
@@ -2332,7 +2441,16 @@ def main():
                     _oppm = _cs_mean.get(_o0, {}).get(_P, {}).get(_sk)
                     _lgm = _lg_mean.get(_P, {}).get(_sk)
                     if _oppm and _lgm and _lgm > 0:
-                        _sm[_sk] = round(max(0.85, min(1.15, _oppm / _lgm)), 3)
+                        _curf = _oppm / _lgm
+                        _hf = None
+                        if _o0 not in COACH_CHANGED_TEAMS:
+                            _h_o = _cs_mean_2025.get(_o0, {}).get(_P, {}).get(_sk)
+                            _h_l = _lg_mean_2025.get(_P, {}).get(_sk)
+                            _h_n = _cs_n_2025.get(_o0, {}).get(_P, 0)
+                            if _h_o and _h_l and _h_l > 0 and _h_n >= 15:
+                                _hf = _h_o / _h_l
+                        _bf = (0.8 * _curf + 0.2 * _hf) if _hf is not None else _curf
+                        _sm[_sk] = round(max(0.85, min(1.15, _bf)), 3)
                 if _sm:
                     pp["statMatch"] = _sm
                 # Team-level points-conceded nudge: a leaky defence (concedes
@@ -2430,7 +2548,7 @@ def main():
             _pt = normalise_team(_pp.get("team", ""))
             for _r in (_pp.get("roundStats") or []):
                 _rr = _r.get("r") or 0; _opp = _r.get("opp")
-                if _rr < 1 or not _opp:
+                if _rr < 1 or not _opp or not _coach_valid_2026(_opp, _rr):
                     continue
                 for _s, _k in _BSTATS:
                     _gk[(_opp, _rr, _pt)][_s] += _r.get(_k) or 0
