@@ -1714,8 +1714,12 @@ def _compute_injury_rating(p, current_round):
     cur_year = max(seasons)
     played = possible = 0.0
     if cur_year in seasons:
-        possible += current_round
-        played   += min(seasons[cur_year], current_round)
+        # Denominator = rounds the player's team has actually played (byes
+        # excluded), not the raw round number — otherwise a player who only
+        # missed his team's bye is dinged to ~97% instead of 100%.
+        _trp = p.get("teamRoundsPlayed") or current_round
+        possible += _trp
+        played   += min(seasons[cur_year], _trp)
     if seasons.get(cur_year - 1, 0) > 0:
         possible += 22
         played   += min(seasons[cur_year - 1], 22)
