@@ -644,6 +644,52 @@ HIST_LOG_TIME_LIMIT = 540  # seconds budget for the 2025 history pass
 _DVP_2025 = {}  # opp -> pos -> stat -> [values]; last-season position-vs-team
 
 
+def _parse_year_games(html):
+    """Parse a Footywire historical (?year=YYYY) games-log table. Its layout is
+    'Description Date Opponent Result K HB D M G B T HO ...' (no AF/SC columns),
+    different from the current-season page, so it needs its own column-mapped
+    parser. Returns parallel lists of opponents + raw stats."""
+    soup = BeautifulSoup(html, "lxml")
+    out = {"opponents": [], "disposals": [], "kicks": [], "handballs": [],
+           "marks": [], "tackles": [], "goals": [], "behinds": []}
+    for table in soup.find_all("table"):
+        rows = table.find_all("tr")
+        if len(rows) < 2:
+            continue
+        hdr = [c.get_text(strip=True).lower() for c in rows[0].find_all(["td", "th"])]
+        if "opponent" not in hdr or "d" not in hdr or "k" not in hdr:
+            continue
+        idx = {h: i for i, h in enumerate(hdr)}
+        ci_opp = idx["opponent"]
+
+        def _num(cells, key):
+            i = idx.get(key, -1)
+            if i < 0 or i >= len(cells):
+                return None
+            t = cells[i].get_text(strip=True)
+            try:
+                return float(t)
+            except ValueError:
+                return None
+        for tr in rows[1:]:
+            cells = tr.find_all(["td", "th"])
+            if len(cells) <= ci_opp:
+                continue
+            opp = normalise_team(re.sub(r"^(vs|@)\s*", "", cells[ci_opp].get_text(" ", strip=True), flags=re.I))
+            if not opp or opp == "Unknown":
+                continue
+            out["opponents"].append(opp)
+            out["disposals"].append(_num(cells, "d"))
+            out["kicks"].append(_num(cells, "k"))
+            out["handballs"].append(_num(cells, "hb"))
+            out["marks"].append(_num(cells, "m"))
+            out["tackles"].append(_num(cells, "t"))
+            out["goals"].append(_num(cells, "g"))
+            out["behinds"].append(_num(cells, "b"))
+        break
+    return out
+
+
 def fetch_dvp_2025(session, sc_players, limit=380):
     """Fetch 2025 game logs (Footywire pg-...?year=2025) and aggregate a
     position-vs-team matrix for last season. Teams whose coach has changed since
@@ -666,20 +712,18 @@ def fetch_dvp_2025(session, sc_players, limit=380):
         r = get(session, pg + sep + "year=2025", retries=1, timeout=8)
         if not r:
             continue
-        gh = parse_player_games(r.text)
-        pos = (gh.get("pos") or p.get("pos") or "MID").upper()
+        gh = _parse_year_games(r.text)
+        pos = (p.get("pos") or "MID").upper()
         if pos not in ("DEF", "MID", "RUC", "FWD"):
             pos = "MID"
         opps = gh.get("opponents") or []
-        scs = gh.get("sc_scores") or []
+        if not opps:
+            continue
         for idx in range(len(opps)):
             opp = opps[idx]
             if not opp or opp in COACH_CHANGED_TEAMS:
                 continue
             d = _DVP_2025.setdefault(opp, {}).setdefault(pos, {})
-            sc = scs[idx] if idx < len(scs) else None
-            if sc:
-                d.setdefault("sc", []).append(sc)
             for k, full in skey:
                 arr = gh.get(k) or []
                 v = arr[idx] if idx < len(arr) and arr[idx] is not None else None
