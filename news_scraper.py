@@ -674,6 +674,38 @@ def _label_from_dt(dt):
         return "1d ago"
 
 
+def _parse_dt_any(s):
+    """Parse a date string from any common feed/CMS format — ISO-8601 (AFL CMS,
+    e.g. '2026-04-20T10:30:00Z' or with an offset/millis) or RFC-2822 (RSS
+    pubDate) — into an aware UTC datetime, or None if empty/unparseable.
+
+    The AFL content API publishes ISO-8601, which email.utils.parsedate_to_datetime
+    cannot read; relying on that alone made every club article fail to date and
+    default to "recent", so weeks-old articles leaked in as fresh news."""
+    if not s:
+        return None
+    s = str(s).strip()
+    try:
+        iso = re.sub(r"\.\d+", "", s.replace("Z", "+00:00"))
+        dt = datetime.fromisoformat(iso)
+        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+    except Exception:
+        pass
+    try:
+        from email.utils import parsedate_to_datetime
+        dt = parsedate_to_datetime(s)
+        if dt:
+            return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+    except Exception:
+        pass
+    return None
+
+
+# Drop club articles older than this — without a date check they would default
+# to "recent" and stale items would surface as breaking news.
+CLUB_NEWS_MAX_AGE_HOURS = 72
+
+
 def _classify_headline(text):
     """Map a headline/body to (type, category) by keyword priority:
     selection -> injury -> analysis -> news/general. General news is KEPT
@@ -2536,19 +2568,17 @@ def scrape_club_news(session, player_idx):
 
                     pid, pname = find_player(full_text, player_idx)
 
-                    # Parse time
-                    try:
-                        from email.utils import parsedate_to_datetime
-                        from datetime import timezone
-                        pub_dt = parsedate_to_datetime(pub) if pub else None
-                        if pub_dt:
-                            delta = datetime.now(timezone.utc) - pub_dt
-                            mins  = int(delta.total_seconds() / 60)
-                            time_label = f"{mins}m ago" if mins < 60 else f"{mins//60}h ago" if mins < 1440 else f"{mins//1440}d ago"
-                        else:
-                            time_label = "recent"
-                    except Exception:
-                        time_label = "recent"
+                    # Parse the real publish date (AFL CMS uses ISO-8601) and
+                    # enforce a freshness window. Articles we can't date, or that
+                    # are older than the window, are skipped — otherwise stale
+                    # pieces default to "recent" and surface as breaking news.
+                    pub_dt = _parse_dt_any(pub)
+                    if pub_dt is None:
+                        continue
+                    if (datetime.now(timezone.utc) - pub_dt).total_seconds() > CLUB_NEWS_MAX_AGE_HOURS * 3600:
+                        continue
+                    time_label = _label_from_dt(pub_dt)
+                    pub_iso = pub_dt.isoformat()
 
                     cat = result["category"]
                     item_type = (
@@ -2586,6 +2616,7 @@ def scrape_club_news(session, player_idx):
                         "stats":       [],
                         "relevance":   result["score"],
                         "_source":     f"club_{slug}",
+                        "pubISO":      pub_iso,
                     })
                 continue  # success via API, skip HTML fallback
 
