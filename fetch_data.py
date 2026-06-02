@@ -638,6 +638,46 @@ def fetch_upcoming_fixture(session, cur_round, n=5, season_id=AFL_API_SEASON_ID)
     return out
 
 
+def fetch_recent_form(session, cur_round, n=5, season_id=AFL_API_SEASON_ID):
+    """Win rate (0-1) over the last ``n`` completed rounds, keyed by our team
+    name, from the AFL matches API (CONCLUDED matches with totalScore). Draws
+    count as half a win. Returns {} on failure."""
+    wins, games = {}, {}
+    for k in range(0, n):
+        rnd = cur_round - k
+        if rnd < 1:
+            break
+        r = get(session,
+                f"https://aflapi.afl.com.au/afl/v2/matches?compSeasonId={season_id}"
+                f"&roundNumber={rnd}&pageSize=20", retries=1, timeout=10)
+        if not r:
+            continue
+        try:
+            matches = r.json().get("matches", []) or []
+        except Exception:
+            continue
+        for m in matches:
+            if m.get("status") != "CONCLUDED":
+                continue
+            h, a = m.get("home") or {}, m.get("away") or {}
+            ht = normalise_team((h.get("team") or {}).get("name") or "")
+            at = normalise_team((a.get("team") or {}).get("name") or "")
+            hs = (h.get("score") or {}).get("totalScore")
+            as_ = (a.get("score") or {}).get("totalScore")
+            if ht == "Unknown" or at == "Unknown" or hs is None or as_ is None:
+                continue
+            games[ht] = games.get(ht, 0) + 1
+            games[at] = games.get(at, 0) + 1
+            if hs > as_:
+                wins[ht] = wins.get(ht, 0) + 1
+            elif as_ > hs:
+                wins[at] = wins.get(at, 0) + 1
+            else:
+                wins[ht] = wins.get(ht, 0) + 0.5
+                wins[at] = wins.get(at, 0) + 0.5
+    return {t: wins.get(t, 0) / g for t, g in games.items() if g}
+
+
 def fetch_classic_ownership(session):
     """
     Fetch AFL Fantasy Classic player data from the public JSON endpoint.
@@ -1945,6 +1985,24 @@ def main():
     try:
         _cr = max((pp.get("lastRound") or 0) for pp in players) or 1
         _fx = fetch_upcoming_fixture(session, _cr, n=5)
+        # Team strength factor for the projected score: blend of team fantasy
+        # output (mean of its players' SC averages vs the league) and recent
+        # win/loss form. Kept to a gentle ~0.9-1.1 multiplier so it nudges, not
+        # dominates (the player's own avg already reflects their team somewhat).
+        _form = fetch_recent_form(session, _cr, n=5)
+        _tavg = {}
+        for _pp in players:
+            _tavg.setdefault(normalise_team(_pp.get("team", "")), []).append(_pp.get("scAvg") or 0)
+        _fo = {t: sum(v) / len(v) for t, v in _tavg.items() if v}
+        _lfo = (sum(_fo.values()) / len(_fo)) if _fo else 1
+        for _pp in players:
+            _t = normalise_team(_pp.get("team", ""))
+            _foN = (_fo.get(_t, _lfo) / _lfo) if _lfo else 1
+            _foF = 1 + max(-0.12, min(0.12, (_foN - 1) * 0.6))
+            _wr = _form.get(_t)
+            _formF = 1 + (_wr - 0.5) * 0.10 if _wr is not None else 1
+            _pp["teamFactor"] = round(max(0.9, min(1.1, 0.5 * _foF + 0.5 * _formF)), 3)
+        log.info(f"Team form: {len(_form)} teams; teamFactor on {len(players)} players")
         log.info(f"Schedule: fixture for {len(_fx)} teams over rounds {_cr+1}-{_cr+5}; "
                  f"conceded data for {len(_conc_all)} teams")
         _all_mean = {t: sum(v) / len(v) for t, v in _conc_all.items() if v}
