@@ -1532,6 +1532,7 @@ NAME_ALIASES = {
     "Harry Petty": "Harrison Petty",
     "Lachlan Ash": "Lachie Ash",
     "Cal Wilkie": "Callum Wilkie",
+    "Bradley Hill": "Brad Hill",
 }
 
 
