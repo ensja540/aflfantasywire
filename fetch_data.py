@@ -507,7 +507,7 @@ def parse_player_games(html):
     result = {
         "pos": "",
         "sc_rounds":  [], "sc_scores":  [], "af_scores":  [], "opponents": [],
-        "disposals":  [], "marks":      [], "goals":      [],
+        "disposals":  [], "marks":      [], "goals":      [], "kicks": [], "handballs": [],
         "tackles":    [], "hitouts":    [], "clearances": [],
     }
 
@@ -546,6 +546,8 @@ def parse_player_games(html):
         i_opp   = ci("opponent")
         i_sc    = ci("sc")
         i_af    = ci("af")
+        i_k     = ci("k")
+        i_hb    = ci("hb")
         i_d     = ci("d")
         i_m     = ci("m")
         i_g     = ci("g")
@@ -574,6 +576,8 @@ def parse_player_games(html):
             result["sc_rounds"].append(rnd)
             result["sc_scores"].append(parse_int(i_sc))
             result["af_scores"].append(parse_int(i_af))
+            result["kicks"].append(parse_int(i_k))
+            result["handballs"].append(parse_int(i_hb))
             result["disposals"].append(parse_int(i_d))
             result["marks"].append(parse_int(i_m))
             result["goals"].append(parse_int(i_g))
@@ -587,7 +591,7 @@ def parse_player_games(html):
     # latest round sits at the end, matching the rest of the pipeline (which
     # treats [-1] as "most recent").
     parallel = ("sc_rounds","sc_scores","af_scores","opponents","disposals","marks",
-                "goals","tackles","hitouts","clearances")
+                "goals","kicks","handballs","tackles","hitouts","clearances")
     for k in parallel:
         result[k].reverse()
 
@@ -1415,6 +1419,8 @@ def build_player(sc, dt, injuries, selections, rank):
         "goals":      sc.get("goals",      sc.get("detail",{}).get("goals",      0)),
         "marks":      sc.get("marks",      0),
         "hitouts":    sc.get("hitouts",    0),
+        "kicks":      sc.get("kicks",      0),
+        "handballs":  sc.get("handballs",  0),
 
         "roundStats": sc.get("round_stats", []),
         "scores":   [s or 0 for s in sc_scores[-7:]],
@@ -1865,7 +1871,8 @@ def main():
                     return arr[ix] if ix < len(arr) and arr[ix] is not None else 0
                 rs.append({"r": gr[idx] if idx < len(gr) else f"R{idx+1}",
                            "sc": sc_s, "dt": _g("af_scores"), "dis": _g("disposals"),
-                           "mk": _g("marks"), "tk": _g("tackles"), "gl": _g("goals")})
+                           "mk": _g("marks"), "tk": _g("tackles"), "gl": _g("goals"),
+                           "k": _g("kicks"), "hb": _g("handballs")})
                 # Attribute this score to the opponent that conceded it (DvP).
                 _opps = games.get("opponents") or []
                 _o = _opps[idx] if idx < len(_opps) else None
@@ -1907,6 +1914,8 @@ def main():
             p["disposals"]  = avg_of("disposals")
             p["marks"]      = avg_of("marks")
             p["goals"]      = avg_of("goals")
+            p["kicks"]      = avg_of("kicks")
+            p["handballs"]  = avg_of("handballs")
             p["tackles"]    = avg_of("tackles")
             p["hitouts"]    = avg_of("hitouts")
             p["clearances"] = avg_of("clearances")
