@@ -1819,6 +1819,63 @@ def _compute_injury_rating(p, current_round):
     return max(0, min(100, round(100 * played / possible)))
 
 
+DVP_PATH = BASE_DIR / "dvp.json"
+_DVP_STATS = [("sc", "sc"), ("dis", "disposals"), ("k", "kicks"),
+              ("hb", "handballs"), ("mk", "marks"), ("tk", "tackles"), ("gl", "goals")]
+
+
+def build_dvp(players):
+    """Position-vs-team matrix from per-round game logs: how players of each
+    position actually perform (per stat) against each opponent, vs the league
+    average for that position. Powers the prediction breakdown + Matchups view."""
+    from collections import defaultdict
+    dvp = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+    lg = defaultdict(lambda: defaultdict(list))
+    pos_set = {"DEF", "MID", "RUC", "FWD"}
+    for p in players:
+        pos = (p.get("pos") or "MID").upper()
+        if pos not in pos_set:
+            pos = "MID"
+        for r in (p.get("roundStats") or []):
+            if (r.get("r") or 0) < 1:   # exclude Opening Round from matchup data
+                continue
+            opp = r.get("opp")
+            if not opp:
+                continue
+            for sk, full in _DVP_STATS:
+                v = r.get(sk)
+                if v is None:
+                    continue
+                dvp[opp][pos][full].append(v)
+                lg[pos][full].append(v)
+    _mean = lambda x: round(sum(x) / len(x), 1) if x else None
+    league = {ps: {full: _mean(lg[ps][full]) for _, full in _DVP_STATS if lg[ps][full]}
+              for ps in pos_set}
+    teams = {}
+    for t in dvp:
+        cell_t = {}
+        for ps in pos_set:
+            cell = {full: {"avg": _mean(dvp[t][ps][full]), "n": len(dvp[t][ps][full])}
+                    for _, full in _DVP_STATS if len(dvp[t][ps][full]) >= 4}
+            if cell:
+                cell_t[ps] = cell
+        if cell_t:
+            teams[t] = cell_t
+    out = {
+        "league": league,
+        "teams": teams,
+        "abbr": {t: _TEAM_ABBR.get(t, t[:3].upper()) for t in teams},
+        "stats": [f for _, f in _DVP_STATS],
+        "positions": sorted(pos_set),
+    }
+    try:
+        with open(DVP_PATH, "w", encoding="utf-8") as f:
+            json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
+        log.info(f"DvP matrix: {len(teams)} teams written to dvp.json")
+    except Exception as _e:
+        log.error(f"DvP write failed: {_e}")
+
+
 def write_output(players, sc_players=None, dt_players=None, injuries=None, selections=None):
     """Write players.json. Safe to call with a partial list (e.g. from the crash
     handler) — source counts fall back sensibly when the extras aren't passed."""
@@ -1849,6 +1906,10 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
     }
     with open(OUTPUT_PATH, "w") as f:
         json.dump(output, f, indent=2)
+    try:
+        build_dvp(players)
+    except Exception as _e:
+        log.error(f"build_dvp failed: {_e}")
     return output
 
 
