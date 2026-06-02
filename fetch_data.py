@@ -1070,8 +1070,11 @@ def normalise_team(raw):
 
 def normalise_pos(raw):
     if not raw: return "MID"
-    p = str(raw).upper().split("/")[0].strip()
-    return {"DEF":"DEF","MID":"MID","RUC":"RUC","FWD":"FWD","D":"DEF","M":"MID","R":"RUC","F":"FWD"}.get(p,"MID")
+    # Take the first listed code (handles "FOR, RUC" / "MID/FWD") then canonicalise.
+    p = re.split(r"[/,]", str(raw).upper())[0].strip()
+    return {"DEF":"DEF","MID":"MID","RUC":"RUC","FWD":"FWD","D":"DEF","M":"MID","R":"RUC","F":"FWD",
+            "FOR":"FWD","FORWARD":"FWD","RUCK":"RUC","DEFENDER":"DEF","MIDFIELD":"MID",
+            "MIDFIELDER":"MID","RUCKMAN":"RUC","BACK":"DEF"}.get(p,"MID")
 
 def normalise_pos_list(raw):
     """Split a multi-position flag (e.g. "MID/FWD", "DEF,MID") into a deduped
