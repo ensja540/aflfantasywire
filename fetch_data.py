@@ -690,6 +690,38 @@ def fetch_recent_form(session, cur_round, n=5, season_id=AFL_API_SEASON_ID):
     return {t: wins.get(t, 0) / g for t, g in games.items() if g}
 
 
+def fetch_points_conceded(session, cur_round, season_id=AFL_API_SEASON_ID):
+    """Average AFL match points conceded per game, keyed by our team name, over
+    every CONCLUDED match this season. A leaky defence (concedes more than the
+    league average) signals more scoring for the opposition's goal-kickers."""
+    conc, games = {}, {}
+    for rnd in range(1, cur_round + 1):
+        r = get(session,
+                f"https://aflapi.afl.com.au/afl/v2/matches?compSeasonId={season_id}"
+                f"&roundNumber={rnd}&pageSize=20", retries=1, timeout=10)
+        if not r:
+            continue
+        try:
+            matches = r.json().get("matches", []) or []
+        except Exception:
+            continue
+        for m in matches:
+            if m.get("status") != "CONCLUDED":
+                continue
+            h, a = m.get("home") or {}, m.get("away") or {}
+            ht = normalise_team((h.get("team") or {}).get("name") or "")
+            at = normalise_team((a.get("team") or {}).get("name") or "")
+            hs = (h.get("score") or {}).get("totalScore")
+            as_ = (a.get("score") or {}).get("totalScore")
+            if ht == "Unknown" or at == "Unknown" or hs is None or as_ is None:
+                continue
+            conc[ht] = conc.get(ht, 0) + as_   # home concedes the away score
+            conc[at] = conc.get(at, 0) + hs
+            games[ht] = games.get(ht, 0) + 1
+            games[at] = games.get(at, 0) + 1
+    return {t: conc[t] / g for t, g in games.items() if g}
+
+
 PREDICTIONS_LOG = BASE_DIR / "predictions_log.json"
 
 def log_predictions(players, cur_round):
@@ -1105,6 +1137,16 @@ def parse_injury_list(html):
         except StopIteration:
             i_returning = 2
 
+        # Which club's table is this? The nearest preceding "<Club> (N Players)"
+        # title row identifies it — kept so same-named players on different teams
+        # (e.g. the two Bailey Williams) don't share one injury record.
+        club = ""
+        _ct = table.find_previous(string=re.compile(r"\(\s*\d+\s+Players?\s*\)"))
+        if _ct:
+            _cm = re.match(r"\s*(.+?)\s*\(\s*\d+\s+Players?\s*\)", str(_ct))
+            if _cm:
+                club = normalise_team(_cm.group(1))
+
         for tr in rows[1:]:
             cells = tr.find_all(["td","th"], recursive=False)
             if len(cells) <= max(i_player, i_injury, i_returning): continue
@@ -1120,13 +1162,17 @@ def parse_injury_list(html):
             status, eta  = _classify_injury_returning(returning_raw)
             body_part    = _classify_injury_body_part(injury_raw)
 
-            injuries[name_key(name)] = {
+            _rec = {
                 "status":    status,        # "out" | "test" | "available"
                 "body_part": body_part,     # "Hamstring", "Knee", ...
                 "eta":       eta,           # "2 weeks", "Season", "TBC", ...
                 "detail":    injury_raw,    # raw injury text (kept for back-compat / titles)
                 "returning": returning_raw, # raw returning text
+                "team":      club,          # normalised club, for name collisions
             }
+            injuries[name_key(name)] = _rec
+            if club:
+                injuries[name_key(name) + "|" + club] = _rec
 
     log.info(f"Injuries: found {len(injuries)} players with injury notes")
     return injuries
@@ -1381,7 +1427,14 @@ def build_player(sc, dt, injuries, selections, rank):
 
     # Injury status from injury list
     nk = name_key(name)
-    inj_data      = injuries.get(nk) or injuries.get(name_key(name.split()[-1])) or {}
+    inj_data      = injuries.get(nk + "|" + team) or {}
+    if not inj_data:
+        _no = injuries.get(nk)
+        # A name-only match is trusted ONLY when the record's club matches this
+        # player's club (or no club was parsed) — stops same-name players on
+        # different teams (the two Bailey Williams) from sharing an injury.
+        if _no and (not _no.get("team") or _no.get("team") == team):
+            inj_data = _no
     sel_data      = selections.get(nk) or {}
     inj_status    = inj_data.get("status","available")
     inj_detail    = inj_data.get("detail","")
@@ -1540,7 +1593,7 @@ NAME_ALIASES = {
     "Lachlan Ash": "Lachie Ash",
     "Cal Wilkie": "Callum Wilkie",
     "Bradley Hill": "Brad Hill",
-    "Zach Williams": "Zac Williams",
+    "Zachary Williams": "Zac Williams",
 }
 
 
@@ -2126,6 +2179,8 @@ def main():
         # win/loss form. Kept to a gentle ~0.9-1.1 multiplier so it nudges, not
         # dominates (the player's own avg already reflects their team somewhat).
         _form = fetch_recent_form(session, _cr, n=5)
+        _ptsc = fetch_points_conceded(session, _cr)
+        _lg_pts = (sum(_ptsc.values()) / len(_ptsc)) if _ptsc else 0
         _trp = fetch_team_rounds_played(session, _cr)
         _tavg = {}
         for _pp in players:
@@ -2190,6 +2245,17 @@ def main():
                         _sm[_sk] = round(max(0.85, min(1.15, _oppm / _lgm)), 3)
                 if _sm:
                     pp["statMatch"] = _sm
+                # Team-level points-conceded nudge: a leaky defence (concedes
+                # more match points than the league avg) lifts the goal/behind
+                # forecast for the player it is up against next round.
+                if _lg_pts > 0 and _ptsc.get(_o0):
+                    _leak = max(0.85, min(1.20, _ptsc[_o0] / _lg_pts))
+                    for _gs in ("goals", "behinds"):
+                        _bm = _sm.get(_gs, 1.0)
+                        _sm[_gs] = round(max(0.8, min(1.28, 0.4 * _bm + 0.6 * _leak)), 3)
+                    pp["statMatch"] = _sm
+                    pp["oppPtsConceded"] = round(_ptsc[_o0], 1)
+                    pp["oppPtsLeak"] = round(_leak, 3)
             # Per-stat predicted next round: recent-weighted base x per-stat matchup x team
             _sp = {}
             _tf = pp.get("teamFactor") or 1
@@ -2241,6 +2307,35 @@ def main():
             if _ratings:
                 pp["scheduleRating"] = _ratings
                 pp["scheduleOpp"] = [_TEAM_ABBR.get(_opp, _opp[:3].upper()) for _opp in _opps[:5]]
+
+        # Team goal budget: forwards forecast independently can sum to an
+        # unrealistic team total (e.g. two forwards both predicted 4 goals).
+        # Cap each team's predicted goals to (team's normal goals output x how
+        # leaky the next opponent's defence is), scaling players proportionally
+        # so each keeps its share of the team's goals.
+        _tg = {}
+        for _pp in players:
+            _tg.setdefault(normalise_team(_pp.get("team", "")), []).append(_pp)
+        for _tt, _grp in _tg.items():
+            _ot = _fx.get(_tt, [])
+            _o0t = _ot[0] if _ot else None
+            if not _o0t:
+                continue
+            _attack = sum((_pp.get("goals") or 0) for _pp in _grp)  # team avg goals/game
+            if _attack <= 0:
+                continue
+            _leak = 1.0
+            if _lg_pts > 0 and _ptsc.get(_o0t):
+                _leak = max(0.85, min(1.20, _ptsc[_o0t] / _lg_pts))
+            _budget = _attack * _leak
+            _sum_pred = sum((_pp.get("statPred", {}) or {}).get("goals", 0) or 0 for _pp in _grp)
+            if _sum_pred > _budget > 0:
+                _factor = _budget / _sum_pred
+                for _pp in _grp:
+                    _spp = _pp.get("statPred")
+                    if _spp and _spp.get("goals"):
+                        _spp["goals"] = round(_spp["goals"] * _factor, 1)
+                        _pp["teamGoalCapped"] = True
     except Exception as _e:
         log.error(f"Schedule rating failed: {_e}")
         log.error(traceback.format_exc())
