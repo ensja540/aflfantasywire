@@ -682,6 +682,49 @@ def fetch_recent_form(session, cur_round, n=5, season_id=AFL_API_SEASON_ID):
     return {t: wins.get(t, 0) / g for t, g in games.items() if g}
 
 
+PREDICTIONS_LOG = BASE_DIR / "predictions_log.json"
+
+def log_predictions(players, cur_round):
+    """Append this round's per-stat predictions and score them against prior
+    logged rounds now completed (actual values live in each player's roundStats).
+    Foundation for weekly model calibration — accumulates predicted-vs-actual so
+    a per-stat bias correction can be applied once enough history exists."""
+    target = cur_round + 1
+    try:
+        plog = json.loads(PREDICTIONS_LOG.read_text(encoding="utf-8"))
+    except Exception:
+        plog = {"rounds": {}, "accuracy": {}}
+    plog.setdefault("rounds", {})[str(target)] = {
+        p["name"]: p["statPred"] for p in players if p.get("statPred") and p.get("name")
+    }
+    by_name = {p.get("name"): p for p in players}
+    _SK = (("disposals", "dis"), ("kicks", "k"), ("handballs", "hb"),
+           ("marks", "mk"), ("tackles", "tk"), ("goals", "gl"))
+    err = {}
+    for rnd_str, preds in list(plog.get("rounds", {}).items()):
+        try:
+            rnd = int(rnd_str)
+        except Exception:
+            continue
+        if rnd > cur_round:          # not played yet
+            continue
+        for name, sp in preds.items():
+            p = by_name.get(name)
+            if not p:
+                continue
+            rs = next((r for r in (p.get("roundStats") or []) if r.get("r") == rnd), None)
+            if not rs:
+                continue
+            for sk, rk in _SK:
+                pred, act = sp.get(sk), rs.get(rk)
+                if pred is not None and act is not None:
+                    err.setdefault(sk, []).append(abs(pred - act))
+    plog["accuracy"] = {sk: {"mae": round(sum(v) / len(v), 2), "n": len(v)}
+                        for sk, v in err.items() if v}
+    PREDICTIONS_LOG.write_text(json.dumps(plog, indent=2), encoding="utf-8")
+    log.info(f"Predictions logged for R{target}; scored stats: {plog['accuracy']}")
+
+
 def fetch_classic_ownership(session):
     """
     Fetch AFL Fantasy Classic player data from the public JSON endpoint.
@@ -1823,8 +1866,12 @@ def main():
     # phase from blowing past the 20-min auto_scrape timeout if Footywire
     # is slow. Effective rate is ~2 s/page through the polite delay in
     # `get()`, so 10 min ≈ 300 logs.
-    MAX_GAMES_LOG = 300
-    GAMES_LOG_TIME_LIMIT = 600  # 10 minutes max
+    MAX_GAMES_LOG = 420
+    GAMES_LOG_TIME_LIMIT = 780  # 13 minutes max
+    # Per-stat conceded profiles: _conc_stat[team][POS][stat] = raw stat values
+    # (disposals/kicks/etc.) recorded by POS players against that team. Powers
+    # per-stat matchup factors (e.g. a team that bleeds disposals).
+    _conc_stat = {}
     # Points-conceded accumulators for the schedule rating. _conc_all[team] is
     # every SC score posted against that team; _conc_pos[team][POS] splits it by
     # the scorer's position (DvP). Built from the games-log opponents below.
@@ -1880,6 +1927,8 @@ def main():
                     _pp = (p.get("pos") or "MID").upper()
                     _conc_all.setdefault(_o, []).append(sc_s)
                     _conc_pos.setdefault(_o, {}).setdefault(_pp, []).append(sc_s)
+                    for _sk in ("disposals", "kicks", "handballs", "marks", "tackles", "goals"):
+                        _conc_stat.setdefault(_o, {}).setdefault(_pp, {}).setdefault(_sk, []).append(_g(_sk))
             p["round_stats"] = rs
 
             # Last 7 SC scores (right-pad with 0s if fewer played games)
@@ -2026,10 +2075,49 @@ def main():
         _pspread = {pp: (min(v), max(v)) for pp, v in _pcoll.items() if len(v) > 1}
         def _n01(x, lo, hi):
             return 0.5 if hi <= lo else max(0.0, min(1.0, (x - lo) / (hi - lo)))
+        # Per-stat opposition profiles: mean raw stat conceded by team -> position
+        _cs_mean = {}
+        for _t, _pd in _conc_stat.items():
+            for _pp2, _sd in _pd.items():
+                for _sk, _vals in _sd.items():
+                    if _vals:
+                        _cs_mean.setdefault(_t, {}).setdefault(_pp2, {})[_sk] = sum(_vals) / len(_vals)
+        _lg = {}
+        for _t, _pd in _cs_mean.items():
+            for _pp2, _sd in _pd.items():
+                for _sk, _m in _sd.items():
+                    _lg.setdefault(_pp2, {}).setdefault(_sk, []).append(_m)
+        _lg_mean = {pp2: {sk: sum(v) / len(v) for sk, v in sd.items()} for pp2, sd in _lg.items()}
+        _STAT_KEYS = ("disposals", "kicks", "handballs", "marks", "tackles", "goals")
+        _RK = {"disposals": "dis", "kicks": "k", "handballs": "hb", "marks": "mk", "tackles": "tk", "goals": "gl"}
         for pp in players:
             _T = normalise_team(pp.get("team", ""))
             _opps = _fx.get(_T, [])
             _P = (pp.get("pos") or "MID").upper()
+            _o0 = _opps[0] if _opps else None
+            _sm = {}
+            if _o0:
+                for _sk in _STAT_KEYS:
+                    _oppm = _cs_mean.get(_o0, {}).get(_P, {}).get(_sk)
+                    _lgm = _lg_mean.get(_P, {}).get(_sk)
+                    if _oppm and _lgm and _lgm > 0:
+                        _sm[_sk] = round(max(0.85, min(1.15, _oppm / _lgm)), 3)
+                if _sm:
+                    pp["statMatch"] = _sm
+            # Per-stat predicted next round: recent-weighted base x per-stat matchup x team
+            _sp = {}
+            _tf = pp.get("teamFactor") or 1
+            for _sk in _STAT_KEYS:
+                _savg = pp.get(_sk) or 0
+                if not _savg:
+                    continue
+                _rs3 = [r.get(_RK[_sk]) for r in (pp.get("roundStats") or []) if r.get(_RK[_sk]) is not None][-3:]
+                _a3 = sum(_rs3) / len(_rs3) if _rs3 else _savg
+                _base = 0.55 * _a3 + 0.45 * _savg
+                _mm = _sm.get(_sk, 1)
+                _sp[_sk] = round(_base * _mm * _tf, 1)
+            if _sp:
+                pp["statPred"] = _sp
             _ratings = []
             for _opp in _opps[:5]:
                 _parts, _ws = [], []
@@ -2050,6 +2138,11 @@ def main():
     except Exception as _e:
         log.error(f"Schedule rating failed: {_e}")
         log.error(traceback.format_exc())
+
+    try:
+        log_predictions(players, max((pp.get("lastRound") or 0) for pp in players) or 1)
+    except Exception as _e:
+        log.error(f"Prediction logging failed: {_e}")
 
     # Sort by SC rank
     players.sort(key=lambda p: p["rank"])
