@@ -562,6 +562,8 @@ def parse_player_games(html):
 
             try: rnd = int(re.sub(r"[^\d\-]", "", cells[i_round]) or "-99")
             except: continue
+            # Keep Round 0 (Opening Round) for raw-stat calcs; it's excluded from
+            # FANTASY scoring downstream (it wasn't a fantasy round).
             if rnd < 0 or rnd > 30: continue
 
             def parse_int(idx):
@@ -723,6 +725,31 @@ def log_predictions(players, cur_round):
                         for sk, v in err.items() if v}
     PREDICTIONS_LOG.write_text(json.dumps(plog, indent=2), encoding="utf-8")
     log.info(f"Predictions logged for R{target}; scored stats: {plog['accuracy']}")
+
+
+def fetch_team_rounds_played(session, cur_round, season_id=AFL_API_SEASON_ID):
+    """Count CONCLUDED matches per team across rounds 1..cur_round (Round 0
+    excluded), i.e. rounds the team has actually played so far with byes
+    excluded. {team: count}. The availability denominator."""
+    cnt = {}
+    for rnd in range(1, cur_round + 1):
+        r = get(session,
+                f"https://aflapi.afl.com.au/afl/v2/matches?compSeasonId={season_id}"
+                f"&roundNumber={rnd}&pageSize=20", retries=1, timeout=10)
+        if not r:
+            continue
+        try:
+            matches = r.json().get("matches", []) or []
+        except Exception:
+            continue
+        for m in matches:
+            if m.get("status") != "CONCLUDED":
+                continue
+            for side in ("home", "away"):
+                t = normalise_team(((m.get(side) or {}).get("team") or {}).get("name") or "")
+                if t and t != "Unknown":
+                    cnt[t] = cnt.get(t, 0) + 1
+    return cnt
 
 
 def fetch_classic_ownership(session):
@@ -1464,6 +1491,7 @@ def build_player(sc, dt, injuries, selections, rank):
         "hitouts":    sc.get("hitouts",    0),
         "kicks":      sc.get("kicks",      0),
         "handballs":  sc.get("handballs",  0),
+        "gamesPlayed": sc.get("gamesPlayed", 0),
 
         "roundStats": sc.get("round_stats", []),
         "scores":   [s or 0 for s in sc_scores[-7:]],
@@ -1902,10 +1930,17 @@ def main():
             if games["pos"]:
                 p["pos"] = games["pos"]
 
-            sc_played = [s for s in games["sc_scores"] if s is not None and s > 0]
-            af_played = [s for s in games["af_scores"] if s is not None and s > 0]
+            # Fantasy scores exclude Round 0 (not a fantasy round); raw-stat
+            # averages below still use every round.
+            _fr = games.get("sc_rounds") or []
+            _isF = lambda i: (i >= len(_fr) or _fr[i] >= 1)
+            sc_played = [s for i, s in enumerate(games["sc_scores"]) if s is not None and s > 0 and _isF(i)]
+            af_played = [s for i, s in enumerate(games["af_scores"]) if s is not None and s > 0 and _isF(i)]
             p["sc_all_scores"] = sc_played
             p["dt_all_scores"] = af_played
+            # Fantasy games played this season (R0 + byes/DNPs excluded) —
+            # numerator for availability.
+            p["gamesPlayed"] = len(sc_played)
 
             # Full round-by-round line for the player profile.
             rs, gr = [], (games.get("sc_rounds") or [])
@@ -1925,8 +1960,11 @@ def main():
                 # Attribute this score to the opponent that conceded it (DvP).
                 if _o and sc_s and sc_s > 0:
                     _pp = (p.get("pos") or "MID").upper()
-                    _conc_all.setdefault(_o, []).append(sc_s)
-                    _conc_pos.setdefault(_o, {}).setdefault(_pp, []).append(sc_s)
+                    _rnd0 = gr[idx] if idx < len(gr) else 1
+                    if _rnd0 >= 1:  # SC points conceded = fantasy rounds only
+                        _conc_all.setdefault(_o, []).append(sc_s)
+                        _conc_pos.setdefault(_o, {}).setdefault(_pp, []).append(sc_s)
+                    # Raw-stat conceded profiles include Round 0.
                     for _sk in ("disposals", "kicks", "handballs", "marks", "tackles", "goals"):
                         _conc_stat.setdefault(_o, {}).setdefault(_pp, {}).setdefault(_sk, []).append(_g(_sk))
             p["round_stats"] = rs
@@ -2048,6 +2086,7 @@ def main():
         # win/loss form. Kept to a gentle ~0.9-1.1 multiplier so it nudges, not
         # dominates (the player's own avg already reflects their team somewhat).
         _form = fetch_recent_form(session, _cr, n=5)
+        _trp = fetch_team_rounds_played(session, _cr)
         _tavg = {}
         for _pp in players:
             _tavg.setdefault(normalise_team(_pp.get("team", "")), []).append(_pp.get("scAvg") or 0)
@@ -2060,7 +2099,12 @@ def main():
             _wr = _form.get(_t)
             _formF = 1 + (_wr - 0.5) * 0.10 if _wr is not None else 1
             _pp["teamFactor"] = round(max(0.9, min(1.1, 0.5 * _foF + 0.5 * _formF)), 3)
-        log.info(f"Team form: {len(_form)} teams; teamFactor on {len(players)} players")
+            _rp = _trp.get(_t, 0)
+            _pp["teamRoundsPlayed"] = _rp
+            _gp = _pp.get("gamesPlayed")
+            if _rp > 0 and _gp is not None:
+                _pp["availability"] = round(min(1.0, _gp / _rp), 3)
+        log.info(f"Team form: {len(_form)} teams; rounds-played for {len(_trp)} teams; teamFactor on {len(players)} players")
         log.info(f"Schedule: fixture for {len(_fx)} teams over rounds {_cr+1}-{_cr+5}; "
                  f"conceded data for {len(_conc_all)} teams")
         _all_mean = {t: sum(v) / len(v) for t, v in _conc_all.items() if v}
