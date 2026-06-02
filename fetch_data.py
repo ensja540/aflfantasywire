@@ -2009,6 +2009,10 @@ def build_dvp(players):
         log.error(f"DvP write failed: {_e}")
 
 
+ROLE_OVERRIDES = {
+    "Colby McKercher": "Half Forward",  # moved forward mid-season; season avg reads as a defender
+}
+
 AFL_INJURIES_PATH = BASE_DIR / "afl_injuries.json"
 
 
@@ -2143,7 +2147,7 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
         _d = _p.get("disposals") or 0
         _c = _p.get("consistency")
         if _pos == "DEF":
-            _p["role"] = "Half Back" if _d > 15 else "Key Defender"
+            _p["role"] = "Half Back" if _d > 18 else "Key Defender"
         elif _pos == "FWD":
             _p["role"] = "Half Forward" if _d > 15 else "Key Forward"
         elif _pos == "MID":
@@ -2152,6 +2156,9 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
             _p["role"] = "Ruck"
         else:
             _p["role"] = _pos
+        _ov = ROLE_OVERRIDES.get(_p.get("name"))
+        if _ov:
+            _p["role"] = _ov
     # Inject trailing-24-month availability now that gamesBySeason is merged.
     _cur_round = max((_p.get("lastRound") or 0) for _p in players) or 1
     for _p in players:
