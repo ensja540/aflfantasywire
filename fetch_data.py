@@ -506,7 +506,7 @@ def parse_player_games(html):
     soup = BeautifulSoup(html, "lxml")
     result = {
         "pos": "",
-        "sc_rounds":  [], "sc_scores":  [], "af_scores":  [],
+        "sc_rounds":  [], "sc_scores":  [], "af_scores":  [], "opponents": [],
         "disposals":  [], "marks":      [], "goals":      [],
         "tackles":    [], "hitouts":    [], "clearances": [],
     }
@@ -543,6 +543,7 @@ def parse_player_games(html):
         # dedicated "Round" column on older seasons
         i_round = ci("description")
         if i_round is None: i_round = ci("round")
+        i_opp   = ci("opponent")
         i_sc    = ci("sc")
         i_af    = ci("af")
         i_d     = ci("d")
@@ -568,6 +569,8 @@ def parse_player_games(html):
                 try: return int(re.sub(r"[^\d\-]", "", raw) or 0)
                 except: return None
 
+            opp_raw = cells[i_opp] if (i_opp is not None and i_opp < len(cells)) else ""
+            result["opponents"].append(normalise_team(re.sub(r"\s*\(.*?\)\s*$", "", opp_raw).strip()) or None)
             result["sc_rounds"].append(rnd)
             result["sc_scores"].append(parse_int(i_sc))
             result["af_scores"].append(parse_int(i_af))
@@ -583,7 +586,7 @@ def parse_player_games(html):
     # Footywire lists most-recent first. Reverse every parallel list so the
     # latest round sits at the end, matching the rest of the pipeline (which
     # treats [-1] as "most recent").
-    parallel = ("sc_rounds","sc_scores","af_scores","disposals","marks",
+    parallel = ("sc_rounds","sc_scores","af_scores","opponents","disposals","marks",
                 "goals","tackles","hitouts","clearances")
     for k in parallel:
         result[k].reverse()
@@ -595,6 +598,44 @@ def parse_player_games(html):
             if result[k]: result[k].pop()
 
     return result
+
+
+AFL_API_SEASON_ID = 85  # 2026 AFL Premiership season (aflapi.afl.com.au)
+
+# Canonical-team -> 3-letter code for compact fixture labels on the schedule chart.
+_TEAM_ABBR = {
+    "Adelaide":"ADE","Brisbane":"BRL","Carlton":"CAR","Collingwood":"COL",
+    "Essendon":"ESS","Fremantle":"FRE","Geelong":"GEE","Gold Coast":"GCS",
+    "GWS Giants":"GWS","Hawthorn":"HAW","Melbourne":"MEL","North Melbourne":"NTH",
+    "Port Adelaide":"PTA","Richmond":"RIC","St Kilda":"STK","Sydney":"SYD",
+    "West Coast":"WCE","Western Bulldogs":"WBD",
+}
+
+def fetch_upcoming_fixture(session, cur_round, n=5, season_id=AFL_API_SEASON_ID):
+    """Return {our_team_name: [opponent_team_name, ...]} for the next ``n`` rounds
+    after ``cur_round``, via the public AFL matches API. Opponent names are run
+    through normalise_team so they key-match the points-conceded table (which is
+    built from Footywire opponent names). Returns {} on failure — callers fall
+    back to a neutral rating."""
+    out = {}
+    for k in range(1, n + 1):
+        rnd = cur_round + k
+        r = get(session,
+                f"https://aflapi.afl.com.au/afl/v2/matches?compSeasonId={season_id}"
+                f"&roundNumber={rnd}&pageSize=20", retries=1, timeout=10)
+        if not r:
+            continue
+        try:
+            matches = r.json().get("matches", []) or []
+        except Exception:
+            continue
+        for m in matches:
+            h = normalise_team(((m.get("home") or {}).get("team") or {}).get("name") or "")
+            a = normalise_team(((m.get("away") or {}).get("team") or {}).get("name") or "")
+            if h and a and h != "Unknown" and a != "Unknown":
+                out.setdefault(h, []).append(a)
+                out.setdefault(a, []).append(h)
+    return out
 
 
 def fetch_classic_ownership(session):
@@ -1738,6 +1779,10 @@ def main():
     # `get()`, so 10 min ≈ 300 logs.
     MAX_GAMES_LOG = 300
     GAMES_LOG_TIME_LIMIT = 600  # 10 minutes max
+    # Points-conceded accumulators for the schedule rating. _conc_all[team] is
+    # every SC score posted against that team; _conc_pos[team][POS] splits it by
+    # the scorer's position (DvP). Built from the games-log opponents below.
+    _conc_all, _conc_pos = {}, {}
     log.info(f"Fetching games log for top {MAX_GAMES_LOG} players (pg- URL)...")
     games_log_start = time.time()
     for i, p in enumerate(sc_players[:MAX_GAMES_LOG]):
@@ -1781,6 +1826,13 @@ def main():
                 rs.append({"r": gr[idx] if idx < len(gr) else f"R{idx+1}",
                            "sc": sc_s, "dt": _g("af_scores"), "dis": _g("disposals"),
                            "mk": _g("marks"), "tk": _g("tackles"), "gl": _g("goals")})
+                # Attribute this score to the opponent that conceded it (DvP).
+                _opps = games.get("opponents") or []
+                _o = _opps[idx] if idx < len(_opps) else None
+                if _o and sc_s and sc_s > 0:
+                    _pp = (p.get("pos") or "MID").upper()
+                    _conc_all.setdefault(_o, []).append(sc_s)
+                    _conc_pos.setdefault(_o, {}).setdefault(_pp, []).append(sc_s)
             p["round_stats"] = rs
 
             # Last 7 SC scores (right-pad with 0s if fewer played games)
@@ -1884,6 +1936,53 @@ def main():
             player["positions"] = list(ov)
             player["pos"] = ov[0]
         players.append(player)
+
+    # ── 7a. Schedule rating — hybrid DvP + overall points conceded ──
+    # For each player's next 5 fixtures, rate how favourable the matchup is:
+    # blend how many SC points the opponent concedes to the player's POSITION
+    # (60%, DvP) with how many it concedes overall (40%), normalised league-wide
+    # to 1-10 where 10 = easiest matchup (concedes the most → good to own/hold).
+    try:
+        _cr = max((pp.get("lastRound") or 0) for pp in players) or 1
+        _fx = fetch_upcoming_fixture(session, _cr, n=5)
+        log.info(f"Schedule: fixture for {len(_fx)} teams over rounds {_cr+1}-{_cr+5}; "
+                 f"conceded data for {len(_conc_all)} teams")
+        _all_mean = {t: sum(v) / len(v) for t, v in _conc_all.items() if v}
+        _pos_mean = {t: {pp: sum(vs) / len(vs) for pp, vs in d.items() if vs}
+                     for t, d in _conc_pos.items()}
+        _avals = list(_all_mean.values())
+        _amin, _amax = (min(_avals), max(_avals)) if _avals else (0, 1)
+        _pcoll = {}
+        for _t, _d in _pos_mean.items():
+            for _pp, _m in _d.items():
+                _pcoll.setdefault(_pp, []).append(_m)
+        _pspread = {pp: (min(v), max(v)) for pp, v in _pcoll.items() if len(v) > 1}
+        def _n01(x, lo, hi):
+            return 0.5 if hi <= lo else max(0.0, min(1.0, (x - lo) / (hi - lo)))
+        for pp in players:
+            _T = normalise_team(pp.get("team", ""))
+            _opps = _fx.get(_T, [])
+            _P = (pp.get("pos") or "MID").upper()
+            _ratings = []
+            for _opp in _opps[:5]:
+                _parts, _ws = [], []
+                _dv = _pos_mean.get(_opp, {}).get(_P)
+                if _dv is not None and _P in _pspread:
+                    _parts.append(_n01(_dv, *_pspread[_P])); _ws.append(0.6)
+                _ov = _all_mean.get(_opp)
+                if _ov is not None:
+                    _parts.append(_n01(_ov, _amin, _amax)); _ws.append(0.4)
+                if _parts:
+                    _blend = sum(a * w for a, w in zip(_parts, _ws)) / sum(_ws)
+                    _ratings.append(round(1 + _blend * 9))
+                else:
+                    _ratings.append(5)
+            if _ratings:
+                pp["scheduleRating"] = _ratings
+                pp["scheduleOpp"] = [_TEAM_ABBR.get(_opp, _opp[:3].upper()) for _opp in _opps[:5]]
+    except Exception as _e:
+        log.error(f"Schedule rating failed: {_e}")
+        log.error(traceback.format_exc())
 
     # Sort by SC rank
     players.sort(key=lambda p: p["rank"])
