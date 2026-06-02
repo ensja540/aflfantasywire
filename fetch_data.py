@@ -1868,6 +1868,32 @@ def main():
             if not p["sc_price"] and be_data["price"]:
                 p["sc_price"] = be_data["price"]
 
+    # Add long-tail players that only appear on the break-even page (not in the
+    # season-stats top list) so rankings cover the FULL player pool, not just the
+    # top ~600. They carry avg/price/BE/position; detailed game-log stats fill in
+    # for any that later make the games-log cap.
+    _have = {name_key(p["name"]) for p in sc_players}
+    _added = 0
+    for _bd in sc_be_lookup.values():
+        if not isinstance(_bd, dict) or not _bd.get("name"):
+            continue
+        if name_key(_bd["name"]) in _have:
+            continue
+        _have.add(name_key(_bd["name"]))
+        sc_players.append({
+            "name":        _bd["name"],
+            "team":        normalise_team(_bd.get("team", "")),
+            "pos":         _bd.get("pos") or (_bd.get("positions") or ["MID"])[0],
+            "sc_positions": _bd.get("positions") or [],
+            "sc_avg":      _bd.get("avg") or 0,
+            "sc_price":    _bd.get("price") or 0,
+            "sc_be":       _bd.get("be") or 0,
+            "games":       _bd.get("games") or 0,
+            "_from_be":    True,
+        })
+        _added += 1
+    log.info(f"Added {_added} break-even-only players (full rankings)")
+
     # Fallback: if BE couldn't be scraped, approximate from price and average
     # (rough — better than showing 0). be ~= price / (avg * 0.8).
     for p in sc_players:
@@ -2064,7 +2090,7 @@ def main():
     # ── 7. Merge and build final player list ──
     log.info("Merging data sources...")
     players = []
-    for i, sc in enumerate(sc_players[:600], 1):
+    for i, sc in enumerate(sc_players, 1):  # full pool (was capped at 600)
         nk  = name_key(sc["name"])
         nk_last = name_key(sc["name"].split()[-1])
         dt  = dt_lookup.get(nk) or dt_lookup.get(nk_last)
