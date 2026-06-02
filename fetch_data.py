@@ -463,7 +463,9 @@ def parse_sc_breakevens(html):
             # Keep ALL listed positions for dual-position players (e.g. MID/FWD);
             # `pos` stays the primary (first) for backward compatibility.
             positions = normalise_pos_list(pos_raw)
-            pos = pos_raw.split("/")[0].strip()
+            # Primary position = first canonical code (handles "MID, FOR" etc.);
+            # fall back to the raw token only if nothing normalised.
+            pos = positions[0] if positions else re.split(r"[/,]", pos_raw)[0].strip()
 
         team_cell = cells[i_team] if 0 <= i_team < len(cells) else None
         team_raw = ""
@@ -1075,7 +1077,12 @@ def normalise_pos_list(raw):
     """Split a multi-position flag (e.g. "MID/FWD", "DEF,MID") into a deduped
     list of canonical codes, preserving order. Used for dual-position players."""
     if not raw: return []
-    m = {"DEF":"DEF","MID":"MID","RUC":"RUC","FWD":"FWD","D":"DEF","M":"MID","R":"RUC","F":"FWD"}
+    m = {"DEF":"DEF","MID":"MID","RUC":"RUC","FWD":"FWD","D":"DEF","M":"MID","R":"RUC","F":"FWD",
+         # Footywire's SuperCoach playerflag abbreviates forward as "FOR" (and
+         # ruck as "RUCK"); without these, every FOR-combo DPP (MID,FOR / DEF,FOR
+         # / FOR,RUC) silently dropped its forward leg and looked single-position.
+         "FOR":"FWD","FWDS":"FWD","FORWARD":"FWD","RUCK":"RUC","DEFENDER":"DEF",
+         "MIDFIELD":"MID","MIDFIELDER":"MID","RUCKMAN":"RUC","BACK":"DEF"}
     out = []
     for part in re.split(r"[/,]", str(raw).upper()):
         part = part.strip()
