@@ -2144,21 +2144,38 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
     #   MID with extremely low consistency (<=45) -> Winger (else Midfielder)
     for _p in players:
         _pos = (_p.get("pos") or "").upper()
+        _P = [x.upper() for x in (_p.get("positions") or [])] or [_pos]
         _d = _p.get("disposals") or 0
         _c = _p.get("consistency")
-        if _pos == "DEF":
-            _p["role"] = "Half Back" if _d > 18 else "Key Defender"
+        _g5 = sum(r.get("gl") or 0 for r in (_p.get("roundStats") or [])[-5:])
+        if "RUC" in _P and "FWD" in _P:
+            _role = "Ruck/Forward"          # ruck-forwards split time between both
+        elif "FWD" in _P and len(_P) > 1:
+            # dual incl. forward: >=2 goals in last 5 games => playing forward,
+            # otherwise treat as their other position.
+            if _g5 >= 2:
+                _role = "Half Forward" if _d > 15 else "Key Forward"
+            else:
+                _other = next((x for x in _P if x != "FWD"), _pos)
+                if _other == "DEF":
+                    _role = "Half Back" if _d > 18 else "Key Defender"
+                elif _other == "MID":
+                    _role = "Winger" if (_c is not None and _c <= 45) else "Midfielder"
+                elif _other == "RUC":
+                    _role = "Ruck"
+                else:
+                    _role = _other
+        elif _pos == "DEF":
+            _role = "Half Back" if _d > 18 else "Key Defender"
         elif _pos == "FWD":
-            _p["role"] = "Half Forward" if _d > 15 else "Key Forward"
+            _role = "Half Forward" if _d > 15 else "Key Forward"
         elif _pos == "MID":
-            _p["role"] = "Winger" if (_c is not None and _c <= 45) else "Midfielder"
+            _role = "Winger" if (_c is not None and _c <= 45) else "Midfielder"
         elif _pos == "RUC":
-            _p["role"] = "Ruck"
+            _role = "Ruck"
         else:
-            _p["role"] = _pos
-        _ov = ROLE_OVERRIDES.get(_p.get("name"))
-        if _ov:
-            _p["role"] = _ov
+            _role = _pos
+        _p["role"] = ROLE_OVERRIDES.get(_p.get("name")) or _role
     # Inject trailing-24-month availability now that gamesBySeason is merged.
     _cur_round = max((_p.get("lastRound") or 0) for _p in players) or 1
     for _p in players:
