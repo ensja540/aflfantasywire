@@ -3773,6 +3773,66 @@ def ai_summarise(headline, body, full=False):
         return ""
 
 
+_AFL_INJ_PATH = BASE_DIR / "afl_injuries.json"
+
+
+def _reconcile_news_injuries(items):
+    """Drop injury news items for players NOT on the official AFL medical-room
+    snapshot (afl_injuries.json). The weekly afl.com.au list is authoritative, so
+    a player it does not list is not currently injured — this clears stale/false
+    injury items (e.g. a recovered player still flagged by Footywire)."""
+    try:
+        afl = json.loads(_AFL_INJ_PATH.read_text(encoding="utf-8")).get("players") or {}
+    except Exception:
+        return items
+    if not afl:
+        return items
+    _OUR = ["Adelaide", "Brisbane", "Carlton", "Collingwood", "Essendon", "Fremantle",
+            "Geelong", "Gold Coast", "GWS Giants", "Hawthorn", "Melbourne", "North Melbourne",
+            "Port Adelaide", "Richmond", "St Kilda", "Sydney", "West Coast", "Western Bulldogs"]
+    _MASCOT = {"crows": "Adelaide", "lions": "Brisbane", "blues": "Carlton", "magpies": "Collingwood",
+               "bombers": "Essendon", "dockers": "Fremantle", "cats": "Geelong", "suns": "Gold Coast",
+               "giants": "GWS Giants", "hawks": "Hawthorn", "demons": "Melbourne", "kangaroos": "North Melbourne",
+               "roos": "North Melbourne", "power": "Port Adelaide", "tigers": "Richmond", "saints": "St Kilda",
+               "swans": "Sydney", "eagles": "West Coast", "bulldogs": "Western Bulldogs"}
+    def _nt(t):
+        t = (t or "").strip(); tl = t.lower()
+        if not t:
+            return ""
+        for o in _OUR:
+            if tl.startswith(o.lower()):
+                return o
+        for k, v in _MASCOT.items():
+            if k in tl:
+                return v
+        return t
+    def _nk(n):
+        return re.sub(r"[^a-z]", "", (n or "").lower())
+    cnk, cln, gnk, gln = set(), {}, set(), {}
+    for an, info in afl.items():
+        c = _nt(info.get("club", "")); k = _nk(an); ln = an.split()[-1].lower(); fi = an[0].lower()
+        cnk.add((c, k)); cln.setdefault((c, ln), set()).add(fi)
+        gnk.add(k); gln.setdefault(ln, set()).add(fi)
+    def _listed(name, team):
+        if not name:
+            return True
+        k = _nk(name); ln = name.split()[-1].lower(); fi = name[0].lower(); c = _nt(team)
+        if c and ((c, k) in cnk or fi in cln.get((c, ln), set())):
+            return True
+        return k in gnk or fi in gln.get(ln, set())
+    out, dropped = [], 0
+    for it in items:
+        if it.get("category") in ("injury_out", "injury_tbc"):
+            pl = it.get("player")
+            if pl and not _listed(pl, it.get("team") or ""):
+                dropped += 1
+                continue
+        out.append(it)
+    if dropped:
+        log.info(f"AFL-list reconcile: dropped {dropped} injury items not on the official list")
+    return out
+
+
 def main():
     print("=" * 60)
     print("  AFLFantasyWire — News Scraper")
@@ -3996,6 +4056,7 @@ def main():
     if _waf:
         log.info(f"Blanked {_waf} waffle/refusal AI summaries")
 
+    items = _reconcile_news_injuries(items)
     output = {
         "scraped_at":  datetime.now().isoformat(),
         "item_count":  len(items),
