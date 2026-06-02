@@ -2398,34 +2398,80 @@ def main():
                 pp["scheduleRating"] = _ratings
                 pp["scheduleOpp"] = [_TEAM_ABBR.get(_opp, _opp[:3].upper()) for _opp in _opps[:5]]
 
-        # Team goal budget: forwards forecast independently can sum to an
-        # unrealistic team total (e.g. two forwards both predicted 4 goals).
-        # Cap each team's predicted goals to (team's normal goals output x how
-        # leaky the next opponent's defence is), scaling players proportionally
-        # so each keeps its share of the team's goals.
-        _tg = {}
+        # ── Team-total weighting ──────────────────────────────────────
+        # Players are projected independently, so a team's lineup can sum to an
+        # unrealistic team total (e.g. three mids = 90 disposals). Scale each
+        # team's predictions to the team's REAL per-game total for the stat,
+        # adjusted by how much the next opponent concedes of that stat
+        # (team-level). Store the budget + factor (teamWt) for the UI to show.
+        from collections import defaultdict as _dd
+        _BSTATS = [("disposals", "dis"), ("kicks", "k"), ("handballs", "hb"),
+                   ("marks", "mk"), ("tackles", "tk"), ("goals", "gl")]
+        _byteam = _dd(list)
         for _pp in players:
-            _tg.setdefault(normalise_team(_pp.get("team", "")), []).append(_pp)
-        for _tt, _grp in _tg.items():
-            _ot = _fx.get(_tt, [])
-            _o0t = _ot[0] if _ot else None
-            if not _o0t:
+            _byteam[normalise_team(_pp.get("team", ""))].append(_pp)
+        # real per-game team totals (sum across the team's players each round)
+        _ttot = {}
+        for _tt, _grp in _byteam.items():
+            _rd = _dd(lambda: _dd(float)); _rset = set()
+            for _pp in _grp:
+                for _r in (_pp.get("roundStats") or []):
+                    _rr = _r.get("r") or 0
+                    if _rr < 1:
+                        continue
+                    _rset.add(_rr)
+                    for _s, _k in _BSTATS:
+                        _rd[_rr][_s] += _r.get(_k) or 0
+            _n = len(_rset) or 1
+            _ttot[_tt] = {_s: sum(_rd[_rr][_s] for _rr in _rset) / _n for _s, _ in _BSTATS}
+        # opponent total-conceded factor per stat (vs league avg team total)
+        _gk = _dd(lambda: _dd(float))
+        for _pp in players:
+            _pt = normalise_team(_pp.get("team", ""))
+            for _r in (_pp.get("roundStats") or []):
+                _rr = _r.get("r") or 0; _opp = _r.get("opp")
+                if _rr < 1 or not _opp:
+                    continue
+                for _s, _k in _BSTATS:
+                    _gk[(_opp, _rr, _pt)][_s] += _r.get(_k) or 0
+        _otc = _dd(lambda: _dd(list))
+        for (_opp, _rr, _pt), _sv in _gk.items():
+            for _s, _ in _BSTATS:
+                _otc[_opp][_s].append(_sv[_s])
+        _allv = _dd(list)
+        for _opp in _otc:
+            for _s, _ in _BSTATS:
+                _allv[_s].extend(_otc[_opp][_s])
+        _lgt = {_s: (sum(_allv[_s]) / len(_allv[_s]) if _allv[_s] else 0) for _s, _ in _BSTATS}
+        _ofac = {}
+        for _opp in _otc:
+            _ofac[_opp] = {_s: (max(0.85, min(1.18, (sum(_otc[_opp][_s]) / len(_otc[_opp][_s])) / _lgt[_s]))
+                                if (_otc[_opp][_s] and _lgt[_s] > 0) else 1.0) for _s, _ in _BSTATS}
+        # apply: scale each team's eligible predictions to the opponent-adjusted total
+        for _tt, _grp in _byteam.items():
+            _mlr = max((_pp.get("lastRound") or 0) for _pp in _grp)
+            _elig = [_pp for _pp in _grp if (_pp.get("lastRound") or 0) == _mlr
+                     and _pp.get("injuryStatus") != "out" and not _pp.get("byeNext") and _pp.get("statPred")]
+            if not _elig:
                 continue
-            _attack = sum((_pp.get("goals") or 0) for _pp in _grp)  # team avg goals/game
-            if _attack <= 0:
-                continue
-            _leak = 1.0
-            if _lg_pts > 0 and _ptsc.get(_o0t):
-                _leak = max(0.85, min(1.20, _ptsc[_o0t] / _lg_pts))
-            _budget = _attack * _leak
-            _sum_pred = sum((_pp.get("statPred", {}) or {}).get("goals", 0) or 0 for _pp in _grp)
-            if _sum_pred > _budget > 0:
-                _factor = _budget / _sum_pred
-                for _pp in _grp:
-                    _spp = _pp.get("statPred")
-                    if _spp and _spp.get("goals"):
-                        _spp["goals"] = round(_spp["goals"] * _factor, 1)
-                        _pp["teamGoalCapped"] = True
+            _no = None
+            for _pp in _elig:
+                _so = _pp.get("scheduleOpp") or []
+                if _so:
+                    _no = next((_full for _full, _ab in _TEAM_ABBR.items() if _ab == _so[0]), _so[0])
+                    break
+            _of = _ofac.get(_no, {}) if _no else {}
+            for _s, _ in _BSTATS:
+                _budget = _ttot[_tt][_s] * _of.get(_s, 1.0)
+                _sp = sum((_pp["statPred"].get(_s) or 0) for _pp in _elig if _pp["statPred"].get(_s) is not None)
+                _f = _budget / _sp if (_budget > 0 and _sp > _budget * 1.02) else 1.0
+                for _pp in _elig:
+                    _sv = _pp["statPred"].get(_s)
+                    if _sv is None:
+                        continue
+                    if _f < 1.0:
+                        _pp["statPred"][_s] = round(_sv * _f, 1)
+                    _pp.setdefault("teamWt", {})[_s] = {"t": round(_budget, 1), "f": round(_f, 3)}
     except Exception as _e:
         log.error(f"Schedule rating failed: {_e}")
         log.error(traceback.format_exc())
