@@ -1968,6 +1968,70 @@ def build_dvp(players):
 AFL_INJURIES_PATH = BASE_DIR / "afl_injuries.json"
 
 
+def fetch_afl_injury_list(session, target_round):
+    """Auto-update afl_injuries.json from the latest official AFL medical-room
+    article. The AFL news listing is JS-rendered, so the article URL is located
+    via DuckDuckGo (targeting the current round to skip stale prior-season ones),
+    then the per-club tables are parsed straight from the article HTML. On any
+    failure the existing snapshot is left intact."""
+    import urllib.parse
+    url, found = None, None
+    for rnd in (target_round, target_round - 1, target_round + 1):
+        if rnd < 1:
+            continue
+        q = "afl.com.au medical room the full afl injury list R%d" % rnd
+        r = get(session, "https://html.duckduckgo.com/html/?q=" + urllib.parse.quote(q),
+                retries=1, timeout=12)
+        if not r:
+            continue
+        cands = re.findall(
+            r"https?://www\.afl\.com\.au/news/\d+/medical-room-the-full-afl-injury-list-r"
+            + str(rnd) + r"(?![0-9])", urllib.parse.unquote(r.text))
+        if cands:
+            url, found = cands[0], rnd
+            break
+    if not url:
+        log.warning("AFL medical-room article not found; keeping existing afl_injuries.json")
+        return
+    r = get(session, url, retries=2, timeout=15)
+    if not r:
+        log.warning("AFL medical-room fetch failed; keeping existing afl_injuries.json")
+        return
+    soup = BeautifulSoup(r.text, "lxml")
+    clubs = ["Adelaide", "Brisbane", "Carlton", "Collingwood", "Essendon", "Fremantle",
+             "Geelong", "Gold Coast", "GWS Giants", "Hawthorn", "Melbourne", "North Melbourne",
+             "Port Adelaide", "Richmond", "St Kilda", "Sydney", "West Coast", "Western Bulldogs"]
+    players, ci = {}, 0
+    for table in soup.find_all("table"):
+        rows = table.find_all("tr")
+        if not rows:
+            continue
+        hdr = " ".join(c.get_text(" ", strip=True).lower() for c in rows[0].find_all(["td", "th"]))
+        if "player" not in hdr or "injury" not in hdr:
+            continue
+        club = clubs[ci] if ci < len(clubs) else ""
+        ci += 1
+        for tr in rows[1:]:
+            cells = [c.get_text(" ", strip=True) for c in tr.find_all(["td", "th"])]
+            if len(cells) < 3:
+                continue
+            name, injury, eta = cells[0].strip(), cells[1].strip(), cells[2].strip()
+            if not name or name.lower() == "player":
+                continue
+            players[name] = {"club": club, "injury": injury, "eta": eta,
+                             "status": "test" if "test" in eta.lower() else "out"}
+    if ci != 18:
+        log.warning(f"AFL injury list: parsed {ci} club tables (expected 18)")
+    if len(players) < 50:
+        log.warning(f"AFL injury list parse thin ({len(players)}); keeping existing snapshot")
+        return
+    out = {"round": found, "source": url,
+           "asOf": datetime.now().strftime("%Y-%m-%d"), "players": players}
+    with open(AFL_INJURIES_PATH, "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False, indent=1)
+    log.info(f"AFL injury list R{found}: {len(players)} players -> afl_injuries.json")
+
+
 def reconcile_injuries(players):
     """Verify injuryStatus against the official AFL medical-room snapshot
     (afl_injuries.json: the weekly afl.com.au list). Players ON the list take its
@@ -2717,6 +2781,11 @@ def main():
 
     global LAST_PLAYERS
     LAST_PLAYERS = players
+    try:
+        _tr = (max((p.get("lastRound") or 0) for p in players) or 0) + 1
+        fetch_afl_injury_list(session, _tr)
+    except Exception as _e:
+        log.error(f"AFL injury list auto-update failed: {_e}")
     write_output(players, sc_players, dt_players, injuries, selections)
 
     # NOTE: news.json is owned entirely by news_scraper.py (which runs after
