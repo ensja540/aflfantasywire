@@ -727,6 +727,45 @@ def post_tweet(text, env):
     return r.status_code, r.text
 
 
+COMMON_NAME_ALIASES = {
+    "Zachary Merrett": "Zach Merrett", "Timothy English": "Tim English",
+    "Joshua Kelly": "Josh Kelly", "Joshua Weddle": "Josh Weddle",
+    "Thomas Liberatore": "Tom Liberatore", "Thomas Stewart": "Tom Stewart",
+    "Thomas Sims": "Tom Sims", "Thomas Burton": "Tom Burton",
+    "Thomas Matthews": "Tom Matthews", "Samuel Collins": "Sam Collins",
+    "Samuel Swadling": "Sam Swadling", "Samuel Grlj": "Sam Grlj",
+    "Nicholas Martin": "Nick Martin", "Nicholas Coffield": "Nick Coffield",
+    "Nicholas Holman": "Nick Holman", "Mitchell Lewis": "Mitch Lewis",
+    "Mitchell Knevitt": "Mitch Knevitt", "Mitchell Hinge": "Mitch Hinge",
+    "Mitchell Edwards": "Mitch Edwards", "Matthew Kennedy": "Matt Kennedy",
+    "Matthew Roberts": "Matt Roberts", "Matthew Flynn": "Matt Flynn",
+    "Matthew Jefferson": "Matt Jefferson", "Matthew LeRay": "Matt LeRay",
+    "Cameron Rayner": "Cam Rayner", "Cameron Mackenzie": "Cam Mackenzie",
+    "Cameron Zurhaar": "Cam Zurhaar", "Cameron Nairn": "Cam Nairn",
+    "Bradley Close": "Brad Close", "Bradley Hill": "Brad Hill",
+    "Zachary Williams": "Zac Williams",
+}
+
+
+def _common_name(n):
+    """Footy common name (e.g. "Zachary Merrett" -> "Zach Merrett"). Keeps tweets
+    reading like a human wrote them rather than echoing the formal data name."""
+    return COMMON_NAME_ALIASES.get(n, n) if n else n
+
+
+def _normalise_names(players, news):
+    for p in players or []:
+        if isinstance(p, dict) and p.get("name"):
+            p["name"] = _common_name(p["name"])
+    for it in news or []:
+        if not isinstance(it, dict):
+            continue
+        if it.get("player"):
+            it["player"] = _common_name(it["player"])
+        if isinstance(it.get("players"), list):
+            it["players"] = [_common_name(x) for x in it["players"]]
+
+
 def main():
     do_post = "--post" in sys.argv
     count = DAILY_TARGET
@@ -738,6 +777,7 @@ def main():
                 pass
     players = _load("players.json", "players")
     news = _load("news.json", "news")
+    _normalise_names(players, news)
     log = load_log()
     if "--auto" in sys.argv:
         ok, why = should_auto_post(log)
