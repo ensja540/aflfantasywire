@@ -3809,8 +3809,15 @@ def main():
     # Neale Daniher obituaries ("Fight MND … dies aged 65"). Those aren't player
     # injuries: demote them to general news rather than showing them as injury.
     _demoted = 0
+    _STRUCTURED_INJURY = ("afl_injury_page", "footywire_injuries", "afl_medical_room")
     for _it in items:
-        if _it.get("type") == "injury" and not _it.get("pid"):
+        # Demote ONLY free-text injuries (RSS/club prose) that name no current
+        # player — those are the false positives (obituaries etc.). Items from
+        # the official structured injury lists are genuine injuries even when
+        # the player isn't in our top-600 players.json (e.g. fringe/rookie),
+        # so they keep their injury tag.
+        if (_it.get("type") == "injury" and not _it.get("pid")
+                and _it.get("_source") not in _STRUCTURED_INJURY):
             _it["type"] = "news"
             if (_it.get("category") or "").startswith("injury"):
                 _it["category"] = "general"
