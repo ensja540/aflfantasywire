@@ -2004,7 +2004,7 @@ def main():
                         _conc_all.setdefault(_o, []).append(sc_s)
                         _conc_pos.setdefault(_o, {}).setdefault(_pp, []).append(sc_s)
                     # Raw-stat conceded profiles include Round 0.
-                    for _sk in ("disposals", "kicks", "handballs", "marks", "tackles", "goals"):
+                    for _sk in ("disposals", "kicks", "handballs", "marks", "tackles", "behinds", "goals"):
                         _conc_stat.setdefault(_o, {}).setdefault(_pp, {}).setdefault(_sk, []).append(_g(_sk))
             p["round_stats"] = rs
 
@@ -2174,8 +2174,8 @@ def main():
                 for _sk, _m in _sd.items():
                     _lg.setdefault(_pp2, {}).setdefault(_sk, []).append(_m)
         _lg_mean = {pp2: {sk: sum(v) / len(v) for sk, v in sd.items()} for pp2, sd in _lg.items()}
-        _STAT_KEYS = ("disposals", "kicks", "handballs", "marks", "tackles", "goals")
-        _RK = {"disposals": "dis", "kicks": "k", "handballs": "hb", "marks": "mk", "tackles": "tk", "goals": "gl"}
+        _STAT_KEYS = ("disposals", "kicks", "handballs", "marks", "tackles", "behinds", "goals")
+        _RK = {"disposals": "dis", "kicks": "k", "handballs": "hb", "marks": "mk", "tackles": "tk", "behinds": "b", "goals": "gl"}
         for pp in players:
             _T = normalise_team(pp.get("team", ""))
             _opps = _fx.get(_T, [])
@@ -2193,23 +2193,16 @@ def main():
             # Per-stat predicted next round: recent-weighted base x per-stat matchup x team
             _sp = {}
             _tf = pp.get("teamFactor") or 1
-            for _sk in _STAT_KEYS:
+            for _sk in _STAT_KEYS:  # behinds before goals so its forecast feeds goals
                 _savg = pp.get(_sk) or 0
-                # Behinds feed the goals forecast (scoring chances) at 3 behinds
-                # = 1 goal — not shown as a stat, just an indicator of future goals.
-                _bxtra = (pp.get("behinds") or 0) / 3.0 if _sk == "goals" else 0
-                if not _savg and not _bxtra:
+                # Goals gets a bonus from the (already-forecast) behinds at 3 behinds = 1 goal.
+                _gbonus = (_sp.get("behinds", 0) or 0) / 3.0 if _sk == "goals" else 0
+                if not _savg and not _gbonus:
                     continue
                 _rs3 = [r.get(_RK[_sk]) for r in (pp.get("roundStats") or []) if r.get(_RK[_sk]) is not None][-3:]
                 _a3 = sum(_rs3) / len(_rs3) if _rs3 else _savg
-                if _sk == "goals":
-                    _b3l = [r.get("b") for r in (pp.get("roundStats") or []) if r.get("b") is not None][-3:]
-                    _b3x = (sum(_b3l) / len(_b3l) if _b3l else (pp.get("behinds") or 0)) / 3.0
-                    _base = 0.55 * (_a3 + _b3x) + 0.45 * (_savg + _bxtra)
-                else:
-                    _base = 0.55 * _a3 + 0.45 * _savg
-                _mm = _sm.get(_sk, 1)
-                _sp[_sk] = round(_base * _mm * _tf, 1)
+                _base = 0.55 * _a3 + 0.45 * _savg
+                _sp[_sk] = round(_base * _sm.get(_sk, 1) * _tf + _gbonus, 1)
             if _sp:
                 pp["statPred"] = _sp
             # Form-vs-opposition signal: judge recent trend against the toughness
