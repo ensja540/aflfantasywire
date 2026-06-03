@@ -2603,6 +2603,23 @@ def main():
             for _pp, _m in _d.items():
                 _pcoll.setdefault(_pp, []).append(_m)
         _pspread = {pp: (min(v), max(v)) for pp, v in _pcoll.items() if len(v) > 1}
+        # Per-game opponent difficulty (0-100, high = tough) from SC points
+        # conceded by the opponent to the player's position vs the position avg.
+        _lg_pos = {}
+        for _t2, _d2 in _pos_mean.items():
+            for _pp2, _m2 in _d2.items():
+                _lg_pos.setdefault(_pp2, []).append(_m2)
+        _lg_pos = {pp2: sum(v) / len(v) for pp2, v in _lg_pos.items() if v}
+        for _pp in players:
+            _ppos = (_pp.get("pos") or "MID").upper()
+            _lgsc = _lg_pos.get(_ppos)
+            if not _lgsc:
+                continue
+            for _r in (_pp.get("roundStats") or []):
+                _o = _r.get("opp")
+                _osc = _pos_mean.get(_o, {}).get(_ppos) if _o else None
+                if _osc:
+                    _r["od"] = max(0, min(100, round((1.15 - _osc / _lgsc) / 0.30 * 100)))
         def _n01(x, lo, hi):
             return 0.5 if hi <= lo else max(0.0, min(1.0, (x - lo) / (hi - lo)))
         # Per-stat opposition profiles: mean raw stat conceded by team -> position
