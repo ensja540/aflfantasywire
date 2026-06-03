@@ -749,7 +749,13 @@ COMMON_NAME_ALIASES = {
 
 def _common_name(n):
     """Footy common name (e.g. "Zachary Merrett" -> "Zach Merrett"). Keeps tweets
-    reading like a human wrote them rather than echoing the formal data name."""
+    reading like a human wrote them rather than echoing the formal data name.
+    Accepts a bare name string or a {"pid","name"} tag object (the richer
+    news.json `players` format) and normalises in place either way."""
+    if isinstance(n, dict):
+        if n.get("name"):
+            n["name"] = COMMON_NAME_ALIASES.get(n["name"], n["name"])
+        return n
     return COMMON_NAME_ALIASES.get(n, n) if n else n
 
 
