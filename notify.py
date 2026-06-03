@@ -21,6 +21,7 @@ import datetime as _dt
 import json
 import os
 import sys
+import hashlib
 
 import requests
 
@@ -110,6 +111,26 @@ def _pushable(it):
         return True
     cat = str(it.get("category") or "").strip().lower()
     return cat not in SKIP_CATEGORIES
+
+
+def _stable_nid(it):
+    """Content-stable notification id for dedup.
+
+    The served `id` is reassigned positionally on EVERY scrape (news_scraper
+    does `item["id"] = i`), so deduping on it re-fires the same story whenever
+    the feed reorders — which is why a single article (e.g. Jye Caldwell's) kept
+    notifying over and over. Key on the article link instead (or player+headline
+    when there's no link) so each story notifies a given subscriber exactly once.
+    """
+    link = (it.get("link") or "").strip()
+    if link:
+        basis = "L:" + link
+    else:
+        basis = "P:%s|%s" % (
+            it.get("pid") or it.get("player") or "",
+            (it.get("headline") or it.get("body") or "")[:120],
+        )
+    return hashlib.sha1(basis.encode("utf-8")).hexdigest()[:16]
 
 
 def _item_pids(it):
@@ -259,7 +280,7 @@ def run():
         already = state.setdefault(ekey, {})
 
         for it in items:
-            nid = str(it.get("id"))
+            nid = _stable_nid(it)
             if nid in already:
                 continue
             matched = _item_pids(it) & watch
