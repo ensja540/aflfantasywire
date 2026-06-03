@@ -99,12 +99,15 @@ def _fetch_data_check() -> tuple[bool, str | None, str]:
     ``new_sig`` to ``.fetch_data_sig`` after a successful fetch_data run so
     the next cycle can skip if Footywire's stats page is unchanged.
     """
-    # Game days only: AFL rounds run Thu-Sun, so there are no new player stats to
-    # collect Mon-Wed. Skip the heavy Footywire scrape entirely on those days to
-    # stop hammering the site (and to avoid the 20-min timeout). Manual runs of
+    # Collect on game days (AFL rounds run Thu-Sun) plus Monday morning, when
+    # SuperCoach prices settle after the round. Skip Tue/Wed entirely and Monday
+    # afternoon onward — no new games or price moves there — to stop hammering
+    # Footywire (and avoid the 20-min timeout). Manual runs of
     # `python fetch_data.py` bypass this — the gate lives only in the auto loop.
-    if datetime.now().weekday() in (0, 1, 2):  # Mon=0, Tue=1, Wed=2
-        return False, None, "off-round day (Mon-Wed) — no new games"
+    _now = datetime.now()
+    _wd = _now.weekday()  # Mon=0, Tue=1, Wed=2 ... Sun=6
+    if _wd in (1, 2) or (_wd == 0 and _now.hour >= 12):
+        return False, None, "off-round (Tue-Wed / Mon afternoon) — no new games"
     # Probe Footywire FIRST so we always have a fresh sig to save — even on
     # first run. Previous version returned (True, None, "first run") if the
     # sig file was missing, which meant `fetch_sig` stayed None, the sig
