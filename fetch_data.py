@@ -23,7 +23,7 @@ OUTPUT
   players.json — drop this next to aflfantasywire.html and reload the app
 """
 
-import json, re, time, logging, sys, traceback
+import json, re, time, logging, sys, traceback, os
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from urllib.parse import urljoin
@@ -643,6 +643,52 @@ def _coach_valid_2026(opp, rnd):
 HIST_LOG_TIME_LIMIT = 540  # seconds budget for the 2025 history pass
 _DVP_2025 = {}  # opp -> pos -> stat -> [values]; last-season position-vs-team
 
+# Last season's per-position matchup data never changes, so we scrape it once
+# and store the aggregate permanently in the repo ("our gold"). Every run loads
+# this file instead of re-fetching ~380 Footywire pages; it is only rebuilt when
+# explicitly requested with `--historical` (or `--full`). This is the single
+# biggest fetch_data time saver and is what kept the auto run under the 20-min
+# subprocess cap. The cache stores raw value lists keyed by the coach-change set
+# (so it auto-rebuilds if that set changes).
+DVP_2025_CACHE_PATH = BASE_DIR / "dvp_2025_cache.json"
+WITH_HISTORY = ("--historical" in sys.argv) or ("--full" in sys.argv)
+
+
+def load_dvp_2025_cache():
+    """Populate _DVP_2025 from the on-disk gold cache. Returns True on success."""
+    try:
+        c = json.loads(DVP_2025_CACHE_PATH.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        log.info("2025 history: no cache yet — run `fetch_data.py --historical` to build it")
+        return False
+    except Exception as _e:
+        log.warning(f"2025 DvP cache read failed: {_e}")
+        return False
+    if c.get("data"):
+        _DVP_2025.clear()
+        _DVP_2025.update(c["data"])
+        log.info(f"2025 history: loaded {len(_DVP_2025)} teams from cache "
+                 f"(built {c.get('built_at', '?')})")
+        return True
+    return False
+
+
+def save_dvp_2025_cache():
+    """Persist _DVP_2025 to the gold cache file (atomic write)."""
+    try:
+        payload = {
+            "built_at": datetime.now().isoformat(timespec="seconds"),
+            "sig": ",".join(sorted(COACH_CHANGED_TEAMS)),
+            "data": _DVP_2025,
+        }
+        tmp = str(DVP_2025_CACHE_PATH) + ".tmp"
+        with open(tmp, "w", encoding="utf-8", newline="") as f:
+            json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
+        os.replace(tmp, str(DVP_2025_CACHE_PATH))
+        log.info(f"2025 DvP cached -> {DVP_2025_CACHE_PATH.name} ({len(_DVP_2025)} teams)")
+    except Exception as _e:
+        log.warning(f"2025 DvP cache write failed: {_e}")
+
 
 def _parse_year_games(html):
     """Parse a Footywire historical (?year=YYYY) games-log table. Its layout is
@@ -731,6 +777,7 @@ def fetch_dvp_2025(session, sc_players, limit=380):
                     d.setdefault(full, []).append(v)
         done += 1
     log.info(f"2025 history: {done} players -> DvP across {len(_DVP_2025)} teams")
+    save_dvp_2025_cache()
 
 def fetch_upcoming_fixture(session, cur_round, n=5, season_id=AFL_API_SEASON_ID):
     _r1 = set()  # teams playing the immediate next round (others have a bye)
@@ -2563,10 +2610,15 @@ def main():
         # win/loss form. Kept to a gentle ~0.9-1.1 multiplier so it nudges, not
         # dominates (the player's own avg already reflects their team somewhat).
         _form = fetch_recent_form(session, _cr, n=5)
-        try:
-            fetch_dvp_2025(session, sc_players)
-        except Exception as _e:
-            log.error(f"2025 DvP fetch failed: {_e}")
+        if WITH_HISTORY:
+            # Explicit request: re-scrape last season and refresh the gold cache.
+            try:
+                fetch_dvp_2025(session, sc_players)
+            except Exception as _e:
+                log.error(f"2025 DvP fetch failed: {_e}")
+        else:
+            # Default: load the permanent cache, never hit Footywire for history.
+            load_dvp_2025_cache()
         _ptsc = fetch_points_conceded(session, _cr)
         _lg_pts = (sum(_ptsc.values()) / len(_ptsc)) if _ptsc else 0
         _trp = fetch_team_rounds_played(session, _cr)
