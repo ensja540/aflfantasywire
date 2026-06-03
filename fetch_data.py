@@ -2886,6 +2886,49 @@ def main():
         log.error(f"Schedule rating failed: {_e}")
         log.error(traceback.format_exc())
 
+    # ── Prediction persistence ──
+    # A partial games-log scrape (Footywire throttling/timeout) leaves players
+    # past the fetch frontier without roundStats -> no statPred -> they vanish
+    # from the predictions page and their profile goes blank, so predictions
+    # look like they "change day to day". Carry forward the last good games-log
+    # data from the previous players.json for any still-listed, non-out/bye
+    # player this run failed to compute. Never overwrites freshly computed data.
+    try:
+        _prev = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+        _prevp = _prev if isinstance(_prev, list) else _prev.get("players", _prev)
+        _prior = {name_key(p.get("name", "")): p for p in _prevp if p.get("name")}
+        _carried = 0
+        for _pp in players:
+            if _pp.get("statPred") and _pp.get("roundStats"):
+                continue  # fully computed this run
+            if _pp.get("injuryStatus") == "out" or _pp.get("byeNext"):
+                continue  # legitimately not predicted
+            _old = _prior.get(name_key(_pp.get("name", "")))
+            if not _old:
+                continue
+            _did = False
+            if not _pp.get("statPred") and _old.get("statPred"):
+                _pp["statPred"] = _old["statPred"]
+                if _old.get("teamWt"):
+                    _pp["teamWt"] = _old["teamWt"]
+                if _old.get("statMatch"):
+                    _pp["statMatch"] = _old["statMatch"]
+                _did = True
+            if not _pp.get("roundStats") and _old.get("roundStats"):
+                _pp["roundStats"] = _old["roundStats"]
+                for _k in ("gamesPlayed", "scores", "dtScores"):
+                    if _old.get(_k) not in (None, [], {}):
+                        _pp[_k] = _old[_k]
+                _did = True
+            if _did:
+                _pp["_carried"] = True
+                _carried += 1
+        if _carried:
+            log.info(f"Prediction persistence: carried forward data for {_carried} "
+                     f"player(s) not refreshed this run")
+    except Exception as _e:
+        log.warning(f"Prediction persistence skipped: {_e}")
+
     try:
         log_predictions(players, max((pp.get("lastRound") or 0) for pp in players) or 1)
     except Exception as _e:
