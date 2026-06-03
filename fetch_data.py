@@ -2821,7 +2821,7 @@ def main():
                 _sp = sum((_pp["statPred"].get(_s) or 0) for _pp in _elig if _pp["statPred"].get(_s) is not None)
                 if not _budget or _budget <= 0 or _sp <= 0:
                     continue
-                _f = max(0.75, min(1.3, _budget / _sp))      # divide the expected total by each player's share
+                _f = max(0.78, min(1.1, _budget / _sp))      # divide the expected total by each player's share (cap inflation at +10%)
                 for _pp in _elig:
                     _sv = _pp["statPred"].get(_s)
                     if _sv is None:
