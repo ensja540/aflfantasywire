@@ -10,20 +10,24 @@ BRAND RULES (enforced here, not free-text — so we can't hallucinate):
   - Tone: informative + a light steer ("one to keep an eye on", "worth a look").
   - No slang / dismissive terms.
   - Tweets are built ONLY from verifiable numbers (3-game / 5-game / season
-    averages, last-N scoreline, consistency rating, ownership). We NEVER state
-    a cause/role/why a score moved.
-  - Layout uses 📈/📉 lead-emoji, blank lines for breathing room, both 3 and
-    5-game averages side-by-side, and the consistency rating as a footer line.
-  - STRICT trend gate — only two categories qualify:
-       A. BREAKOUT — season avg < 80 AND both 3-game and 5-game avgs > 80
-       B. DECLINE  — season avg > 80 AND both 3-game and 5-game avgs < 80
-    Both windows on the same side of the 80 threshold = a sustained shift,
-    not a one-game spike. The "consistent producer" template was removed.
-  - CTA SLOT (1 per day) — drives traffic to the site. Either a
-    rank-callout for a top-100 in-form player ("Ranked #15 in our live
-    SuperCoach rankings … see the full top 200: aflfantasywire.com") or
-    a generic risers callout. Mixed at a 1:2 ratio with stats tweets so
-    at DAILY_TARGET=3 the day reads as: 1 CTA / round-recap + 2 stats.
+    averages, last-N scoreline, breakeven, ownership, this-week matchup
+    difficulty). We NEVER state a cause/role/why a score moved.
+  - VARIETY is deliberate — the daily set rotates across angle FAMILIES and
+    phrasings so the feed never reads like the same card three times:
+       * Form trend (Classic/Draft) — STRICT gate, only two categories qualify:
+            A. BREAKOUT — season avg < 80 AND both 3-game and 5-game avgs > 80
+            B. DECLINE  — season avg > 80 AND both 3-game and 5-game avgs < 80
+         Both windows on the same side of 80 = a sustained shift, not a spike.
+         Headline and the stat block each rotate among several phrasings.
+       * Matchup — this week's opponent difficulty (scheduleRating >=7 soft,
+         <=4 tough), tied to our prediction model.
+       * Value — SuperCoach cash: recent average vs breakeven (rising/dropping).
+    No two tweets in a batch share an angle. (The consistency-rating footer and
+    the standalone consistency feature were removed — they made every tweet look
+    the same.)
+  - CTA / round-recap SLOT (1 per day) — drives traffic to the site: a
+    round-recap (top-10 scorers) when the round is complete, else a rank-callout
+    for a top-100 in-form player. Mixed 1:2 with the varied angle tweets.
   - Breaking only when an item is genuinely fresh (NewsHistory status == "new").
 
 USAGE
@@ -113,19 +117,21 @@ def classic_tweets(players):
         #   B: DECLINE — season > 80 but BOTH 3-game and 5-game < 80
         #      (premium that's faded over a sustained window, not a one-week dip).
         if avg < 80 and avg3 > 80 and avg5 > 80:
+            head = random.choice([
+                f"\U0001F4C8 {p['name']} trending up",
+                f"\U0001F4C8 {p['name']} has found another gear",
+                f"\U0001F4C8 {p['name']} building a strong case",
+            ])
             out.append(("classic", p["id"], "crise",
-                        f"\U0001F4C8 {p['name']} trending up\n\n"
-                        f"3-game avg: {round(avg3)}SC | 5-game avg: {avg5}SC | Season avg: {round(avg)}SC\n"
-                        f"Last 3: {l3}\n\n"
-                        f"Consistency rating: {consistency}%{own_bit}\n\n"
-                        f"{HASHTAGS}"))
+                        f"{head}\n\n{_form_body(p, 'up')}{own_bit}\n\n{HASHTAGS}"))
         elif avg > 80 and avg3 < 80 and avg5 < 80:
+            head = random.choice([
+                f"\U0001F4C9 {p['name']} cooling off",
+                f"\U0001F4C9 {p['name']} has gone quiet lately",
+                f"\U0001F4C9 {p['name']} losing some steam",
+            ])
             out.append(("classic", p["id"], "cfall",
-                        f"\U0001F4C9 {p['name']} cooling off\n\n"
-                        f"3-game avg: {round(avg3)}SC | 5-game avg: {avg5}SC | Season avg: {round(avg)}SC\n"
-                        f"Last 3: {l3}\n\n"
-                        f"Consistency rating: {consistency}%\n\n"
-                        f"{HASHTAGS}"))
+                        f"{head}\n\n{_form_body(p, 'down')}\n\n{HASHTAGS}"))
     return out
 
 
@@ -146,19 +152,104 @@ def draft_tweets(players):
         # Same two-category gate as classic. The "consistent producer" (dcons)
         # template was removed — the brief is only A (breakout) or B (decline).
         if avg < 80 and avg3 > 80 and avg5 > 80:
+            head = random.choice([
+                f"\U0001F4C8 {p['name']} on the rise",
+                f"\U0001F4C8 {p['name']} climbing into relevance",
+                f"\U0001F4C8 {p['name']} worth a look in draft formats",
+            ])
             out.append(("draft", p["id"], "drise",
-                        f"\U0001F4C8 {p['name']} on the rise\n\n"
-                        f"3-game avg: {round(avg3)}SC | 5-game avg: {avg5}SC | Season avg: {round(avg)}SC\n"
-                        f"Last 5: {l5}\n\n"
-                        f"Consistency rating: {consistency}%\n\n"
-                        f"{HASHTAGS}"))
+                        f"{head}\n\n{_form_body(p, 'up')}\n\n{HASHTAGS}"))
         elif avg > 80 and avg3 < 80 and avg5 < 80:
+            head = random.choice([
+                f"\U0001F4C9 {p['name']}'s output has eased",
+                f"\U0001F4C9 {p['name']} has tapered off",
+                f"\U0001F4C9 {p['name']} sliding in recent weeks",
+            ])
             out.append(("draft", p["id"], "dfall",
-                        f"\U0001F4C9 {p['name']}'s output has eased\n\n"
-                        f"3-game avg: {round(avg3)}SC | 5-game avg: {avg5}SC | Season avg: {round(avg)}SC\n"
-                        f"Last 5: {l5}\n\n"
-                        f"Consistency rating: {consistency}%\n\n"
-                        f"{HASHTAGS}"))
+                        f"{head}\n\n{_form_body(p, 'down')}\n\n{HASHTAGS}"))
+    return out
+
+
+ABBR_TO_TEAM = {
+    "ADE": "Adelaide", "BRL": "Brisbane", "CAR": "Carlton", "COL": "Collingwood",
+    "ESS": "Essendon", "FRE": "Fremantle", "GEE": "Geelong", "GCS": "Gold Coast",
+    "GWS": "GWS", "HAW": "Hawthorn", "MEL": "Melbourne", "NTH": "North Melbourne",
+    "PTA": "Port Adelaide", "RIC": "Richmond", "STK": "St Kilda", "SYD": "Sydney",
+    "WCE": "West Coast", "WBD": "Western Bulldogs",
+}
+
+
+def _form_body(p, direction):
+    """Varied presentation of recent form vs season avg so tweets don't all read
+    identically. `direction` ('up'/'down') keeps the narrative correct. One
+    rotation keeps the classic windows block; the others are sentence-led."""
+    ps = played_scores(p)
+    avg = round(p.get("scAvg") or 0)
+    avg3 = round(p.get("scAvg3") or 0)
+    avg5 = round(_avg_n(ps, 5))
+    l3 = scoreline(ps, 3)
+    moved = "up from" if direction == "up" else "down from"
+    return random.choice([
+        f"3-game avg: {avg3}SC | 5-game avg: {avg5}SC | Season: {avg}SC\nLast 3: {l3}",
+        f"Last 3: {l3}\nThat's a {avg3} average, {moved} {avg} on the season.",
+        f"Averaging {avg3} across his past three ({avg5} over five), {moved} a season mark of {avg}.",
+    ])
+
+
+def matchup_tweets(players):
+    """This week's opponent difficulty, from scheduleOpp[0]/scheduleRating[0]
+    (>=7 soft, <=4 tough). A fresh angle that ties straight to our predictions."""
+    out = []
+    for p in players:
+        rng = p.get("scheduleRating") or []
+        opp = p.get("scheduleOpp") or []
+        avg3 = round(p.get("scAvg3") or 0)
+        rank = p.get("rank") or 999
+        if not rng or not opp or rank > 120 or avg3 < 70:
+            continue
+        r0 = rng[0]
+        opp_full = ABBR_TO_TEAM.get(opp[0], opp[0])
+        if r0 >= 7:
+            head = random.choice([
+                f"{p['name']} draws {opp_full} this week — one of the softer matchups going around.",
+                f"Favourable run this week for {p['name']}, up against {opp_full}.",
+            ])
+        elif r0 <= 4:
+            head = random.choice([
+                f"{p['name']} has a tough assignment against {opp_full} this week.",
+                f"{p['name']} meets {opp_full} this week — one of the harder draws.",
+            ])
+        else:
+            continue
+        out.append(("matchup", p["id"], "mtup",
+                    f"{head}\n\nHe's averaging {avg3}SC over his past three.\n\n{HASHTAGS}"))
+    return out
+
+
+def value_tweets(players):
+    """SuperCoach cash angle from breakeven vs recent average (Classic only).
+    Recent output well clear of breakeven = price rising; well short = drop risk."""
+    out = []
+    for p in players:
+        be = p.get("breakeven")
+        avg3 = round(p.get("scAvg3") or 0)
+        rank = p.get("rank") or 999
+        price = p.get("price") or 0
+        if be is None or not price or rank > 150 or avg3 < 55:
+            continue
+        margin = avg3 - be
+        if margin >= 20:
+            head = random.choice([
+                f"\U0001F4B0 {p['name']} is generating cash — breakeven {be}, averaging {avg3} over three.",
+                f"\U0001F4B0 {p['name']}'s price is climbing: a breakeven of {be} against a {avg3} recent average.",
+            ])
+            out.append(("value", p["id"], "val_rise", f"{head}\n\n{HASHTAGS}"))
+        elif margin <= -18 and avg3 < 95:
+            head = random.choice([
+                f"\U0001F4B0 {p['name']}'s breakeven has risen to {be}; he's averaged {avg3} lately — a price dip looms.",
+                f"\U0001F4B0 Watch {p['name']}'s price — breakeven {be}, but only {avg3} across his past three.",
+            ])
+            out.append(("value", p["id"], "val_fall", f"{head}\n\n{HASHTAGS}"))
     return out
 
 
@@ -430,13 +521,11 @@ def cta_tweets(players, log):
         # contains a dict (not orderable in Python 3 when gaps tie).
         candidates.sort(key=lambda x: x[0], reverse=True)
         gap, p, rank = candidates[0]
-        consistency = int(p.get("consistency") or 0)
         return [(
             "cta", p["id"], "cta_rank",
             f"\U0001F4C8 {p['name']} is in form\n\n"
             f"3-game avg: {round(p.get('scAvg3') or 0)}SC | "
             f"Season avg: {round(p.get('scAvg') or 0)}SC\n"
-            f"Consistency rating: {consistency}%\n"
             f"Currently sitting at #{rank} in our live SuperCoach rankings.\n\n"
             f"Full rankings, breakdowns and form data:\n{LINK_RANKINGS}\n"
             f"{HASHTAGS}"
@@ -672,49 +761,62 @@ def pick(players, news, log):
     recent14 = _recently_tweeted_pids(log, 14)  # 1 tweet per player / 2 weeks
 
     pools = {
-        "breaking": breaking_tweets(news),
         "classic":  classic_tweets(players),
         "draft":    draft_tweets(players),
+        "matchup":  matchup_tweets(players),
+        "value":    value_tweets(players),
     }
-    # Rank classic/draft by how strong the move is (biggest |avg3-avg| first).
+    # Rank classic/draft by how strong the move is (biggest |avg3-avg| first);
+    # shuffle the matchup/value pools so the same names don't always lead.
     pid_gap = {p["id"]: abs((p.get("scAvg3") or 0) - (p.get("scAvg") or 0)) for p in players}
     for k in ("classic", "draft"):
         pools[k].sort(key=lambda t: pid_gap.get(t[1], 0), reverse=True)
+    random.shuffle(pools["matchup"])
+    random.shuffle(pools["value"])
 
-    chosen, used_pids = [], set()
+    chosen, used_pids, used_angles = [], set(), set()
 
-    # Special slot — at most ONE per day. Priority order:
-    #   1. Round-recap (top10) when the round is complete
-    #   2. Consistency feature (high/low cons player)
-    #   3. CTA (rank-callout or risers callout)
-    # Ratio across the daily 3 tweets: 1 special : 2 stats.
-    specials = (top10_tweet(players, log, current_round)
-                or consistency_tweets(players, log)
-                or cta_tweets(players, log))
-    chosen.extend([s for s in specials if not s[1] or s[1] not in recent14])
-    # Numbers/form/trends only — alternate Classic and Draft. (Injury "team news"
-    # items were dropped: they weren't genuinely breaking or insightful.)
-    order = ["classic", "draft"] * DAILY_TARGET
-    for kind in order:
-        if len(chosen) >= DAILY_TARGET:
-            break
+    # One special slot per day: round-recap (top10) when the round is complete,
+    # else a site CTA. (Consistency feature removed.)
+    specials = top10_tweet(players, log, current_round) or cta_tweets(players, log)
+    for s in specials:
+        if not s[1] or s[1] not in recent14:
+            chosen.append(s)
+            if s[1]:
+                used_pids.add(s[1])
+            used_angles.add(s[2])
+
+    # Varied fill: rotate through angle FAMILIES (form trend, matchup, value) so
+    # a day's tweets span different angles rather than three near-identical form
+    # cards. No two tweets share an angle, and the usual per-player dedup holds.
+    families = ["classic", "draft", "matchup", "value"]
+    random.shuffle(families)
+    fi = attempts = 0
+    while len(chosen) < DAILY_TARGET and attempts < 60:
+        attempts += 1
+        kind = families[fi % len(families)]
+        fi += 1
         for cand in list(pools.get(kind, [])):
             ttype, pid, angle, text = cand
-            if pid in tweeted_this_round or pid in used_pids or pid in recent14:
+            if pid and (pid in tweeted_this_round or pid in used_pids or pid in recent14):
+                pools[kind].remove(cand)
                 continue
-            # If the same angle was tweeted in the previous round → frame
-            # this one as a momentum-continues update.
+            if angle in used_angles:
+                continue
+            # If the same angle was tweeted last round → frame as a follow-up.
             if current_round and any(r == current_round - 1 and a == angle
                                       for r, a in hist.get(pid, [])):
                 text = _expand_for_momentum(text, angle)
             text = _add_hook(text, angle)
             if len(text) > 278:
+                pools[kind].remove(cand)
                 continue
             chosen.append((ttype, pid, angle, text))
             used_pids.add(pid)
+            used_angles.add(angle)
             pools[kind].remove(cand)
             break
-    return chosen
+    return chosen[:DAILY_TARGET]
 
 
 def post_tweet(text, env):
