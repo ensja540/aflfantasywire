@@ -3023,10 +3023,17 @@ def attach_news_to_players(players, news_items):
     """Attach relevant news items to each player's news array."""
     news_by_pid = {}
     for item in news_items:
+        # Index by every player the item tags (top-level pid + the richer
+        # players[] array), so a merged multi-player article reaches all of
+        # their profiles, not just the primary one.
+        pids = set()
         if item.get("pid"):
-            if item["pid"] not in news_by_pid:
-                news_by_pid[item["pid"]] = []
-            news_by_pid[item["pid"]].append(item)
+            pids.add(item["pid"])
+        for pp in (item.get("players") or []):
+            if isinstance(pp, dict) and pp.get("pid"):
+                pids.add(pp["pid"])
+        for pid in pids:
+            news_by_pid.setdefault(pid, []).append(item)
 
     for p in players:
         existing = p.get("news", [])

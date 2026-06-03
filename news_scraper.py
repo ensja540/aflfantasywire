@@ -4056,6 +4056,64 @@ def main():
     if _waf:
         log.info(f"Blanked {_waf} waffle/refusal AI summaries")
 
+    # ── Collapse same-article items into one multi-player card ──
+    # An article that names several players was emitted once per player (each
+    # with a "{Name}: ..." headline), so the feed showed the same story N times.
+    # Merge them into a single card that tags every player.
+    def _dedupe_same_article(src):
+        groups, order = {}, []
+        for it in src:
+            link = (it.get("link") or "").strip()
+            body = (it.get("body") or "").strip().lower()
+            key = (link, body) if link and body else None
+            if key is None:
+                order.append((None, it))
+                continue
+            if key not in groups:
+                groups[key] = []
+                order.append((key, None))
+            groups[key].append(it)
+        out = []
+        for key, solo in order:
+            if key is None:
+                out.append(solo)
+                continue
+            grp = groups[key]
+            base = grp[0]
+            if len(grp) > 1:
+                merged, seen = [], set()
+                for g in grp:
+                    pls = g.get("players") or ([{"pid": g.get("pid"), "name": g.get("player")}]
+                                               if g.get("player") else [])
+                    for pp in pls:
+                        if isinstance(pp, dict):
+                            k = pp.get("pid") or (pp.get("name") or "").lower()
+                            if k and k not in seen:
+                                seen.add(k)
+                                merged.append(pp)
+                if merged:
+                    base["players"] = merged
+                # Strip a leading "{Name}: " angle so it reads as one article.
+                hl = base.get("headline") or ""
+                if ": " in hl:
+                    hl = hl.split(": ", 1)[1]
+                base["headline"] = hl[:150]
+                tlist, tset = [], set()
+                for g in grp:
+                    for t in (g.get("teams") or []):
+                        if t not in tset:
+                            tset.add(t)
+                            tlist.append(t)
+                if tlist:
+                    base["teams"] = tlist
+            out.append(base)
+        return out
+
+    _pre = len(items)
+    items = _dedupe_same_article(items)
+    if len(items) != _pre:
+        log.info(f"Same-article dedup: collapsed {_pre - len(items)} duplicate card(s)")
+
     # (AFL-list injury filter removed — it suppressed real injuries the
     # weekly medical-room article omits, e.g. concussion protocols.)
     output = {
