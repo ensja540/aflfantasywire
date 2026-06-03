@@ -2175,6 +2175,10 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
             _role = "Ruck"
         else:
             _role = _pos
+        if _role not in ("Ruck", "Ruck/Forward"):
+            _hos = [(r.get("ho") or 0) for r in (_p.get("roundStats") or [])]
+            if _hos and max(_hos) >= 10:   # 10+ hitouts in a match => spends time in the ruck
+                _role = "Ruck/Forward"
         _p["role"] = ROLE_OVERRIDES.get(_p.get("name")) or _role
     # Inject trailing-24-month availability now that gamesBySeason is merged.
     _cur_round = max((_p.get("lastRound") or 0) for _p in players) or 1
@@ -2431,7 +2435,7 @@ def main():
                 rs.append({"r": gr[idx] if idx < len(gr) else f"R{idx+1}",
                            "sc": sc_s, "dt": _g("af_scores"), "dis": _g("disposals"),
                            "mk": _g("marks"), "tk": _g("tackles"), "gl": _g("goals"), "b": _g("behinds"),
-                           "k": _g("kicks"), "hb": _g("handballs"), "opp": _o})
+                           "k": _g("kicks"), "hb": _g("handballs"), "ho": _g("hitouts"), "opp": _o})
                 # Attribute this score to the opponent that conceded it (DvP).
                 if _o and sc_s and sc_s > 0:
                     _pp = (p.get("pos") or "MID").upper()
