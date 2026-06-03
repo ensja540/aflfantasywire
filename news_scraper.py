@@ -4056,7 +4056,8 @@ def main():
     if _waf:
         log.info(f"Blanked {_waf} waffle/refusal AI summaries")
 
-    items = _reconcile_news_injuries(items)
+    # (AFL-list injury filter removed — it suppressed real injuries the
+    # weekly medical-room article omits, e.g. concussion protocols.)
     output = {
         "scraped_at":  datetime.now().isoformat(),
         "item_count":  len(items),

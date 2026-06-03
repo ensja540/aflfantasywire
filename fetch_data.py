@@ -2118,16 +2118,11 @@ def reconcile_injuries(players):
                 _det = (_det + " (" + info["eta"] + ")").strip()
             p["injuryDetail"] = _det
             matched.add(id(p))
-    cleared = 0
-    for p in players:
-        if id(p) not in matched and p.get("injuryStatus") in ("out", "test"):
-            p["injuryStatus"] = "available"
-            p["injuryDetail"] = ""
-            if isinstance(p.get("tags"), list) and "OUT" in p["tags"]:
-                p["tags"] = [t for t in p["tags"] if t != "OUT"]
-            cleared += 1
+    # Additive only: the AFL medical-room list is NOT exhaustive (concussion
+    # protocols, late adds are often missing), so we confirm what it lists but
+    # never clear injuries other sources (Footywire/news) have caught.
     log.info(f"Injury reconcile vs AFL R{afl.get('round','?')} list: "
-             f"{len(matched)} confirmed, {cleared} false positives cleared")
+             f"{len(matched)} confirmed (additive; other sources' injuries kept)")
 
 
 def write_output(players, sc_players=None, dt_players=None, injuries=None, selections=None):
