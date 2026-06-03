@@ -2777,13 +2777,31 @@ def main():
         for (_opp, _rr, _pt), _sv in _gk.items():
             for _s, _ in _BSTATS:
                 _otc[_opp][_s].append(_sv[_s])
-        # Expected team total for a stat = AVERAGE of this team's season output
-        # and the opponent's season concession (both teams' full current-season
-        # data): team gets ~N + opponent allows ~N => ~N to divide among players.
-        _occ = {}
-        for _opp in _otc:
-            _occ[_opp] = {_s: (sum(_otc[_opp][_s]) / len(_otc[_opp][_s]) if _otc[_opp][_s] else None)
-                          for _s, _ in _BSTATS}
+        # Expected team total = AVERAGE of (this team's output) and (opponent's
+        # concession), but each is STRENGTH-OF-SCHEDULE adjusted: a total racked
+        # up vs a weak team is discounted, vs a hard team is upgraded - for both
+        # data sets. _ttot = raw for-avg, _occ = raw conceded-avg per team.
+        _occ = {_opp: {_s: (sum(_otc[_opp][_s]) / len(_otc[_opp][_s]) if _otc[_opp][_s] else None)
+                       for _s, _ in _BSTATS} for _opp in _otc}
+        _league = {}
+        for _s, _ in _BSTATS:
+            _vals = [_ttot[_t][_s] for _t in _ttot if _ttot[_t].get(_s)]
+            _league[_s] = sum(_vals) / len(_vals) if _vals else 0
+        _gA = _dd(lambda: _dd(list))   # team -> stat -> per-game output adj for opp defence
+        _gO = _dd(lambda: _dd(list))   # team -> stat -> per-game conceded adj for attacker
+        for (_O, _r, _A), _sv in _gk.items():
+            for _s, _ in _BSTATS:
+                _T = _sv.get(_s)
+                if not _T or not _league.get(_s):
+                    continue
+                _Oc = (_occ.get(_O, {}) or {}).get(_s)
+                if _Oc:   # normalise A's output for how leaky/tough opponent O is
+                    _gA[_A][_s].append(_T * max(0.85, min(1.18, _league[_s] / _Oc)))
+                _Af = (_ttot.get(_A, {}) or {}).get(_s)
+                if _Af:   # normalise O's concession for how strong attacker A is
+                    _gO[_O][_s].append(_T * max(0.85, min(1.18, _league[_s] / _Af)))
+        _tadj = {_A: {_s: sum(v) / len(v) for _s, v in _d.items() if v} for _A, _d in _gA.items()}
+        _oadj = {_O: {_s: sum(v) / len(v) for _s, v in _d.items() if v} for _O, _d in _gO.items()}
         for _tt, _grp in _byteam.items():
             _mlr = max((_pp.get("lastRound") or 0) for _pp in _grp)
             _elig = [_pp for _pp in _grp if (_pp.get("lastRound") or 0) == _mlr
@@ -2796,13 +2814,13 @@ def main():
                 if _so:
                     _no = next((_full for _full, _ab in _TEAM_ABBR.items() if _ab == _so[0]), _so[0])
                     break
-            _oc = _occ.get(_no, {}) if _no else {}
+            _myd, _ocd = _tadj.get(_tt, {}), (_oadj.get(_no, {}) if _no else {})
             for _s, _ in _BSTATS:
-                _my = _ttot[_tt][_s]
-                _oa = _oc.get(_s)
-                _budget = (_my + _oa) / 2 if _oa else _my   # both teams' season totals, averaged
+                _my = _myd.get(_s) or (_ttot.get(_tt, {}) or {}).get(_s)
+                _oa = _ocd.get(_s)
+                _budget = (_my + _oa) / 2 if (_my and _oa) else (_my or _oa)
                 _sp = sum((_pp["statPred"].get(_s) or 0) for _pp in _elig if _pp["statPred"].get(_s) is not None)
-                if _budget <= 0 or _sp <= 0:
+                if not _budget or _budget <= 0 or _sp <= 0:
                     continue
                 _f = max(0.75, min(1.3, _budget / _sp))      # divide the expected total by each player's share
                 for _pp in _elig:
@@ -2811,7 +2829,8 @@ def main():
                         continue
                     _pp["statPred"][_s] = round(_sv * _f, 1)
                     _pp.setdefault("teamWt", {})[_s] = {"t": round(_budget, 1), "f": round(_f, 3),
-                                                        "tf": round(_my, 1), "oa": round(_oa, 1) if _oa else None}
+                                                        "tf": round(_my, 1) if _my else None,
+                                                        "oa": round(_oa, 1) if _oa else None}
     except Exception as _e:
         log.error(f"Schedule rating failed: {_e}")
         log.error(traceback.format_exc())
