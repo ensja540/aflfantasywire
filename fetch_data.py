@@ -2777,16 +2777,13 @@ def main():
         for (_opp, _rr, _pt), _sv in _gk.items():
             for _s, _ in _BSTATS:
                 _otc[_opp][_s].append(_sv[_s])
-        _allv = _dd(list)
+        # Expected team total for a stat = AVERAGE of this team's season output
+        # and the opponent's season concession (both teams' full current-season
+        # data): team gets ~N + opponent allows ~N => ~N to divide among players.
+        _occ = {}
         for _opp in _otc:
-            for _s, _ in _BSTATS:
-                _allv[_s].extend(_otc[_opp][_s])
-        _lgt = {_s: (sum(_allv[_s]) / len(_allv[_s]) if _allv[_s] else 0) for _s, _ in _BSTATS}
-        _ofac = {}
-        for _opp in _otc:
-            _ofac[_opp] = {_s: (max(0.85, min(1.18, (sum(_otc[_opp][_s]) / len(_otc[_opp][_s])) / _lgt[_s]))
-                                if (_otc[_opp][_s] and _lgt[_s] > 0) else 1.0) for _s, _ in _BSTATS}
-        # apply: scale each team's eligible predictions to the opponent-adjusted total
+            _occ[_opp] = {_s: (sum(_otc[_opp][_s]) / len(_otc[_opp][_s]) if _otc[_opp][_s] else None)
+                          for _s, _ in _BSTATS}
         for _tt, _grp in _byteam.items():
             _mlr = max((_pp.get("lastRound") or 0) for _pp in _grp)
             _elig = [_pp for _pp in _grp if (_pp.get("lastRound") or 0) == _mlr
@@ -2799,18 +2796,22 @@ def main():
                 if _so:
                     _no = next((_full for _full, _ab in _TEAM_ABBR.items() if _ab == _so[0]), _so[0])
                     break
-            _of = _ofac.get(_no, {}) if _no else {}
+            _oc = _occ.get(_no, {}) if _no else {}
             for _s, _ in _BSTATS:
-                _budget = _ttot[_tt][_s] * _of.get(_s, 1.0)
+                _my = _ttot[_tt][_s]
+                _oa = _oc.get(_s)
+                _budget = (_my + _oa) / 2 if _oa else _my   # both teams' season totals, averaged
                 _sp = sum((_pp["statPred"].get(_s) or 0) for _pp in _elig if _pp["statPred"].get(_s) is not None)
-                _f = _budget / _sp if (_budget > 0 and _sp > _budget * 1.02) else 1.0
+                if _budget <= 0 or _sp <= 0:
+                    continue
+                _f = max(0.75, min(1.3, _budget / _sp))      # divide the expected total by each player's share
                 for _pp in _elig:
                     _sv = _pp["statPred"].get(_s)
                     if _sv is None:
                         continue
-                    if _f < 1.0:
-                        _pp["statPred"][_s] = round(_sv * _f, 1)
-                    _pp.setdefault("teamWt", {})[_s] = {"t": round(_budget, 1), "f": round(_f, 3)}
+                    _pp["statPred"][_s] = round(_sv * _f, 1)
+                    _pp.setdefault("teamWt", {})[_s] = {"t": round(_budget, 1), "f": round(_f, 3),
+                                                        "tf": round(_my, 1), "oa": round(_oa, 1) if _oa else None}
     except Exception as _e:
         log.error(f"Schedule rating failed: {_e}")
         log.error(traceback.format_exc())
