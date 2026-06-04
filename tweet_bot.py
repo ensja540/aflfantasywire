@@ -447,7 +447,10 @@ def consistency_tweets(players, log):
         con = int(p.get("consistency") or 0)
         if con >= 85:
             high_cands.append((-con, p.get("rank") or 999, p, con))
-        elif 0 < con <= 45:
+        elif 0 < con <= 45 and rank > 100:
+            # Never flag a top-100 player with "play with caution" on consistency
+            # alone — a premium with a volatile profile is still a premium; the
+            # caution framing reads wrong for them.
             low_cands.append((con, p.get("rank") or 999, p, con))
 
     # Alternate high/low day-by-day so the feed varies. Fall back to whichever
