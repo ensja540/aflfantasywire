@@ -119,16 +119,16 @@ def classic_tweets(players):
         if avg < 80 and avg3 > 80 and avg5 > 80:
             head = random.choice([
                 f"\U0001F4C8 {p['name']} trending up",
-                f"\U0001F4C8 {p['name']} has found another gear",
-                f"\U0001F4C8 {p['name']} building a strong case",
+                f"\U0001F4C8 {p['name']} in strong recent form",
+                f"\U0001F4C8 {p['name']} lifting his scores",
             ])
             out.append(("classic", p["id"], "crise",
                         f"{head}\n\n{_form_body(p, 'up')}{own_bit}\n\n{HASHTAGS}"))
         elif avg > 80 and avg3 < 80 and avg5 < 80:
             head = random.choice([
                 f"\U0001F4C9 {p['name']} cooling off",
-                f"\U0001F4C9 {p['name']} has gone quiet lately",
-                f"\U0001F4C9 {p['name']} losing some steam",
+                f"\U0001F4C9 {p['name']} down on recent form",
+                f"\U0001F4C9 {p['name']} scoring below his season mark",
             ])
             out.append(("classic", p["id"], "cfall",
                         f"{head}\n\n{_form_body(p, 'down')}\n\n{HASHTAGS}"))
@@ -154,16 +154,16 @@ def draft_tweets(players):
         if avg < 80 and avg3 > 80 and avg5 > 80:
             head = random.choice([
                 f"\U0001F4C8 {p['name']} on the rise",
-                f"\U0001F4C8 {p['name']} climbing into relevance",
-                f"\U0001F4C8 {p['name']} worth a look in draft formats",
+                f"\U0001F4C8 {p['name']} trending up",
+                f"\U0001F4C8 {p['name']} climbing in recent weeks",
             ])
             out.append(("draft", p["id"], "drise",
                         f"{head}\n\n{_form_body(p, 'up')}\n\n{HASHTAGS}"))
         elif avg > 80 and avg3 < 80 and avg5 < 80:
             head = random.choice([
                 f"\U0001F4C9 {p['name']}'s output has eased",
-                f"\U0001F4C9 {p['name']} has tapered off",
-                f"\U0001F4C9 {p['name']} sliding in recent weeks",
+                f"\U0001F4C9 {p['name']} down in recent weeks",
+                f"\U0001F4C9 {p['name']} scoring below his average",
             ])
             out.append(("draft", p["id"], "dfall",
                         f"{head}\n\n{_form_body(p, 'down')}\n\n{HASHTAGS}"))
@@ -209,20 +209,17 @@ def matchup_tweets(players):
             continue
         r0 = rng[0]
         opp_full = ABBR_TO_TEAM.get(opp[0], opp[0])
+        pos = (p.get("pos") or "MID")
         if r0 >= 7:
-            head = random.choice([
-                f"{p['name']} draws {opp_full} this week — one of the softer matchups going around.",
-                f"Favourable run this week for {p['name']}, up against {opp_full}.",
-            ])
+            head = (f"{p['name']} faces {opp_full} next round, one of the easier "
+                    f"matchups for {pos}s on our ratings.")
         elif r0 <= 4:
-            head = random.choice([
-                f"{p['name']} has a tough assignment against {opp_full} this week.",
-                f"{p['name']} meets {opp_full} this week — one of the harder draws.",
-            ])
+            head = (f"{p['name']} faces {opp_full} next round, one of the tougher "
+                    f"matchups for {pos}s on our ratings.")
         else:
             continue
         out.append(("matchup", p["id"], "mtup",
-                    f"{head}\n\nHe's averaging {avg3}SC over his past three.\n\n{HASHTAGS}"))
+                    f"{head}\n\nHe's averaged {avg3}SC over his past three.\n\n{HASHTAGS}"))
     return out
 
 
@@ -240,14 +237,14 @@ def value_tweets(players):
         margin = avg3 - be
         if margin >= 20:
             head = random.choice([
-                f"\U0001F4B0 {p['name']} is generating cash — breakeven {be}, averaging {avg3} over three.",
-                f"\U0001F4B0 {p['name']}'s price is climbing: a breakeven of {be} against a {avg3} recent average.",
+                f"\U0001F4B0 {p['name']}'s breakeven is {be}. He's averaged {avg3}SC over his past three, so his price is rising.",
+                f"\U0001F4B0 {p['name']}'s price is climbing: a breakeven of {be} against a {avg3}SC average over three.",
             ])
             out.append(("value", p["id"], "val_rise", f"{head}\n\n{HASHTAGS}"))
         elif margin <= -18 and avg3 < 95:
             head = random.choice([
-                f"\U0001F4B0 {p['name']}'s breakeven has risen to {be}; he's averaged {avg3} lately — a price dip looms.",
-                f"\U0001F4B0 Watch {p['name']}'s price — breakeven {be}, but only {avg3} across his past three.",
+                f"\U0001F4B0 {p['name']}'s breakeven is {be}, above his {avg3}SC average over the past three. His price is set to drop.",
+                f"\U0001F4B0 {p['name']}'s breakeven has climbed to {be} against a {avg3}SC average over his past three.",
             ])
             out.append(("value", p["id"], "val_fall", f"{head}\n\n{HASHTAGS}"))
     return out
