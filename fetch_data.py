@@ -2281,10 +2281,15 @@ def main():
 
     # Build DT lookup by name
     dt_lookup = {name_key(p["name"]): p for p in dt_players}
-    # Also by last name
+    # Also by last name — but ONLY when that surname is unambiguous. Common
+    # surnames (Smith, etc.) are shared by several players; a blind surname
+    # fallback made non-playing namesakes (Kaleb/Henry/Logan Smith) inherit a
+    # star's AF data (Bailey Smith, afRank 1) and rank #1 in the AF list.
+    from collections import Counter as _LnCounter
+    _ln_counts = _LnCounter(name_key(p["name"].split()[-1]) for p in dt_players)
     for p in dt_players:
         last = name_key(p["name"].split()[-1])
-        if last not in dt_lookup:
+        if _ln_counts[last] == 1 and last not in dt_lookup:
             dt_lookup[last] = p
 
     time.sleep(1.5)
