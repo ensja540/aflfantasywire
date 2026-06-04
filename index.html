@@ -339,4 +339,20 @@ react/cjs/react-jsx-runtime.development.js:
    * LICENSE file in the root directory of this source tree.
    *)
 */
-</script></body></html>
+</script><style>
+#afw-fb-btn{position:fixed;bottom:18px;right:18px;z-index:99990;width:52px;height:52px;border-radius:50%;background:var(--buy,#4a9eff);color:#fff;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;transition:transform .12s}
+#afw-fb-btn:hover{transform:scale(1.07)}
+#afw-fb-panel{position:fixed;bottom:80px;right:18px;z-index:99990;width:300px;max-width:calc(100vw - 36px);background:var(--s1,#111418);border:1px solid var(--s4,#252d38);border-radius:12px;box-shadow:0 12px 34px rgba(0,0,0,.5);padding:14px;display:none;font-family:var(--fb,system-ui,sans-serif)}
+#afw-fb-panel.open{display:block}
+#afw-fb-panel h4{margin:0 0 4px;font-size:14px;font-weight:800;color:var(--tx,#ede9e2)}
+#afw-fb-panel .sub{margin:0 0 10px;font-size:11px;line-height:1.4;color:var(--di,#94a3b8)}
+#afw-fb-text{width:100%;box-sizing:border-box;min-height:84px;resize:vertical;background:var(--s3,#1e2430);border:1px solid var(--s4,#252d38);border-radius:8px;color:var(--tx,#ede9e2);padding:8px;font-size:13px;font-family:inherit}
+#afw-fb-send{margin-top:8px;width:100%;background:var(--buy,#4a9eff);color:#fff;border:none;border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer}
+#afw-fb-send:disabled{opacity:.6;cursor:default}
+#afw-fb-msg{margin-top:8px;font-size:12px;font-weight:600;color:var(--buy,#4a9eff);display:none}
+@media(max-width:640px){#afw-fb-btn{bottom:74px;width:46px;height:46px}#afw-fb-panel{bottom:128px}}
+</style>
+<button id="afw-fb-btn" title="Suggest a feature" aria-label="Suggest a feature"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 21 11.5z"/></svg></button>
+<div id="afw-fb-panel"><h4>Suggest a feature</h4><div class="sub">Got an idea for AFLFantasyWire? Tell us what you'd like to see, it goes straight to the team.</div><textarea id="afw-fb-text" placeholder="Your suggestion..." maxlength="1000"></textarea><button id="afw-fb-send">Send suggestion</button><div id="afw-fb-msg">Thanks! Your suggestion has been sent.</div></div>
+<script>(function(){var b=document.getElementById("afw-fb-btn"),p=document.getElementById("afw-fb-panel"),t=document.getElementById("afw-fb-text"),s=document.getElementById("afw-fb-send"),m=document.getElementById("afw-fb-msg");if(!b)return;b.addEventListener("click",function(e){e.stopPropagation();p.classList.toggle("open");if(p.classList.contains("open"))t.focus();});s.addEventListener("click",function(){var v=(t.value||"").trim();if(!v)return;s.disabled=true;s.textContent="Sending...";fetch("/api/feedback",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({text:v,page:location.hash||location.pathname})}).then(function(r){return r.ok?r.json():Promise.reject();}).then(function(){t.value="";m.style.display="block";s.style.display="none";setTimeout(function(){p.classList.remove("open");m.style.display="none";s.style.display="";s.disabled=false;s.textContent="Send suggestion";},1800);}).catch(function(){s.disabled=false;s.textContent="Try again";});});document.addEventListener("click",function(e){if(p.classList.contains("open")&&!p.contains(e.target)&&e.target!==b&&!b.contains(e.target))p.classList.remove("open");});})();</script>
+</body></html>

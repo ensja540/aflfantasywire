@@ -291,6 +291,45 @@ export default {
       return json({ subscriptions: out });
     }
 
+    // ── Feature recommendations from the in-app widget ──
+    // POST stores a suggestion in the SUBS KV under an "fb:" key; the home
+    // machine pulls them via GET /api/feedback?secret=... (same secret as
+    // /api/subscriptions) and writes them into the repo for review.
+    if (url.pathname === "/api/feedback") {
+      if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
+      if (request.method === "POST") {
+        if (!env.SUBS) return json({ error: "feedback storage not configured" }, 500);
+        let p; try { p = await request.json(); } catch { p = {}; }
+        const text = (p.text || "").toString().trim().slice(0, 1000);
+        if (!text) return json({ error: "empty" }, 400);
+        const at = new Date().toISOString();
+        const id = await sha256(at + "|" + text);
+        await env.SUBS.put("fb:" + id, JSON.stringify({
+          text,
+          page: (p.page || "").toString().slice(0, 120),
+          at,
+        }), { expirationTtl: 60 * 60 * 24 * 90 });  // 90-day TTL keeps KV bounded
+        return json({ ok: true });
+      }
+      // GET: list (secret-gated) for the home-machine puller.
+      if (!env.SUBS) return json({ feedback: [] });
+      if (!env.PUSH_LIST_SECRET || url.searchParams.get("secret") !== env.PUSH_LIST_SECRET) {
+        return new Response("Unauthorized", { status: 401, headers: CORS });
+      }
+      const out = [];
+      let cursor;
+      do {
+        const list = await env.SUBS.list({ prefix: "fb:", cursor });
+        for (const k of list.keys) {
+          const v = await env.SUBS.get(k.name);
+          if (v) { try { out.push({ id: k.name.slice(3), ...JSON.parse(v) }); } catch (_) {} }
+        }
+        cursor = list.list_complete ? null : list.cursor;
+      } while (cursor);
+      out.sort((a, b) => (a.at < b.at ? 1 : -1));
+      return json({ feedback: out });
+    }
+
     // Everything else: serve static assets, with an SPA fallback to index.html
     // for clean app routes (e.g. /predict, /risers) that are not real files,
     // so deep links and refreshes load the app instead of 404ing.

@@ -401,6 +401,19 @@ def run_once() -> None:
     except Exception as e:
         log.warning(f"notify failed: {e}")
 
+    # Pull in-app feature suggestions from the Worker into local (gitignored)
+    # files so they sync to the home machine for review. No-ops without new
+    # suggestions, so it's safe every cycle.
+    try:
+        fb = subprocess.run([sys.executable, str(BASE_DIR / "pull_feedback.py")],
+                            cwd=str(BASE_DIR), capture_output=True, text=True,
+                            encoding="utf-8", errors="replace", env=_UTF8_ENV, timeout=60)
+        fbt = (fb.stdout or "").strip().splitlines()
+        if fbt:
+            log.info("feedback: " + fbt[-1])
+    except Exception as e:
+        log.warning(f"pull_feedback failed: {e}")
+
     # Claude quality agent — runs every AGENT_RUN_EVERY cycles (~30 min).
     # No-ops when ANTHROPIC_API_KEY is missing. Applies safe fixes to news.json
     # only; never edits source code. Writes proposed_upstream_fixes.json for
