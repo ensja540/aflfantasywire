@@ -1032,10 +1032,11 @@ def log_predictions(players, cur_round):
                      if r.get("r") != cur_round and isinstance(r.get(rk), (int, float))]
             _sig = _sigma(_hist)
             _band = max(_sig, 0.5) if _sig is not None else _HIT_TOL.get(sk, 3)
-            _w = abs(pred - act) <= _band
+            _prw = round(pred)   # whole-stat prediction (21.1 -> 21)
+            _w = abs(_prw - act) <= _band
             if _w:
                 _hits += 1
-            _res[sk] = {"p": pred, "a": act, "win": _w, "band": round(_band, 1)}
+            _res[sk] = {"p": _prw, "a": act, "win": _w, "band": round(_band, 1)}
         if _res:
             p["roundResult"] = {"round": cur_round, "opp": rs.get("opp"), "stats": _res}
     # Bands are ~68% (1 sigma), so a well-calibrated model should land ~68%
