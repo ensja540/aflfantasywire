@@ -883,24 +883,37 @@ def fetch_points_conceded(session, cur_round, season_id=AFL_API_SEASON_ID):
 
 
 PREDICTIONS_LOG = BASE_DIR / "predictions_log.json"
+# Self-calibration guardrails: only correct a stat once we've seen enough
+# predicted-vs-actual samples across enough DISTINCT rounds (so a single odd
+# round — e.g. a wet one — can't skew it), and clamp the learned factor so it
+# only ever nudges, never takes over.
+CAL_MIN_SAMPLES = 80
+CAL_MIN_ROUNDS = 2
+CAL_CLAMP = (0.85, 1.15)
+
 
 def log_predictions(players, cur_round):
-    """Append this round's per-stat predictions and score them against prior
-    logged rounds now completed (actual values live in each player's roundStats).
-    Foundation for weekly model calibration — accumulates predicted-vs-actual so
-    a per-stat bias correction can be applied once enough history exists."""
+    """Log this round's RAW (pre-calibration) per-stat predictions and score them
+    against prior logged rounds now completed (actuals live in each player's
+    roundStats). Builds a self-calibrating per-stat correction: the accumulated
+    actual/predicted ratio feeds back as a clamped multiplier so the model's
+    systematic bias shrinks over time. Returns {stat: factor} to apply downstream.
+
+    Carried-forward players (partial-scrape persistence) are excluded — their
+    statPred is a stale, already-calibrated value, not a fresh raw prediction."""
     target = cur_round + 1
     try:
         plog = json.loads(PREDICTIONS_LOG.read_text(encoding="utf-8"))
     except Exception:
-        plog = {"rounds": {}, "accuracy": {}}
+        plog = {"rounds": {}, "accuracy": {}, "calibration": {}}
     plog.setdefault("rounds", {})[str(target)] = {
-        p["name"]: p["statPred"] for p in players if p.get("statPred") and p.get("name")
+        p["name"]: p["statPred"] for p in players
+        if p.get("statPred") and p.get("name") and not p.get("_carried")
     }
     by_name = {p.get("name"): p for p in players}
     _SK = (("disposals", "dis"), ("kicks", "k"), ("handballs", "hb"),
            ("marks", "mk"), ("tackles", "tk"), ("goals", "gl"))
-    err = {}
+    agg = {}   # stat -> {pred,act,abserr,signed,n, rounds:set}
     for rnd_str, preds in list(plog.get("rounds", {}).items()):
         try:
             rnd = int(rnd_str)
@@ -917,12 +930,28 @@ def log_predictions(players, cur_round):
                 continue
             for sk, rk in _SK:
                 pred, act = sp.get(sk), rs.get(rk)
-                if pred is not None and act is not None:
-                    err.setdefault(sk, []).append(abs(pred - act))
-    plog["accuracy"] = {sk: {"mae": round(sum(v) / len(v), 2), "n": len(v)}
-                        for sk, v in err.items() if v}
+                if pred is None or act is None:
+                    continue
+                a = agg.setdefault(sk, {"pred": 0.0, "act": 0.0, "abserr": 0.0,
+                                        "signed": 0.0, "n": 0, "rounds": set()})
+                a["pred"] += pred; a["act"] += act
+                a["abserr"] += abs(pred - act); a["signed"] += (pred - act)
+                a["n"] += 1; a["rounds"].add(rnd)
+    plog["accuracy"] = {sk: {"mae": round(a["abserr"] / a["n"], 2),
+                             "bias": round(a["signed"] / a["n"], 2),
+                             "n": a["n"], "rounds": len(a["rounds"])}
+                        for sk, a in agg.items() if a["n"]}
+    # Learned per-stat correction = actual/predicted, gated + clamped.
+    cal = {}
+    for sk, a in agg.items():
+        if a["n"] >= CAL_MIN_SAMPLES and len(a["rounds"]) >= CAL_MIN_ROUNDS and a["pred"] > 0:
+            f = a["act"] / a["pred"]
+            cal[sk] = round(max(CAL_CLAMP[0], min(CAL_CLAMP[1], f)), 3)
+    plog["calibration"] = cal
     PREDICTIONS_LOG.write_text(json.dumps(plog, indent=2), encoding="utf-8")
-    log.info(f"Predictions logged for R{target}; scored stats: {plog['accuracy']}")
+    log.info(f"Predictions logged for R{target}; accuracy: {plog['accuracy']}; "
+             f"calibration: {cal or '(building history)'}")
+    return cal
 
 
 def fetch_team_rounds_played(session, cur_round, season_id=AFL_API_SEASON_ID):
@@ -2935,9 +2964,26 @@ def main():
         log.warning(f"Prediction persistence skipped: {_e}")
 
     try:
-        log_predictions(players, max((pp.get("lastRound") or 0) for pp in players) or 1)
+        _cal = log_predictions(players, max((pp.get("lastRound") or 0) for pp in players) or 1)
+        # Apply the learned per-stat correction to fresh predictions (the raw
+        # values were already logged above, so scoring stays honest). Carried
+        # players keep their already-calibrated value — don't double-apply.
+        if _cal:
+            _rk = {"disposals": "dis", "kicks": "k", "handballs": "hb",
+                   "marks": "mk", "tackles": "tk", "goals": "gl"}
+            _n = 0
+            for _pp in players:
+                _sp = _pp.get("statPred")
+                if not _sp or _pp.get("_carried"):
+                    continue
+                for _sk, _f in _cal.items():
+                    if _sp.get(_sk) is not None:
+                        _sp[_sk] = round(_sp[_sk] * _f, 1)
+                _pp["calibrated"] = True
+                _n += 1
+            log.info(f"Applied model calibration {_cal} to {_n} players' predictions")
     except Exception as _e:
-        log.error(f"Prediction logging failed: {_e}")
+        log.error(f"Prediction logging/calibration failed: {_e}")
 
     # Sort by SC rank
     players.sort(key=lambda p: p["rank"])
