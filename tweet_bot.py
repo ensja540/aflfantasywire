@@ -743,6 +743,28 @@ def _add_hook(text, angle):
         return text.replace(HASHTAGS, h + "\n\n" + HASHTAGS, 1)
     return text + "\n\n" + h
 
+NOT_PLAYING_STATUS = {"out", "test", "tbc", "doubtful", "managed",
+                      "susp", "suspended", "omitted", "late out"}
+
+
+def _is_playing(p, cur_round=None):
+    """Never tweet about a player who isn't playing the upcoming round. Excludes
+    injured / late-out / doubtful / suspended / bye, and anyone out of the side
+    for 2+ rounds (catches omissions the injury feed misses, e.g. Kane Farrell,
+    flagged 'test' with an adductor and unplayed for weeks)."""
+    st = (p.get("injuryStatus") or "").strip().lower()
+    if st in NOT_PLAYING_STATUS:
+        return False
+    if p.get("byeNext"):
+        return False
+    # Out of the side for 2+ rounds — but only when lastRound is KNOWN, so a
+    # games-log data gap (lastRound 0/None) doesn't silence a fit player.
+    lr = p.get("lastRound") or 0
+    if cur_round and lr and lr < cur_round - 1:
+        return False
+    return True
+
+
 def pick(players, news, log):
     """Pick up to DAILY_TARGET varied tweets.
 
@@ -760,11 +782,13 @@ def pick(players, news, log):
                           if any(r == current_round for r, _ in evs)}
     recent14 = _recently_tweeted_pids(log, 14)  # 1 tweet per player / 2 weeks
 
+    # Only build form/value/matchup tweets from players who are actually playing.
+    _playing = [p for p in players if _is_playing(p, current_round)]
     pools = {
-        "classic":  classic_tweets(players),
-        "draft":    draft_tweets(players),
-        "matchup":  matchup_tweets(players),
-        "value":    value_tweets(players),
+        "classic":  classic_tweets(_playing),
+        "draft":    draft_tweets(_playing),
+        "matchup":  matchup_tweets(_playing),
+        "value":    value_tweets(_playing),
     }
     # Rank classic/draft by how strong the move is (biggest |avg3-avg| first);
     # shuffle the matchup/value pools so the same names don't always lead.
@@ -778,7 +802,7 @@ def pick(players, news, log):
 
     # One special slot per day: round-recap (top10) when the round is complete,
     # else a site CTA. (Consistency feature removed.)
-    specials = top10_tweet(players, log, current_round) or cta_tweets(players, log)
+    specials = top10_tweet(players, log, current_round) or cta_tweets(_playing, log)
     for s in specials:
         if not s[1] or s[1] not in recent14:
             chosen.append(s)
