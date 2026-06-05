@@ -23,7 +23,7 @@ OUTPUT
   players.json — drop this next to aflfantasywire.html and reload the app
 """
 
-import json, re, time, logging, sys, traceback, os
+import json, re, time, logging, sys, traceback, os, math
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from urllib.parse import urljoin
@@ -1011,9 +1011,16 @@ def log_predictions(players, cur_round):
             if pred is None or act is None:
                 continue
             _tot += 1
-            # Prediction floored to a whole stat (12.9 -> 12); a win = the player
-            # MET OR BEAT it (actual >= prediction).
-            _prw = int(pred)
+            # Directional whole-stat prediction: a stat projected UP (above the
+            # player's season average) floors DOWN (12.9 -> 12); one projected
+            # DOWN rounds UP (12.1 -> 13). A win = the player met or beat it.
+            _avg = p.get(sk) or 0
+            if pred > _avg:
+                _prw = math.floor(pred)
+            elif pred < _avg:
+                _prw = math.ceil(pred)
+            else:
+                _prw = round(pred)
             _w = act >= _prw
             if _w:
                 _hits += 1
