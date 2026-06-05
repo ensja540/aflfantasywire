@@ -2593,6 +2593,15 @@ def main():
     # every SC score posted against that team; _conc_pos[team][POS] splits it by
     # the scorer's position (DvP). Built from the games-log opponents below.
     _conc_all, _conc_pos = {}, {}
+    # Prioritise players who scored the LATEST round (just played) so a crawl that
+    # hits its time cap still captures the newest game stats FIRST. Without this a
+    # Friday-night game's teams sit below the ranking cap and their scores never
+    # update until a (rare) full crawl completes. _curmap came from the per-round
+    # page above, so we already know exactly who has a fresh score to fetch.
+    if cur_rnd and _curmap:
+        _played_now = set(_curmap.keys())
+        sc_players.sort(key=lambda _p: 0 if name_key(_p.get("name", "")) in _played_now else 1)
+        log.info(f"Games-log priority: {sum(1 for _p in sc_players[:MAX_GAMES_LOG] if name_key(_p.get('name','')) in _played_now)} just-played players moved to the front")
     log.info(f"Fetching games log for top {MAX_GAMES_LOG} players (pg- URL)...")
     games_log_start = time.time()
     for i, p in enumerate(sc_players[:MAX_GAMES_LOG]):
