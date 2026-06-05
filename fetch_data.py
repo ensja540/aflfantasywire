@@ -969,13 +969,21 @@ def log_predictions(players, cur_round):
         _pl += 1
         if p.get("team"):
             _teams.add(p["team"])
+        # Per-player LOCKED result: the prediction we made for this round vs the
+        # actual, with a per-stat win flag — drives green/red shading + locks the
+        # row once the player's game is final.
+        _res = {}
         for sk, rk in _SK:
             pred, act = sp.get(sk), rs.get(rk)
             if pred is None or act is None:
                 continue
             _tot += 1
-            if abs(pred - act) <= _HIT_TOL.get(sk, 3):
+            _w = abs(pred - act) <= _HIT_TOL.get(sk, 3)
+            if _w:
                 _hits += 1
+            _res[sk] = {"p": pred, "a": act, "win": _w}
+        if _res:
+            p["roundResult"] = {"round": cur_round, "stats": _res}
     _ROUND_ACCURACY = ({"round": cur_round, "winPct": round(100 * _hits / _tot),
                         "predictions": _tot, "playersGraded": _pl,
                         "gamesIn": len(_teams) // 2} if _tot else None)
