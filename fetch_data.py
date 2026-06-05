@@ -1016,15 +1016,15 @@ def log_predictions(players, cur_round):
             # DOWN rounds UP (12.1 -> 13). A win = the player met or beat it.
             _avg = p.get(sk) or 0
             if pred > _avg:
-                _prw = math.floor(pred)
+                _prw, _dir = math.floor(pred), 1     # projected to rise -> floor
             elif pred < _avg:
-                _prw = math.ceil(pred)
+                _prw, _dir = math.ceil(pred), -1     # projected to fall -> round up
             else:
-                _prw = round(pred)
+                _prw, _dir = round(pred), 0
             _w = act >= _prw
             if _w:
                 _hits += 1
-            _res[sk] = {"p": _prw, "a": act, "win": _w}
+            _res[sk] = {"p": _prw, "a": act, "win": _w, "dir": _dir}
         if _res:
             p["roundResult"] = {"round": cur_round, "opp": rs.get("opp"), "stats": _res}
     # "Met or beat" win: an unbiased model lands ~50% (as many over as under),
