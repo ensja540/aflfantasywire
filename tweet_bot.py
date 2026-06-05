@@ -211,15 +211,25 @@ def matchup_tweets(players):
         opp_full = ABBR_TO_TEAM.get(opp[0], opp[0])
         pos = (p.get("pos") or "MID")
         if r0 >= 7:
-            head = (f"{p['name']} faces {opp_full} next round, one of the easier "
-                    f"matchups for {pos}s on our ratings.")
+            head = random.choice([
+                f"{p['name']} faces {opp_full} next round, one of the easier matchups for {pos}s on our ratings.",
+                f"Favourable draw for {p['name']}: {opp_full} next round rates among the friendlier {pos} matchups on our numbers.",
+                f"{p['name']} draws {opp_full} next — one of the softer {pos} matchups our ratings flag.",
+            ])
         elif r0 <= 4:
-            head = (f"{p['name']} faces {opp_full} next round, one of the tougher "
-                    f"matchups for {pos}s on our ratings.")
+            head = random.choice([
+                f"{p['name']} faces {opp_full} next round, one of the tougher matchups for {pos}s on our ratings.",
+                f"Tough draw for {p['name']}: {opp_full} next round rates among the harder {pos} matchups on our numbers.",
+                f"{p['name']} runs into {opp_full} next — one of the stingier {pos} matchups our ratings flag.",
+            ])
         else:
             continue
-        out.append(("matchup", p["id"], "mtup",
-                    f"{head}\n\nHe's averaged {avg3}SC over his past three.\n\n{HASHTAGS}"))
+        body = random.choice([
+            f"He's averaged {avg3}SC over his past three.",
+            f"He's been going at {avg3}SC across his past three.",
+            f"Recent form: {avg3}SC over the past three rounds.",
+        ])
+        out.append(("matchup", p["id"], "mtup", f"{head}\n\n{body}\n\n{HASHTAGS}"))
     return out
 
 
@@ -505,12 +515,17 @@ def cta_tweets(players, log):
             return []
 
     # ── Template A: top-100 player who's trending up ──────────────────
+    # Exclude anyone we've already featured in the last ~12 days so the same
+    # in-form name (e.g. the day's biggest gap) doesn't get tweeted over and over.
+    recent = _recently_tweeted_pids(log, 12)
     candidates = []
     for p in players:
         avg  = p.get("scAvg")  or 0
         avg3 = p.get("scAvg3") or 0
         rank = p.get("rank")   or 999
         if rank > 100 or avg < 60 or avg3 < 95:
+            continue
+        if p.get("id") in recent:
             continue
         gap = avg3 - avg
         if gap < 12:
@@ -521,12 +536,24 @@ def cta_tweets(players, log):
         # contains a dict (not orderable in Python 3 when gaps tie).
         candidates.sort(key=lambda x: x[0], reverse=True)
         gap, p, rank = candidates[0]
+        _a3, _av = round(p.get("scAvg3") or 0), round(p.get("scAvg") or 0)
+        head = random.choice([
+            f"\U0001F4C8 {p['name']} is in form",
+            f"\U0001F4C8 {p['name']} has been climbing",
+            f"\U0001F4C8 Form watch: {p['name']}",
+            f"\U0001F4C8 {p['name']} on the move up the rankings",
+        ])
+        body = random.choice([
+            f"3-game avg: {_a3}SC | Season avg: {_av}SC\n"
+            f"Currently #{rank} in our live SuperCoach rankings.",
+            f"Up to #{rank} in our live rankings — {_a3}SC across his past three, "
+            f"well clear of his {_av}SC season mark.",
+            f"Averaging {_a3}SC over his past three ({_av}SC for the season), now "
+            f"#{rank} in our live SuperCoach rankings.",
+        ])
         return [(
             "cta", p["id"], "cta_rank",
-            f"\U0001F4C8 {p['name']} is in form\n\n"
-            f"3-game avg: {round(p.get('scAvg3') or 0)}SC | "
-            f"Season avg: {round(p.get('scAvg') or 0)}SC\n"
-            f"Currently sitting at #{rank} in our live SuperCoach rankings.\n\n"
+            f"{head}\n\n{body}\n\n"
             f"Full rankings, breakdowns and form data:\n{LINK_RANKINGS}\n"
             f"{HASHTAGS}"
         )]
