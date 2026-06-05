@@ -779,16 +779,17 @@ def fetch_dvp_2025(session, sc_players, limit=380):
     log.info(f"2025 history: {done} players -> DvP across {len(_DVP_2025)} teams")
     save_dvp_2025_cache()
 
-def fetch_upcoming_fixture(session, cur_round, n=5, season_id=AFL_API_SEASON_ID):
-    _r1 = set()  # teams playing the immediate next round (others have a bye)
-    """Return {our_team_name: [opponent_team_name, ...]} for the next ``n`` rounds
-    after ``cur_round``, via the public AFL matches API. Opponent names are run
-    through normalise_team so they key-match the points-conceded table (which is
-    built from Footywire opponent names). Returns {} on failure — callers fall
-    back to a neutral rating."""
-    out = {}
-    for k in range(1, n + 1):
-        rnd = cur_round + k
+def fetch_upcoming_fixture(session, team_last, n=5, season_id=AFL_API_SEASON_ID):
+    """Per-team upcoming opponents. ``team_last`` maps our_team_name -> the last
+    round that team has PLAYED, so EACH team's opponent list starts at its own
+    next unplayed round. A team mid-round therefore still shows its CURRENT-round
+    game, not next round (the bug where everyone resolved to max+1). Opponent
+    names run through normalise_team to key-match the points-conceded table.
+    Returns {team: [opp, ...]} plus _next (team -> round of its next game) and
+    _r1 (teams in the earliest upcoming round; teams absent have a bye)."""
+    base = min(team_last.values()) if team_last else 1
+    out, nextr, by_round = {}, {}, {}
+    for rnd in range(base + 1, base + n + 3):   # headroom so byes still fill n games
         r = get(session,
                 f"https://aflapi.afl.com.au/afl/v2/matches?compSeasonId={season_id}"
                 f"&roundNumber={rnd}&pageSize=20", retries=1, timeout=10)
@@ -801,12 +802,18 @@ def fetch_upcoming_fixture(session, cur_round, n=5, season_id=AFL_API_SEASON_ID)
         for m in matches:
             h = normalise_team(((m.get("home") or {}).get("team") or {}).get("name") or "")
             a = normalise_team(((m.get("away") or {}).get("team") or {}).get("name") or "")
-            if h and a and h != "Unknown" and a != "Unknown":
-                out.setdefault(h, []).append(a)
-                out.setdefault(a, []).append(h)
-                if k == 1:
-                    _r1.add(h); _r1.add(a)
-    out["_r1"] = _r1
+            if not (h and a and h != "Unknown" and a != "Unknown"):
+                continue
+            by_round.setdefault(rnd, set()).update((h, a))
+            for t, opp in ((h, a), (a, h)):
+                if rnd > team_last.get(t, base) and len(out.get(t, [])) < n:
+                    out.setdefault(t, []).append(opp)
+                    nextr.setdefault(t, rnd)
+    # _r1 = every team in the in-progress round's FULL fixture (the lowest next
+    # round), so teams that have already played it aren't mistaken for byes.
+    in_prog = min(nextr.values()) if nextr else base + 1
+    out["_next"] = nextr
+    out["_r1"] = by_round.get(in_prog, set())
     return out
 
 
@@ -954,29 +961,31 @@ def log_predictions(players, cur_round):
 
     Carried-forward players (partial-scrape persistence) are excluded — their
     statPred is a stale, already-calibrated value, not a fresh raw prediction."""
-    target = cur_round + 1
     try:
         plog = json.loads(PREDICTIONS_LOG.read_text(encoding="utf-8"))
     except Exception:
         plog = {"rounds": {}, "accuracy": {}, "calibration": {}}
-    # Lock at kick-off: once a player's game in the target round has started,
-    # freeze the prediction we already logged so it can't drift as later scrapes
-    # recompute. Players whose game hasn't started yet still update.
-    _existing = plog.get("rounds", {}).get(str(target), {})
-    _newpreds = {}
+    # Log each player under THEIR OWN next round (a team mid-round is still
+    # predicting its current-round game while teams that have played it predict
+    # next round). Lock at kick-off: once a player's next game has started, the
+    # prediction we already logged is frozen so it can't drift; teams yet to play
+    # keep updating.
+    _rounds = plog.setdefault("rounds", {})
     _locked = 0
     for p in players:
         if not (p.get("statPred") and p.get("name") and not p.get("_carried")):
             continue
+        nr = p.get("nextRound")
+        if not nr:
+            continue
         nm = p["name"]
-        if _LOCK_ROUND == target and p.get("team") in _LOCK_TEAMS and nm in _existing:
-            _newpreds[nm] = _existing[nm]
-            _locked += 1
-        else:
-            _newpreds[nm] = p["statPred"]
-    plog.setdefault("rounds", {})[str(target)] = _newpreds
+        bucket = _rounds.setdefault(str(nr), {})
+        if nr == _LOCK_ROUND and p.get("team") in _LOCK_TEAMS and nm in bucket:
+            _locked += 1            # kicked off -> keep the locked prediction
+            continue
+        bucket[nm] = p["statPred"]
     if _locked:
-        log.info(f"Prediction lock: {_locked} player(s) frozen at kick-off for R{target}")
+        log.info(f"Prediction lock: {_locked} player(s) frozen at kick-off")
     by_name = {p.get("name"): p for p in players}
     _SK = (("disposals", "dis"), ("kicks", "k"), ("handballs", "hb"),
            ("marks", "mk"), ("tackles", "tk"), ("goals", "gl"))
@@ -1070,7 +1079,7 @@ def log_predictions(players, cur_round):
                         "gamesIn": len(_teams) // 2} if _tot else None)
     plog["current_round"] = _ROUND_ACCURACY
     PREDICTIONS_LOG.write_text(json.dumps(plog, indent=2), encoding="utf-8")
-    log.info(f"Predictions logged for R{target}; accuracy: {plog['accuracy']}; "
+    log.info(f"Predictions logged (per-team next round); accuracy: {plog['accuracy']}; "
              f"calibration: {cal or '(building history)'}; current-round: {_ROUND_ACCURACY}")
     return cal
 
@@ -2763,7 +2772,16 @@ def main():
     # to 1-10 where 10 = easiest matchup (concedes the most → good to own/hold).
     try:
         _cr = max((pp.get("lastRound") or 0) for pp in players) or 1
-        _fx = fetch_upcoming_fixture(session, _cr, n=5)
+        # Per-team next round: each team's "next game" starts at ITS OWN last
+        # played round + 1, so a team mid-round shows its current-round game
+        # rather than next round.
+        _team_last = {}
+        for pp in players:
+            _tt = normalise_team(pp.get("team", ""))
+            _lr = pp.get("lastRound") or 0
+            if _tt and _lr > _team_last.get(_tt, 0):
+                _team_last[_tt] = _lr
+        _fx = fetch_upcoming_fixture(session, _team_last, n=5)
         try:
             global _THIS_WEEK_MATCHUPS, _LOCK_ROUND, _LOCK_TEAMS
             _THIS_WEEK_MATCHUPS = fetch_current_round_fixture(session, _cr)
@@ -2814,12 +2832,14 @@ def main():
             _rp = _trp.get(_t, 0)
             if _fx.get("_r1"):
                 _pp["byeNext"] = _t not in _fx["_r1"]
+            _pp["nextRound"] = _fx.get("_next", {}).get(_t)
             _pp["teamRoundsPlayed"] = _rp
             _gp = _pp.get("gamesPlayed")
             if _rp > 0 and _gp is not None:
                 _pp["availability"] = round(min(1.0, _gp / _rp), 3)
         log.info(f"Team form: {len(_form)} teams; rounds-played for {len(_trp)} teams; teamFactor on {len(players)} players")
-        log.info(f"Schedule: fixture for {len(_fx)} teams over rounds {_cr+1}-{_cr+5}; "
+        log.info(f"Schedule: per-team fixture for {len(_fx.get('_next', {}))} teams "
+                 f"(next rounds {sorted(set(_fx.get('_next', {}).values()))[:3]}); "
                  f"conceded data for {len(_conc_all)} teams")
         _all_mean = {t: sum(v) / len(v) for t, v in _conc_all.items() if v}
         _pos_mean = {t: {pp: sum(vs) / len(vs) for pp, vs in d.items() if vs}
