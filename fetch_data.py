@@ -2723,6 +2723,16 @@ def main():
             _THIS_WEEK_MATCHUPS = fetch_current_round_fixture(session, _cr)
         except Exception as _e:
             log.warning(f"Current-round fixture failed: {_e}")
+        if not _THIS_WEEK_MATCHUPS:
+            # Transient AFL-API miss — keep the last known fixture rather than
+            # nulling it (which makes the frontend fall back to next round).
+            try:
+                _pf = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+                _THIS_WEEK_MATCHUPS = _pf.get("thisWeekMatchups") if isinstance(_pf, dict) else None
+                if _THIS_WEEK_MATCHUPS:
+                    log.info("Current-round fixture: kept last known (API miss this run)")
+            except Exception:
+                pass
         # Team strength factor for the projected score: blend of team fantasy
         # output (mean of its players' SC averages vs the league) and recent
         # win/loss form. Kept to a gentle ~0.9-1.1 multiplier so it nudges, not
