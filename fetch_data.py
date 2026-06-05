@@ -810,6 +810,38 @@ def fetch_upcoming_fixture(session, cur_round, n=5, season_id=AFL_API_SEASON_ID)
     return out
 
 
+def fetch_current_round_fixture(session, start_round, season_id=AFL_API_SEASON_ID):
+    """The round currently being PLAYED and its full fixture, for a stable
+    'this week's matchups' box. Returns {"round": R, "matchups": [[homeAbbr,
+    awayAbbr], ...]} for the lowest round (scanning from start_round) that still
+    has an unconcluded match — so the box holds on the round until EVERY game in
+    it is final, instead of rolling forward team-by-team as games finish."""
+    for rnd in range(max(1, start_round), start_round + 4):
+        r = get(session,
+                f"https://aflapi.afl.com.au/afl/v2/matches?compSeasonId={season_id}"
+                f"&roundNumber={rnd}&pageSize=20", retries=1, timeout=10)
+        if not r:
+            continue
+        try:
+            matches = r.json().get("matches", []) or []
+        except Exception:
+            continue
+        if not matches:
+            continue
+        fixture, any_open = [], False
+        for m in matches:
+            h = normalise_team(((m.get("home") or {}).get("team") or {}).get("name") or "")
+            a = normalise_team(((m.get("away") or {}).get("team") or {}).get("name") or "")
+            if h and a and h != "Unknown" and a != "Unknown":
+                fixture.append([_TEAM_ABBR.get(h, h[:3].upper()),
+                                _TEAM_ABBR.get(a, a[:3].upper())])
+            if m.get("status") != "CONCLUDED":
+                any_open = True
+        if fixture and any_open:
+            return {"round": rnd, "matchups": fixture}
+    return None
+
+
 def fetch_recent_form(session, cur_round, n=5, season_id=AFL_API_SEASON_ID):
     """Win rate (0-1) over the last ``n`` completed rounds, keyed by our team
     name, from the AFL matches API (CONCLUDED matches with totalScore). Draws
@@ -893,6 +925,9 @@ CAL_CLAMP = (0.85, 1.15)
 # Current-round prediction accuracy ("win %") for the predict tab, set by
 # log_predictions and embedded in players.json by write_output.
 _ROUND_ACCURACY = None
+# Stable "this week's matchups" (the in-progress round's full fixture), so the
+# box doesn't roll forward team-by-team as games finish.
+_THIS_WEEK_MATCHUPS = None
 # A per-stat prediction "hits" if it lands within this absolute band of actual.
 _HIT_TOL = {"disposals": 4, "kicks": 3, "handballs": 3, "marks": 2, "tackles": 2, "goals": 1}
 
@@ -2305,6 +2340,7 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
         "scraped_at":   datetime.now().isoformat(),
         "round":        _cur_rnd or "Current",
         "roundAccuracy": _ROUND_ACCURACY,
+        "thisWeekMatchups": _THIS_WEEK_MATCHUPS,
         "season":       2026,
         "player_count": len(players),
         "sources": {
@@ -2682,6 +2718,11 @@ def main():
     try:
         _cr = max((pp.get("lastRound") or 0) for pp in players) or 1
         _fx = fetch_upcoming_fixture(session, _cr, n=5)
+        try:
+            global _THIS_WEEK_MATCHUPS
+            _THIS_WEEK_MATCHUPS = fetch_current_round_fixture(session, _cr)
+        except Exception as _e:
+            log.warning(f"Current-round fixture failed: {_e}")
         # Team strength factor for the projected score: blend of team fantasy
         # output (mean of its players' SC averages vs the league) and recent
         # win/loss form. Kept to a gentle ~0.9-1.1 multiplier so it nudges, not
