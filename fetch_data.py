@@ -828,17 +828,28 @@ def fetch_current_round_fixture(session, start_round, season_id=AFL_API_SEASON_I
             continue
         if not matches:
             continue
-        fixture, any_open = [], False
+        from datetime import timezone
+        _now = datetime.now(timezone.utc)
+        fixture, started, any_open = [], [], False
         for m in matches:
             h = normalise_team(((m.get("home") or {}).get("team") or {}).get("name") or "")
             a = normalise_team(((m.get("away") or {}).get("team") or {}).get("name") or "")
+            # Has this game kicked off? (start time passed, or status moved on)
+            _ko = False
+            try:
+                _st = (m.get("utcStartTime") or "").replace("Z", "+00:00")
+                _ko = bool(_st) and _now >= datetime.fromisoformat(_st)
+            except Exception:
+                _ko = (m.get("status") or "") not in ("SCHEDULED", "", "UPCOMING")
             if h and a and h != "Unknown" and a != "Unknown":
                 fixture.append([_TEAM_ABBR.get(h, h[:3].upper()),
                                 _TEAM_ABBR.get(a, a[:3].upper())])
+                if _ko:
+                    started += [h, a]
             if m.get("status") != "CONCLUDED":
                 any_open = True
         if fixture and any_open:
-            return {"round": rnd, "matchups": fixture}
+            return {"round": rnd, "matchups": fixture, "started": started}
     return None
 
 
@@ -928,6 +939,10 @@ _ROUND_ACCURACY = None
 # Stable "this week's matchups" (the in-progress round's full fixture), so the
 # box doesn't roll forward team-by-team as games finish.
 _THIS_WEEK_MATCHUPS = None
+# Predictions lock at kick-off: the round being predicted and the set of teams
+# whose game has already started (their logged prediction is frozen).
+_LOCK_ROUND = None
+_LOCK_TEAMS = set()
 
 
 def log_predictions(players, cur_round):
@@ -944,10 +959,24 @@ def log_predictions(players, cur_round):
         plog = json.loads(PREDICTIONS_LOG.read_text(encoding="utf-8"))
     except Exception:
         plog = {"rounds": {}, "accuracy": {}, "calibration": {}}
-    plog.setdefault("rounds", {})[str(target)] = {
-        p["name"]: p["statPred"] for p in players
-        if p.get("statPred") and p.get("name") and not p.get("_carried")
-    }
+    # Lock at kick-off: once a player's game in the target round has started,
+    # freeze the prediction we already logged so it can't drift as later scrapes
+    # recompute. Players whose game hasn't started yet still update.
+    _existing = plog.get("rounds", {}).get(str(target), {})
+    _newpreds = {}
+    _locked = 0
+    for p in players:
+        if not (p.get("statPred") and p.get("name") and not p.get("_carried")):
+            continue
+        nm = p["name"]
+        if _LOCK_ROUND == target and p.get("team") in _LOCK_TEAMS and nm in _existing:
+            _newpreds[nm] = _existing[nm]
+            _locked += 1
+        else:
+            _newpreds[nm] = p["statPred"]
+    plog.setdefault("rounds", {})[str(target)] = _newpreds
+    if _locked:
+        log.info(f"Prediction lock: {_locked} player(s) frozen at kick-off for R{target}")
     by_name = {p.get("name"): p for p in players}
     _SK = (("disposals", "dis"), ("kicks", "k"), ("handballs", "hb"),
            ("marks", "mk"), ("tackles", "tk"), ("goals", "gl"))
@@ -2736,8 +2765,11 @@ def main():
         _cr = max((pp.get("lastRound") or 0) for pp in players) or 1
         _fx = fetch_upcoming_fixture(session, _cr, n=5)
         try:
-            global _THIS_WEEK_MATCHUPS
+            global _THIS_WEEK_MATCHUPS, _LOCK_ROUND, _LOCK_TEAMS
             _THIS_WEEK_MATCHUPS = fetch_current_round_fixture(session, _cr)
+            if _THIS_WEEK_MATCHUPS:
+                _LOCK_ROUND = _THIS_WEEK_MATCHUPS.get("round")
+                _LOCK_TEAMS = set(_THIS_WEEK_MATCHUPS.get("started") or [])
         except Exception as _e:
             log.warning(f"Current-round fixture failed: {_e}")
         if not _THIS_WEEK_MATCHUPS:
