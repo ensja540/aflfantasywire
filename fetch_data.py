@@ -3117,6 +3117,22 @@ def main():
                     if _old.get(_k) not in (None, [], {}):
                         _pp[_k] = _old[_k]
                 _did = True
+            # Carry the Footywire display/filter fields too. Without these a
+            # partial scrape (game-logs/averages dropped) blanks the player out
+            # of the predictions page even though its prediction persisted — the
+            # frontend filters on lastRound + season-average stats.
+            for _k in ("lastRound", "lastScore", "gamesBySeason", "disposals",
+                       "kicks", "handballs", "marks", "tackles", "goals",
+                       "behinds", "hitouts", "clearances", "scAvg", "scAvg3",
+                       "dtAvg", "dtAvg3", "dtLast", "dtBe", "classicAvg",
+                       "classicAvg3", "classicProj", "classicOwned",
+                       "classicPrice", "price", "priceDelta", "prices",
+                       "breakeven", "pos", "positions", "aflfPositions", "role",
+                       "owned", "ownedDelta", "consistency", "ceiling", "floor",
+                       "afRank", "rank"):
+                if _pp.get(_k) in (None, 0, "", [], {}) and _old.get(_k) not in (None, 0, "", [], {}):
+                    _pp[_k] = _old[_k]
+                    _did = True
             if _did:
                 _pp["_carried"] = True
                 _carried += 1
