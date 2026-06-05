@@ -890,6 +890,11 @@ PREDICTIONS_LOG = BASE_DIR / "predictions_log.json"
 CAL_MIN_SAMPLES = 80
 CAL_MIN_ROUNDS = 2
 CAL_CLAMP = (0.85, 1.15)
+# Current-round prediction accuracy ("win %") for the predict tab, set by
+# log_predictions and embedded in players.json by write_output.
+_ROUND_ACCURACY = None
+# A per-stat prediction "hits" if it lands within this absolute band of actual.
+_HIT_TOL = {"disposals": 4, "kicks": 3, "handballs": 3, "marks": 2, "tackles": 2, "goals": 1}
 
 
 def log_predictions(players, cur_round):
@@ -948,9 +953,36 @@ def log_predictions(players, cur_round):
             f = a["act"] / a["pred"]
             cal[sk] = round(max(CAL_CLAMP[0], min(CAL_CLAMP[1], f)), 3)
     plog["calibration"] = cal
+    # Current-round "win %": grade THIS round's predictions against actuals as
+    # games close. Updates each scrape, so it climbs/settles game by game.
+    global _ROUND_ACCURACY
+    cur_preds = plog.get("rounds", {}).get(str(cur_round)) or {}
+    _hits = _tot = _pl = 0
+    _teams = set()
+    for name, sp in cur_preds.items():
+        p = by_name.get(name)
+        if not p:
+            continue
+        rs = next((r for r in (p.get("roundStats") or []) if r.get("r") == cur_round), None)
+        if not rs:
+            continue
+        _pl += 1
+        if p.get("team"):
+            _teams.add(p["team"])
+        for sk, rk in _SK:
+            pred, act = sp.get(sk), rs.get(rk)
+            if pred is None or act is None:
+                continue
+            _tot += 1
+            if abs(pred - act) <= _HIT_TOL.get(sk, 3):
+                _hits += 1
+    _ROUND_ACCURACY = ({"round": cur_round, "winPct": round(100 * _hits / _tot),
+                        "predictions": _tot, "playersGraded": _pl,
+                        "gamesIn": len(_teams) // 2} if _tot else None)
+    plog["current_round"] = _ROUND_ACCURACY
     PREDICTIONS_LOG.write_text(json.dumps(plog, indent=2), encoding="utf-8")
     log.info(f"Predictions logged for R{target}; accuracy: {plog['accuracy']}; "
-             f"calibration: {cal or '(building history)'}")
+             f"calibration: {cal or '(building history)'}; current-round: {_ROUND_ACCURACY}")
     return cal
 
 
@@ -2259,9 +2291,12 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
             _p["injuryRating"] = _r
         else:
             _p.pop("injuryRating", None)
+    _cur_rnd = max((p.get("lastRound") or 0) for p in players
+                   if isinstance(p.get("lastRound"), int)) if players else 0
     output = {
         "scraped_at":   datetime.now().isoformat(),
-        "round":        "Current",
+        "round":        _cur_rnd or "Current",
+        "roundAccuracy": _ROUND_ACCURACY,
         "season":       2026,
         "player_count": len(players),
         "sources": {
