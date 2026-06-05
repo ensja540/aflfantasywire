@@ -1014,14 +1014,20 @@ def log_predictions(players, cur_round):
             # Directional whole-stat prediction: a stat projected UP (above the
             # player's season average) floors DOWN (12.9 -> 12); one projected
             # DOWN rounds UP (12.1 -> 13). A win = the player met or beat it.
+            # Directional call: a stat projected UP floors (lower bar) and wins
+            # if the player hits/beats it; one projected DOWN rounds up (upper
+            # bar) and wins only if the player stays at/under it. A player we
+            # tipped to fall who instead goes big is a LOSS (wrong call).
             _avg = p.get(sk) or 0
             if pred > _avg:
-                _prw, _dir = math.floor(pred), 1     # projected to rise -> floor
+                _prw, _dir = math.floor(pred), 1
+                _w = act >= _prw
             elif pred < _avg:
-                _prw, _dir = math.ceil(pred), -1     # projected to fall -> round up
+                _prw, _dir = math.ceil(pred), -1
+                _w = act <= _prw
             else:
                 _prw, _dir = round(pred), 0
-            _w = act >= _prw
+                _w = act == _prw
             if _w:
                 _hits += 1
             _res[sk] = {"p": _prw, "a": act, "win": _w, "dir": _dir}
