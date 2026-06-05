@@ -928,19 +928,6 @@ _ROUND_ACCURACY = None
 # Stable "this week's matchups" (the in-progress round's full fixture), so the
 # box doesn't roll forward team-by-team as games finish.
 _THIS_WEEK_MATCHUPS = None
-# Fallback band when a player has too little history to anchor to their own
-# spread (a per-stat prediction "hits" if within this absolute band of actual).
-_HIT_TOL = {"disposals": 4, "kicks": 3, "handballs": 3, "marks": 2, "tackles": 2, "goals": 1}
-
-
-def _sigma(vals):
-    """Population standard deviation of a player's per-stat history; None if too
-    few games to be meaningful."""
-    n = len(vals)
-    if n < 4:
-        return None
-    m = sum(vals) / n
-    return (sum((v - m) ** 2 for v in vals) / n) ** 0.5
 
 
 def log_predictions(players, cur_round):
@@ -1024,25 +1011,20 @@ def log_predictions(players, cur_round):
             if pred is None or act is None:
                 continue
             _tot += 1
-            # Probability-anchored band: ±1 sigma of THIS player's own spread
-            # (from their other games), so a steady player gets a tight band and
-            # a volatile one a wide one. Falls back to the flat tolerance when a
-            # player has < 4 games. A win = actual within the ~68% band.
-            _hist = [r.get(rk) for r in (p.get("roundStats") or [])
-                     if r.get("r") != cur_round and isinstance(r.get(rk), (int, float))]
-            _sig = _sigma(_hist)
-            _band = max(_sig, 0.5) if _sig is not None else _HIT_TOL.get(sk, 3)
-            _prw = round(pred)   # whole-stat prediction (21.1 -> 21)
-            _w = abs(_prw - act) <= _band
+            # Prediction floored to a whole stat (12.9 -> 12); a win = the player
+            # MET OR BEAT it (actual >= prediction).
+            _prw = int(pred)
+            _w = act >= _prw
             if _w:
                 _hits += 1
-            _res[sk] = {"p": _prw, "a": act, "win": _w, "band": round(_band, 1)}
+            _res[sk] = {"p": _prw, "a": act, "win": _w}
         if _res:
             p["roundResult"] = {"round": cur_round, "opp": rs.get("opp"), "stats": _res}
-    # Bands are ~68% (1 sigma), so a well-calibrated model should land ~68%
-    # within range — the target lets the UI flag over/under-confidence.
+    # "Met or beat" win: an unbiased model lands ~50% (as many over as under),
+    # so >50% means our projections are conservative (we under-rate), <50% means
+    # aggressive — the target lets the UI flag that directional bias.
     _ROUND_ACCURACY = ({"round": cur_round, "winPct": round(100 * _hits / _tot),
-                        "target": 68, "predictions": _tot, "playersGraded": _pl,
+                        "target": 50, "predictions": _tot, "playersGraded": _pl,
                         "gamesIn": len(_teams) // 2} if _tot else None)
     plog["current_round"] = _ROUND_ACCURACY
     PREDICTIONS_LOG.write_text(json.dumps(plog, indent=2), encoding="utf-8")
