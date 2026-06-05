@@ -1037,7 +1037,7 @@ def log_predictions(players, cur_round):
                 _hits += 1
             _res[sk] = {"p": pred, "a": act, "win": _w, "band": round(_band, 1)}
         if _res:
-            p["roundResult"] = {"round": cur_round, "stats": _res}
+            p["roundResult"] = {"round": cur_round, "opp": rs.get("opp"), "stats": _res}
     # Bands are ~68% (1 sigma), so a well-calibrated model should land ~68%
     # within range — the target lets the UI flag over/under-confidence.
     _ROUND_ACCURACY = ({"round": cur_round, "winPct": round(100 * _hits / _tot),
