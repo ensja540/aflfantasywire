@@ -1075,7 +1075,7 @@ def log_predictions(players, cur_round):
             _num = round(pred)
             _vals = [r.get(rk) for r in (p.get("roundStats") or []) if r.get(rk) is not None]
             _dev = LOW_RANGE_K * _sigma(_vals) if len(_vals) >= 3 else max(0.8, pred * 0.15)
-            _low = max(0, int(math.floor(pred - _dev)))
+            _low = max(0, min(int(math.floor(pred - _dev)), _num - 1))
             if act >= _num:
                 _tier = 2
                 _hits += 1
