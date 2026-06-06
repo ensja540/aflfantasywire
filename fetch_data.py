@@ -1967,6 +1967,7 @@ NAME_ALIASES = {
 SC_POSITION_OVERRIDES = {
     ("Bailey Williams", "West Coast"):       ["RUC", "FWD"],
     ("Bailey Williams", "Western Bulldogs"): ["DEF", "MID"],
+    ("Cam Zurhaar", "North Melbourne"):      ["FWD", "DEF"],
 }
 
 
