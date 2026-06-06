@@ -951,6 +951,10 @@ _THIS_WEEK_MATCHUPS = None
 _LOCK_ROUND = None
 _LOCK_TEAMS = set()
 
+# How many standard deviations below the prediction the low range sits. Smaller
+# = a tighter band (the user found a full sigma too wide).
+LOW_RANGE_K = 0.5
+
 
 def _sigma(vals):
     """Population standard deviation of the values (0 if fewer than 2)."""
@@ -1066,7 +1070,7 @@ def log_predictions(players, cur_round):
             # Win% counts beating the number.
             _num = round(pred)
             _vals = [r.get(rk) for r in (p.get("roundStats") or []) if r.get(rk) is not None]
-            _dev = _sigma(_vals) if len(_vals) >= 3 else max(1.0, pred * 0.25)
+            _dev = LOW_RANGE_K * _sigma(_vals) if len(_vals) >= 3 else max(0.8, pred * 0.15)
             _low = max(0, int(math.floor(pred - _dev)))
             if act >= _num:
                 _tier = 2
@@ -2968,7 +2972,7 @@ def main():
                 _splow = {}
                 for _sk, _v in _sp.items():
                     _dvals = [r.get(_RK[_sk]) for r in (pp.get("roundStats") or []) if r.get(_RK[_sk]) is not None]
-                    _dv = _sigma(_dvals) if len(_dvals) >= 3 else max(1.0, _v * 0.25)
+                    _dv = LOW_RANGE_K * _sigma(_dvals) if len(_dvals) >= 3 else max(0.8, _v * 0.15)
                     _splow[_sk] = max(0, round(_v - _dv, 1))
                 pp["statPredLow"] = _splow
             # Form-vs-opposition signal: judge recent trend against the toughness
