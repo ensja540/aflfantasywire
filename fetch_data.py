@@ -1044,12 +1044,16 @@ def log_predictions(players, cur_round):
     cur_preds = plog.get("rounds", {}).get(str(cur_round)) or {}
     _hits = _tot = _pl = 0
     _teams = set()
-    for name, sp in cur_preds.items():
-        p = by_name.get(name)
-        if not p:
-            continue
+    # Grade EVERY player who played this round — use the locked logged prediction
+    # if we have one, else fall back to their current statPred so late inclusions
+    # / unpredicted players still get a shaded result instead of a blank cell.
+    for p in players:
+        name = p.get("name")
         rs = next((r for r in (p.get("roundStats") or []) if r.get("r") == cur_round), None)
         if not rs:
+            continue
+        sp = cur_preds.get(name) or p.get("statPred")
+        if not sp:
             continue
         _pl += 1
         if p.get("team"):
