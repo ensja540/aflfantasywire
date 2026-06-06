@@ -952,6 +952,16 @@ _LOCK_ROUND = None
 _LOCK_TEAMS = set()
 
 
+def _sigma(vals):
+    """Population standard deviation of the values (0 if fewer than 2)."""
+    vals = [v for v in vals if v is not None]
+    n = len(vals)
+    if n < 2:
+        return 0.0
+    m = sum(vals) / n
+    return (sum((v - m) ** 2 for v in vals) / n) ** 0.5
+
+
 def log_predictions(players, cur_round):
     """Log this round's RAW (pre-calibration) per-stat predictions and score them
     against prior logged rounds now completed (actuals live in each player's
@@ -1049,31 +1059,26 @@ def log_predictions(players, cur_round):
             if pred is None or act is None:
                 continue
             _tot += 1
-            # Directional whole-stat prediction: a stat projected UP (above the
-            # player's season average) floors DOWN (12.9 -> 12); one projected
-            # DOWN rounds UP (12.1 -> 13). A win = the player met or beat it.
-            # Directional call: a stat projected UP floors (lower bar) and wins
-            # if the player hits/beats it; one projected DOWN rounds up (upper
-            # bar) and wins only if the player stays at/under it. A player we
-            # tipped to fall who instead goes big is a LOSS (wrong call).
-            _avg = p.get(sk) or 0
-            if pred > _avg:
-                _prw, _dir = math.floor(pred), 1
-                _w = act >= _prw
-            elif pred < _avg:
-                _prw, _dir = math.ceil(pred), -1
-                _w = act <= _prw
-            else:
-                _prw, _dir = round(pred), 0
-                _w = act == _prw
-            if _w:
+            # Deviation band: pick a number (rounded prediction) and a low range
+            # one standard deviation below it (from the player's game-to-game
+            # spread for this stat). actual >= number -> strong green (beat it);
+            # in [low, number) -> light green (held the range); below low -> red.
+            # Win% counts beating the number.
+            _num = round(pred)
+            _vals = [r.get(rk) for r in (p.get("roundStats") or []) if r.get(rk) is not None]
+            _dev = _sigma(_vals) if len(_vals) >= 3 else max(1.0, pred * 0.25)
+            _low = max(0, int(math.floor(pred - _dev)))
+            if act >= _num:
+                _tier = 2
                 _hits += 1
-            _res[sk] = {"p": _prw, "a": act, "win": _w, "dir": _dir}
+            elif act >= _low:
+                _tier = 1
+            else:
+                _tier = 0
+            _res[sk] = {"p": _num, "low": _low, "a": act, "tier": _tier}
         if _res:
             p["roundResult"] = {"round": cur_round, "opp": rs.get("opp"), "stats": _res}
-    # "Met or beat" win: an unbiased model lands ~50% (as many over as under),
-    # so >50% means our projections are conservative (we under-rate), <50% means
-    # aggressive — the target lets the UI flag that directional bias.
+    # Win = actual met or beat the predicted number; ~50% for an unbiased model.
     _ROUND_ACCURACY = ({"round": cur_round, "winPct": round(100 * _hits / _tot),
                         "target": 50, "predictions": _tot, "playersGraded": _pl,
                         "gamesIn": len(_teams) // 2} if _tot else None)
@@ -2957,6 +2962,15 @@ def main():
                 _sp[_sk] = round(_base * _sm.get(_sk, 1) * _tf + _gbonus, 1)
             if _sp:
                 pp["statPred"] = _sp
+                # Low range per stat: one standard deviation below the prediction
+                # (from the player's game-to-game spread), so the predict UI can
+                # shade a band — light green within range, strong green above.
+                _splow = {}
+                for _sk, _v in _sp.items():
+                    _dvals = [r.get(_RK[_sk]) for r in (pp.get("roundStats") or []) if r.get(_RK[_sk]) is not None]
+                    _dv = _sigma(_dvals) if len(_dvals) >= 3 else max(1.0, _v * 0.25)
+                    _splow[_sk] = max(0, round(_v - _dv, 1))
+                pp["statPredLow"] = _splow
             # Form-vs-opposition signal: judge recent trend against the toughness
             # of the last 3 opponents faced (tough = concedes few SC points).
             _rs = pp.get("roundStats") or []
@@ -3115,6 +3129,8 @@ def main():
             _did = False
             if not _pp.get("statPred") and _old.get("statPred"):
                 _pp["statPred"] = _old["statPred"]
+                if _old.get("statPredLow"):
+                    _pp["statPredLow"] = _old["statPredLow"]
                 if _old.get("teamWt"):
                     _pp["teamWt"] = _old["teamWt"]
                 if _old.get("statMatch"):
@@ -3164,9 +3180,12 @@ def main():
                 _sp = _pp.get("statPred")
                 if not _sp or _pp.get("_carried"):
                     continue
+                _splow = _pp.get("statPredLow") or {}
                 for _sk, _f in _cal.items():
                     if _sp.get(_sk) is not None:
                         _sp[_sk] = round(_sp[_sk] * _f, 1)
+                    if _splow.get(_sk) is not None:
+                        _splow[_sk] = round(_splow[_sk] * _f, 1)
                 _pp["calibrated"] = True
                 _n += 1
             log.info(f"Applied model calibration {_cal} to {_n} players' predictions")
