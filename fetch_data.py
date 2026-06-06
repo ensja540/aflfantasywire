@@ -2980,6 +2980,17 @@ def main():
                     _dv = LOW_RANGE_K * _sigma(_dvals) if len(_dvals) >= 3 else max(0.8, _v * 0.15)
                     _splow[_sk] = max(0, round(_v - _dv, 1))
                 pp["statPredLow"] = _splow
+                # Value pick: the projected SuperCoach floor (proj minus
+                # LOW_RANGE_K sigma of the player's SC scores) sits at or above
+                # their season average — a high, reliable floor.
+                _scvals = [r.get("sc") for r in (pp.get("roundStats") or []) if r.get("sc")]
+                _scavg = pp.get("scAvg") or 0
+                if _scavg and len(_scvals) >= 4:
+                    _scproj = 0.55 * (pp.get("scAvg3") or _scavg) + 0.45 * _scavg
+                    _scfloor = _scproj - LOW_RANGE_K * _sigma(_scvals)
+                    pp["scProj"] = round(_scproj)
+                    pp["scProjFloor"] = round(_scfloor)
+                    pp["valuePick"] = bool(_scfloor >= _scavg)
             # Form-vs-opposition signal: judge recent trend against the toughness
             # of the last 3 opponents faced (tough = concedes few SC points).
             _rs = pp.get("roundStats") or []
