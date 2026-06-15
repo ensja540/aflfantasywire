@@ -2415,6 +2415,53 @@ def reconcile_predictions(players):
     return fixed
 
 
+# Gold "high-conviction" flag per stat for the predict tab. A gold pick is one
+# whose LOW prediction band clears the season average by a real margin AND whose
+# recent form is consistent, trending and facing a favourable matchup — i.e. a
+# floor you can bank on, not just "predicted above average". Refined 2026-06-15
+# (was a bare low>=avg, which flagged ~50 players) so the predict tab's
+# gold-only view is genuinely the highest-conviction set. Stored as
+# statGold {stat: true} + a hasGold convenience flag for the UI to read/filter.
+GOLD_MARGIN      = 1.08   # low band must clear the season avg by >=8%
+GOLD_CONSISTENCY = 0.55   # no game in the last 3 below 55% of the season avg
+
+
+def compute_gold(players):
+    """Set p['statGold'] = {stat: True, ...} and p['hasGold'] for the predict UI.
+    All criteria must hold per stat: prediction>=3, >=3 recent games, low band
+    >= avg*GOLD_MARGIN, low >= recent-3 avg, recent-3 avg >= season avg (trend),
+    no recent game below avg*GOLD_CONSISTENCY (consistency), and a favourable
+    matchup (statMatch >= 1)."""
+    for p in players:
+        sp = p.get("statPred") or {}
+        splow = p.get("statPredLow") or {}
+        sm = p.get("statMatch") or {}
+        rstats = p.get("roundStats") or []
+        gold = {}
+        for sk, rk in (("disposals", "dis"), ("kicks", "k"), ("handballs", "hb"),
+                       ("marks", "mk"), ("tackles", "tk"), ("goals", "gl")):
+            avg = p.get(sk) or 0
+            pr, lo = sp.get(sk), splow.get(sk)
+            if pr is None or lo is None or avg <= 0 or pr < 3:
+                continue
+            rv = [r.get(rk) for r in rstats if r.get(rk) is not None][-3:]
+            if len(rv) < 3:
+                continue
+            rec = sum(rv) / len(rv)
+            if (lo >= avg * GOLD_MARGIN              # floor clears avg by a margin
+                    and lo >= rec                     # floor >= recent form
+                    and rec >= avg                    # form trending up / stable
+                    and min(rv) >= avg * GOLD_CONSISTENCY  # no recent bust
+                    and sm.get(sk, 1) >= 1.0):         # favourable matchup
+                gold[sk] = True
+        if gold:
+            p["statGold"] = gold
+            p["hasGold"] = True
+        else:
+            p.pop("statGold", None)
+            p["hasGold"] = False
+
+
 def write_output(players, sc_players=None, dt_players=None, injuries=None, selections=None):
     """Write players.json. Safe to call with a partial list (e.g. from the crash
     handler) — source counts fall back sensibly when the extras aren't passed."""
@@ -2430,6 +2477,11 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
         reconcile_predictions(players)
     except Exception as _e:
         log.warning(f"Prediction reconcile skipped: {_e}")
+    # Gold high-conviction flags (read by the predict tab's gold-only view).
+    try:
+        compute_gold(players)
+    except Exception as _e:
+        log.warning(f"Gold flag computation skipped: {_e}")
     # Backend sub-category (role) for every player, from position + profile:
     #   DEF >15 disposals -> Half Back (else Key Defender)
     #   FWD >15 disposals -> Half Forward (else Key Forward)
