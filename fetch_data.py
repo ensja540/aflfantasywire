@@ -933,12 +933,15 @@ def fetch_points_conceded(session, cur_round, season_id=AFL_API_SEASON_ID):
 
 
 PREDICTIONS_LOG = BASE_DIR / "predictions_log.json"
-# Self-calibration guardrails: only correct a stat once we've seen enough
-# predicted-vs-actual samples across enough DISTINCT rounds (so a single odd
-# round — e.g. a wet one — can't skew it), and clamp the learned factor so it
-# only ever nudges, never takes over.
+# Self-calibration guardrails: feed each completed round's predicted-vs-actual
+# error back into the next round's predictions. We require a healthy SAMPLE
+# count (CAL_MIN_SAMPLES) and clamp the learned factor (CAL_CLAMP) so it only
+# ever nudges, never takes over — those two together stop a single odd round
+# (e.g. a wet one) from skewing the model, so we only need ONE graded round to
+# start correcting (CAL_MIN_ROUNDS = 1). The factor keeps accumulating across
+# every graded round, so the correction sharpens as more rounds land.
 CAL_MIN_SAMPLES = 80
-CAL_MIN_ROUNDS = 2
+CAL_MIN_ROUNDS = 1
 CAL_CLAMP = (0.85, 1.15)
 # Current-round prediction accuracy ("win %") for the predict tab, set by
 # log_predictions and embedded in players.json by write_output.
@@ -952,8 +955,8 @@ _LOCK_ROUND = None
 _LOCK_TEAMS = set()
 
 # How many standard deviations below the prediction the low range sits. Smaller
-# = a tighter band (the user found a full sigma too wide).
-LOW_RANGE_K = 0.5
+# = a tighter band (a full sigma was too wide; 0.5 still a touch loose, so 0.4).
+LOW_RANGE_K = 0.4
 
 
 def _sigma(vals):
@@ -2345,6 +2348,73 @@ def reconcile_injuries(players):
              f"{len(matched)} confirmed (additive; other sources' injuries kept)")
 
 
+_PRED_SK   = ("disposals", "kicks", "handballs", "marks", "tackles", "behinds", "goals")
+_PRED_RK   = {"disposals": "dis", "kicks": "k", "handballs": "hb", "marks": "mk",
+              "tackles": "tk", "behinds": "b", "goals": "gl"}
+
+
+def reconcile_predictions(players):
+    """Safety net: a served ``statPred`` MUST be reconstructable from the player's
+    CURRENT ``roundStats`` via the same chain the predict-tab breakdown shows —
+    ``(0.55·last3 + 0.45·season) × matchup × teamFactor × teamWeight``. A
+    truncated or crashed run can advance ``roundStats`` (the cheap per-round merge
+    touches all players) without re-running the heavier prediction pass, leaving a
+    stored prediction that no longer matches its inputs — so the breakdown
+    "doesn't add up". Here we recompute each NON-frozen player's prediction from
+    current inputs and, per stat, replace any value that has drifted further than
+    calibration could explain (>20%, beyond the ±15% calibration clamp). Stored
+    values within tolerance are left untouched so the learned calibration nudge is
+    preserved. Intentionally-frozen predictions — kick-off lock (`predLocked`),
+    round hold (`roundHeld`), bye (`byeNext`) and carried-forward (`_carried`) —
+    are skipped; they are MEANT to differ from a fresh recompute. Returns the
+    number of players corrected (0 in a healthy run)."""
+    fixed = 0
+    for p in players:
+        if (p.get("predLocked") or p.get("roundHeld")
+                or p.get("byeNext") or p.get("_carried")):
+            continue
+        sp = p.get("statPred")
+        if not sp:
+            continue
+        rstats = p.get("roundStats") or []
+        mm_all = p.get("statMatch") or {}
+        tf = p.get("teamFactor") or 1
+        tw = p.get("teamWt") or {}
+        splow = p.get("statPredLow") or {}
+        recomputed, touched = {}, False
+        for sk in _PRED_SK:               # behinds before goals (feeds the bonus)
+            rk = _PRED_RK[sk]
+            savg = p.get(sk) or 0
+            gbonus = (recomputed.get("behinds", 0) or 0) / 3.0 if sk == "goals" else 0
+            rs3 = [r.get(rk) for r in rstats if r.get(rk) is not None][-3:]
+            a3 = sum(rs3) / len(rs3) if rs3 else savg
+            val = round((0.55 * a3 + 0.45 * savg) * mm_all.get(sk, 1) * tf + gbonus, 1)
+            f = (tw.get(sk) or {}).get("f")
+            if f:
+                val = round(val * f, 1)
+            recomputed[sk] = val
+            cur = sp.get(sk)
+            if cur is None:
+                continue
+            # Drift beyond the calibration clamp's reach (±15%) => the stored value
+            # is stale, not merely calibrated. Replace just this stat.
+            if abs(cur - val) > max(0.3, 0.2 * max(abs(val), abs(cur))):
+                sp[sk] = val
+                _dvals = [r.get(rk) for r in rstats if r.get(rk) is not None]
+                _dv = LOW_RANGE_K * _sigma(_dvals) if len(_dvals) >= 3 else max(0.8, val * 0.15)
+                splow[sk] = max(0, round(val - _dv, 1))
+                touched = True
+        if touched:
+            p["statPredLow"] = splow
+            p["predReconciled"] = True
+            fixed += 1
+    if fixed:
+        log.warning(f"Prediction reconcile: recomputed {fixed} player(s) whose statPred "
+                    f"had drifted from current roundStats — a truncated/crashed run "
+                    f"likely advanced scores without refreshing predictions")
+    return fixed
+
+
 def write_output(players, sc_players=None, dt_players=None, injuries=None, selections=None):
     """Write players.json. Safe to call with a partial list (e.g. from the crash
     handler) — source counts fall back sensibly when the extras aren't passed."""
@@ -2353,6 +2423,13 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
         if _a:
             _p["name"] = _a
     reconcile_injuries(players)
+    # Enforce statPred ↔ roundStats consistency on EVERY write (incl. the crash
+    # handler's partial write), so a truncated run can never serve a breakdown
+    # that doesn't add up.
+    try:
+        reconcile_predictions(players)
+    except Exception as _e:
+        log.warning(f"Prediction reconcile skipped: {_e}")
     # Backend sub-category (role) for every player, from position + profile:
     #   DEF >15 disposals -> Half Back (else Key Defender)
     #   FWD >15 disposals -> Half Forward (else Key Forward)
@@ -3211,6 +3288,70 @@ def main():
             log.info(f"Applied model calibration {_cal} to {_n} players' predictions")
     except Exception as _e:
         log.error(f"Prediction logging/calibration failed: {_e}")
+
+    # ── Kick-off display lock ──
+    # Once a player's UPCOMING game has started, freeze the DISPLAYED prediction
+    # (number + low range) to the last pre-kick-off value so featured / most-likely
+    # tiles can't drift mid-game. log_predictions already freezes the accuracy log
+    # at kick-off; this mirrors that freeze in what the UI actually shows. We pin to
+    # the previous players.json value (the last shown, already-calibrated number),
+    # NOT the raw logged bucket, so the locked tile doesn't jump. Predictions for
+    # rounds that haven't kicked off keep recomputing each scrape as normal.
+    try:
+        if _LOCK_ROUND and _LOCK_TEAMS:
+            _lprev = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+            _lprevp = _lprev if isinstance(_lprev, list) else _lprev.get("players", _lprev)
+            _lprior = {name_key(p.get("name", "")): p for p in _lprevp if p.get("name")}
+            _frozen = 0
+            for _pp in players:
+                if _pp.get("nextRound") != _LOCK_ROUND or _pp.get("team") not in _LOCK_TEAMS:
+                    continue  # their game hasn't kicked off (or it's a later round)
+                _old = _lprior.get(name_key(_pp.get("name", "")))
+                if not _old or _old.get("nextRound") != _LOCK_ROUND or not _old.get("statPred"):
+                    continue  # no matching pre-kick-off snapshot to lock to yet
+                _pp["statPred"] = _old["statPred"]
+                if _old.get("statPredLow"):
+                    _pp["statPredLow"] = _old["statPredLow"]
+                _pp["predLocked"] = True
+                _frozen += 1
+            if _frozen:
+                log.info(f"Kick-off display lock: froze {_frozen} player(s)' shown prediction")
+    except Exception as _e:
+        log.warning(f"Kick-off display lock skipped: {_e}")
+
+    # ── Hold the round ──
+    # Don't roll a player to next-round predictions until the CURRENT round is
+    # fully done. While _LOCK_ROUND is still being played, anyone who's already
+    # played it stays on it: their shown prediction is the one we made for that
+    # round (now graded in roundResult), so the cell, popup and movers all read
+    # the current round instead of jumping to a next-round projection mid-round.
+    # When the round finishes _LOCK_ROUND advances past it and everyone rolls
+    # together. Runs AFTER the kick-off lock (played players still had their rolled
+    # nextRound then, so the lock skipped them) so there's no conflict.
+    try:
+        if _LOCK_ROUND:
+            _held = 0
+            for _pp in players:
+                _rr = _pp.get("roundResult")
+                if not _rr or _rr.get("round") != _LOCK_ROUND:
+                    continue  # hasn't played the current round yet — leave forecast as-is
+                _rstats = _rr.get("stats") or {}
+                _sp = dict(_pp.get("statPred") or {})
+                _splow = dict(_pp.get("statPredLow") or {})
+                for _sk, _rv in _rstats.items():
+                    if _rv.get("p") is not None:
+                        _sp[_sk] = _rv["p"]
+                    if _rv.get("low") is not None:
+                        _splow[_sk] = _rv["low"]
+                _pp["statPred"] = _sp
+                _pp["statPredLow"] = _splow
+                _pp["nextRound"] = _LOCK_ROUND
+                _pp["roundHeld"] = True
+                _held += 1
+            if _held:
+                log.info(f"Round hold: {_held} player(s) kept on round {_LOCK_ROUND} until it finishes")
+    except Exception as _e:
+        log.warning(f"Round hold skipped: {_e}")
 
     # Sort by SC rank
     players.sort(key=lambda p: p["rank"])

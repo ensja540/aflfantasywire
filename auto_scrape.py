@@ -19,7 +19,7 @@ import subprocess
 import sys
 import time
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 # Child scrapers print ✓/→ glyphs; force UTF-8 in the subprocess environment so
@@ -39,6 +39,170 @@ INTERVAL_SEC = 15 * 60   # 15 minutes
 FW_SC_STATS_URL          = "https://www.footywire.com/afl/footy/supercoach_stats"
 FETCH_DATA_SIG_PATH      = BASE_DIR / ".fetch_data_sig"
 FETCH_DATA_MAX_GAP_HOURS = 12
+
+# ── Fixture-aware scrape window ──────────────────────────────────────────────
+# The old gate assumed AFL rounds run Thu-Sun and blanket-skipped Mon-afternoon /
+# Tue-Wed. An odd-day fixture (e.g. a Monday game) publishes its Footywire scores
+# inside that blackout, so those teams were never ingested and the predict tab
+# stayed stuck on the old round. Instead we ask the AFL fixture API exactly when
+# each game starts/finishes and keep scraping until every game in the round is
+# CONCLUDED *and* its scores are ingested into players.json — then we idle.
+AFL_MATCHES_URL = ("https://aflapi.afl.com.au/afl/v2/matches"
+                   "?compSeasonId={season}&roundNumber={rnd}&pageSize=20")
+# Footywire lags the AFL API: a game marked final can take hours for its player
+# scores to settle. Keep scraping this long after a game's siren window so late
+# stats are caught. (Game ≈ 3h from bounce; settle window on top of that.)
+GAME_DURATION_HOURS    = 3
+POST_GAME_SETTLE_HOURS = 18
+# Resume scraping this long before a game's scheduled start (teams/news firming).
+PRE_GAME_LEAD_HOURS    = 12
+# Fallback season id if fetch_data's constant can't be imported. Keep in sync
+# with fetch_data.AFL_API_SEASON_ID (which is the source of truth each season).
+AFL_API_SEASON_FALLBACK = 85
+
+
+def _afl_season_id() -> int:
+    """Current comp-season id — read from fetch_data so it tracks the season."""
+    try:
+        from fetch_data import AFL_API_SEASON_ID
+        return int(AFL_API_SEASON_ID)
+    except Exception:
+        return AFL_API_SEASON_FALLBACK
+
+
+def _afl_matches(season: int, rnd: int) -> list:
+    """Matches for one round from the AFL fixture API ([] on any failure)."""
+    req = urllib.request.Request(
+        AFL_MATCHES_URL.format(season=season, rnd=rnd),
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
+    )
+    with urllib.request.urlopen(req, timeout=15) as r:
+        return json.loads(r.read()).get("matches", []) or []
+
+
+def _ingested_round_by_team() -> dict:
+    """team -> highest round already in players.json (max lastRound per team).
+    Lets us tell a 'concluded but not yet ingested' game (an odd-day fixture we
+    missed) apart from one we've already captured."""
+    try:
+        from fetch_data import normalise_team
+    except Exception:
+        normalise_team = lambda x: x  # noqa: E731 — identity fallback
+    try:
+        d = json.loads((BASE_DIR / "players.json").read_text(encoding="utf-8"))
+        players = d.get("players", []) if isinstance(d, dict) else d
+    except Exception:
+        return {}
+    out: dict = {}
+    for p in players:
+        t = normalise_team(p.get("team") or "")
+        lr = p.get("lastRound")
+        if t and isinstance(lr, int) and lr > out.get(t, 0):
+            out[t] = lr
+    return out
+
+
+def _fixture_window() -> tuple[bool | None, str]:
+    """Consult the AFL fixture API to decide whether we're in (or near) a
+    scoring window. Returns ``(active, reason)``:
+
+      True  — a game is live, finished within the settle window, starts soon, or
+              is CONCLUDED but a participating team isn't ingested yet. Keep
+              scraping (and let the Footywire hash decide if anything moved).
+      False — every recent game is final AND ingested, next game far off.
+              "Locked in" — idle until the next game approaches.
+      None  — API probe failed; caller falls back to running so a transient
+              network blip never silently stalls the pipeline.
+    """
+    try:
+        from fetch_data import normalise_team
+    except Exception:
+        normalise_team = lambda x: x  # noqa: E731
+    season = _afl_season_id()
+    now = datetime.now(timezone.utc)
+    ingested = _ingested_round_by_team()
+    base = max(ingested.values()) if ingested else 1
+    settle = timedelta(hours=GAME_DURATION_HOURS + POST_GAME_SETTLE_HOURS)
+    lead = timedelta(hours=PRE_GAME_LEAD_HOURS)
+    try:
+        # The just-finished round through the next round covers every game whose
+        # scores could still be settling or whose start is imminent.
+        for rnd in range(max(1, base), base + 2):
+            matches = _afl_matches(season, rnd)
+            for m in matches:
+                status = m.get("status") or ""
+                try:
+                    start = datetime.fromisoformat(
+                        (m.get("utcStartTime") or "").replace("Z", "+00:00"))
+                except Exception:
+                    start = None
+                concluded = status == "CONCLUDED"
+                # 1. Live: kicked off but not final.
+                if not concluded and start and now >= start:
+                    return True, f"round {rnd} game in progress"
+                # 2. About to start.
+                if not concluded and start and timedelta(0) < (start - now) <= lead:
+                    return True, f"round {rnd} game starts within {PRE_GAME_LEAD_HOURS}h"
+                # 3. Recently finished — Footywire scores may still be settling.
+                if concluded and start and (now - start) <= settle:
+                    return True, f"round {rnd} game just finished (scores settling)"
+                # 4. Concluded but a participating team isn't ingested yet — this
+                #    recovers a stale backlog (e.g. a Monday game we missed).
+                if concluded:
+                    for side in ("home", "away"):
+                        nm = normalise_team(
+                            ((m.get(side) or {}).get("team") or {}).get("name") or "")
+                        if nm and ingested.get(nm, 0) < rnd:
+                            return True, f"round {rnd} concluded but {nm} not ingested"
+    except Exception as e:
+        return None, f"fixture probe failed ({e})"
+    return False, f"round {base} complete and ingested — locked in"
+
+
+def _refresh_fixture_box() -> str:
+    """Keep players.json's 'this week's matchups' box current from the AFL
+    fixture API EVERY cycle — independent of the (gated) fetch_data run — so the
+    predict tab rolls to the new round as soon as the old one is final, even on
+    cycles where the heavy player scrape is skipped.
+
+    Reuses fetch_data.fetch_current_round_fixture (the same logic fetch_data
+    embeds), so the decoupled value can never disagree with a full run. Only the
+    fixture box advances here; per-player predictions and round grading still
+    need fetch_data's ingested scores. Writes players.json only when the box
+    actually changes (so it doesn't churn the push signature). Returns a short
+    status string for the log."""
+    try:
+        from fetch_data import make_session, fetch_current_round_fixture
+    except Exception as e:
+        return f"fixture-box: import failed ({e})"
+    try:
+        path = BASE_DIR / "players.json"
+        d = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as e:
+        return f"fixture-box: no players.json ({e})"
+    if not isinstance(d, dict):
+        return "fixture-box: players.json not a dict — skipped"
+    players = d.get("players") or []
+    cur = max((p.get("lastRound") or 0) for p in players
+              if isinstance(p.get("lastRound"), int)) if players else 0
+    cur = cur or 1
+    try:
+        fx = fetch_current_round_fixture(make_session(), cur)
+    except Exception as e:
+        return f"fixture-box: fetch failed ({e})"
+    if not fx:
+        # Transient API miss — keep the existing box rather than nulling it.
+        return "fixture-box: no fixture from API (kept existing)"
+    prev = d.get("thisWeekMatchups") or {}
+    if prev.get("round") == fx.get("round") and prev.get("matchups") == fx.get("matchups"):
+        return f"fixture-box: round {fx.get('round')} unchanged"
+    d["thisWeekMatchups"] = fx
+    try:
+        path.write_text(json.dumps(d, indent=2), encoding="utf-8")
+    except Exception as e:
+        return f"fixture-box: write failed ({e})"
+    return (f"fixture-box: rolled {prev.get('round')} -> round {fx.get('round')}"
+            if prev.get("round") else f"fixture-box: set round {fx.get('round')}")
 
 # Per-script subprocess timeout. fetch_data.py fetches ~350 games-log pages
 # sequentially with polite delays (~2s/player to avoid Footywire rate-limiting),
@@ -99,15 +263,25 @@ def _fetch_data_check() -> tuple[bool, str | None, str]:
     ``new_sig`` to ``.fetch_data_sig`` after a successful fetch_data run so
     the next cycle can skip if Footywire's stats page is unchanged.
     """
-    # Collect on game days (AFL rounds run Thu-Sun) plus Monday morning, when
-    # SuperCoach prices settle after the round. Skip Tue/Wed entirely and Monday
-    # afternoon onward — no new games or price moves there — to stop hammering
-    # Footywire (and avoid the 20-min timeout). Manual runs of
-    # `python fetch_data.py` bypass this — the gate lives only in the auto loop.
-    _now = datetime.now()
-    _wd = _now.weekday()  # Mon=0, Tue=1, Wed=2 ... Sun=6
-    if _wd in (1, 2) or (_wd == 0 and _now.hour >= 12):
-        return False, None, "off-round (Tue-Wed / Mon afternoon) — no new games"
+    # Fixture-aware gate (replaces the old Thu-Sun weekday heuristic, which
+    # blanket-skipped Mon-afternoon/Tue/Wed and so MISSED odd-day games — e.g. a
+    # Monday fixture whose Footywire scores publish Mon evening/Tue, leaving those
+    # teams a round behind and the predict tab stuck on the old round). We ask the
+    # AFL fixture API whether a game is live, just finished, about to start, or
+    # CONCLUDED-but-not-yet-ingested; only when the round is fully complete AND
+    # ingested do we idle. Manual `python fetch_data.py` runs bypass this — the
+    # gate lives only in the auto loop.
+    active, fx_reason = _fixture_window()
+    if active is False:
+        # Locked in — every recent game is final and ingested, next game far off.
+        # Still honour the 12h safety floor so data never goes fully stale (and
+        # so an idle period still picks up any late fixture/news recompute).
+        try:
+            age_hours = (time.time() - FETCH_DATA_SIG_PATH.stat().st_mtime) / 3600
+            if age_hours <= FETCH_DATA_MAX_GAP_HOURS:
+                return False, None, fx_reason
+        except FileNotFoundError:
+            pass  # no prior run -> fall through and run
     # Probe Footywire FIRST so we always have a fresh sig to save — even on
     # first run. Previous version returned (True, None, "first run") if the
     # sig file was missing, which meant `fetch_sig` stayed None, the sig
@@ -361,6 +535,15 @@ def run_once() -> None:
 
     _status("Scraping... news_scraper.py")
     news_ok, news_msg = run_script("news_scraper.py")
+
+    # Roll the predict tab's fixture box from the AFL API every cycle, even when
+    # fetch_data was skipped above (so it never lags the live fixture). Patches
+    # players.json in place when the round/matchups change; the push below picks
+    # it up. Cheap (a few fixture-API calls) and a no-op when nothing moved.
+    try:
+        log.info(_refresh_fixture_box())
+    except Exception as e:
+        log.warning(f"fixture-box refresh failed: {e}")
 
     n_players = _count_players()
     n_news    = _count_news()
