@@ -23,7 +23,7 @@ OUTPUT
   players.json — drop this next to aflfantasywire.html and reload the app
 """
 
-import json, re, time, logging, sys, traceback, os, math
+import json, re, time, logging, sys, traceback, os, math, hashlib
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from urllib.parse import urljoin
@@ -1639,6 +1639,20 @@ def normalise_pos_list(raw):
 def name_key(name):
     return re.sub(r"[^a-z]","",name.lower())
 
+def stable_pid(name, team=""):
+    """Deterministic player id derived from name (+team), STABLE across scrapes.
+
+    The previous id was the player's position in the rank-sorted list (the
+    enumerate index), which reshuffled every scrape — so saved My Team /
+    watchlist ids silently remapped to different players. A name hash gives each
+    player the same id every run, so persisted selections survive a refresh.
+    Team is folded in to separate genuine same-name players (e.g. the two Bailey
+    Williams); it's stable within a season (trades happen post-season), so it
+    doesn't churn ids in normal use. Uses hashlib (not the builtin hash(), which
+    is per-process salted) for cross-run determinism."""
+    key = name_key(name) + "|" + re.sub(r"[^a-z]", "", (team or "").lower())
+    return int(hashlib.md5(key.encode("utf-8")).hexdigest()[:8], 16)
+
 def build_signal(avg3, be, inj, price_delta):
     s = 0
     diff = (avg3 or 0) - (be or 0)
@@ -1715,6 +1729,7 @@ def build_player(sc, dt, injuries, selections, rank):
 
     name  = sc.get("name","") or dt.get("name","")
     team  = normalise_team(sc.get("team","") or dt.get("team",""))
+    _pid  = stable_pid(name, team)   # stable id (survives scrapes) for My Team/watchlist
     pos   = normalise_pos(sc.get("pos","") or dt.get("pos",""))
     positions = sc.get("sc_positions") or [pos]
     if pos not in positions: positions = [pos] + positions
@@ -1821,7 +1836,7 @@ def build_player(sc, dt, injuries, selections, rank):
         news.append({
             "id":1, "type":"injury", "source":"Footywire",
             "time":"latest", "timeLabel":"latest",
-            "pid":  rank,           # frontend keys on pid to find the player record
+            "pid":  _pid,           # frontend keys on pid to find the player record
             "player": name, "team": team, "pos": pos,
             "title": f"{name} — {inj_status.upper()}: {inj_body_part or inj_detail}",
             "headline": f"{name} — {inj_status.upper()}: {inj_body_part or inj_detail}",
@@ -1832,7 +1847,7 @@ def build_player(sc, dt, injuries, selections, rank):
         news.append({
             "id":2, "type":"selection", "source":"Footywire",
             "time":"latest", "timeLabel":"latest",
-            "pid": rank, "player": name, "team": team, "pos": pos,
+            "pid": _pid, "player": name, "team": team, "pos": pos,
             "title": f"Selection update: {name}",
             "headline": f"Selection update: {name}",
             "body": sel_data["note"],
@@ -1840,7 +1855,7 @@ def build_player(sc, dt, injuries, selections, rank):
         })
 
     return {
-        "id": rank,
+        "id": _pid,
         "name": name,
         "init": (name.split()[0][0] + name.split()[-1][0]).upper() if len(name.split())>=2 else name[:2].upper(),
         "team": team,
