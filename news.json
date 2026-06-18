@@ -1,58 +1,280 @@
 {
-  "scraped_at": "2026-06-18T19:42:54.260362",
+  "scraped_at": "2026-06-18T20:23:48.448017",
   "item_count": 381,
   "news": [
     {
       "id": 1,
-      "type": "selection",
-      "category": "team_news",
+      "type": "injury",
+      "category": "injury_out",
       "urgent": true,
-      "player": "Scott Pendlebury",
-      "pid": 4199730608,
-      "team": "Collingwood",
+      "player": "Luke Pedlar",
+      "pid": 598645655,
+      "team": null,
       "pos": null,
       "source": "AFL.com.au",
       "sourceHandle": "@aflcomau",
-      "reliability": 70,
-      "time": "2026-06-18T08:48:59.460097+00:00",
+      "reliability": 96,
+      "time": "2026-06-18T11:18:48.792880+00:00",
       "timeLabel": "1m ago",
-      "headline": "Scott Pendlebury: TEAMS: Pies veteran out, big boost for Crows, Port tall returns",
-      "body": "TEAMS: Pies veteran out, big boost for Crows, Port tall returns.",
-      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
+      "headline": "Luke Pedlar \u2014 OUT: Hamstring (3-4 weeks)",
+      "body": "Luke Pedlar has been ruled OUT with a hamstring Estimated return: 3-4 weeks. Status updated: ETA Adelaide \u2192 3-4 weeks.",
       "signal": "sell",
-      "signalConf": 60,
+      "signalConf": 88,
       "tags": [
         "Injury Out",
-        "Scott Pendlebury"
+        "Hamstring",
+        "3-4 weeks"
       ],
-      "stats": [],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "3-4 weeks"
+        }
+      ],
+      "relevance": 100,
+      "_source": "afl_injury_page",
       "is_rumour": false,
-      "relevance": 65,
-      "_source": "url_slug",
-      "pubISO": null,
-      "first_seen": "2026-06-18T08:48:59.460097+00:00",
-      "age_label": "3w ongoing",
-      "seen_count": 16,
-      "last_status": null,
+      "first_seen": "2026-06-18T11:18:48.792880+00:00",
+      "age_label": "21h ago",
+      "seen_count": 6,
+      "last_status": "out",
       "status_changed": true,
       "status": "update",
       "status_label": "\ud83d\udfe1 Update",
-      "prev_status": "team_news",
-      "stale_after_days": 7,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "prev_status": "OUT",
+      "curr_status": "OUT",
+      "change_desc": "ETA Adelaide \u2192 3-4 weeks",
+      "stale_after_days": 5,
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
-          "pid": 4199730608,
-          "name": "Scott Pendlebury"
+          "pid": 598645655,
+          "name": "Luke Pedlar"
         }
       ],
       "teams": [
-        "Adelaide",
-        "Collingwood"
+        "Adelaide"
       ]
     },
     {
       "id": 2,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Harrison Petty",
+      "pid": 1934964081,
+      "team": null,
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-06-18T11:18:48.792880+00:00",
+      "timeLabel": "1m ago",
+      "headline": "Harrison Petty \u2014 OUT: Hamstring (2-4 weeks)",
+      "body": "Harrison Petty has been ruled OUT with a hamstring Estimated return: 2-4 weeks. Status updated: ETA Melbourne \u2192 2-4 weeks.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "Injury Out",
+        "Hamstring",
+        "2-4 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "2-4 weeks"
+        }
+      ],
+      "relevance": 100,
+      "_source": "afl_injury_page",
+      "is_rumour": false,
+      "first_seen": "2026-06-18T11:18:48.792880+00:00",
+      "age_label": "21h ago",
+      "seen_count": 6,
+      "last_status": "out",
+      "status_changed": true,
+      "status": "update",
+      "status_label": "\ud83d\udfe1 Update",
+      "prev_status": "OUT",
+      "curr_status": "OUT",
+      "change_desc": "ETA Melbourne \u2192 2-4 weeks",
+      "stale_after_days": 5,
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
+      "players": [
+        {
+          "pid": 1934964081,
+          "name": "Harrison Petty"
+        }
+      ],
+      "teams": [
+        "Melbourne"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Cody Weightman",
+      "pid": 542850771,
+      "team": "Western Bulldogs",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-06-18T11:18:48.792880+00:00",
+      "timeLabel": "1m ago",
+      "headline": "Cody Weightman \u2014 OUT: Knee (1-3 weeks)",
+      "body": "Cody Weightman (Western Bulldogs) has been ruled OUT with a knee Estimated return: 1-3 weeks. Status updated: Managed \u2192 Knee; ETA Western Bulldogs \u2192 1-3 weeks.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Knee",
+        "1-3 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Knee"
+        },
+        {
+          "l": "ETA",
+          "v": "1-3 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Western Bulldogs"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": false,
+      "first_seen": "2026-06-18T11:18:48.792880+00:00",
+      "age_label": "3d ongoing",
+      "seen_count": 16,
+      "last_status": "out",
+      "status_changed": true,
+      "status": "update",
+      "status_label": "\ud83d\udfe1 Update",
+      "prev_status": "OUT",
+      "curr_status": "OUT",
+      "change_desc": "Managed \u2192 Knee; ETA Western Bulldogs \u2192 1-3 weeks",
+      "stale_after_days": 5,
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
+      "players": [
+        {
+          "pid": 542850771,
+          "name": "Cody Weightman"
+        }
+      ],
+      "teams": [
+        "Western Bulldogs"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "news",
+      "category": "general",
+      "urgent": false,
+      "player": "",
+      "pid": null,
+      "team": null,
+      "pos": null,
+      "source": "ABC Sport",
+      "sourceHandle": "@abcsport",
+      "reliability": 88,
+      "time": "2026-06-18T09:41:53+00:00",
+      "timeLabel": "1h ago",
+      "headline": "Live: Martin on fire as Geelong take the early lead in Perth",
+      "body": "Thursday night football features the match of the AFL round, with ladder leaders Fremantle up against third-placed Geelong at Perth Stadium. Follow live.",
+      "link": "https://www.abc.net.au/news/2026-06-18/afl-rd-15-live-fremantle-geelong/106811332",
+      "signal": null,
+      "signalConf": 80,
+      "tags": [
+        "General"
+      ],
+      "stats": [],
+      "relevance": 45,
+      "_source": "rss_abcsport",
+      "pubISO": "2026-06-18T09:41:53+00:00",
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-06-18T09:41:53+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": false,
+      "stale_after_days": 7,
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
+      "teams": [
+        "Fremantle",
+        "Geelong"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "news",
+      "category": "general",
+      "urgent": false,
+      "player": "",
+      "pid": null,
+      "team": null,
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@afl.com.au",
+      "reliability": 96,
+      "time": "2026-06-18T09:10:00+00:00",
+      "timeLabel": "2h ago",
+      "headline": "Final teams in as Dockers take on Cats in blockbuster. LIVE from 6.10pm AWST",
+      "body": "Follow all the action from Thursday night's clash between Fremantle and Geelong.",
+      "link": "https://www.afl.com.au/news/1542195/follow-it-live-fremantle-dockers-v-geelong-cats-afl-round-15-2026",
+      "signal": null,
+      "signalConf": 80,
+      "tags": [
+        "General"
+      ],
+      "stats": [],
+      "relevance": 45,
+      "_source": "rss_afl.com.au",
+      "pubISO": "2026-06-18T09:10:00+00:00",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-06-18T09:10:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": false,
+      "stale_after_days": 7,
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
+      "teams": [
+        "Fremantle",
+        "Geelong"
+      ]
+    },
+    {
+      "id": 6,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -64,7 +286,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 70,
       "time": "2026-06-18T08:48:59.460097+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "2h ago",
       "headline": "Tom Liberatore: Beveridge fires back at Hawks great over English trade talk, Dogs veteran to return",
       "body": "Beveridge fires back at Hawks great over English trade talk, Dogs veteran to return.",
       "link": "https://www.afl.com.au/news/1542664/western-bulldogs-veteran-tom-liberatore-set-to-return-luke-beveridge-laughs-off-tim-english-trade-talk",
@@ -104,535 +326,7 @@
       ]
     },
     {
-      "id": 3,
-      "type": "selection",
-      "category": "team_news",
-      "urgent": false,
-      "player": "Jack Lukosius",
-      "pid": 1398254737,
-      "team": "Port Adelaide",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
-      "pubISO": "2026-06-18T08:20:00+00:00",
-      "headline": "J.Lukosius IN: Named for Port Adelaide",
-      "body": "J.Lukosius has been named in Port Adelaide's this round lineup. Coming in this week.",
-      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
-      "signal": null,
-      "signalConf": 85,
-      "tags": [
-        "Named",
-        "IN",
-        "Port Adelaide"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-06-18T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": "out",
-      "status_changed": true,
-      "stale_after_days": 7,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
-      "players": [
-        {
-          "pid": 1398254737,
-          "name": "Jack Lukosius"
-        }
-      ],
-      "teams": [
-        "Port Adelaide"
-      ]
-    },
-    {
-      "id": 4,
-      "type": "selection",
-      "category": "team_news",
-      "urgent": false,
-      "player": "Mark Keane",
-      "pid": 1306414987,
-      "team": "Adelaide",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
-      "pubISO": "2026-06-18T08:20:00+00:00",
-      "headline": "M.Keane IN: Named for Adelaide",
-      "body": "M.Keane has been named in Adelaide's this round lineup. Coming in this week.",
-      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
-      "signal": null,
-      "signalConf": 85,
-      "tags": [
-        "Named",
-        "IN",
-        "Adelaide"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-06-18T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": "out",
-      "status_changed": true,
-      "stale_after_days": 7,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
-      "players": [
-        {
-          "pid": 1306414987,
-          "name": "Mark Keane"
-        }
-      ],
-      "teams": [
-        "Adelaide"
-      ]
-    },
-    {
-      "id": 5,
-      "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Josh Worrell",
-      "pid": 3373014807,
-      "team": "Adelaide",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
-      "pubISO": "2026-06-18T08:20:00+00:00",
-      "headline": "J.Worrell OUT: Adelaide \u2014 Illness",
-      "body": "J.Worrell has been ruled OUT for Adelaide in this round. Reason: illness.",
-      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
-      "signal": "sell",
-      "signalConf": 85,
-      "tags": [
-        "OUT",
-        "Illness",
-        "Adelaide"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-06-18T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 5,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
-      "players": [
-        {
-          "pid": 3373014807,
-          "name": "Josh Worrell"
-        }
-      ],
-      "teams": [
-        "Adelaide"
-      ]
-    },
-    {
-      "id": 6,
-      "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Brayden Maynard",
-      "pid": 836493647,
-      "team": "Collingwood",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
-      "pubISO": "2026-06-18T08:20:00+00:00",
-      "headline": "B.Maynard OUT: Collingwood \u2014 Shoulder",
-      "body": "B.Maynard has been ruled OUT for Collingwood in this round. Reason: shoulder.",
-      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
-      "signal": "sell",
-      "signalConf": 85,
-      "tags": [
-        "OUT",
-        "Shoulder",
-        "Collingwood"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-06-18T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": "test",
-      "status_changed": true,
-      "stale_after_days": 5,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
-      "players": [
-        {
-          "pid": 836493647,
-          "name": "Brayden Maynard"
-        }
-      ],
-      "teams": [
-        "Collingwood"
-      ]
-    },
-    {
       "id": 7,
-      "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Scott Pendlebury",
-      "pid": 4199730608,
-      "team": "Collingwood",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
-      "pubISO": "2026-06-18T08:20:00+00:00",
-      "headline": "S.Pendlebury OUT: Collingwood \u2014 Managed",
-      "body": "S.Pendlebury has been ruled OUT for Collingwood in this round. Reason: managed.",
-      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
-      "signal": "sell",
-      "signalConf": 85,
-      "tags": [
-        "OUT",
-        "Managed",
-        "Collingwood"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-06-18T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 5,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
-      "players": [
-        {
-          "pid": 4199730608,
-          "name": "Scott Pendlebury"
-        }
-      ],
-      "teams": [
-        "Collingwood"
-      ]
-    },
-    {
-      "id": 8,
-      "type": "news",
-      "category": "general",
-      "urgent": true,
-      "player": "O.Wines",
-      "pid": null,
-      "team": "Port Adelaide",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
-      "pubISO": "2026-06-18T08:20:00+00:00",
-      "headline": "O.Wines OUT: Port Adelaide \u2014 Managed",
-      "body": "O.Wines has been ruled OUT for Port Adelaide in this round. Reason: managed.",
-      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
-      "signal": "sell",
-      "signalConf": 85,
-      "tags": [
-        "OUT",
-        "Managed",
-        "Port Adelaide"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-06-18T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 5,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
-      "teams": [
-        "Port Adelaide"
-      ]
-    },
-    {
-      "id": 9,
-      "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Kane Farrell",
-      "pid": 4098135166,
-      "team": "Port Adelaide",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
-      "pubISO": "2026-06-18T08:20:00+00:00",
-      "headline": "K.Farrell OUT: Port Adelaide \u2014 Groin",
-      "body": "K.Farrell has been ruled OUT for Port Adelaide in this round. Reason: groin.",
-      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
-      "signal": "sell",
-      "signalConf": 85,
-      "tags": [
-        "OUT",
-        "Groin",
-        "Port Adelaide"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-06-18T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 5,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
-      "players": [
-        {
-          "pid": 4098135166,
-          "name": "Kane Farrell"
-        }
-      ],
-      "teams": [
-        "Port Adelaide"
-      ]
-    },
-    {
-      "id": 10,
-      "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Adam Treloar",
-      "pid": 1344826300,
-      "team": "Western Bulldogs",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
-      "pubISO": "2026-06-18T08:20:00+00:00",
-      "headline": "A.Treloar OUT: Western Bulldogs \u2014 Illness",
-      "body": "A.Treloar has been ruled OUT for Western Bulldogs in this round. Reason: illness.",
-      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
-      "signal": "sell",
-      "signalConf": 85,
-      "tags": [
-        "OUT",
-        "Illness",
-        "Western Bulldogs"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-06-18T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 5,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
-      "players": [
-        {
-          "pid": 1344826300,
-          "name": "Adam Treloar"
-        }
-      ],
-      "teams": [
-        "Western Bulldogs"
-      ]
-    },
-    {
-      "id": 11,
-      "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Luke Pedlar",
-      "pid": 598645655,
-      "team": "Adelaide",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
-      "pubISO": "2026-06-18T08:20:00+00:00",
-      "headline": "L.Pedlar OUT: Adelaide \u2014 Hamstring",
-      "body": "L.Pedlar has been ruled OUT for Adelaide in this round. Reason: hamstring. Status updated: ETA 3-4 weeks \u2192 Adelaide.",
-      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
-      "signal": "sell",
-      "signalConf": 85,
-      "tags": [
-        "OUT",
-        "Hamstring",
-        "Adelaide"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "first_seen": "2026-06-18T08:20:00+00:00",
-      "age_label": "19h ago",
-      "seen_count": 5,
-      "last_status": "out",
-      "status_changed": true,
-      "status": "update",
-      "status_label": "\ud83d\udfe1 Update",
-      "prev_status": "OUT",
-      "curr_status": "OUT",
-      "change_desc": "ETA 3-4 weeks \u2192 Adelaide",
-      "stale_after_days": 5,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
-      "players": [
-        {
-          "pid": 598645655,
-          "name": "Luke Pedlar"
-        }
-      ],
-      "teams": [
-        "Adelaide"
-      ]
-    },
-    {
-      "id": 12,
-      "type": "selection",
-      "category": "team_news",
-      "urgent": false,
-      "player": "Jarrod Witts",
-      "pid": 2997232374,
-      "team": "Gold Coast",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
-      "pubISO": "2026-06-18T08:20:00+00:00",
-      "headline": "J.Witts IN: Named for Gold Coast",
-      "body": "J.Witts has been named in Gold Coast's this round lineup. Coming in this week.",
-      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
-      "signal": null,
-      "signalConf": 85,
-      "tags": [
-        "Named",
-        "IN",
-        "Gold Coast"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-06-18T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 7,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
-      "players": [
-        {
-          "pid": 2997232374,
-          "name": "Jarrod Witts"
-        }
-      ],
-      "teams": [
-        "Gold Coast"
-      ]
-    },
-    {
-      "id": 13,
-      "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Harrison Petty",
-      "pid": 1934964081,
-      "team": "Melbourne",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
-      "pubISO": "2026-06-18T08:20:00+00:00",
-      "headline": "H.Petty OUT: Melbourne \u2014 Hamstring",
-      "body": "H.Petty has been ruled OUT for Melbourne in this round. Reason: hamstring. Status updated: ETA 2-4 weeks \u2192 Melbourne.",
-      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
-      "signal": "sell",
-      "signalConf": 85,
-      "tags": [
-        "OUT",
-        "Hamstring",
-        "Melbourne"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "first_seen": "2026-06-18T08:20:00+00:00",
-      "age_label": "19h ago",
-      "seen_count": 5,
-      "last_status": "out",
-      "status_changed": true,
-      "status": "update",
-      "status_label": "\ud83d\udfe1 Update",
-      "prev_status": "OUT",
-      "curr_status": "OUT",
-      "change_desc": "ETA 2-4 weeks \u2192 Melbourne",
-      "stale_after_days": 5,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
-      "players": [
-        {
-          "pid": 1934964081,
-          "name": "Harrison Petty"
-        }
-      ],
-      "teams": [
-        "Melbourne"
-      ]
-    },
-    {
-      "id": 14,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -644,7 +338,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "P.Curtis OUT: North Melbourne \u2014 Suspension",
       "body": "P.Curtis has been ruled OUT for North Melbourne in this round. Reason: suspension. Status updated: Suspended \u2192 Suspension; ETA Round 18 \u2192 North Melbourne.",
@@ -683,50 +377,424 @@
       ]
     },
     {
-      "id": 15,
-      "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Cody Weightman",
-      "pid": 542850771,
-      "team": "Western Bulldogs",
+      "id": 8,
+      "type": "selection",
+      "category": "team_news",
+      "urgent": false,
+      "player": "Scott Pendlebury",
+      "pid": 4199730608,
+      "team": "",
       "pos": null,
       "source": "AFL.com.au",
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
-      "headline": "C.Weightman OUT: Western Bulldogs \u2014 Managed",
-      "body": "C.Weightman has been ruled OUT for Western Bulldogs in this round. Reason: managed. Status updated: Knee \u2192 Managed; ETA 1-3 weeks \u2192 Western Bulldogs.",
+      "headline": "TEAMS: Pies veteran out, big boost for Crows, Port tall returns",
+      "body": "Australia's best network. Follow us on social media The teams for Friday and Saturday's round 15 matches are in, plus the squads for Sunday's games COLLINGWOOD is giving veteran Scott Pendlebury an ex.",
+      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
+      "signal": null,
+      "signalConf": 85,
+      "tags": [
+        "Team News"
+      ],
+      "stats": [],
+      "relevance": 72,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-06-18T08:20:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": false,
+      "stale_after_days": 7,
+      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "players": [
+        {
+          "pid": 4199730608,
+          "name": "Scott Pendlebury"
+        }
+      ],
+      "teams": [
+        "Adelaide",
+        "Collingwood"
+      ]
+    },
+    {
+      "id": 9,
+      "type": "selection",
+      "category": "team_news",
+      "urgent": false,
+      "player": "Jack Lukosius",
+      "pid": 1398254737,
+      "team": "Port Adelaide",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-06-18T08:20:00+00:00",
+      "timeLabel": "2h ago",
+      "pubISO": "2026-06-18T08:20:00+00:00",
+      "headline": "J.Lukosius IN: Named for Port Adelaide",
+      "body": "J.Lukosius has been named in Port Adelaide's this round lineup. Coming in this week.",
+      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
+      "signal": null,
+      "signalConf": 85,
+      "tags": [
+        "Named",
+        "IN",
+        "Port Adelaide"
+      ],
+      "stats": [],
+      "relevance": 80,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-06-18T08:20:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": "out",
+      "status_changed": true,
+      "stale_after_days": 7,
+      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "players": [
+        {
+          "pid": 1398254737,
+          "name": "Jack Lukosius"
+        }
+      ],
+      "teams": [
+        "Port Adelaide"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "selection",
+      "category": "team_news",
+      "urgent": false,
+      "player": "Mark Keane",
+      "pid": 1306414987,
+      "team": "Adelaide",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-06-18T08:20:00+00:00",
+      "timeLabel": "2h ago",
+      "pubISO": "2026-06-18T08:20:00+00:00",
+      "headline": "M.Keane IN: Named for Adelaide",
+      "body": "M.Keane has been named in Adelaide's this round lineup. Coming in this week.",
+      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
+      "signal": null,
+      "signalConf": 85,
+      "tags": [
+        "Named",
+        "IN",
+        "Adelaide"
+      ],
+      "stats": [],
+      "relevance": 80,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-06-18T08:20:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": "out",
+      "status_changed": true,
+      "stale_after_days": 7,
+      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "players": [
+        {
+          "pid": 1306414987,
+          "name": "Mark Keane"
+        }
+      ],
+      "teams": [
+        "Adelaide"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Josh Worrell",
+      "pid": 3373014807,
+      "team": "Adelaide",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-06-18T08:20:00+00:00",
+      "timeLabel": "2h ago",
+      "pubISO": "2026-06-18T08:20:00+00:00",
+      "headline": "J.Worrell OUT: Adelaide \u2014 Illness",
+      "body": "J.Worrell has been ruled OUT for Adelaide in this round. Reason: illness.",
+      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
+      "signal": "sell",
+      "signalConf": 85,
+      "tags": [
+        "OUT",
+        "Illness",
+        "Adelaide"
+      ],
+      "stats": [],
+      "relevance": 80,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-06-18T08:20:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": true,
+      "stale_after_days": 5,
+      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "players": [
+        {
+          "pid": 3373014807,
+          "name": "Josh Worrell"
+        }
+      ],
+      "teams": [
+        "Adelaide"
+      ]
+    },
+    {
+      "id": 12,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Brayden Maynard",
+      "pid": 836493647,
+      "team": "Collingwood",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-06-18T08:20:00+00:00",
+      "timeLabel": "2h ago",
+      "pubISO": "2026-06-18T08:20:00+00:00",
+      "headline": "B.Maynard OUT: Collingwood \u2014 Shoulder",
+      "body": "B.Maynard has been ruled OUT for Collingwood in this round. Reason: shoulder.",
+      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
+      "signal": "sell",
+      "signalConf": 85,
+      "tags": [
+        "OUT",
+        "Shoulder",
+        "Collingwood"
+      ],
+      "stats": [],
+      "relevance": 80,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-06-18T08:20:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": "test",
+      "status_changed": true,
+      "stale_after_days": 5,
+      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "players": [
+        {
+          "pid": 836493647,
+          "name": "Brayden Maynard"
+        }
+      ],
+      "teams": [
+        "Collingwood"
+      ]
+    },
+    {
+      "id": 13,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Scott Pendlebury",
+      "pid": 4199730608,
+      "team": "Collingwood",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-06-18T08:20:00+00:00",
+      "timeLabel": "2h ago",
+      "pubISO": "2026-06-18T08:20:00+00:00",
+      "headline": "S.Pendlebury OUT: Collingwood \u2014 Managed",
+      "body": "S.Pendlebury has been ruled OUT for Collingwood in this round. Reason: managed.",
       "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
       "signal": "sell",
       "signalConf": 85,
       "tags": [
         "OUT",
         "Managed",
+        "Collingwood"
+      ],
+      "stats": [],
+      "relevance": 80,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-06-18T08:20:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": true,
+      "stale_after_days": 5,
+      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "players": [
+        {
+          "pid": 4199730608,
+          "name": "Scott Pendlebury"
+        }
+      ],
+      "teams": [
+        "Collingwood"
+      ]
+    },
+    {
+      "id": 14,
+      "type": "news",
+      "category": "general",
+      "urgent": true,
+      "player": "O.Wines",
+      "pid": null,
+      "team": "Port Adelaide",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-06-18T08:20:00+00:00",
+      "timeLabel": "2h ago",
+      "pubISO": "2026-06-18T08:20:00+00:00",
+      "headline": "O.Wines OUT: Port Adelaide \u2014 Managed",
+      "body": "O.Wines has been ruled OUT for Port Adelaide in this round. Reason: managed.",
+      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
+      "signal": "sell",
+      "signalConf": 85,
+      "tags": [
+        "OUT",
+        "Managed",
+        "Port Adelaide"
+      ],
+      "stats": [],
+      "relevance": 80,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-06-18T08:20:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": true,
+      "stale_after_days": 5,
+      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "teams": [
+        "Port Adelaide"
+      ]
+    },
+    {
+      "id": 15,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Kane Farrell",
+      "pid": 4098135166,
+      "team": "Port Adelaide",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-06-18T08:20:00+00:00",
+      "timeLabel": "2h ago",
+      "pubISO": "2026-06-18T08:20:00+00:00",
+      "headline": "K.Farrell OUT: Port Adelaide \u2014 Groin",
+      "body": "K.Farrell has been ruled OUT for Port Adelaide in this round. Reason: groin.",
+      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
+      "signal": "sell",
+      "signalConf": 85,
+      "tags": [
+        "OUT",
+        "Groin",
+        "Port Adelaide"
+      ],
+      "stats": [],
+      "relevance": 80,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-06-18T08:20:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": true,
+      "stale_after_days": 5,
+      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "players": [
+        {
+          "pid": 4098135166,
+          "name": "Kane Farrell"
+        }
+      ],
+      "teams": [
+        "Port Adelaide"
+      ]
+    },
+    {
+      "id": 16,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Adam Treloar",
+      "pid": 1344826300,
+      "team": "Western Bulldogs",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-06-18T08:20:00+00:00",
+      "timeLabel": "2h ago",
+      "pubISO": "2026-06-18T08:20:00+00:00",
+      "headline": "A.Treloar OUT: Western Bulldogs \u2014 Illness",
+      "body": "A.Treloar has been ruled OUT for Western Bulldogs in this round. Reason: illness.",
+      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
+      "signal": "sell",
+      "signalConf": 85,
+      "tags": [
+        "OUT",
+        "Illness",
         "Western Bulldogs"
       ],
       "stats": [],
       "relevance": 80,
       "_source": "team_announcements",
       "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
       "first_seen": "2026-06-18T08:20:00+00:00",
-      "age_label": "3d ongoing",
-      "seen_count": 15,
-      "last_status": "out",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
       "status_changed": true,
-      "status": "update",
-      "status_label": "\ud83d\udfe1 Update",
-      "prev_status": "OUT",
-      "curr_status": "OUT",
-      "change_desc": "Knee \u2192 Managed; ETA 1-3 weeks \u2192 Western Bulldogs",
       "stale_after_days": 5,
       "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
       "players": [
         {
-          "pid": 542850771,
-          "name": "Cody Weightman"
+          "pid": 1344826300,
+          "name": "Adam Treloar"
         }
       ],
       "teams": [
@@ -734,7 +802,55 @@
       ]
     },
     {
-      "id": 16,
+      "id": 17,
+      "type": "selection",
+      "category": "team_news",
+      "urgent": false,
+      "player": "Jarrod Witts",
+      "pid": 2997232374,
+      "team": "Gold Coast",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-06-18T08:20:00+00:00",
+      "timeLabel": "2h ago",
+      "pubISO": "2026-06-18T08:20:00+00:00",
+      "headline": "J.Witts IN: Named for Gold Coast",
+      "body": "J.Witts has been named in Gold Coast's this round lineup. Coming in this week.",
+      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
+      "signal": null,
+      "signalConf": 85,
+      "tags": [
+        "Named",
+        "IN",
+        "Gold Coast"
+      ],
+      "stats": [],
+      "relevance": 80,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-06-18T08:20:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": true,
+      "stale_after_days": 7,
+      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "players": [
+        {
+          "pid": 2997232374,
+          "name": "Jarrod Witts"
+        }
+      ],
+      "teams": [
+        "Gold Coast"
+      ]
+    },
+    {
+      "id": 18,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -746,7 +862,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "N.Holman IN: Named for Gold Coast",
       "body": "N.Holman has been named in Gold Coast's this round lineup. Coming in this week.",
@@ -782,7 +898,7 @@
       ]
     },
     {
-      "id": 17,
+      "id": 19,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -794,7 +910,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "B.Addinsall IN: Named for Gold Coast",
       "body": "B.Addinsall has been named in Gold Coast's this round lineup. Coming in this week.",
@@ -830,7 +946,7 @@
       ]
     },
     {
-      "id": 18,
+      "id": 20,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -842,7 +958,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "B.Jepson OUT: Gold Coast \u2014 Omitted",
       "body": "B.Jepson has been ruled OUT for Gold Coast in this round. Reason: omitted.",
@@ -878,7 +994,7 @@
       ]
     },
     {
-      "id": 19,
+      "id": 21,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -890,7 +1006,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "C.Ballard OUT: Gold Coast \u2014 Omitted",
       "body": "C.Ballard has been ruled OUT for Gold Coast in this round. Reason: omitted.",
@@ -926,7 +1042,7 @@
       ]
     },
     {
-      "id": 20,
+      "id": 22,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -938,7 +1054,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "L.Gulbin OUT: Gold Coast \u2014 Omitted",
       "body": "L.Gulbin has been ruled OUT for Gold Coast in this round. Reason: omitted.",
@@ -974,7 +1090,7 @@
       ]
     },
     {
-      "id": 21,
+      "id": 23,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -986,7 +1102,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "T.Barrass IN: Named for Hawthorn",
       "body": "T.Barrass has been named in Hawthorn's this round lineup. Coming in this week.",
@@ -1022,7 +1138,7 @@
       ]
     },
     {
-      "id": 22,
+      "id": 24,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1034,7 +1150,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "H.Morrison IN: Named for Hawthorn",
       "body": "H.Morrison has been named in Hawthorn's this round lineup. Coming in this week.",
@@ -1070,7 +1186,7 @@
       ]
     },
     {
-      "id": 23,
+      "id": 25,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -1082,7 +1198,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "F.Perez OUT: Hawthorn \u2014 Omitted",
       "body": "F.Perez has been ruled OUT for Hawthorn in this round. Reason: omitted.",
@@ -1118,7 +1234,7 @@
       ]
     },
     {
-      "id": 24,
+      "id": 26,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1130,7 +1246,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "B.Ryan OUT: Hawthorn \u2014 Omitted",
       "body": "B.Ryan has been ruled OUT for Hawthorn in this round. Reason: omitted.",
@@ -1160,7 +1276,7 @@
       ]
     },
     {
-      "id": 25,
+      "id": 27,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1172,7 +1288,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "I.Rankine IN: Named for Adelaide",
       "body": "I.Rankine has been named in Adelaide's this round lineup. Coming in this week.",
@@ -1208,7 +1324,7 @@
       ]
     },
     {
-      "id": 26,
+      "id": 28,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1220,7 +1336,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "T.Murray OUT: Adelaide \u2014 Omitted",
       "body": "T.Murray has been ruled OUT for Adelaide in this round. Reason: omitted.",
@@ -1250,7 +1366,7 @@
       ]
     },
     {
-      "id": 27,
+      "id": 29,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1262,7 +1378,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "M.Jefferson IN: Named for Melbourne",
       "body": "M.Jefferson has been named in Melbourne's this round lineup. Coming in this week.",
@@ -1292,7 +1408,7 @@
       ]
     },
     {
-      "id": 28,
+      "id": 30,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -1304,7 +1420,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "L.Cooke OUT: Melbourne \u2014 Face",
       "body": "L.Cooke has been ruled OUT for Melbourne in this round. Reason: face.",
@@ -1340,7 +1456,7 @@
       ]
     },
     {
-      "id": 29,
+      "id": 31,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -1352,7 +1468,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "B.Laurie OUT: Melbourne \u2014 Omitted",
       "body": "B.Laurie has been ruled OUT for Melbourne in this round. Reason: omitted.",
@@ -1388,7 +1504,7 @@
       ]
     },
     {
-      "id": 30,
+      "id": 32,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1400,7 +1516,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "S.Coniglio IN: Named for GWS Giants",
       "body": "S.Coniglio has been named in GWS Giants's this round lineup. Coming in this week.",
@@ -1436,7 +1552,7 @@
       ]
     },
     {
-      "id": 31,
+      "id": 33,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -1448,7 +1564,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "T.McMullin OUT: GWS Giants \u2014 Injured",
       "body": "T.McMullin has been ruled OUT for GWS Giants in this round. Reason: injured.",
@@ -1484,7 +1600,7 @@
       ]
     },
     {
-      "id": 32,
+      "id": 34,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1496,7 +1612,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "M.Cottrell IN: Named for Carlton",
       "body": "M.Cottrell has been named in Carlton's this round lineup. Coming in this week.",
@@ -1526,7 +1642,7 @@
       ]
     },
     {
-      "id": 33,
+      "id": 35,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1538,7 +1654,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "F.Young OUT: Carlton \u2014 Omitted",
       "body": "F.Young has been ruled OUT for Carlton in this round. Reason: omitted.",
@@ -1568,7 +1684,7 @@
       ]
     },
     {
-      "id": 34,
+      "id": 36,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1580,7 +1696,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "S.Swadling IN: Named for Collingwood",
       "body": "S.Swadling has been named in Collingwood's this round lineup. Coming in this week.",
@@ -1616,7 +1732,7 @@
       ]
     },
     {
-      "id": 35,
+      "id": 37,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1628,7 +1744,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "S.Sidebottom IN: Named for Collingwood",
       "body": "S.Sidebottom has been named in Collingwood's this round lineup. Coming in this week.",
@@ -1664,7 +1780,7 @@
       ]
     },
     {
-      "id": 36,
+      "id": 38,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1676,7 +1792,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "N.Long IN: Named for Collingwood",
       "body": "N.Long has been named in Collingwood's this round lineup. Coming in this week.",
@@ -1706,7 +1822,7 @@
       ]
     },
     {
-      "id": 37,
+      "id": 39,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1718,7 +1834,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "A.Anderson OUT: Collingwood \u2014 Omitted",
       "body": "A.Anderson has been ruled OUT for Collingwood in this round. Reason: omitted.",
@@ -1748,7 +1864,7 @@
       ]
     },
     {
-      "id": 38,
+      "id": 40,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1760,7 +1876,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "J.Lai IN: Named for Port Adelaide",
       "body": "J.Lai has been named in Port Adelaide's this round lineup. Coming in this week.",
@@ -1790,7 +1906,7 @@
       ]
     },
     {
-      "id": 39,
+      "id": 41,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1802,7 +1918,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "T.Nankervis IN: Named for Richmond",
       "body": "T.Nankervis has been named in Richmond's this round lineup. Coming in this week.",
@@ -1832,7 +1948,7 @@
       ]
     },
     {
-      "id": 40,
+      "id": 42,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1844,7 +1960,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "K.Smith IN: Named for Richmond",
       "body": "K.Smith has been named in Richmond's this round lineup. Coming in this week.",
@@ -1874,7 +1990,7 @@
       ]
     },
     {
-      "id": 41,
+      "id": 43,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1886,7 +2002,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "T.Hotton IN: Named for Richmond",
       "body": "T.Hotton has been named in Richmond's this round lineup. Coming in this week.",
@@ -1922,7 +2038,7 @@
       ]
     },
     {
-      "id": 42,
+      "id": 44,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1934,7 +2050,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "F.O'Sullivan IN: Named for North Melbourne",
       "body": "F.O'Sullivan has been named in North Melbourne's this round lineup. Coming in this week.",
@@ -1964,7 +2080,7 @@
       ]
     },
     {
-      "id": 43,
+      "id": 45,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1976,7 +2092,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "A.Corr IN: Named for North Melbourne",
       "body": "A.Corr has been named in North Melbourne's this round lineup. Coming in this week.",
@@ -2012,7 +2128,7 @@
       ]
     },
     {
-      "id": 44,
+      "id": 46,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2024,7 +2140,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "R.Hardeman IN: Named for North Melbourne",
       "body": "R.Hardeman has been named in North Melbourne's this round lineup. Coming in this week.",
@@ -2060,7 +2176,7 @@
       ]
     },
     {
-      "id": 45,
+      "id": 47,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2072,7 +2188,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "R.Hansen jnr IN: Named for North Melbourne",
       "body": "R.Hansen jnr has been named in North Melbourne's this round lineup. Coming in this week.",
@@ -2108,7 +2224,7 @@
       ]
     },
     {
-      "id": 46,
+      "id": 48,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2120,7 +2236,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "J.Higgins IN: Named for St Kilda",
       "body": "J.Higgins has been named in St Kilda's this round lineup. Coming in this week.",
@@ -2156,7 +2272,7 @@
       ]
     },
     {
-      "id": 47,
+      "id": 49,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2168,7 +2284,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "P.Dow IN: Named for St Kilda",
       "body": "P.Dow has been named in St Kilda's this round lineup. Coming in this week.",
@@ -2198,7 +2314,7 @@
       ]
     },
     {
-      "id": 48,
+      "id": 50,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2210,7 +2326,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "H.Boxshall IN: Named for St Kilda",
       "body": "H.Boxshall has been named in St Kilda's this round lineup. Coming in this week.",
@@ -2246,7 +2362,7 @@
       ]
     },
     {
-      "id": 49,
+      "id": 51,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2258,7 +2374,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "T.Liberatore IN: Named for Western Bulldogs",
       "body": "T.Liberatore has been named in Western Bulldogs's this round lineup. Coming in this week.",
@@ -2294,7 +2410,7 @@
       ]
     },
     {
-      "id": 50,
+      "id": 52,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2306,7 +2422,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "O.Baker IN: Named for Western Bulldogs",
       "body": "O.Baker has been named in Western Bulldogs's this round lineup. Coming in this week.",
@@ -2336,7 +2452,7 @@
       ]
     },
     {
-      "id": 51,
+      "id": 53,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2348,7 +2464,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "S.Davidson IN: Named for Western Bulldogs",
       "body": "S.Davidson has been named in Western Bulldogs's this round lineup. Coming in this week.",
@@ -2384,7 +2500,7 @@
       ]
     },
     {
-      "id": 52,
+      "id": 54,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2396,7 +2512,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "L.McNeil IN: Named for Western Bulldogs",
       "body": "L.McNeil has been named in Western Bulldogs's this round lineup. Coming in this week.",
@@ -2432,7 +2548,7 @@
       ]
     },
     {
-      "id": 53,
+      "id": 55,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2444,7 +2560,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-06-18T08:20:00+00:00",
       "headline": "L.Vandermeer IN: Named for Western Bulldogs",
       "body": "L.Vandermeer has been named in Western Bulldogs's this round lineup. Coming in this week.",
@@ -2480,95 +2596,7 @@
       ]
     },
     {
-      "id": 54,
-      "type": "selection",
-      "category": "team_news",
-      "urgent": false,
-      "player": "Scott Pendlebury",
-      "pid": 4199730608,
-      "team": "",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-06-18T08:20:00+00:00",
-      "timeLabel": "28m ago",
-      "pubISO": "2026-06-18T08:20:00+00:00",
-      "headline": "TEAMS: Pies veteran out, big boost for Crows, Port tall returns",
-      "body": "Australia's best network. Follow us on social media The teams for Friday and Saturday's round 15 matches are in, plus the squads for Sunday's games COLLINGWOOD is giving veteran Scott Pendlebury an ex.",
-      "link": "https://www.afl.com.au/news/1542628/teams-collingwood-veteran-scott-pendlebury-ruled-out-mark-keane-returns-for-adelaide-crows-jack-lukosius-in-for-port-adelaide",
-      "signal": null,
-      "signalConf": 85,
-      "tags": [
-        "Team News"
-      ],
-      "stats": [],
-      "relevance": 72,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-06-18T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": false,
-      "stale_after_days": 7,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
-      "players": [
-        {
-          "pid": 4199730608,
-          "name": "Scott Pendlebury"
-        }
-      ],
-      "teams": [
-        "Adelaide",
-        "Collingwood"
-      ]
-    },
-    {
-      "id": 55,
-      "type": "news",
-      "category": "general",
-      "urgent": false,
-      "player": "",
-      "pid": null,
-      "team": null,
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@afl.com.au",
-      "reliability": 96,
-      "time": "2026-06-18T08:10:00+00:00",
-      "timeLabel": "38m ago",
-      "headline": "Dockers take on Cats in Thursday night blockbuster. LIVE from 6.10pm AWST",
-      "body": "Follow all the action from Thursday night's clash between Fremantle and Geelong.",
-      "link": "https://www.afl.com.au/news/1542195/follow-it-live-fremantle-dockers-v-geelong-cats-afl-round-15-2026",
-      "signal": null,
-      "signalConf": 80,
-      "tags": [
-        "General"
-      ],
-      "stats": [],
-      "relevance": 45,
-      "_source": "rss_afl.com.au",
-      "pubISO": "2026-06-18T08:10:00+00:00",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-06-18T08:10:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": false,
-      "stale_after_days": 7,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
-      "teams": [
-        "Fremantle",
-        "Geelong"
-      ]
-    },
-    {
-      "id": 56,
+      "id": 57,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2580,7 +2608,7 @@
       "sourceHandle": "@abcsport",
       "reliability": 88,
       "time": "2026-06-18T06:57:05+00:00",
-      "timeLabel": "1h ago",
+      "timeLabel": "4h ago",
       "headline": "Magpies admit Hill is 'a long way away from playing footy'",
       "body": "Bobby Hill returns to Collingwood training, but coach Craig McRae says it will be some time before the 2023 Norm Smith medallist is ready to play in the AFL again.",
       "link": "https://www.abc.net.au/news/2026-06-18/afl-collingwood-magpies-bobby-hill-craig-mcrae/106815252",
@@ -2613,7 +2641,7 @@
       ]
     },
     {
-      "id": 57,
+      "id": 58,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -2625,7 +2653,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-06-18T06:49:00+00:00",
-      "timeLabel": "1h ago",
+      "timeLabel": "4h ago",
       "headline": "Latest on injured Pies pair, Giants star fit to play, Blues star to miss",
       "body": "Stay up to date with all the latest teams news ahead of round 15.",
       "link": "https://www.afl.com.au/news/1542082/team-whispers-live-all-the-latest-selection-news-ahead-of-round-15",
@@ -2651,14 +2679,11 @@
       "teams": [
         "GWS Giants",
         "Carlton",
-        "Collingwood",
-        "St Kilda",
-        "Adelaide",
-        "Hawthorn"
+        "Collingwood"
       ]
     },
     {
-      "id": 58,
+      "id": 59,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2670,7 +2695,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-06-18T05:46:00+00:00",
-      "timeLabel": "3h ago",
+      "timeLabel": "5h ago",
       "headline": "Beveridge backs Bulldogs' push for historic game in India",
       "body": "Luke Beveridge has backed the Dogs' exploration of potentially playing a match in India.",
       "link": "https://www.afl.com.au/news/1542731/luke-beveridge-backs-western-bulldogs-push-for-historic-game-in-india",
@@ -2704,7 +2729,7 @@
       ]
     },
     {
-      "id": 59,
+      "id": 60,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -2716,7 +2741,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T00:39:12.149054+00:00",
-      "timeLabel": "8h ago",
+      "timeLabel": "10h ago",
       "headline": "Archie Roberts \u2014 TBC: Shoulder (TBC)",
       "body": "Archie Roberts is in doubt with a shoulder. Status updated: Status INJURY TBC \u2192 TBC; Essendon \u2192 Shoulder.",
       "signal": "hold",
@@ -2766,7 +2791,7 @@
       ]
     },
     {
-      "id": 60,
+      "id": 61,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -2778,7 +2803,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T00:39:12.149054+00:00",
-      "timeLabel": "8h ago",
+      "timeLabel": "10h ago",
       "headline": "Tom McCartin \u2014 TBC: Concussion (TBC)",
       "body": "Tom McCartin is in doubt with a concussion. Status updated: Status INJURY TBC \u2192 TBC; Sydney \u2192 Concussion.",
       "signal": "hold",
@@ -2828,7 +2853,7 @@
       ]
     },
     {
-      "id": 61,
+      "id": 62,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -2840,7 +2865,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-18T00:39:12.149054+00:00",
-      "timeLabel": "8h ago",
+      "timeLabel": "10h ago",
       "headline": "Jack Gunston \u2014 TEST: Foot (Test)",
       "body": "Jack Gunston (Hawthorn) faces a fitness test on a foot. Status updated: Status INJURY OUT \u2192 TEST; Hawthorn \u2192 Foot.",
       "signal": "hold",
@@ -2906,7 +2931,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-06-17T20:00:00+00:00",
-      "timeLabel": "12h ago",
+      "timeLabel": "15h ago",
       "headline": "More puff than power: Suns' star-studded midfield needs to start shining",
       "body": "Christian Petracca was supposed to complete Gold Coast's excellent engine room, but the motor is misfiring.",
       "link": "https://www.afl.com.au/news/1542524/more-puff-than-power-gold-coast-suns-star-studded-midfield-needs-to-start-shining",
@@ -2953,7 +2978,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-06-17T20:00:00+00:00",
-      "timeLabel": "12h ago",
+      "timeLabel": "15h ago",
       "headline": "Indicative draft order: Where your club's picks sit ahead of round 15",
       "body": "We take a look at how the Blues and Power are placed to match bids on their guns in the draft this year.",
       "link": "https://www.afl.com.au/news/1542355/wins-a-worry-form-could-complicate-carlton-blues-port-adelaide-powers-access-to-star-draft-duo",
@@ -2994,7 +3019,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-06-17T20:00:00+00:00",
-      "timeLabel": "12h ago",
+      "timeLabel": "15h ago",
       "headline": "Who wins R15? Tipsters split on key matches, Cats out of favour",
       "body": "Our footy experts have made the call on round 15.",
       "link": "https://www.afl.com.au/news/1542266/who-wins-r15-tipsters-split-on-key-matches-cats-out-of-favour",
@@ -3034,7 +3059,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-17T13:33:18.832993+00:00",
-      "timeLabel": "19h ago",
+      "timeLabel": "21h ago",
       "headline": "Ben Camporeale \u2014 OUT: Hamstring (2-3 weeks)",
       "body": "Ben Camporeale has been ruled OUT with a hamstring Estimated return: 2-3 weeks.",
       "signal": "sell",
@@ -3090,7 +3115,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-17T13:33:18.832993+00:00",
-      "timeLabel": "19h ago",
+      "timeLabel": "21h ago",
       "headline": "Jacob Molier \u2014 OUT: Quad (3 weeks)",
       "body": "Jacob Molier has been ruled OUT with a quad Estimated return: 3 weeks.",
       "signal": "sell",
@@ -3146,7 +3171,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 70,
       "time": "2026-06-17T13:33:18.832993+00:00",
-      "timeLabel": "19h ago",
+      "timeLabel": "21h ago",
       "headline": "Aidan Schubert: The trade King pin, Hawk set to sign on, Cook's next move",
       "body": "The trade King pin, Hawk set to sign on, Cook's next move.",
       "link": "https://www.afl.com.au/news/1542271/inside-trading-the-trade-king-pin-hawthorn-hawk-aidan-schubert-set-to-sign-on-brian-cooks-next-move",
@@ -3197,7 +3222,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-17T13:33:18.832993+00:00",
-      "timeLabel": "19h ago",
+      "timeLabel": "21h ago",
       "headline": "Avery Thomas \u2014 OUT: Knee (4-6 weeks)",
       "body": "Avery Thomas has been ruled OUT with a knee Estimated return: 4-6 weeks.",
       "signal": "sell",
@@ -3253,7 +3278,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-17T13:33:18.832993+00:00",
-      "timeLabel": "19h ago",
+      "timeLabel": "21h ago",
       "headline": "Max Gruzewski \u2014 OUT: Hand (2-3 weeks)",
       "body": "Max Gruzewski has been ruled OUT with a hand Estimated return: 2-3 weeks.",
       "signal": "sell",
@@ -3309,7 +3334,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-17T13:33:18.832993+00:00",
-      "timeLabel": "19h ago",
+      "timeLabel": "21h ago",
       "headline": "Max Beattie \u2014 OUT: Ankle (4-6 weeks)",
       "body": "Max Beattie has been ruled OUT with a ankle Estimated return: 4-6 weeks.",
       "signal": "sell",
@@ -3406,7 +3431,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-17T13:33:18.832993+00:00",
-      "timeLabel": "19h ago",
+      "timeLabel": "21h ago",
       "headline": "Matt LeRay \u2014 OUT: Concussion (1-2 weeks)",
       "body": "Matt LeRay has been ruled OUT with a concussion Estimated return: 1-2 weeks.",
       "signal": "sell",
@@ -3462,7 +3487,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-17T13:33:18.832993+00:00",
-      "timeLabel": "19h ago",
+      "timeLabel": "21h ago",
       "headline": "Jack Scrimshaw \u2014 OUT: Knee (1-2 weeks)",
       "body": "Jack Scrimshaw has been ruled OUT with a knee Estimated return: 1-2 weeks.",
       "signal": "sell",
@@ -3518,7 +3543,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-06-17T13:33:18.832993+00:00",
-      "timeLabel": "19h ago",
+      "timeLabel": "21h ago",
       "headline": "Tom Lynch \u2014 OUT: Larynx (2 weeks)",
       "body": "Tom Lynch has been ruled OUT with a larynx Estimated return: 2 weeks.",
       "signal": "sell",
@@ -3622,7 +3647,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 70,
       "time": "2026-06-17T13:33:18.832993+00:00",
-      "timeLabel": "19h ago",
+      "timeLabel": "21h ago",
       "headline": "TEAMS: Cats superstar ruled out, big-name Dockers return",
       "body": "TEAMS: Cats superstar ruled out, big-name Dockers return.",
       "link": "https://www.afl.com.au/news/1542340/teams-geelong-cats-superstar-bailey-smith-ruled-out-big-name-fremantle-dockers-caleb-serong-and-brennan-cox-return",
@@ -4133,7 +4158,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-06-16T11:00:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "headline": "Dusty returns to Punt Rd to mentor young Tiger cubs",
       "body": "Dustin Martin was back at Richmond recently to speak with the young Tigers.",
       "link": "https://www.afl.com.au/news/1542289/richmond-legend-dustin-martin-returns-to-punt-rd-to-mentor-young-tiger-cubs",
@@ -6191,16 +6216,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 195460597,
@@ -6256,16 +6281,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 1763452386,
@@ -6321,16 +6346,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 2269888017,
@@ -6354,7 +6379,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-06-14T11:07:00+00:00",
-      "timeLabel": "3d ago",
+      "timeLabel": "4d ago",
       "headline": "Lake lapping it up after dream entry to the top level",
       "body": "Campbell Lake has taken part in his first AFL win just 19 days after joining the Saints.",
       "link": "https://www.afl.com.au/news/1541909/st-kilda-saints-forward-campbell-lake-lapping-it-up-after-dream-entry-to-the-top-level",
@@ -6432,16 +6457,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 4067852004,
@@ -6497,16 +6522,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 2842891525,
@@ -6562,16 +6587,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 3705830931,
@@ -6668,16 +6693,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 1935357943,
@@ -6733,16 +6758,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 659211956,
@@ -6798,16 +6823,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 574744857,
@@ -6909,16 +6934,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 28813437,
@@ -6974,16 +6999,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 526528273,
@@ -7039,16 +7064,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 630434660,
@@ -7145,16 +7170,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 2343133454,
@@ -7210,16 +7235,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 2776733382,
@@ -7275,16 +7300,16 @@
       "is_rumour": true,
       "first_seen": "2026-06-15T02:12:31.872212+00:00",
       "age_label": "3d ongoing",
-      "seen_count": 15,
+      "seen_count": 16,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-06-18T08:48:59.502768+00:00",
+      "_seen": "2026-06-18T11:18:48.839282+00:00",
       "_padded": true,
-      "scrapedAt": "2026-06-18T08:48:59.505040+00:00",
+      "scrapedAt": "2026-06-18T11:18:48.840918+00:00",
       "players": [
         {
           "pid": 1135202499,
