@@ -50,6 +50,14 @@ BASE = Path(__file__).parent
 HASHTAGS = "#SuperCoach"
 TWEETED_LOG = BASE / "tweeted.json"
 DAILY_TARGET = 3
+
+# Players we never write a tweet about (manual mute list). Matched on the
+# lower-cased name, so spelling variants of the surname don't slip through.
+TWEET_BLOCKLIST = {"darcy wilmot", "darcy wilmott"}
+
+
+def _blocked(name):
+    return (name or "").strip().lower() in TWEET_BLOCKLIST
 # RISE_GAP / FALL_GAP no longer used — the trend gate is now an absolute
 # threshold (both 3-game and 5-game on the same side of 80 as season-avg's
 # inverse). Removed to keep the rules in one place.
@@ -264,7 +272,8 @@ def breaking_tweets(news):
     out = []
     for it in news:
         if (it.get("type") == "injury" and it.get("status") == "new"
-                and it.get("player") and it.get("pid")):
+                and it.get("player") and it.get("pid")
+                and not _blocked(it.get("player"))):
             bp = ""
             tags = it.get("tags") or []
             if len(tags) > 1 and tags[1]:
@@ -411,6 +420,48 @@ def fetch_round_fixture(round_num, season_id=AFL_API_SEASON_ID):
     except Exception:
         pass
     return teams
+
+
+def live_teams(cur_round, season_id=AFL_API_SEASON_ID):
+    """Set of our-team-names whose game is CURRENTLY in progress — kicked off but
+    not yet CONCLUDED. Used to suppress tweets about a player while their match is
+    live (the user doesn't want us commenting on players mid-game). Scans the
+    in-progress round and the next one. Fails OPEN (returns empty set) on any
+    network/parse error so a transient blip never silences the whole feed."""
+    from datetime import timezone
+    live = set()
+    try:
+        import requests
+        now = datetime.now(timezone.utc)
+        for rnd in {max(1, cur_round), cur_round + 1}:
+            r = requests.get(
+                "https://aflapi.afl.com.au/afl/v2/matches",
+                params={"compSeasonId": season_id, "roundNumber": rnd,
+                        "pageSize": 20},
+                headers={"User-Agent": "Mozilla/5.0"}, timeout=10,
+            )
+            if not r.ok:
+                continue
+            for m in r.json().get("matches", []) or []:
+                status = (m.get("status") or "").upper()
+                if status == "CONCLUDED":
+                    continue
+                st = (m.get("utcStartTime") or "").replace("Z", "+00:00")
+                try:
+                    started = bool(st) and now >= datetime.fromisoformat(st)
+                except Exception:
+                    started = status not in (
+                        "SCHEDULED", "", "UPCOMING", "UNCONFIRMED_TEAMS")
+                if not started:
+                    continue   # not kicked off yet — fine to tweet
+                for side in ("home", "away"):
+                    ours = _TEAM_API_TO_OURS.get(
+                        (m.get(side, {}).get("team", {}).get("name") or "").strip())
+                    if ours:
+                        live.add(ours)
+    except Exception:
+        return set()
+    return live
 
 
 SITE_URL = "aflfantasywire.com"
@@ -809,8 +860,18 @@ def pick(players, news, log):
                           if any(r == current_round for r, _ in evs)}
     recent14 = _recently_tweeted_pids(log, 14)  # 1 tweet per player / 2 weeks
 
-    # Only build form/value/matchup tweets from players who are actually playing.
-    _playing = [p for p in players if _is_playing(p, current_round)]
+    # Teams whose game is live right now — never tweet about their players
+    # mid-match (per user spec). Fails open (empty set) on API trouble.
+    _live = live_teams(current_round)
+    if _live:
+        print(f"[auto] suppressing players mid-game: {', '.join(sorted(_live))}")
+    # Only build form/value/matchup tweets from players who are actually playing
+    # (and aren't on the manual mute list — they're excluded from every
+    # player-focused angle, but still count toward the top-10 leaderboard), and
+    # whose game isn't currently in progress.
+    _playing = [p for p in players
+                if _is_playing(p, current_round) and not _blocked(p.get("name"))
+                and (p.get("team") not in _live)]
     pools = {
         "classic":  classic_tweets(_playing),
         "draft":    draft_tweets(_playing),
