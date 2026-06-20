@@ -2751,15 +2751,40 @@ def main():
     # every SC score posted against that team; _conc_pos[team][POS] splits it by
     # the scorer's position (DvP). Built from the games-log opponents below.
     _conc_all, _conc_pos = {}, {}
-    # Prioritise players who scored the LATEST round (just played) so a crawl that
-    # hits its time cap still captures the newest game stats FIRST. Without this a
-    # Friday-night game's teams sit below the ranking cap and their scores never
-    # update until a (rare) full crawl completes. _curmap came from the per-round
-    # page above, so we already know exactly who has a fresh score to fetch.
-    if cur_rnd and _curmap:
-        _played_now = set(_curmap.keys())
-        sc_players.sort(key=lambda _p: 0 if name_key(_p.get("name", "")) in _played_now else 1)
-        log.info(f"Games-log priority: {sum(1 for _p in sc_players[:MAX_GAMES_LOG] if name_key(_p.get('name','')) in _played_now)} just-played players moved to the front")
+    # Prioritise players who just played so a crawl that hits its time cap still
+    # captures the newest game stats FIRST. Two signals, combined:
+    #   1) Footywire's per-round page (_curmap) — who already has a fresh score.
+    #   2) the AFL fixture API — teams whose latest-round game is CONCLUDED.
+    # Signal 2 is the reliable one: Footywire's default per-round page often still
+    # shows the last COMPLETE round mid-round, so just-played teams were missing
+    # from _curmap, dropped below the cap, and carried forward STALE — the bug
+    # where most of a round's players didn't update. Failing the AFL call just
+    # falls back to the _curmap signal.
+    _played_now = set(_curmap.keys()) if _curmap else set()
+    _jp_teams = set()
+    try:
+        for _r in (max(1, cur_rnd or 1), max(1, cur_rnd or 1) + 1):
+            _jr = get(session,
+                      f"https://aflapi.afl.com.au/afl/v2/matches?compSeasonId={AFL_API_SEASON_ID}"
+                      f"&roundNumber={_r}&pageSize=20", retries=1, timeout=10)
+            if not _jr:
+                continue
+            for _m in (_jr.json().get("matches", []) or []):
+                if (_m.get("status") or "").upper() != "CONCLUDED":
+                    continue
+                for _side in ("home", "away"):
+                    _tn = normalise_team(((_m.get(_side) or {}).get("team") or {}).get("name") or "")
+                    if _tn and _tn != "Unknown":
+                        _jp_teams.add(_tn)
+    except Exception as _e:
+        log.warning(f"Just-played team detection failed: {_e}")
+    if _played_now or _jp_teams:
+        def _jp_prio(_p):
+            return 0 if (name_key(_p.get("name", "")) in _played_now
+                         or normalise_team(_p.get("team", "")) in _jp_teams) else 1
+        sc_players.sort(key=_jp_prio)
+        log.info(f"Games-log priority: {sum(1 for _p in sc_players[:MAX_GAMES_LOG] if _jp_prio(_p)==0)} "
+                 f"just-played players moved to the front ({len(_jp_teams)} concluded teams via AFL fixture)")
     log.info(f"Fetching games log for top {MAX_GAMES_LOG} players (pg- URL)...")
     games_log_start = time.time()
     for i, p in enumerate(sc_players[:MAX_GAMES_LOG]):
@@ -3371,11 +3396,16 @@ def main():
             _lprior = {name_key(p.get("name", "")): p for p in _lprevp if p.get("name")}
             _frozen = 0
             for _pp in players:
-                if _pp.get("nextRound") != _LOCK_ROUND or _pp.get("team") not in _LOCK_TEAMS:
-                    continue  # their game hasn't kicked off (or it's a later round)
+                # Lock once the player's team is mid-round (its game has kicked
+                # off). We key on team-in-_LOCK_TEAMS, NOT nextRound==_LOCK_ROUND:
+                # the AFL fixture advances a team's nextRound the moment its game
+                # starts, so the old nextRound check skipped exactly the players
+                # whose game had just begun — predictions then drifted all game.
+                if _pp.get("team") not in _LOCK_TEAMS:
+                    continue  # their game hasn't kicked off
                 _old = _lprior.get(name_key(_pp.get("name", "")))
-                if not _old or _old.get("nextRound") != _LOCK_ROUND or not _old.get("statPred"):
-                    continue  # no matching pre-kick-off snapshot to lock to yet
+                if not _old or not _old.get("statPred"):
+                    continue  # no pre-kick-off snapshot to lock to yet
                 _pp["statPred"] = _old["statPred"]
                 if _old.get("statPredLow"):
                     _pp["statPredLow"] = _old["statPredLow"]
