@@ -646,6 +646,23 @@ def run_once() -> None:
     except Exception as e:
         log.warning(f"tweet_bot --auto failed: {e}")
 
+    # Gold pre-game stat cards (+ success follow-ups). Own throttle/cap, and stays
+    # silent until a game's teams are officially named (FINAL_TEAM) within 24h, so
+    # it's safe to call every cycle.
+    try:
+        gw = subprocess.run(
+            [sys.executable, str(BASE_DIR / "tweet_bot.py"), "--gold-auto"],
+            cwd=str(BASE_DIR), capture_output=True, text=True,
+            encoding="utf-8", errors="replace", env=_UTF8_ENV, timeout=120,
+        )
+        gtail = (gw.stdout or "").strip().splitlines()
+        if gtail:
+            log.info("tweet_bot gold: " + gtail[-1])
+            if any("[ok] posted" in ln for ln in gtail):
+                bits.append("Gold card.")
+    except Exception as e:
+        log.warning(f"tweet_bot --gold-auto failed: {e}")
+
     _status(f"Scraping... done. {' '.join(bits)} Next run in {INTERVAL_SEC // 60} min.")
     _endline()
     log.info("Run complete — " + " | ".join(bits))

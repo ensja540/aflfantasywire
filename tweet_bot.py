@@ -40,6 +40,7 @@ Credentials come from repo-root .env:
 import json, sys, random, subprocess
 from pathlib import Path
 from datetime import datetime
+from collections import defaultdict
 
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -931,13 +932,284 @@ def pick(players, news, log):
     return chosen[:DAILY_TARGET]
 
 
-def post_tweet(text, env):
+# ─────────────────────────────────────────────────────────────────────────────
+# GOLD PRE-GAME STAT CARDS  (+ success follow-ups)
+# One tweet per FINALISED game (teams officially named) within 24h of the bounce:
+# the game's top 5 gold expert picks, each with their standout projected stat as a
+# low–expected range. After the round, a quote-tweet recaps which calls landed.
+# IMPORTANT: gold cards NEVER post until the team is named (afl_lineups only returns
+# FINAL_TEAM players) — so we don't talk about a pick until the side is finalised.
+# ─────────────────────────────────────────────────────────────────────────────
+GOLD_WITHIN_HOURS = 24       # only card a game once it's <=24h away
+GOLD_DAILY_CAP    = 6        # gold cards + follow-ups per day (separate from DAILY_TARGET)
+GOLD_MIN_GAP_MIN  = 20       # min minutes between gold posts
+# Predictions post frequently, so keep their tags lean and game-specific: the two
+# clubs' names + #AFL. Club tags rotate per game and tap both fanbases + the broad
+# #AFL audience — better reach than the same generic fantasy tags on every card.
+GOLD_HASHTAGS     = "#AFL"
+
+
+# Each club's official X handle, used as a hashtag on game cards (verified Jun 2026).
+# NB: as HASHTAGS these don't notify the club — switch to '@handle' (mention) form if
+# you'd rather tag the clubs directly.
+CLUB_TAG = {
+    "Adelaide": "#Adelaide_FC", "Brisbane": "#brisbanelions", "Carlton": "#CarltonFC",
+    "Collingwood": "#CollingwoodFC", "Essendon": "#essendonfc", "Fremantle": "#freodockers",
+    "Geelong": "#GeelongCats", "Gold Coast": "#GoldCoastSUNS",
+    "GWS Giants": "#GWSGIANTS", "GWS": "#GWSGIANTS", "Hawthorn": "#HawthornFC",
+    "Melbourne": "#melbournefc", "North Melbourne": "#NMFCOfficial", "Port Adelaide": "#PAFC",
+    "Richmond": "#Richmond_FC", "St Kilda": "#stkildafc", "Sydney": "#sydneyswans",
+    "West Coast": "#WestCoastEagles", "Western Bulldogs": "#westernbulldogs",
+}
+
+
+def _team_tag(team):
+    """Club's official-handle hashtag, e.g. 'West Coast' -> '#WestCoastEagles'. Falls
+    back to the space-stripped club name for anything not in the map."""
+    return CLUB_TAG.get(team) or ("#" + "".join(ch for ch in (team or "") if ch.isalnum()))
+
+
+def _game_tags(home, away):
+    """Tag line for a game card/recap: both clubs + #SuperCoach."""
+    return f"{_team_tag(home)} {_team_tag(away)} {GOLD_HASHTAGS}".strip()
+
+# Headline-stat candidates and the minimum projected volume each must clear to be
+# eligible as a player's "standout" (keeps low-noise stats like 1 behind out).
+_GOLD_STAT_MIN = {"goals": 1.5, "marks": 5, "tackles": 4,
+                  "clearances": 4, "handballs": 13, "kicks": 14}
+
+
+def _gold_baselines(players):
+    """Per-position mean of each candidate stat (from statPred) — the yardstick for
+    'what this player does better than his positional peers'."""
+    base = defaultdict(lambda: defaultdict(list))
+    for p in players:
+        sp = p.get("statPred")
+        if not sp:
+            continue
+        for s in _GOLD_STAT_MIN:
+            if sp.get(s) is not None:
+                base[p.get("pos")][s].append(sp[s])
+    return {pos: {s: sum(v) / len(v) for s, v in dd.items() if v}
+            for pos, dd in base.items()}
+
+
+def _headline_stat(p, baselines):
+    """Pick a player's standout stat: highest projection-vs-positional-average ratio
+    among stats clearing the volume floor. Returns (stat, low, exp, range_str) or None.
+    Repeats across players are fine (10 handball cards is OK). Value shown low–expected."""
+    sp = p.get("statPred") or {}
+    lo = p.get("statPredLow") or {}
+    elig = [(sp[s] / (baselines.get(p.get("pos"), {}).get(s) or sp[s]), s)
+            for s in _GOLD_STAT_MIN if sp.get(s) and sp[s] >= _GOLD_STAT_MIN[s]]
+    if not elig:  # fallback: biggest of goals/kicks/handballs
+        elig = [(sp.get(s, 0), s) for s in ("goals", "kicks", "handballs") if sp.get(s)]
+        if not elig:
+            return None
+    elig.sort(reverse=True)
+    s = elig[0][1]
+    e = sp[s]
+    l = lo.get(s, e)
+    L, E = int(round(min(l, e))), int(round(e))
+    return (s, L, E, f"{L}-{E}" if E > L else f"{E}")
+
+
+def gold_game_tweets(players, log):
+    """One card per finalised game within 24h — top 5 gold picks by SC rank, each
+    with their standout stat. Returns [(kind, pid, angle, text, meta)]. Empty until
+    teams are named. Skips games already carded this round (dedup via tweeted.json)."""
+    import afl_lineups
+    cur = _current_round(players)
+    lineup = afl_lineups.confirmed_lineup([cur, cur + 1])
+    if not lineup:
+        return []  # no teams named yet — stay silent
+    by_alt = {afl_lineups.alt_key(v["name"], v["team"]): v for v in lineup.values()}
+    baselines = _gold_baselines(players)
+
+    games = defaultdict(lambda: {"info": None, "picks": []})
+    for p in players:
+        if not p.get("hasGold") or not p.get("statPred") or _blocked(p.get("name")):
+            continue
+        info = (lineup.get(afl_lineups.lineup_key(p.get("name", "")))
+                or by_alt.get(afl_lineups.alt_key(p.get("name", ""), p.get("team", ""))))
+        if not info or info.get("status") != "named":
+            continue  # not in the named 22/23 (emergencies excluded)
+        h = afl_lineups.hours_until(info.get("startUtc"))
+        if h is None or h <= 0 or h > GOLD_WITHIN_HOURS:
+            continue
+        games[info["matchId"]]["info"] = info
+        games[info["matchId"]]["picks"].append(p)
+
+    carded = {e.get("matchId") for e in (log.get("posted") or [])
+              if e.get("angle") == "gold_game"}
+    out = []
+    for mid, g in games.items():
+        if mid in carded:
+            continue
+        info = g["info"]
+        picks = sorted(g["picks"], key=lambda x: x.get("rank") or 999)[:5]
+        header = f"{info['home']} v {info['away']}"
+        lines = [f"{header} — our gold picks \U0001F947"]
+        meta_picks = []
+        for p in picks:
+            hs = _headline_stat(p, baselines)
+            if not hs:
+                continue
+            stat, L, E, rng = hs
+            lines.append(f"{p['name']}: {rng} {stat}")
+            meta_picks.append({"name": p["name"], "short": p["name"].split()[-1],
+                               "stat": stat, "label": f"{rng} {stat}", "low": L, "exp": E})
+        if not meta_picks:
+            continue
+        tags = _game_tags(info["home"], info["away"])
+        hook = "Full predictions \U0001F449 " + SITE_URL + "/#predictions"
+        text = "\n".join(lines) + "\n\n" + hook + "\n" + tags
+        if len(text) > 278:  # trim picks from the bottom to fit (keep the hook)
+            while len(text) > 278 and len(lines) > 2:
+                lines.pop()
+                meta_picks.pop()
+                text = "\n".join(lines) + "\n\n" + hook + "\n" + tags
+        out.append(("goldgame", 0, "gold_game", text,
+                    {"matchId": mid, "header": header, "round": info.get("round"),
+                     "home": info["home"], "away": info["away"], "picks": meta_picks}))
+    return out
+
+
+def gold_followup_tweets(players, log):
+    """After the round, quote-tweet each gold card with how the calls landed — but
+    only when the card did well (>= half of gradeable picks met their expected mark).
+    Returns [(kind, pid, angle, text, meta)] with meta.quoteOf = original tweet id."""
+    import afl_lineups
+    by_key = {afl_lineups.lineup_key(p.get("name", "")): p for p in players if p.get("name")}
+    already = {e.get("quoteOf") for e in (log.get("posted") or [])
+              if e.get("angle") == "gold_result"}
+    out = []
+    for e in (log.get("posted") or []):
+        if e.get("angle") != "gold_game" or not e.get("id") or e["id"] in already:
+            continue
+        rnd = e.get("round")
+        picks = e.get("picks") or []
+        graded = []
+        for pk in picks:
+            p = by_key.get(afl_lineups.lineup_key(pk["name"]))
+            rr = (p or {}).get("roundResult") or {}
+            if rr.get("round") != rnd:
+                graded = None     # round not scored for this player yet — wait
+                break
+            st = (rr.get("stats") or {}).get(pk["stat"])
+            if st and st.get("a") is not None:
+                graded.append((pk, st["a"]))
+        if not graded:            # None (incomplete) or nothing gradeable
+            continue
+        # "Landed" = actual reached at least the published low (in or above our range).
+        def _lo(pk):
+            return pk.get("low", pk.get("exp"))
+        hits = [(pk, a) for pk, a in graded if a >= _lo(pk)]
+        if len(hits) < max(1, (len(graded) + 1) // 2):
+            continue              # didn't do well enough — stay quiet
+        lines = [f"✅ How our {e['header']} gold calls landed:"]
+        for pk, a in graded:
+            mark = "✅" if a >= _lo(pk) else "❌"
+            lines.append(f"{pk['short']} {pk['label']} → {a} {mark}")
+        # Reuse the original card's club tags (fall back to parsing the header).
+        home, away = e.get("home"), e.get("away")
+        if not (home and away) and " v " in (e.get("header") or ""):
+            home, away = e["header"].split(" v ", 1)
+        tags = _game_tags(home, away)
+        hook = "Full predictions \U0001F449 " + SITE_URL + "/#predictions"
+        text = "\n".join(lines) + "\n\n" + hook + "\n" + tags
+        while len(text) > 278 and len(lines) > 2:
+            lines.pop()
+            text = "\n".join(lines) + "\n\n" + hook + "\n" + tags
+        out.append(("goldresult", 0, "gold_result", text, {"quoteOf": e["id"], "round": rnd}))
+    return out
+
+
+def _gold_throttle(log):
+    """Own posting gate for gold cards/follow-ups: 6am-11pm AEST, GOLD_DAILY_CAP/day,
+    >=GOLD_MIN_GAP_MIN apart. Separate from the varied-tweet quota."""
+    now = aest_now()
+    if not (6 <= now.hour < 23):
+        return False, f"outside posting window (AEST {now:%H:%M})"
+    today = now.strftime("%Y-%m-%d")
+    todays = [e for e in log.get("posted", [])
+              if e.get("angle") in ("gold_game", "gold_result")
+              and e.get("at_aest", "")[:10] == today]
+    if len(todays) >= GOLD_DAILY_CAP:
+        return False, f"gold cap reached ({len(todays)}/{GOLD_DAILY_CAP})"
+    if todays:
+        last = max(e.get("at_aest", "") for e in todays)
+        try:
+            if (now - datetime.fromisoformat(last)).total_seconds() / 60 < GOLD_MIN_GAP_MIN:
+                return False, f"gold spacing (<{GOLD_MIN_GAP_MIN}m since last)"
+        except Exception:
+            pass
+    return True, f"gold clear ({len(todays)}/{GOLD_DAILY_CAP} today)"
+
+
+def run_gold(do_post):
+    """Generate (and optionally post) gold pre-game cards + success follow-ups.
+    Follow-ups are prioritised over new cards. In --gold-auto mode, posts at most one
+    item per cycle, self-throttled; cards never appear until teams are named."""
+    players = _load("players.json", "players")
+    _normalise_names(players, None)
+    log = load_log()
+    items = gold_followup_tweets(players, log) + gold_game_tweets(players, log)
+
+    if not items:
+        print("[gold] nothing due (no finalised games within 24h, or all carded)")
+        return
+
+    if not do_post:
+        print(f"=== {len(items)} gold item(s) (PREVIEW) ===")
+        for kind, pid, angle, text, meta in items:
+            tag = "quote->" + str(meta.get("quoteOf")) if meta.get("quoteOf") else meta.get("matchId", "")
+            print(f"\n[{angle} {tag}] ({len(text)} chars)\n{text}")
+        print("\n(preview only — run with --gold-auto to publish)")
+        return
+
+    ok, why = _gold_throttle(log)
+    print(f"[gold] {why}")
+    if not ok:
+        return
+    env = load_env()
+    for cred in ("X_CONSUMER_KEY", "X_CONSUMER_SECRET", "X_ACCESS_TOKEN", "X_ACCESS_TOKEN_SECRET"):
+        if not env.get(cred):
+            print(f"Missing {cred} in .env — cannot post.")
+            return
+    kind, pid, angle, text, meta = items[0]      # one per cycle, follow-ups first
+    code, body = post_tweet(text, env, quote_tweet_id=meta.get("quoteOf"))
+    if code in (200, 201):
+        tid = ""
+        try:
+            tid = json.loads(body).get("data", {}).get("id", "")
+        except Exception:
+            pass
+        print(f"  [ok] posted ({tid}): {text[:60]}")
+        rec = {"pid": pid, "angle": angle, "round": meta.get("round"), "id": tid,
+               "at": datetime.now().isoformat(), "at_aest": aest_now().isoformat(),
+               "text": text}
+        for k in ("matchId", "header", "picks", "quoteOf"):
+            if k in meta:
+                rec[k] = meta[k]
+        posted = log.get("posted", [])
+        posted.append(rec)
+        log["posted"] = posted
+        TWEETED_LOG.write_text(json.dumps(log, indent=2), encoding="utf-8")
+    else:
+        print(f"  [FAIL] ({code}): {body[:300]}")
+
+
+def post_tweet(text, env, quote_tweet_id=None):
     from requests_oauthlib import OAuth1Session
     oauth = OAuth1Session(
         env["X_CONSUMER_KEY"], client_secret=env["X_CONSUMER_SECRET"],
         resource_owner_key=env["X_ACCESS_TOKEN"], resource_owner_secret=env["X_ACCESS_TOKEN_SECRET"],
     )
-    r = oauth.post("https://api.twitter.com/2/tweets", json={"text": text}, timeout=30)
+    payload = {"text": text}
+    if quote_tweet_id:
+        payload["quote_tweet_id"] = str(quote_tweet_id)
+    r = oauth.post("https://api.twitter.com/2/tweets", json=payload, timeout=30)
     return r.status_code, r.text
 
 
@@ -987,6 +1259,12 @@ def _normalise_names(players, news):
 
 
 def main():
+    # Gold pre-game cards run on their own path (separate cadence/cap), so they don't
+    # interfere with the varied-tweet rotation. --gold previews; --gold-auto posts.
+    if "--gold" in sys.argv or "--gold-auto" in sys.argv:
+        run_gold(do_post="--gold-auto" in sys.argv)
+        return
+
     do_post = "--post" in sys.argv
     count = DAILY_TARGET
     for a in sys.argv:

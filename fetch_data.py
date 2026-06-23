@@ -1743,6 +1743,14 @@ def build_player(sc, dt, injuries, selections, rank):
     sc_last  = sc.get("sc_last", 0) or 0
     sc_price = sc.get("sc_price", 500000) or 500000
     sc_be    = sc.get("sc_be", 0) or 0
+    # Guard against corrupted breakeven parses — Footywire occasionally returns a
+    # career-total (or similar) in the BE cell, e.g. Neil Erasmus -> 6802, which then
+    # cascades into a nonsense price delta ((avg3-be)*800) and a $22M price sparkline
+    # ((score-be)*700). Real AF/SC breakevens sit well within ±500; treat anything
+    # beyond that as unknown so it can't poison the "Biggest Fall" widget etc.
+    if abs(sc_be) > 500:
+        log.warning(f"{name}: implausible breakeven {sc_be} — treating as unknown (0)")
+        sc_be = 0
     sc_owned = sc.get("sc_owned", 0) or 0
     sc_scores = sc.get("sc_scores", [sc_last]*7) or [sc_last]*7
 
