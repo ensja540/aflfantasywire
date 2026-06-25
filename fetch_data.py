@@ -2402,7 +2402,7 @@ def reconcile_predictions(players):
         rstats = p.get("roundStats") or []
         mm_all = p.get("statMatch") or {}
         tf = p.get("teamFactor") or 1
-        tw = p.get("teamWt") or {}
+        tag = ((p.get("tagWt") or {}).get("stats")) or {}   # elite-tag per-stat mult
         splow = p.get("statPredLow") or {}
         recomputed, touched = {}, False
         for sk in _PRED_SK:               # behinds before goals (feeds the bonus)
@@ -2412,9 +2412,8 @@ def reconcile_predictions(players):
             rs3 = [r.get(rk) for r in rstats if r.get(rk) is not None][-3:]
             a3 = sum(rs3) / len(rs3) if rs3 else savg
             val = round((0.55 * a3 + 0.45 * savg) * mm_all.get(sk, 1) * tf + gbonus, 1)
-            f = (tw.get(sk) or {}).get("f")
-            if f:
-                val = round(val * f, 1)
+            if tag.get(sk):
+                val = round(val * tag[sk], 1)
             recomputed[sk] = val
             cur = sp.get(sk)
             if cur is None:
@@ -3099,6 +3098,20 @@ def main():
         _lg_mean_2025 = {pp2: {sk: sum(v) / len(v) for sk, v in sd.items()} for pp2, sd in _lg2.items()}
         _STAT_KEYS = ("disposals", "kicks", "handballs", "marks", "tackles", "behinds", "goals")
         _RK = {"disposals": "dis", "kicks": "k", "handballs": "hb", "marks": "mk", "tackles": "tk", "behinds": "b", "goals": "gl"}
+        # Elite-tag multipliers from the AFL match feed: a few teams (Geelong/North/
+        # Bulldogs) suppress the opposition's best ball-winners ~5-6% beyond normal
+        # position defence. Only the TAG table is used — the position-share tables the
+        # module also builds were backtested as LESS accurate and are not shipped.
+        _TAGS = {}
+        try:
+            import afl_team_tables as _att
+            _pmap = {_att.nkey(_p.get("name", "")): (_p.get("pos") or "MID") for _p in players}
+            _TAGS = _att.build_tables(_pmap).get("tags", {})
+            log.info(f"Tag table: {len(_TAGS)} opponents (elite-suppression) from AFL feed")
+        except Exception as _e:
+            log.warning(f"Tag table build failed: {_e}")
+        TAG_STATS = ("disposals", "kicks", "handballs")   # tagging hits possessions
+        TAG_MIN_AVG = 24                                   # only genuine accumulators
         for pp in players:
             _T = normalise_team(pp.get("team", ""))
             _opps = _fx.get(_T, [])
@@ -3148,6 +3161,7 @@ def main():
                 _sp[_sk] = round(_base * _sm.get(_sk, 1) * _tf + _gbonus, 1)
             if _sp:
                 pp["statPred"] = _sp
+                pp.pop("teamWt", None)   # legacy redistribution field — no longer used
                 # Low range per stat: one standard deviation below the prediction
                 # (from the player's game-to-game spread), so the predict UI can
                 # shade a band — light green within range, strong green above.
@@ -3157,6 +3171,20 @@ def main():
                     _dv = LOW_RANGE_K * _sigma(_dvals) if len(_dvals) >= 3 else max(0.8, _v * 0.15)
                     _splow[_sk] = max(0, round(_v - _dv, 1))
                 pp["statPredLow"] = _splow
+                # Elite-tag downgrade: top accumulators (disposal avg >= TAG_MIN_AVG)
+                # lose a few % of possessions vs teams that tag, on disposals/kicks/
+                # handballs only. Stored as tagWt so reconcile_predictions reproduces it.
+                _tg = (_TAGS.get(_o0) or {}).get("disposals") if _o0 else None
+                if _tg and _tg < 1 and (pp.get("disposals") or 0) >= TAG_MIN_AVG:
+                    _tw = {}
+                    for _ts in TAG_STATS:
+                        if _sp.get(_ts) is not None:
+                            _sp[_ts] = round(_sp[_ts] * _tg, 1)
+                            _tw[_ts] = _tg
+                        if _splow.get(_ts) is not None:
+                            _splow[_ts] = round(_splow[_ts] * _tg, 1)
+                    if _tw:
+                        pp["tagWt"] = {"mult": _tg, "opp": _o0, "stats": _tw}
                 # Value pick: the projected SuperCoach floor (proj minus
                 # LOW_RANGE_K sigma of the player's SC scores) sits at or above
                 # their season average — a high, reliable floor.
@@ -3205,100 +3233,14 @@ def main():
                 pp["scheduleRating"] = _ratings
                 pp["scheduleOpp"] = [_TEAM_ABBR.get(_opp, _opp[:3].upper()) for _opp in _opps[:5]]
 
-        # ── Team-total weighting ──────────────────────────────────────
-        # Players are projected independently, so a team's lineup can sum to an
-        # unrealistic team total (e.g. three mids = 90 disposals). Scale each
-        # team's predictions to the team's REAL per-game total for the stat,
-        # adjusted by how much the next opponent concedes of that stat
-        # (team-level). Store the budget + factor (teamWt) for the UI to show.
-        from collections import defaultdict as _dd
-        _BSTATS = [("disposals", "dis"), ("kicks", "k"), ("handballs", "hb"),
-                   ("marks", "mk"), ("tackles", "tk"), ("goals", "gl")]
-        _byteam = _dd(list)
-        for _pp in players:
-            _byteam[normalise_team(_pp.get("team", ""))].append(_pp)
-        # real per-game team totals (sum across the team's players each round)
-        _ttot = {}
-        for _tt, _grp in _byteam.items():
-            _rd = _dd(lambda: _dd(float)); _rset = set()
-            for _pp in _grp:
-                for _r in (_pp.get("roundStats") or []):
-                    _rr = _r.get("r") or 0
-                    if _rr < 1:
-                        continue
-                    _rset.add(_rr)
-                    for _s, _k in _BSTATS:
-                        _rd[_rr][_s] += _r.get(_k) or 0
-            _n = len(_rset) or 1
-            _ttot[_tt] = {_s: sum(_rd[_rr][_s] for _rr in _rset) / _n for _s, _ in _BSTATS}
-        # opponent total-conceded factor per stat (vs league avg team total)
-        _gk = _dd(lambda: _dd(float))
-        for _pp in players:
-            _pt = normalise_team(_pp.get("team", ""))
-            for _r in (_pp.get("roundStats") or []):
-                _rr = _r.get("r") or 0; _opp = _r.get("opp")
-                if _rr < 1 or not _opp or not _coach_valid_2026(_opp, _rr):
-                    continue
-                for _s, _k in _BSTATS:
-                    _gk[(_opp, _rr, _pt)][_s] += _r.get(_k) or 0
-        _otc = _dd(lambda: _dd(list))
-        for (_opp, _rr, _pt), _sv in _gk.items():
-            for _s, _ in _BSTATS:
-                _otc[_opp][_s].append(_sv[_s])
-        # Expected team total = AVERAGE of (this team's output) and (opponent's
-        # concession), but each is STRENGTH-OF-SCHEDULE adjusted: a total racked
-        # up vs a weak team is discounted, vs a hard team is upgraded - for both
-        # data sets. _ttot = raw for-avg, _occ = raw conceded-avg per team.
-        _occ = {_opp: {_s: (sum(_otc[_opp][_s]) / len(_otc[_opp][_s]) if _otc[_opp][_s] else None)
-                       for _s, _ in _BSTATS} for _opp in _otc}
-        _league = {}
-        for _s, _ in _BSTATS:
-            _vals = [_ttot[_t][_s] for _t in _ttot if _ttot[_t].get(_s)]
-            _league[_s] = sum(_vals) / len(_vals) if _vals else 0
-        _gA = _dd(lambda: _dd(list))   # team -> stat -> per-game output adj for opp defence
-        _gO = _dd(lambda: _dd(list))   # team -> stat -> per-game conceded adj for attacker
-        for (_O, _r, _A), _sv in _gk.items():
-            for _s, _ in _BSTATS:
-                _T = _sv.get(_s)
-                if not _T or not _league.get(_s):
-                    continue
-                _Oc = (_occ.get(_O, {}) or {}).get(_s)
-                if _Oc:   # normalise A's output for how leaky/tough opponent O is
-                    _gA[_A][_s].append(_T * max(0.85, min(1.18, _league[_s] / _Oc)))
-                _Af = (_ttot.get(_A, {}) or {}).get(_s)
-                if _Af:   # normalise O's concession for how strong attacker A is
-                    _gO[_O][_s].append(_T * max(0.85, min(1.18, _league[_s] / _Af)))
-        _tadj = {_A: {_s: sum(v) / len(v) for _s, v in _d.items() if v} for _A, _d in _gA.items()}
-        _oadj = {_O: {_s: sum(v) / len(v) for _s, v in _d.items() if v} for _O, _d in _gO.items()}
-        for _tt, _grp in _byteam.items():
-            _mlr = max((_pp.get("lastRound") or 0) for _pp in _grp)
-            _elig = [_pp for _pp in _grp if (_pp.get("lastRound") or 0) == _mlr
-                     and _pp.get("injuryStatus") != "out" and not _pp.get("byeNext") and _pp.get("statPred")]
-            if not _elig:
-                continue
-            _no = None
-            for _pp in _elig:
-                _so = _pp.get("scheduleOpp") or []
-                if _so:
-                    _no = next((_full for _full, _ab in _TEAM_ABBR.items() if _ab == _so[0]), _so[0])
-                    break
-            _myd, _ocd = _tadj.get(_tt, {}), (_oadj.get(_no, {}) if _no else {})
-            for _s, _ in _BSTATS:
-                _my = _myd.get(_s) or (_ttot.get(_tt, {}) or {}).get(_s)
-                _oa = _ocd.get(_s)
-                _budget = (_my + _oa) / 2 if (_my and _oa) else (_my or _oa)
-                _sp = sum((_pp["statPred"].get(_s) or 0) for _pp in _elig if _pp["statPred"].get(_s) is not None)
-                if not _budget or _budget <= 0 or _sp <= 0:
-                    continue
-                _f = max(0.78, min(1.1, _budget / _sp))      # divide the expected total by each player's share (cap inflation at +10%)
-                for _pp in _elig:
-                    _sv = _pp["statPred"].get(_s)
-                    if _sv is None:
-                        continue
-                    _pp["statPred"][_s] = round(_sv * _f, 1)
-                    _pp.setdefault("teamWt", {})[_s] = {"t": round(_budget, 1), "f": round(_f, 3),
-                                                        "tf": round(_my, 1) if _my else None,
-                                                        "oa": round(_oa, 1) if _oa else None}
+        # ── Team-total weighting: REMOVED ──
+        # A top-down redistribution (rescale each player's stat predictions so a
+        # team's lineup sums to a 'team budget') used to live here and produced the
+        # teamWt factor. Walk-forward backtesting showed redistribution is LESS
+        # accurate than each player's own bottom-up projection — worse even in the
+        # games-with-outs case it was meant to help — so it was removed. Predictions
+        # are now (0.55*last3 + 0.45*season) x matchup x teamFactor x elite-tag
+        # (see _TAGS above). No teamWt is produced.
     except Exception as _e:
         log.error(f"Schedule rating failed: {_e}")
         log.error(traceback.format_exc())
@@ -3328,8 +3270,8 @@ def main():
                 _pp["statPred"] = _old["statPred"]
                 if _old.get("statPredLow"):
                     _pp["statPredLow"] = _old["statPredLow"]
-                if _old.get("teamWt"):
-                    _pp["teamWt"] = _old["teamWt"]
+                if _old.get("tagWt"):
+                    _pp["tagWt"] = _old["tagWt"]
                 if _old.get("statMatch"):
                     _pp["statMatch"] = _old["statMatch"]
                 _did = True
