@@ -994,24 +994,39 @@ def _gold_baselines(players):
             for pos, dd in base.items()}
 
 
-def _headline_stat(p, baselines):
-    """Pick a player's standout stat: highest projection-vs-positional-average ratio
-    among stats clearing the volume floor. Returns (stat, low, exp, range_str) or None.
-    Repeats across players are fine (10 handball cards is OK). Value shown low–expected."""
+def _range(p, s):
+    """(stat, low, exp, 'L-E') for one stat from statPred/statPredLow, or None."""
     sp = p.get("statPred") or {}
+    if sp.get(s) is None:
+        return None
+    e = sp[s]
+    l = (p.get("statPredLow") or {}).get(s, e)
+    L, E = int(round(min(l, e))), int(round(e))
+    return (s, L, E, f"{L}-{E}" if E > L else f"{E}")
+
+
+def _headline_stat(p, baselines):
+    """The stat to show for a gold pick — the player's ACTUAL gold stat(s) from
+    p['statGold'] (what the site flags), NOT a heuristic. If a player is gold for
+    more than one stat, show the one with the biggest lift over their season average.
+    Falls back to the position-ratio heuristic only if statGold is somehow absent.
+    Returns (stat, low, exp, range_str) or None."""
+    sp = p.get("statPred") or {}
+    gold = [s for s in (p.get("statGold") or {}) if sp.get(s) is not None]
+    if gold:
+        # most notable gold stat = largest projected lift vs the player's own average
+        gold.sort(key=lambda s: (sp[s] / (p.get(s) or sp[s])), reverse=True)
+        return _range(p, gold[0])
+    # fallback (no statGold): highest projection-vs-positional-average ratio
     lo = p.get("statPredLow") or {}
     elig = [(sp[s] / (baselines.get(p.get("pos"), {}).get(s) or sp[s]), s)
             for s in _GOLD_STAT_MIN if sp.get(s) and sp[s] >= _GOLD_STAT_MIN[s]]
-    if not elig:  # fallback: biggest of goals/kicks/handballs
+    if not elig:
         elig = [(sp.get(s, 0), s) for s in ("goals", "kicks", "handballs") if sp.get(s)]
         if not elig:
             return None
     elig.sort(reverse=True)
-    s = elig[0][1]
-    e = sp[s]
-    l = lo.get(s, e)
-    L, E = int(round(min(l, e))), int(round(e))
-    return (s, L, E, f"{L}-{E}" if E > L else f"{E}")
+    return _range(p, elig[0][1])
 
 
 def gold_game_tweets(players, log):
