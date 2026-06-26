@@ -1064,26 +1064,33 @@ def gold_game_tweets(players, log):
         info = g["info"]
         picks = sorted(g["picks"], key=lambda x: x.get("rank") or 999)[:5]
         header = f"{info['home']} v {info['away']}"
-        lines = [f"{header} — our gold picks \U0001F947"]
-        meta_picks = []
+        rows, meta_picks = [], []
         for p in picks:
             hs = _headline_stat(p, baselines)
             if not hs:
                 continue
             stat, L, E, rng = hs
-            lines.append(f"{p['name']}: {rng} {stat}")
+            rows.append((p["name"], f"{rng} {stat}"))
             meta_picks.append({"name": p["name"], "short": p["name"].split()[-1],
                                "stat": stat, "label": f"{rng} {stat}", "low": L, "exp": E})
         if not meta_picks:
             continue
         tags = _game_tags(info["home"], info["away"])
         hook = "Full predictions \U0001F449 " + SITE_URL + "/#predictions"
-        text = "\n".join(lines) + "\n\n" + hook + "\n" + tags
-        if len(text) > 278:  # trim picks from the bottom to fit (keep the hook)
-            while len(text) > 278 and len(lines) > 2:
-                lines.pop()
-                meta_picks.pop()
-                text = "\n".join(lines) + "\n\n" + hook + "\n" + tags
+
+        def _compose(rws):
+            if len(rws) == 1:   # singular: one standout pick reads as a sentence
+                nm, lbl = rws[0]
+                head = f"\U0001F947 {nm} is our only gold pick for {header}"
+                return head + "\n" + f"We project {lbl}." + "\n\n" + hook + "\n" + tags
+            body = "\n".join(f"{nm}: {lbl}" for nm, lbl in rws)
+            return f"{header} — our gold picks \U0001F947\n" + body + "\n\n" + hook + "\n" + tags
+
+        text = _compose(rows)
+        while len(text) > 278 and len(rows) > 1:   # trim picks to fit (keep the hook)
+            rows.pop()
+            meta_picks.pop()
+            text = _compose(rows)
         out.append(("goldgame", 0, "gold_game", text,
                     {"matchId": mid, "header": header, "round": info.get("round"),
                      "home": info["home"], "away": info["away"], "picks": meta_picks}))
