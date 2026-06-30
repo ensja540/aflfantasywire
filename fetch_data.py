@@ -2446,6 +2446,13 @@ def reconcile_predictions(players):
 # statGold {stat: true} + a hasGold convenience flag for the UI to read/filter.
 GOLD_MARGIN      = 1.08   # low band must clear the season avg by >=8%
 GOLD_CONSISTENCY = 0.55   # no game in the last 3 below 55% of the season avg
+# Goals are low-count and spiky (blanks are normal), so the accumulation-stat
+# floors above (low>=avg*1.08, no-bust>=0.55*avg, pred>=3) can NEVER be met — no
+# forward would ever be gold for goals. Goals get their own rule: a genuine
+# multi-goal threat, in form, in a favourable matchup, that hasn't blanked lately.
+GOAL_GOLD_PRED   = 2.0    # projected 2+ goals
+GOAL_GOLD_LOW    = 1.5    # floor of >=1.5 goals (won't blank)
+GOAL_GOLD_MATCH  = 1.05   # clearly favourable goal matchup for the position
 
 
 def compute_gold(players):
@@ -2464,12 +2471,22 @@ def compute_gold(players):
                        ("marks", "mk"), ("tackles", "tk"), ("goals", "gl")):
             avg = p.get(sk) or 0
             pr, lo = sp.get(sk), splow.get(sk)
-            if pr is None or lo is None or avg <= 0 or pr < 3:
+            if pr is None or lo is None or avg <= 0:
                 continue
             rv = [r.get(rk) for r in rstats if r.get(rk) is not None][-3:]
             if len(rv) < 3:
                 continue
             rec = sum(rv) / len(rv)
+            if sk == "goals":                          # goals use their own rule
+                if (pr >= GOAL_GOLD_PRED               # genuine multi-goal threat
+                        and lo >= GOAL_GOLD_LOW         # floor won't blank
+                        and rec >= avg                  # in form
+                        and min(rv) >= 1                # kicked >=1 each of last 3
+                        and sm.get(sk, 1) >= GOAL_GOLD_MATCH):  # favourable matchup
+                    gold[sk] = True
+                continue
+            if pr < 3:                                 # accumulation stats: volume floor
+                continue
             if (lo >= avg * GOLD_MARGIN              # floor clears avg by a margin
                     and lo >= rec                     # floor >= recent form
                     and rec >= avg                    # form trending up / stable
