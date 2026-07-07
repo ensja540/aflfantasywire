@@ -6350,8 +6350,8 @@
     },
     "n_zak_butters_general": {
       "first_seen": "2026-05-21T10:44:19.518343+00:00",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
-      "last_fp": "f19b38e11d72",
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
+      "last_fp": "640b44323efe",
       "last_status": "",
       "last_item": {
         "id": null,
@@ -6360,10 +6360,10 @@
         "urgent": false,
         "player": "Zak Butters",
         "pid": 1280976323,
-        "team": "Port Adelaide",
+        "team": "Western Bulldogs",
         "pos": null,
-        "source": "Port Adelaide FC",
-        "sourceHandle": "@portadelaide",
+        "source": "Western Bulldogs FC",
+        "sourceHandle": "@westernbulldogs",
         "reliability": 90,
         "time": "2026-05-21T10:44:19.518343+00:00",
         "timeLabel": "recent",
@@ -6374,21 +6374,21 @@
         "signalConf": 75,
         "tags": [
           "News",
-          "Port Adelaide"
+          "Western Bulldogs"
         ],
         "stats": [],
         "relevance": 30,
-        "_source": "club_port-adelaide",
+        "_source": "club_western-bulldogs",
         "first_seen": "2026-05-21T10:44:19.518343+00:00",
         "age_label": "6w ongoing",
-        "seen_count": 85,
+        "seen_count": 86,
         "last_status": null,
         "status_changed": false,
         "status": "ongoing",
         "status_label": "\ud83d\udd01 Ongoing \u00b7 6w ongoing",
         "stale_after_days": 7
       },
-      "seen_count": 85
+      "seen_count": 86
     },
     "n_lachie_neale_price": {
       "first_seen": "2026-05-21T10:44:19.518343+00:00",
@@ -43613,59 +43613,48 @@
     },
     "n_harry_edwards_injury_out": {
       "first_seen": "2026-06-29T07:06:19.012426+00:00",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
-      "last_fp": "fd0eae588008",
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
+      "last_fp": "7850258f06fc",
       "last_status": "out",
       "last_item": {
         "id": null,
         "type": "injury",
         "category": "injury_out",
-        "urgent": true,
+        "urgent": false,
         "player": "Harry Edwards",
         "pid": 1843207863,
-        "team": null,
+        "team": "West Coast",
         "pos": null,
-        "source": "AFL.com.au",
-        "sourceHandle": "@aflcomau",
-        "reliability": 96,
-        "time": "2026-06-29T07:06:19.012426+00:00",
-        "timeLabel": "Latest",
-        "headline": "Harry Edwards \u2014 OUT: Concussion (Season)",
-        "body": "Harry Edwards has been ruled OUT with a concussion Estimated return: Season.",
-        "signal": "sell",
-        "signalConf": 88,
+        "source": "West Coast FC",
+        "sourceHandle": "@westcoasteagles",
+        "reliability": 90,
+        "time": "2026-07-07T09:01:56.615971+00:00",
+        "timeLabel": "recent",
+        "headline": "Young Eagle's season over amid concussion concerns",
+        "body": "Eagles defender Harry Edwards faced an AFL Concussion Panel last week. Status updated: Status OUT \u2192 INJURY TBC; Concussion \u2192 West Coast.",
+        "link": "https://www.afl.com.au/news/1550775/young-west-coast-eagles-defender-harry-edwards-season-over-amid-concussion-concerns",
+        "signal": "hold",
+        "signalConf": 75,
         "tags": [
-          "Injury Out",
-          "Concussion",
-          "Season"
+          "Injury Tbc",
+          "West Coast"
         ],
-        "stats": [
-          {
-            "l": "Status",
-            "v": "OUT"
-          },
-          {
-            "l": "Injury",
-            "v": "Concussion"
-          },
-          {
-            "l": "ETA",
-            "v": "Season"
-          }
-        ],
-        "relevance": 100,
-        "_source": "afl_injury_page",
-        "is_rumour": false,
+        "stats": [],
+        "relevance": 35,
+        "_source": "club_west-coast-eagles",
         "first_seen": "2026-06-29T07:06:19.012426+00:00",
         "age_label": "1w ongoing",
-        "seen_count": 54,
+        "seen_count": 55,
         "last_status": "out",
-        "status_changed": false,
-        "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
+        "status_changed": true,
+        "status": "update",
+        "status_label": "\ud83d\udfe1 Update",
+        "prev_status": "OUT",
+        "curr_status": "INJURY TBC",
+        "change_desc": "Status OUT \u2192 INJURY TBC; Concussion \u2192 West Coast",
         "stale_after_days": 1
       },
-      "seen_count": 54
+      "seen_count": 55
     },
     "n_tyson_stengle_general": {
       "first_seen": "2026-06-29T07:06:19.012426+00:00",
@@ -49174,7 +49163,7 @@
     },
     "n_oliver_francou_team_news": {
       "first_seen": "2026-07-02T23:30:18.555117+00:00",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
       "last_fp": "af127015c2cb",
       "last_status": "",
       "last_item": {
@@ -49204,15 +49193,15 @@
         "relevance": 60,
         "_source": "club_west-coast-eagles",
         "first_seen": "2026-07-02T23:30:18.555117+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 26,
+        "age_label": "4d ongoing",
+        "seen_count": 27,
         "last_status": null,
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 7
       },
-      "seen_count": 26
+      "seen_count": 27
     },
     "n_bailey_humphrey_team_news": {
       "first_seen": "2026-07-02T23:30:18.555117+00:00",
@@ -50203,46 +50192,45 @@
     },
     "n_connor_budarick_injury_out": {
       "first_seen": "2026-07-06T10:19:10.820741+00:00",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
-      "last_fp": "63ea87f58e56",
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
+      "last_fp": "2b51481e3236",
       "last_status": "out",
       "last_item": {
         "id": null,
         "type": "injury",
         "category": "injury_out",
-        "urgent": false,
+        "urgent": true,
         "player": "Connor Budarick",
         "pid": 573454860,
-        "team": null,
+        "team": "Western Bulldogs",
         "pos": null,
-        "source": "AFL.com.au",
-        "sourceHandle": "@afl.com.au",
-        "reliability": 96,
+        "source": "Western Bulldogs FC",
+        "sourceHandle": "@westernbulldogs",
+        "reliability": 90,
         "time": "2026-07-06T10:19:10.820741+00:00",
-        "timeLabel": "16h ago",
+        "timeLabel": "recent",
         "headline": "Surgery puts impressive new Dog's season in doubt",
         "body": "An ankle injury may sideline Connor Budarick past the home and away season",
         "link": "https://www.afl.com.au/news/1555803/surgery-puts-new-western-bulldogs-dog-connor-budaricks-season-in-doubt",
         "signal": "sell",
-        "signalConf": 80,
+        "signalConf": 75,
         "tags": [
-          "Injury Out"
+          "Injury Out",
+          "Western Bulldogs"
         ],
         "stats": [],
         "relevance": 75,
-        "_source": "rss_afl.com.au",
-        "pubISO": "2026-07-06T06:24:00+00:00",
-        "is_rumour": false,
+        "_source": "club_western-bulldogs",
         "first_seen": "2026-07-06T10:19:10.820741+00:00",
-        "age_label": "12h ago",
-        "seen_count": 4,
+        "age_label": "22h ago",
+        "seen_count": 5,
         "last_status": "out",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 12h ago",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 22h ago",
         "stale_after_days": 1
       },
-      "seen_count": 4
+      "seen_count": 5
     },
     "noPlayer_general_bf1dffa9": {
       "first_seen": "2026-07-06T10:19:10.820741+00:00",
@@ -51099,7 +51087,7 @@
     },
     "n_jack_graham_injury_tbc": {
       "first_seen": "2026-07-06T10:19:10.820741+00:00",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
       "last_fp": "6cb25d53a4d4",
       "last_status": "test",
       "last_item": {
@@ -51129,19 +51117,19 @@
         "relevance": 25,
         "_source": "club_west-coast-eagles",
         "first_seen": "2026-07-06T10:19:10.820741+00:00",
-        "age_label": "12h ago",
-        "seen_count": 4,
+        "age_label": "22h ago",
+        "seen_count": 5,
         "last_status": "test",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 12h ago",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 22h ago",
         "stale_after_days": 2
       },
-      "seen_count": 4
+      "seen_count": 5
     },
     "n_jamie_cripps_injury_out": {
       "first_seen": "2026-07-06T10:19:10.820741+00:00",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
       "last_fp": "9f70f79b22bb",
       "last_status": "out",
       "last_item": {
@@ -51171,19 +51159,19 @@
         "relevance": 60,
         "_source": "club_west-coast-eagles",
         "first_seen": "2026-07-06T10:19:10.820741+00:00",
-        "age_label": "12h ago",
-        "seen_count": 4,
+        "age_label": "22h ago",
+        "seen_count": 5,
         "last_status": "out",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 12h ago",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 22h ago",
         "stale_after_days": 1
       },
-      "seen_count": 4
+      "seen_count": 5
     },
     "noPlayer_injury_tbc_f3983b0e": {
       "first_seen": "2026-07-06T10:19:10.820741+00:00",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
       "last_fp": "9c9de7903022",
       "last_status": "test",
       "last_item": {
@@ -51213,19 +51201,19 @@
         "relevance": 35,
         "_source": "club_western-bulldogs",
         "first_seen": "2026-07-06T10:19:10.820741+00:00",
-        "age_label": "12h ago",
-        "seen_count": 4,
+        "age_label": "22h ago",
+        "seen_count": 5,
         "last_status": "test",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 12h ago",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 22h ago",
         "stale_after_days": 2
       },
-      "seen_count": 4
+      "seen_count": 5
     },
     "noPlayer_injury_tbc_9346973c": {
       "first_seen": "2026-07-06T10:19:10.820741+00:00",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
       "last_fp": "1cb7abd1e079",
       "last_status": "test",
       "last_item": {
@@ -51255,15 +51243,15 @@
         "relevance": 25,
         "_source": "club_western-bulldogs",
         "first_seen": "2026-07-06T10:19:10.820741+00:00",
-        "age_label": "12h ago",
-        "seen_count": 4,
+        "age_label": "22h ago",
+        "seen_count": 5,
         "last_status": "test",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 12h ago",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 22h ago",
         "stale_after_days": 2
       },
-      "seen_count": 4
+      "seen_count": 5
     },
     "noPlayer_general_74bbe326": {
       "first_seen": "2026-07-06T10:43:58.658803+00:00",
@@ -51353,8 +51341,8 @@
     },
     "n_sam_darcy_injury_tbc": {
       "first_seen": "2026-07-06T23:18:48.264004+00:00",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
-      "last_fp": "86d1025b4ad5",
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
+      "last_fp": "7e11204be909",
       "last_status": "test",
       "last_item": {
         "id": null,
@@ -51363,36 +51351,35 @@
         "urgent": false,
         "player": "Sam Darcy",
         "pid": 1767465816,
-        "team": null,
+        "team": "Western Bulldogs",
         "pos": null,
-        "source": "AFL.com.au",
-        "sourceHandle": "@afl.com.au",
-        "reliability": 96,
+        "source": "Western Bulldogs FC",
+        "sourceHandle": "@westernbulldogs",
+        "reliability": 90,
         "time": "2026-07-06T23:18:48.264004+00:00",
-        "timeLabel": "3h ago",
+        "timeLabel": "recent",
         "headline": "Devastating blow has left Dogs star determined to return stronger, better",
         "body": "Sam Darcy has dealt with and moved on from the cruel coincidences of his second knee injury",
         "link": "https://www.afl.com.au/news/1555805/devastating-blow-has-left-dogs-star-sam-darcy-determined-to-return-stronger-better",
         "signal": "hold",
-        "signalConf": 80,
+        "signalConf": 75,
         "tags": [
-          "Injury Tbc"
+          "Injury Tbc",
+          "Western Bulldogs"
         ],
         "stats": [],
         "relevance": 60,
-        "_source": "rss_afl.com.au",
-        "pubISO": "2026-07-06T20:00:00+00:00",
-        "is_rumour": false,
-        "status": "new",
-        "status_label": "\ud83d\udd34 New",
+        "_source": "club_western-bulldogs",
         "first_seen": "2026-07-06T23:18:48.264004+00:00",
-        "age_label": "Just in",
-        "seen_count": 1,
-        "last_status": "out",
-        "status_changed": true,
+        "age_label": "9h ago",
+        "seen_count": 2,
+        "last_status": "test",
+        "status_changed": false,
+        "status": "ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 9h ago",
         "stale_after_days": 2
       },
-      "seen_count": 1
+      "seen_count": 2
     },
     "noPlayer_general_8cea3cd0": {
       "first_seen": "2026-07-06T23:18:48.264004+00:00",
@@ -108720,21 +108707,21 @@
       "status": "out",
       "prev_status": "test",
       "team": "West Coast",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
       "source": "West Coast FC"
     },
     "1843207863": {
       "status": "out",
       "prev_status": "test",
       "team": "West Coast",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
-      "source": "AFL.com.au"
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
+      "source": "West Coast FC"
     },
     "3692225761": {
       "status": "test",
       "prev_status": "out",
       "team": "West Coast",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
       "source": "West Coast FC"
     },
     "1247425966": {
@@ -108783,8 +108770,8 @@
       "status": "test",
       "prev_status": "out",
       "team": "Western Bulldogs",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
-      "source": "AFL.com.au"
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
+      "source": "Western Bulldogs FC"
     },
     "2412413016": {
       "status": "test",
@@ -110112,9 +110099,9 @@
     "573454860": {
       "status": "out",
       "prev_status": "",
-      "team": "",
-      "last_seen": "2026-07-06T23:18:48.264004+00:00",
-      "source": "AFL.com.au"
+      "team": "Western Bulldogs",
+      "last_seen": "2026-07-07T09:01:56.615971+00:00",
+      "source": "Western Bulldogs FC"
     },
     "2752638729": {
       "status": "test",
@@ -111330,7 +111317,7 @@
       }
     }
   },
-  "updated": "2026-07-06T23:18:48.279332+00:00",
+  "updated": "2026-07-07T09:01:56.624049+00:00",
   "team_announcements": {},
   "processed_articles": [
     "https://www.afl.com.au/news/1523435/teams-carlton-blues-star-jacob-weitering-out-fremantle-star-caleb-serong-injured-essendon-bombers-make-four-changes",
