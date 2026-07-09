@@ -79,11 +79,46 @@ URLS = {
 
 # ── SESSION ─────────────────────────────────────────────────────────────────
 
+def _load_env():
+    """Read repo-root .env into a dict (same format tweet_bot uses)."""
+    env = {}
+    try:
+        p = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+        with open(p, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if "=" in line and not line.startswith("#"):
+                    k, v = line.split("=", 1)
+                    env[k.strip()] = v.strip().strip('"').strip("'")
+    except OSError:
+        pass
+    return env
+
+
 def make_session():
-    """Browser-like session that passes Footywire's bot checks."""
+    """Browser-like session that passes Footywire's bot checks.
+
+    Since 2026-07-03 Footywire gates /afl/footy/* behind a Cloudflare
+    Turnstile challenge, so a plain request gets a 503 challenge page (or a
+    dropped connection). To get through: solve the challenge once in a real
+    browser ON THIS MACHINE, then copy that browser's cookies for
+    www.footywire.com into .env as
+        FOOTYWIRE_COOKIE=JSESSIONID=...; other=...
+        FOOTYWIRE_UA=<the same browser's full User-Agent string>
+    The clearance is tied to the verified session, so the cookie AND the
+    matching User-Agent must be sent together. Re-solve + re-paste when it
+    expires (fetch_data will start failing again with 503s).
+    """
+    env = _load_env()
     s = requests.Session()
+    cookie = env.get("FOOTYWIRE_COOKIE")
+    if cookie:
+        for pair in cookie.split(";"):
+            if "=" in pair:
+                k, v = pair.strip().split("=", 1)
+                s.cookies.set(k.strip(), v.strip(), domain="www.footywire.com")
     s.headers.update({
-        "User-Agent": (
+        "User-Agent": env.get("FOOTYWIRE_UA") or (
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
             "Chrome/124.0.0.0 Safari/537.36"
@@ -112,6 +147,13 @@ def get(session, url, retries=3, delay=2, timeout=15):
                 log.error(f"403 Forbidden: {url}")
                 log.error("  → Footywire is blocking this request.")
                 log.error("  → Make sure you're running this on a home/office machine, not a server.")
+                return None
+            elif r.status_code == 503 and "turnstile" in (r.text or "").lower():
+                log.error(f"503 challenge page: {url}")
+                log.error("  → Footywire is serving its Cloudflare Turnstile CAPTCHA.")
+                log.error("  → Solve it once in a browser on this machine, then put that")
+                log.error("    browser's cookies + user-agent in .env as FOOTYWIRE_COOKIE /")
+                log.error("    FOOTYWIRE_UA (see make_session docstring).")
                 return None
             elif r.status_code == 429:
                 log.warning(f"Rate limited. Waiting {delay*3}s...")
@@ -2610,7 +2652,9 @@ def main():
     r = get(session, URLS["sc_stats"])
     if not r:
         log.error("Could not fetch SC stats. Exiting.")
-        log.error("Make sure you are running this from a home/office machine.")
+        log.error("Footywire gates its stats pages behind a Turnstile CAPTCHA "
+                  "(since 2026-07-03): set FOOTYWIRE_COOKIE / FOOTYWIRE_UA in "
+                  ".env from a verified browser session on this machine.")
         sys.exit(1)
     sc_players = parse_sc_stats(r.text)
     if not sc_players:

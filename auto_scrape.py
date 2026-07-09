@@ -36,7 +36,11 @@ INTERVAL_SEC = 15 * 60   # 15 minutes
 # pulls ~350 games-log pages) when the hash changes — i.e., when a new
 # game has actually completed and Footywire has processed the scores.
 # 12-hour safety refresh covers any case where the hash drifts without us.
-FW_SC_STATS_URL          = "https://www.footywire.com/afl/footy/supercoach_stats"
+# NB: this is the same page fetch_data parses (supercoach_season — the old
+# /supercoach_stats path 404s) and it sits behind Footywire's Turnstile
+# challenge, so the probe must go through fetch_data.make_session() to carry
+# the FOOTYWIRE_COOKIE/FOOTYWIRE_UA clearance from .env.
+FW_SC_STATS_URL          = "https://www.footywire.com/afl/footy/supercoach_season"
 FETCH_DATA_SIG_PATH      = BASE_DIR / ".fetch_data_sig"
 FETCH_DATA_MAX_GAP_HOURS = 12
 
@@ -288,13 +292,12 @@ def _fetch_data_check() -> tuple[bool, str | None, str]:
     # never got written, and we hit "first run" again next cycle (i.e. the
     # gate did nothing, fetch_data ran every cycle).
     try:
-        req = urllib.request.Request(
-            FW_SC_STATS_URL,
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
-        )
-        with urllib.request.urlopen(req, timeout=15) as r:
-            body = r.read(200_000)
-        new_sig = hashlib.sha256(body).hexdigest()
+        # fetch_data.make_session carries the Turnstile clearance cookie/UA
+        # from .env — a bare urllib request just gets the challenge page.
+        from fetch_data import make_session
+        r = make_session().get(FW_SC_STATS_URL, timeout=15)
+        r.raise_for_status()
+        new_sig = hashlib.sha256(r.content[:200_000]).hexdigest()
     except Exception as e:
         # Probe failed — fall back to running so a transient network blip
         # doesn't silently stop the data pipeline.
