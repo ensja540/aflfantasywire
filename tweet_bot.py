@@ -55,6 +55,18 @@ HASHTAGS = "#SuperCoach"
 TWEETED_LOG = BASE / "tweeted.json"
 DAILY_TARGET = 3
 
+# Occasional account-growth nudge. Added to a linkless tweet (matchup / value
+# angles) now and then so the feed periodically points new readers at the
+# account, without ever stacking a second CTA onto a tweet that already links
+# to the site. Probability is per eligible tweet, so with ~3 tweets/day this
+# surfaces roughly every second day — "from time to time", not on every card.
+FOLLOW_CTA_PROB = 0.3
+FOLLOW_CTA_LINES = [
+    "Follow us for daily SuperCoach insights.",
+    "Follow along for daily fantasy insights.",
+    "Follow for daily SuperCoach form, prices and news.",
+]
+
 # Players we never write a tweet about (manual mute list). Matched on the
 # lower-cased name, so spelling variants of the surname don't slip through.
 TWEET_BLOCKLIST = {"darcy wilmot", "darcy wilmott"}
@@ -841,6 +853,20 @@ def _add_hook(text, angle):
         return text.replace(HASHTAGS, h + "\n\n" + HASHTAGS, 1)
     return text + "\n\n" + h
 
+
+def _add_follow_cta(text):
+    """Insert an occasional 'follow us' line before the hashtags. No-op when the
+    tweet already carries a link/CTA (form tweets link to risers/fallers, the
+    special slot links to the site) so we never stack two calls-to-action, or
+    when the extra line would push the tweet over the character limit."""
+    if "\U0001F449" in text or SITE_URL in text:   # 👉 or a site link already present
+        return text
+    line = random.choice(FOLLOW_CTA_LINES)
+    cand = (text.replace(HASHTAGS, line + "\n\n" + HASHTAGS, 1)
+            if HASHTAGS in text else text + "\n\n" + line)
+    return cand if len(cand) <= 278 else text
+
+
 NOT_PLAYING_STATUS = {"out", "test", "tbc", "doubtful", "managed",
                       "susp", "suspended", "omitted", "late out"}
 
@@ -940,6 +966,9 @@ def pick(players, news, log):
                                       for r, a in hist.get(pid, [])):
                 text = _expand_for_momentum(text, angle)
             text = _add_hook(text, angle)
+            # Now and then, nudge a linkless tweet toward following the account.
+            if random.random() < FOLLOW_CTA_PROB:
+                text = _add_follow_cta(text)
             if len(text) > 278:
                 pools[kind].remove(cand)
                 continue
