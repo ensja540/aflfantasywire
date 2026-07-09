@@ -12,6 +12,9 @@ BRAND RULES (enforced here, not free-text — so we can't hallucinate):
   - Tweets are built ONLY from verifiable numbers (3-game / 5-game / season
     averages, last-N scoreline, breakeven, ownership, this-week matchup
     difficulty). We NEVER state a cause/role/why a score moved.
+  - HUMAN FEEL: phrasings are sentence-led and conversational — no
+    pipe-separated stat blocks — and claims stay hedged to the numbers
+    ("price should keep climbing if the form holds", not "is set to drop").
   - VARIETY is deliberate — the daily set rotates across angle FAMILIES and
     phrasings so the feed never reads like the same card three times:
        * Form trend (Classic/Draft) — STRICT gate, only two categories qualify:
@@ -127,17 +130,17 @@ def classic_tweets(players):
         #      (premium that's faded over a sustained window, not a one-week dip).
         if avg < 80 and avg3 > 80 and avg5 > 80:
             head = random.choice([
-                f"\U0001F4C8 {p['name']} trending up",
-                f"\U0001F4C8 {p['name']} in strong recent form",
-                f"\U0001F4C8 {p['name']} lifting his scores",
+                f"\U0001F4C8 {p['name']} is trending up",
+                f"\U0001F4C8 {p['name']} has found some form",
+                f"\U0001F4C8 Strong few weeks from {p['name']}",
             ])
             out.append(("classic", p["id"], "crise",
                         f"{head}\n\n{_form_body(p, 'up')}{own_bit}\n\n{HASHTAGS}"))
         elif avg > 80 and avg3 < 80 and avg5 < 80:
             head = random.choice([
-                f"\U0001F4C9 {p['name']} cooling off",
-                f"\U0001F4C9 {p['name']} down on recent form",
-                f"\U0001F4C9 {p['name']} scoring below his season mark",
+                f"\U0001F4C9 {p['name']} has cooled off",
+                f"\U0001F4C9 {p['name']} is down on his usual output",
+                f"\U0001F4C9 Leaner few weeks for {p['name']}",
             ])
             out.append(("classic", p["id"], "cfall",
                         f"{head}\n\n{_form_body(p, 'down')}\n\n{HASHTAGS}"))
@@ -162,17 +165,17 @@ def draft_tweets(players):
         # template was removed — the brief is only A (breakout) or B (decline).
         if avg < 80 and avg3 > 80 and avg5 > 80:
             head = random.choice([
-                f"\U0001F4C8 {p['name']} on the rise",
-                f"\U0001F4C8 {p['name']} trending up",
-                f"\U0001F4C8 {p['name']} climbing in recent weeks",
+                f"\U0001F4C8 {p['name']} is on the rise",
+                f"\U0001F4C8 {p['name']} has lifted in recent weeks",
+                f"\U0001F4C8 {p['name']} keeps building",
             ])
             out.append(("draft", p["id"], "drise",
                         f"{head}\n\n{_form_body(p, 'up')}\n\n{HASHTAGS}"))
         elif avg > 80 and avg3 < 80 and avg5 < 80:
             head = random.choice([
                 f"\U0001F4C9 {p['name']}'s output has eased",
-                f"\U0001F4C9 {p['name']} down in recent weeks",
-                f"\U0001F4C9 {p['name']} scoring below his average",
+                f"\U0001F4C9 {p['name']} has drifted in recent weeks",
+                f"\U0001F4C9 {p['name']} is scoring below his usual level",
             ])
             out.append(("draft", p["id"], "dfall",
                         f"{head}\n\n{_form_body(p, 'down')}\n\n{HASHTAGS}"))
@@ -199,9 +202,9 @@ def _form_body(p, direction):
     l3 = scoreline(ps, 3)
     moved = "up from" if direction == "up" else "down from"
     return random.choice([
-        f"3-game avg: {avg3}SC | 5-game avg: {avg5}SC | Season: {avg}SC\nLast 3: {l3}",
-        f"Last 3: {l3}\nThat's a {avg3} average, {moved} {avg} on the season.",
-        f"Averaging {avg3} across his past three ({avg5} over five), {moved} a season mark of {avg}.",
+        f"He's gone {l3} over his past three — a {avg3} average against his season mark of {avg}.",
+        f"Last three weeks: {l3}. That's a {avg3} average, {moved} {avg} on the season.",
+        f"He's averaging {avg3} across his past three and {avg5} over five, {moved} a season average of {avg}.",
     ])
 
 
@@ -221,22 +224,22 @@ def matchup_tweets(players):
         pos = (p.get("pos") or "MID")
         if r0 >= 7:
             head = random.choice([
-                f"{p['name']} faces {opp_full} next round, one of the easier matchups for {pos}s on our ratings.",
-                f"Favourable draw for {p['name']}: {opp_full} next round rates among the friendlier {pos} matchups on our numbers.",
-                f"{p['name']} draws {opp_full} next — one of the softer {pos} matchups our ratings flag.",
+                f"{p['name']} gets {opp_full} next round — one of the friendlier matchups for {pos}s on our ratings.",
+                f"A kind draw for {p['name']}: {opp_full} next round rates among the easier {pos} matchups on our numbers.",
+                f"{p['name']} draws {opp_full} next round, which our ratings have among the softer {pos} matchups.",
             ])
         elif r0 <= 4:
             head = random.choice([
-                f"{p['name']} faces {opp_full} next round, one of the tougher matchups for {pos}s on our ratings.",
-                f"Tough draw for {p['name']}: {opp_full} next round rates among the harder {pos} matchups on our numbers.",
-                f"{p['name']} runs into {opp_full} next — one of the stingier {pos} matchups our ratings flag.",
+                f"{p['name']} gets {opp_full} next round — one of the tougher matchups for {pos}s on our ratings.",
+                f"A tricky draw for {p['name']}: {opp_full} next round rates among the harder {pos} matchups on our numbers.",
+                f"{p['name']} runs into {opp_full} next round, which our ratings have among the stingier {pos} matchups.",
             ])
         else:
             continue
         body = random.choice([
             f"He's averaged {avg3}SC over his past three.",
-            f"He's been going at {avg3}SC across his past three.",
-            f"Recent form: {avg3}SC over the past three rounds.",
+            f"He comes in averaging {avg3} across his past three.",
+            f"He's been going at {avg3} a game over the past three rounds.",
         ])
         out.append(("matchup", p["id"], "mtup", f"{head}\n\n{body}\n\n{HASHTAGS}"))
     return out
@@ -256,14 +259,14 @@ def value_tweets(players):
         margin = avg3 - be
         if margin >= 20:
             head = random.choice([
-                f"\U0001F4B0 {p['name']}'s breakeven is {be}. He's averaged {avg3}SC over his past three, so his price is rising.",
-                f"\U0001F4B0 {p['name']}'s price is climbing: a breakeven of {be} against a {avg3}SC average over three.",
+                f"\U0001F4B0 {p['name']}'s breakeven sits at {be} and he's averaging {avg3} over his past three. His price should keep climbing if the form holds.",
+                f"\U0001F4B0 Cash watch: {p['name']} has a breakeven of just {be} against a three-game average of {avg3}.",
             ])
             out.append(("value", p["id"], "val_rise", f"{head}\n\n{HASHTAGS}"))
         elif margin <= -18 and avg3 < 95:
             head = random.choice([
-                f"\U0001F4B0 {p['name']}'s breakeven is {be}, above his {avg3}SC average over the past three. His price is set to drop.",
-                f"\U0001F4B0 {p['name']}'s breakeven has climbed to {be} against a {avg3}SC average over his past three.",
+                f"\U0001F4B0 {p['name']}'s breakeven has climbed to {be}, well above his {avg3} average over the past three. His price will slide unless the scoring lifts.",
+                f"\U0001F4B0 Cash watch: {p['name']}'s breakeven is {be} against a three-game average of {avg3} — some price pressure there.",
             ])
             out.append(("value", p["id"], "val_fall", f"{head}\n\n{HASHTAGS}"))
     return out
@@ -281,8 +284,8 @@ def breaking_tweets(news):
                 bp = str(tags[1])
             detail = f" ({bp})" if bp else ""
             out.append(("breaking", it.get("pid"), "binj",
-                        f"Team news: {it['player']} is listed on the injury list{detail}. "
-                        f"One to check before your team locks. {HASHTAGS}"))
+                        f"Team news: {it['player']} has been listed on the injury list{detail}. "
+                        f"Worth checking before your side locks in. {HASHTAGS}"))
     return out
 
 
@@ -596,11 +599,11 @@ def cta_tweets(players, log):
             f"\U0001F4C8 {p['name']} on the move up the rankings",
         ])
         body = random.choice([
-            f"3-game avg: {_a3}SC | Season avg: {_av}SC\n"
-            f"Currently #{rank} in our live SuperCoach rankings.",
-            f"Up to #{rank} in our live rankings — {_a3}SC across his past three, "
-            f"well clear of his {_av}SC season mark.",
-            f"Averaging {_a3}SC over his past three ({_av}SC for the season), now "
+            f"He's up to #{rank} in our live SuperCoach rankings, averaging {_a3} "
+            f"over his past three against a season mark of {_av}.",
+            f"Up to #{rank} in our live rankings — {_a3} across his past three, "
+            f"well clear of his {_av} season mark.",
+            f"Averaging {_a3} over his past three ({_av} for the season), now "
             f"#{rank} in our live SuperCoach rankings.",
         ])
         return [(
@@ -620,9 +623,9 @@ def cta_tweets(players, log):
     if n_risers >= 3:
         return [(
             "cta", 0, "cta_risers",
-            f"\U0001F4C8 {n_risers} players in trade-up form this week — "
-            f"3-game averages climbing well clear of season marks.\n\n"
-            f"Full list with form windows and breakdowns:\n"
+            f"\U0001F4C8 {n_risers} players are averaging well above their "
+            f"season marks over the past three rounds.\n\n"
+            f"The full list with form windows and breakdowns:\n"
             f"{LINK_RISERS}\n\n"
             f"{HASHTAGS}"
         )]
@@ -800,14 +803,30 @@ def _recently_tweeted_pids(log, days=14):
 
 def _expand_for_momentum(text, angle):
     """Rewrite the lead so a follow-up tweet about the same trend reads as
-    an update (`momentum building` / `slide deepening`) instead of restating
-    the same headline as last round."""
+    an update instead of restating the same headline as last round. The swap
+    pairs must track the head phrasings in classic_tweets/draft_tweets; the
+    first match wins and unmatched text passes through unchanged."""
     if angle in ("crise", "drise"):
-        text = text.replace(" trending up", " — momentum building", 1)
-        text = text.replace(" on the rise",  " — momentum building", 1)
+        swaps = (
+            (" is trending up", " is still trending up"),
+            (" has found some form", " is holding that form"),
+            ("Strong few weeks from", "The strong run continues for"),
+            (" is on the rise", " is still on the rise"),
+            (" has lifted in recent weeks", " has kept the lift going"),
+            (" keeps building", " keeps building on it"),
+        )
     else:
-        text = text.replace(" cooling off",         " — slide deepening", 1)
-        text = text.replace("'s output has eased", "'s slide is deepening", 1)
+        swaps = (
+            (" has cooled off", " is yet to turn it around"),
+            (" is down on his usual output", " is still down on his usual output"),
+            ("Leaner few weeks for", "The lean run continues for"),
+            ("'s output has eased", "'s output is still down"),
+            (" has drifted in recent weeks", " is still drifting"),
+            (" is scoring below his usual level", " is still below his usual level"),
+        )
+    for old, new in swaps:
+        if old in text:
+            return text.replace(old, new, 1)
     return text
 
 
