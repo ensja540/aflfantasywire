@@ -36,11 +36,11 @@ INTERVAL_SEC = 15 * 60   # 15 minutes
 # pulls ~350 games-log pages) when the hash changes — i.e., when a new
 # game has actually completed and Footywire has processed the scores.
 # 12-hour safety refresh covers any case where the hash drifts without us.
-# NB: this is the same page fetch_data parses (supercoach_season — the old
-# /supercoach_stats path 404s) and it sits behind Footywire's Turnstile
-# challenge, so the probe must go through fetch_data.make_session() to carry
-# the FOOTYWIRE_COOKIE/FOOTYWIRE_UA clearance from .env.
-FW_SC_STATS_URL          = "https://www.footywire.com/afl/footy/supercoach_season"
+# Change-detection probe: the ungated SuperCoach API (no embed = ~300KB) shifts
+# as soon as prices/scores update, so hashing it tells us when a new fetch_data
+# run is worthwhile — without touching the Turnstile-gated Footywire pages.
+SC_API_PROBE_URL         = ("https://www.supercoach.com.au/2026/api/afl/classic/"
+                            "v1/players-cf")
 FETCH_DATA_SIG_PATH      = BASE_DIR / ".fetch_data_sig"
 FETCH_DATA_MAX_GAP_HOURS = 12
 
@@ -292,12 +292,17 @@ def _fetch_data_check() -> tuple[bool, str | None, str]:
     # never got written, and we hit "first run" again next cycle (i.e. the
     # gate did nothing, fetch_data ran every cycle).
     try:
-        # fetch_data.make_session carries the Turnstile clearance cookie/UA
-        # from .env — a bare urllib request just gets the challenge page.
-        from fetch_data import make_session
-        r = make_session().get(FW_SC_STATS_URL, timeout=15)
-        r.raise_for_status()
-        new_sig = hashlib.sha256(r.content[:200_000]).hexdigest()
+        # Hash the ungated SuperCoach API (no cookie needed) — it changes as soon
+        # as prices/scores update, so it's the right change-detection signal now
+        # that fetch_data pulls from the API + DFS rather than Footywire.
+        req = urllib.request.Request(
+            SC_API_PROBE_URL,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                     "Accept": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=20) as r:
+            body = r.read()
+        new_sig = hashlib.sha256(body).hexdigest()
     except Exception as e:
         # Probe failed — fall back to running so a transient network blip
         # doesn't silently stop the data pipeline.
@@ -317,8 +322,8 @@ def _fetch_data_check() -> tuple[bool, str | None, str]:
         return True, new_sig, "first run"
 
     if new_sig == prev:
-        return False, new_sig, "Footywire stats unchanged"
-    return True, new_sig, "Footywire stats changed"
+        return False, new_sig, "SuperCoach data unchanged"
+    return True, new_sig, "SuperCoach data changed"
 
 
 def run_script(script_name: str) -> tuple[bool, str]:

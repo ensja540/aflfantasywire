@@ -1841,8 +1841,13 @@ def build_player(sc, dt, injuries, selections, rank):
     inj_body_part = inj_data.get("body_part","") or inj_detail
     inj_eta       = inj_data.get("eta","")
 
-    # Price delta estimate
-    price_delta = round((sc_avg3 - sc_be) * 800) if sc_avg3 and sc_be else 0
+    # Price delta: prefer the EXACT per-round price change from the SuperCoach
+    # API (the ungated source sets sc_price_delta); fall back to the avg3-vs-BE
+    # estimate for any record without it (e.g. a break-even-only long-tail player).
+    if sc.get("sc_price_delta") is not None:
+        price_delta = int(sc["sc_price_delta"])
+    else:
+        price_delta = round((sc_avg3 - sc_be) * 800) if sc_avg3 and sc_be else 0
     # Prefer a price history reconstructed from the player's real recent scores
     # (varies round-to-round); fall back to the straight-line estimate only when
     # we have no per-round scores for this player yet.
@@ -2647,41 +2652,41 @@ def main():
 
     session = make_session()
 
-    # ── 1. Fetch SC stats (primary) ──
-    log.info("Fetching SuperCoach stats from Footywire...")
-    r = get(session, URLS["sc_stats"])
-    if not r:
-        log.error("Could not fetch SC stats. Exiting.")
-        log.error("Footywire gates its stats pages behind a Turnstile CAPTCHA "
-                  "(since 2026-07-03): set FOOTYWIRE_COOKIE / FOOTYWIRE_UA in "
-                  ".env from a verified browser session on this machine.")
+    # ── 1. Fetch player base + per-round scores from the UNGATED sources ──
+    # SuperCoach API (exact price, price change, ownership, positions, SC rank)
+    # + DFS Australia (full per-round SC/AF scores and stat lines for every
+    # player, all season). This replaces BOTH the Footywire SuperCoach-season
+    # page and the ~350-page per-player games-log crawl — the heavy, rate-limited,
+    # now Turnstile-gated part of the old pipeline that caused round-ingest gaps.
+    # Break-evens still come from Footywire (step 5) — the one field neither
+    # ungated source publishes.
+    import sc_dfs_source
+    log.info("Fetching player data from SuperCoach API + DFS Australia...")
+    try:
+        _existing = []
+        try:
+            _ex = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+            _existing = _ex.get("players", _ex) if isinstance(_ex, dict) else _ex
+        except Exception:
+            pass   # first run / unreadable — name pinning simply no-ops
+        (sc_players, _conc_all, _conc_pos, _conc_stat,
+         cur_rnd) = sc_dfs_source.fetch_all(_existing)
+    except Exception as e:
+        log.error(f"Could not fetch SC API / DFS data: {e}")
+        log.error("Both sources are ungated, so this is usually a transient network "
+                  "blip or a changed endpoint — leaving the last players.json in place.")
         sys.exit(1)
-    sc_players = parse_sc_stats(r.text)
     if not sc_players:
-        log.error("SC stats page parsed 0 players — layout may have changed. Check the URL.")
+        log.error("SC API / DFS produced 0 players — aborting.")
         sys.exit(1)
 
-    time.sleep(1.5)
-
-    # ── 2. Fetch DT stats (secondary) ──
-    log.info("Fetching AFL Fantasy stats from Footywire...")
-    r2 = get(session, URLS["dt_stats"])
-    dt_players = parse_dt_stats(r2.text) if r2 else []
-
-    # Build DT lookup by name
-    dt_lookup = {name_key(p["name"]): p for p in dt_players}
-    # Also by last name — but ONLY when that surname is unambiguous. Common
-    # surnames (Smith, etc.) are shared by several players; a blind surname
-    # fallback made non-playing namesakes (Kaleb/Henry/Logan Smith) inherit a
-    # star's AF data (Bailey Smith, afRank 1) and rank #1 in the AF list.
-    from collections import Counter as _LnCounter
-    _ln_counts = _LnCounter(name_key(p["name"].split()[-1]) for p in dt_players)
-    for p in dt_players:
-        last = name_key(p["name"].split()[-1])
-        if _ln_counts[last] == 1 and last not in dt_lookup:
-            dt_lookup[last] = p
-
-    time.sleep(1.5)
+    # DT (AFL Fantasy) data now rides on each sc dict (from DFS), so there's no
+    # separate Footywire DT scrape or lookup. Empty stubs keep the downstream
+    # merge/write signatures unchanged.
+    dt_players, dt_lookup = [], {}
+    # The old SC-Scores / per-round pages fed the step-7b form fill; every player
+    # now carries DFS roundStats, so step 7b is a no-op and these stay empty.
+    sc_scores_lookup, sc_round_lookup = {}, {}
 
     # ── 3. Fetch injury list ──
     log.info("Fetching injury list...")
@@ -2697,47 +2702,17 @@ def main():
 
     time.sleep(1)
 
-    # ── 5. Fetch SuperCoach break-evens (separate page, has BE + position) ──
+    # ── 5. Fetch SuperCoach break-evens (the ONE Footywire page we still use) ──
+    # Neither the SC API nor DFS publishes break-evens, so this single light page
+    # (via the FOOTYWIRE_COOKIE Turnstile clearance) is the only remaining
+    # Footywire dependency. If it fails, BEs fall back to a price/avg estimate
+    # below and everything else stays exact — graceful degradation, not a blackout.
     log.info("Fetching SuperCoach break-evens...")
     r_be = get(session, URLS["sc_breakevens"])
     sc_be_lookup = parse_sc_breakevens(r_be.text) if r_be else {}
 
-    # ── 5b. SuperCoach Scores page: 3-round avg + consistency for ALL players ──
-    # One fetch covers every player, so the waiver band (which we don't fetch
-    # per-game logs for) still gets real form numbers.
-    log.info("Fetching SuperCoach Scores (3-rnd avg + consistency)...")
-    r_scs = get(session, SC_SCORES_URL)
-    sc_scores_lookup = parse_sc_scores(r_scs.text) if r_scs else {}
-
-    # ── 5c. Per-round SuperCoach scores (last 8 rounds) — a few page fetches
-    # cover every player, giving a real score series for 3/5-round form,
-    # consistency and sparklines on players we don't fetch game logs for.
-    # We pull 8 rounds (not just 5) so a player who's had a bye or missed a
-    # game still has the most recent 5 *played* scores — otherwise the UI's
-    # 5-round average collapses to the 3-round one (they look identical). ──
-    log.info("Fetching per-round SuperCoach scores (last 8 rounds)...")
-    SC_ROUND_BASE = "https://www.footywire.com/afl/footy/supercoach_round"
-    _yr = datetime.now().year
-    r_cur = get(session, SC_ROUND_BASE)
-    cur_rnd, _curmap = parse_sc_round(r_cur.text) if r_cur else (0, {})
-    _round_scores = {}   # name_key -> {round: score}
-    if cur_rnd:
-        for nk, sco in _curmap.items():
-            _round_scores.setdefault(nk, {})[cur_rnd] = sco
-        for rnd in range(max(1, cur_rnd - 7), cur_rnd):
-            rr = get(session, f"{SC_ROUND_BASE}?year={_yr}&round={rnd}")
-            if not rr:
-                continue
-            _, m = parse_sc_round(rr.text)
-            for nk, sco in m.items():
-                _round_scores.setdefault(nk, {})[rnd] = sco
-            time.sleep(0.5)
-    # Build a fixed last-8-round window per player, using 0 for byes / rounds
-    # not played, so the round-by-round bar chart still shows those as 0-height
-    # blocks. Averages downstream filter the zeros out, so byes don't drag form.
-    _rwin = list(range(max(1, cur_rnd - 7), cur_rnd + 1)) if cur_rnd else []
-    sc_round_lookup = {nk: [d.get(r, 0) for r in _rwin] for nk, d in _round_scores.items()}
-    log.info(f"Per-round SC scores: {len(sc_round_lookup)} players over last 8 rounds")
+    # (Steps 5b/5c removed — per-round SC scores, 3-round form and consistency
+    #  now come from the DFS data built in step 1 for every player.)
 
     # Merge BE + position into each sc_player by name_key
     for p in sc_players:
@@ -2779,13 +2754,26 @@ def main():
         _added += 1
     log.info(f"Added {_added} break-even-only players (full rankings)")
 
-    # Fallback: if BE couldn't be scraped, approximate from price and average
-    # (rough — better than showing 0). be ~= price / (avg * 0.8).
+    # Fallback for any player still missing a break-even (mainly when Footywire's
+    # BE page is unreachable — e.g. no FOOTYWIRE_COOKIE). Estimate from the
+    # SuperCoach price model: BE is the score that keeps price flat next round, so
+    # with a ~7-game effective window and magic ~4950, BE ≈ L*price/magic minus the
+    # scores that stay in the window. Rough (MAE ~20 SC, validated against the last
+    # good Footywire BEs) but keeps value widgets/tweets sane — a 0 here would read
+    # as "everyone's price is rising". The real BE from the cookie'd page overrides
+    # this whenever it's available.
+    _SC_MAGIC = 4950
     for p in sc_players:
         if not p.get("sc_be"):
-            avg = p.get("sc_avg") or 0
             price = p.get("sc_price") or 0
-            p["sc_be"] = round(price / (avg * 0.8)) if avg > 0 and price > 0 else 0
+            played = [s for s in (p.get("sc_all_scores") or []) if s and s > 0]
+            if price and played:
+                L = min(7, len(played))
+                retained = played[-(L - 1):] if L > 1 else []
+                est = round(L * price / _SC_MAGIC - sum(retained))
+                p["sc_be"] = max(-200, min(300, est))
+            else:
+                p["sc_be"] = 0
 
     # Diagnostic: confirm break-evens captured for the first 5 players
     log.info("Break-even check (first 5 players):")
@@ -2795,179 +2783,14 @@ def main():
 
     time.sleep(1)
 
-    # ── 6. Fetch per-player game-log pages for round-by-round SC/AF scores ──
-    # Footywire's "pg-" page (Player Games) is richer than the "pu-" profile —
-    # it gives BOTH the SuperCoach and AFL Fantasy score per round, plus full
-    # disposals/marks/goals/tackles/clearances per game.
-    # Keep the games-log phase short so fetch_data never hits the 20-min
-    # subprocess timeout. Only the top players get per-round form; a hard time
-    # cap stops the phase early when Footywire is slow or rate-limiting.
-    # Bumped to cover all players from games played in the current round.
-    # 4 teams × ~22 players per game = ~88 game participants per fixture day;
-    # top-50 missed most of them outside the elite players. 300 covers the
-    # tail (e.g. a fringe player who scores 100). 10-min cap keeps the
-    # phase from blowing past the 20-min auto_scrape timeout if Footywire
-    # is slow. Effective rate is ~2 s/page through the polite delay in
-    # `get()`, so 10 min ≈ 300 logs.
-    MAX_GAMES_LOG = 420
-    GAMES_LOG_TIME_LIMIT = 780  # 13 minutes max
-    # Per-stat conceded profiles: _conc_stat[team][POS][stat] = raw stat values
-    # (disposals/kicks/etc.) recorded by POS players against that team. Powers
-    # per-stat matchup factors (e.g. a team that bleeds disposals).
-    _conc_stat = {}
-    # Points-conceded accumulators for the schedule rating. _conc_all[team] is
-    # every SC score posted against that team; _conc_pos[team][POS] splits it by
-    # the scorer's position (DvP). Built from the games-log opponents below.
-    _conc_all, _conc_pos = {}, {}
-    # Prioritise players who just played so a crawl that hits its time cap still
-    # captures the newest game stats FIRST. Two signals, combined:
-    #   1) Footywire's per-round page (_curmap) — who already has a fresh score.
-    #   2) the AFL fixture API — teams whose latest-round game is CONCLUDED.
-    # Signal 2 is the reliable one: Footywire's default per-round page often still
-    # shows the last COMPLETE round mid-round, so just-played teams were missing
-    # from _curmap, dropped below the cap, and carried forward STALE — the bug
-    # where most of a round's players didn't update. Failing the AFL call just
-    # falls back to the _curmap signal.
-    _played_now = set(_curmap.keys()) if _curmap else set()
-    _jp_teams = set()
-    try:
-        for _r in (max(1, cur_rnd or 1), max(1, cur_rnd or 1) + 1):
-            _jr = get(session,
-                      f"https://aflapi.afl.com.au/afl/v2/matches?compSeasonId={AFL_API_SEASON_ID}"
-                      f"&roundNumber={_r}&pageSize=20", retries=1, timeout=10)
-            if not _jr:
-                continue
-            for _m in (_jr.json().get("matches", []) or []):
-                if (_m.get("status") or "").upper() != "CONCLUDED":
-                    continue
-                for _side in ("home", "away"):
-                    _tn = normalise_team(((_m.get(_side) or {}).get("team") or {}).get("name") or "")
-                    if _tn and _tn != "Unknown":
-                        _jp_teams.add(_tn)
-    except Exception as _e:
-        log.warning(f"Just-played team detection failed: {_e}")
-    if _played_now or _jp_teams:
-        def _jp_prio(_p):
-            return 0 if (name_key(_p.get("name", "")) in _played_now
-                         or normalise_team(_p.get("team", "")) in _jp_teams) else 1
-        sc_players.sort(key=_jp_prio)
-        log.info(f"Games-log priority: {sum(1 for _p in sc_players[:MAX_GAMES_LOG] if _jp_prio(_p)==0)} "
-                 f"just-played players moved to the front ({len(_jp_teams)} concluded teams via AFL fixture)")
-    log.info(f"Fetching games log for top {MAX_GAMES_LOG} players (pg- URL)...")
-    games_log_start = time.time()
-    for i, p in enumerate(sc_players[:MAX_GAMES_LOG]):
-        if time.time() - games_log_start > GAMES_LOG_TIME_LIMIT:
-            log.warning(f"Games-log fetch exceeded {GAMES_LOG_TIME_LIMIT//60} min — stopping early, using data so far")
-            break
-        # One player's games-log page failing (network blip, an unexpected table
-        # layout, a parse error) must never abort the whole scrape. On failure we
-        # log the full traceback and skip just this player's games-log — the SC/DT
-        # price, average and break-even already parsed from the main stats page
-        # stay intact, so the player still appears in players.json.
-        try:
-            pu_url = p.get("profile_url", "")
-            if not pu_url:
-                continue
-            # Swap the /pu- prefix for /pg- to hit the games-log page
-            pg_url = pu_url.replace("/pu-", "/pg-")
-            r5 = get(session, pg_url, retries=1, timeout=8)
-            if not r5:
-                continue
-
-            games = parse_player_games(r5.text)
-
-            if games["pos"]:
-                p["pos"] = games["pos"]
-
-            # Fantasy scores exclude Round 0 (not a fantasy round); raw-stat
-            # averages below still use every round.
-            _fr = games.get("sc_rounds") or []
-            _isF = lambda i: (i >= len(_fr) or _fr[i] >= 1)
-            sc_played = [s for i, s in enumerate(games["sc_scores"]) if s is not None and s > 0 and _isF(i)]
-            af_played = [s for i, s in enumerate(games["af_scores"]) if s is not None and s > 0 and _isF(i)]
-            p["sc_all_scores"] = sc_played
-            p["dt_all_scores"] = af_played
-            # Fantasy games played this season (R0 + byes/DNPs excluded) —
-            # numerator for availability.
-            p["gamesPlayed"] = len(sc_played)
-
-            # Full round-by-round line for the player profile.
-            rs, gr = [], (games.get("sc_rounds") or [])
-            for idx in range(len(games["sc_scores"])):
-                sc_s = games["sc_scores"][idx]
-                if sc_s is None:
-                    continue
-                def _g(key, ix=idx):
-                    arr = games.get(key) or []
-                    return arr[ix] if ix < len(arr) and arr[ix] is not None else 0
-                _opps = games.get("opponents") or []
-                _o = _opps[idx] if idx < len(_opps) else None
-                rs.append({"r": gr[idx] if idx < len(gr) else f"R{idx+1}",
-                           "sc": sc_s, "dt": _g("af_scores"), "dis": _g("disposals"),
-                           "mk": _g("marks"), "tk": _g("tackles"), "gl": _g("goals"), "b": _g("behinds"),
-                           "k": _g("kicks"), "hb": _g("handballs"), "ho": _g("hitouts"), "opp": _o})
-                # Attribute this score to the opponent that conceded it (DvP).
-                if _o and sc_s and sc_s > 0:
-                    _pp = (p.get("pos") or "MID").upper()
-                    _rnd0 = gr[idx] if idx < len(gr) else 1
-                    # Disregard games where this opponent had a different coach.
-                    if _coach_valid_2026(_o, _rnd0):
-                        if isinstance(_rnd0, int) and _rnd0 >= 1:  # SC pts = fantasy rounds only
-                            _conc_all.setdefault(_o, []).append(sc_s)
-                            _conc_pos.setdefault(_o, {}).setdefault(_pp, []).append(sc_s)
-                        # Raw-stat conceded profiles include Round 0.
-                        for _sk in ("disposals", "kicks", "handballs", "marks", "tackles", "behinds", "goals"):
-                            _conc_stat.setdefault(_o, {}).setdefault(_pp, {}).setdefault(_sk, []).append(_g(_sk))
-            p["round_stats"] = rs
-
-            # Last 7 SC scores (right-pad with 0s if fewer played games)
-            if len(sc_played) >= 7:
-                p["sc_scores"] = sc_played[-7:]
-            elif sc_played:
-                p["sc_scores"] = sc_played + [0] * (7 - len(sc_played))
-            else:
-                p["sc_scores"] = [0] * 7
-
-            if len(af_played) >= 7:
-                p["dt_scores"] = af_played[-7:]
-            elif af_played:
-                p["dt_scores"] = af_played + [0] * (7 - len(af_played))
-            else:
-                p["dt_scores"] = [0] * 7
-
-            p["sc_last"] = sc_played[-1] if sc_played else 0
-            p["dt_last"] = af_played[-1] if af_played else 0
-
-            sc_last3 = sc_played[-3:]
-            p["sc_avg3"] = round(sum(sc_last3) / len(sc_last3), 1) if sc_last3 else p["sc_avg"]
-            if af_played:
-                p["dt_avg"]  = round(sum(af_played) / len(af_played), 1)
-                af_last3 = af_played[-3:]
-                p["dt_avg3"] = round(sum(af_last3) / len(af_last3), 1)
-
-            # Per-game stat averages over actual played rounds
-            def avg_of(key):
-                vals = [v for v in games[key] if v is not None]
-                return round(sum(vals) / len(vals), 1) if vals else 0
-            p["disposals"]  = avg_of("disposals")
-            p["marks"]      = avg_of("marks")
-            p["goals"]      = avg_of("goals")
-            p["behinds"]    = avg_of("behinds")
-            p["kicks"]      = avg_of("kicks")
-            p["handballs"]  = avg_of("handballs")
-            p["tackles"]    = avg_of("tackles")
-            p["hitouts"]    = avg_of("hitouts")
-            p["clearances"] = avg_of("clearances")
-        except Exception as e:
-            log.error(f"Games-log fetch failed for {p.get('name', '?')} "
-                      f"({p.get('profile_url', '')}): {e}")
-            log.error(traceback.format_exc())
-            # Skip this player's games-log; keep the main-stats score data.
-            continue
-        finally:
-            if i % 25 == 24:
-                log.info(f"  {i+1}/{MAX_GAMES_LOG} games-log pages fetched")
-            time.sleep(0.5)
+    # ── 6. (removed) Per-player games-log crawl ──
+    # The ~350-page Footywire "pg-" crawl that built per-round scores, round_stats,
+    # per-game stat averages and the DvP "points conceded" accumulators is gone.
+    # DFS supplies all of that for EVERY player in one call (built in step 1):
+    # sc_players already carry sc_all_scores / sc_scores / dt_scores / round_stats /
+    # per-game stat averages, and _conc_all / _conc_pos / _conc_stat came back from
+    # sc_dfs_source.build_sc_players. This is the change that removes the heavy,
+    # rate-limited, Turnstile-gated phase that used to leave whole rounds un-ingested.
 
     # ── 6b. Fetch AFL Fantasy Classic ownership ──
     log.info("Fetching AFL Fantasy Classic ownership...")
