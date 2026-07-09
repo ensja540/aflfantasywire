@@ -202,7 +202,7 @@ def _form_body(p, direction):
     l3 = scoreline(ps, 3)
     moved = "up from" if direction == "up" else "down from"
     return random.choice([
-        f"He's gone {l3} over his past three — a {avg3} average against his season mark of {avg}.",
+        f"He's gone {l3} over his past three, a {avg3} average against his season mark of {avg}.",
         f"Last three weeks: {l3}. That's a {avg3} average, {moved} {avg} on the season.",
         f"He's averaging {avg3} across his past three and {avg5} over five, {moved} a season average of {avg}.",
     ])
@@ -224,13 +224,13 @@ def matchup_tweets(players):
         pos = (p.get("pos") or "MID")
         if r0 >= 7:
             head = random.choice([
-                f"{p['name']} gets {opp_full} next round — one of the friendlier matchups for {pos}s on our ratings.",
+                f"{p['name']} gets {opp_full} next round, one of the friendlier matchups for {pos}s on our ratings.",
                 f"A kind draw for {p['name']}: {opp_full} next round rates among the easier {pos} matchups on our numbers.",
                 f"{p['name']} draws {opp_full} next round, which our ratings have among the softer {pos} matchups.",
             ])
         elif r0 <= 4:
             head = random.choice([
-                f"{p['name']} gets {opp_full} next round — one of the tougher matchups for {pos}s on our ratings.",
+                f"{p['name']} gets {opp_full} next round, one of the tougher matchups for {pos}s on our ratings.",
                 f"A tricky draw for {p['name']}: {opp_full} next round rates among the harder {pos} matchups on our numbers.",
                 f"{p['name']} runs into {opp_full} next round, which our ratings have among the stingier {pos} matchups.",
             ])
@@ -266,7 +266,7 @@ def value_tweets(players):
         elif margin <= -18 and avg3 < 95:
             head = random.choice([
                 f"\U0001F4B0 {p['name']}'s breakeven has climbed to {be}, well above his {avg3} average over the past three. His price will slide unless the scoring lifts.",
-                f"\U0001F4B0 Cash watch: {p['name']}'s breakeven is {be} against a three-game average of {avg3} — some price pressure there.",
+                f"\U0001F4B0 Cash watch: {p['name']}'s breakeven is {be} against a three-game average of {avg3}, putting his price under pressure.",
             ])
             out.append(("value", p["id"], "val_fall", f"{head}\n\n{HASHTAGS}"))
     return out
@@ -285,7 +285,7 @@ def breaking_tweets(news):
             detail = f" ({bp})" if bp else ""
             out.append(("breaking", it.get("pid"), "binj",
                         f"Team news: {it['player']} has been listed on the injury list{detail}. "
-                        f"Worth checking before your side locks in. {HASHTAGS}"))
+                        f"{HASHTAGS}"))
     return out
 
 
@@ -601,8 +601,8 @@ def cta_tweets(players, log):
         body = random.choice([
             f"He's up to #{rank} in our live SuperCoach rankings, averaging {_a3} "
             f"over his past three against a season mark of {_av}.",
-            f"Up to #{rank} in our live rankings — {_a3} across his past three, "
-            f"well clear of his {_av} season mark.",
+            f"Up to #{rank} in our live rankings, averaging {_a3} across his past "
+            f"three, well clear of his {_av} season mark.",
             f"Averaging {_a3} over his past three ({_av} for the season), now "
             f"#{rank} in our live SuperCoach rankings.",
         ])
