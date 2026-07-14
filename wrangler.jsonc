@@ -13,6 +13,12 @@
   "compatibility_flags": [
     "nodejs_compat"
   ],
+  "vars": {
+    // Google OAuth client id for Sign-In. Public by design (the browser needs
+    // it); the ID-token flow verifies server-side against Google's JWKS and
+    // needs no client secret.
+    "GOOGLE_CLIENT_ID": "855738513392-9qlt9kjus4d882g3sckiimtdnrfbpg0c.apps.googleusercontent.com"
+  },
   "kv_namespaces": [
     { "binding": "RATE_LIMIT", "id": "4529470f79dd476b95f5be410940a826" },
     { "binding": "SUBS", "id": "ed46c7575111448ca8a7734dea2e541b" }

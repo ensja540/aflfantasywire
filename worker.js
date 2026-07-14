@@ -70,6 +70,13 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // ── Accounts: login, registration, Google sign-in, per-user data sync ──
+    // Backed by the SUBS KV namespace under distinct key prefixes, so no new
+    // binding is needed. See handleAccount() at the bottom of this file.
+    if (url.pathname.startsWith("/api/auth/") || url.pathname === "/api/data") {
+      return handleAccount(request, env, url);
+    }
+
     // On-demand full-article summary: fetch the source article server-side
     // (no CORS limits, key stays server-side), extract its text, and summarise
     // it with Claude. Falls back to the snippet we already have when the source
@@ -391,4 +398,250 @@ function extractArticleText(html) {
     text = html.replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
   }
   return text;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  ACCOUNTS  —  email+password + Google sign-in, HttpOnly session cookies, and
+//  per-user data sync. Storage: the SUBS KV namespace under these key prefixes:
+//    u:e:<email>   -> userId              (email -> id lookup)
+//    u:i:<id>      -> user record JSON     {id,email,name,googleSub,pass,created}
+//    s:<token>     -> session JSON         {uid,created}   (90-day TTL)
+//    d:<id>        -> user data JSON        {data:{...},updatedAt}
+// ════════════════════════════════════════════════════════════════════════════
+
+const SESSION_TTL = 60 * 60 * 24 * 90;         // 90 days
+const PBKDF2_ITERS = 310000;                   // OWASP-ish for PBKDF2-SHA256
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const SYNC_KEYS = new Set([
+  "afw_myteam", "afw_myteam_raw", "afw_watchlist",
+  "afw_theme", "afw_syncwatch", "afw_tab", "aflfw_seen_news",
+]);
+
+async function handleAccount(request, env, url) {
+  const store = env.USERS || env.SUBS;
+  const p = url.pathname;
+  const method = request.method;
+  if (method === "OPTIONS") return new Response(null, { status: 204 });
+
+  // Public: tells the client whether Google sign-in is available.
+  if (p === "/api/auth/config") {
+    return acctJson({ googleClientId: env.GOOGLE_CLIENT_ID || "" });
+  }
+  if (!store) return acctJson({ error: "Account storage is not configured." }, 500);
+
+  // ── register ──
+  if (p === "/api/auth/register" && method === "POST") {
+    const body = await readJson(request);
+    const email = String(body.email || "").trim().toLowerCase();
+    const password = String(body.password || "");
+    if (!EMAIL_RE.test(email)) return acctJson({ error: "Enter a valid email address." }, 400);
+    if (password.length < 8) return acctJson({ error: "Password must be at least 8 characters." }, 400);
+    if (await store.get("u:e:" + email)) return acctJson({ error: "An account with that email already exists." }, 409);
+
+    const pass = await hashPassword(password);
+    const user = { id: crypto.randomUUID(), email, name: "", googleSub: "", pass, created: new Date().toISOString() };
+    await store.put("u:i:" + user.id, JSON.stringify(user));
+    await store.put("u:e:" + email, user.id);
+    return sessionResponse(store, user);
+  }
+
+  // ── login ──
+  if (p === "/api/auth/login" && method === "POST") {
+    const body = await readJson(request);
+    const email = String(body.email || "").trim().toLowerCase();
+    const password = String(body.password || "");
+    const fail = () => acctJson({ error: "Incorrect email or password." }, 401);
+    if (!EMAIL_RE.test(email) || !password) return fail();
+    const id = await store.get("u:e:" + email);
+    if (!id) return fail();
+    const user = await getUser(store, id);
+    if (!user || !user.pass) return fail();
+    const ok = await verifyPassword(password, user.pass);
+    if (!ok) return fail();
+    return sessionResponse(store, user);
+  }
+
+  // ── Google sign-in (verify the ID token, then upsert by email) ──
+  if (p === "/api/auth/google" && method === "POST") {
+    if (!env.GOOGLE_CLIENT_ID) return acctJson({ error: "Google sign-in is not configured." }, 500);
+    const body = await readJson(request);
+    let claims;
+    try {
+      claims = await verifyGoogleToken(String(body.credential || ""), env.GOOGLE_CLIENT_ID);
+    } catch (e) {
+      return acctJson({ error: "Google sign-in failed." }, 401);
+    }
+    const email = String(claims.email || "").trim().toLowerCase();
+    if (!email || claims.email_verified === false) return acctJson({ error: "Google account email is not verified." }, 401);
+
+    let id = await store.get("u:e:" + email);
+    let user;
+    if (id) {
+      user = await getUser(store, id);
+      if (user && !user.googleSub) { user.googleSub = claims.sub; await store.put("u:i:" + user.id, JSON.stringify(user)); }
+    }
+    if (!user) {
+      user = { id: crypto.randomUUID(), email, name: String(claims.name || ""), googleSub: String(claims.sub || ""), pass: null, created: new Date().toISOString() };
+      await store.put("u:i:" + user.id, JSON.stringify(user));
+      await store.put("u:e:" + email, user.id);
+    }
+    return sessionResponse(store, user);
+  }
+
+  // ── who am I ──
+  if (p === "/api/auth/me" && method === "GET") {
+    const user = await sessionUser(request, store);
+    return acctJson({ user: user ? publicUser(user) : null });
+  }
+
+  // ── logout ──
+  if (p === "/api/auth/logout" && method === "POST") {
+    const token = getCookie(request, "afw_sess");
+    if (token) await store.delete("s:" + token);
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { "content-type": "application/json", "set-cookie": clearCookie() },
+    });
+  }
+
+  // ── per-user data blob (My Team / watchlist / preferences) ──
+  if (p === "/api/data") {
+    const user = await sessionUser(request, store);
+    if (!user) return acctJson({ error: "Not signed in." }, 401);
+    if (method === "GET") {
+      const raw = await store.get("d:" + user.id);
+      if (!raw) return acctJson({ data: null, updatedAt: 0 });
+      try { return acctJson(JSON.parse(raw)); } catch (e) { return acctJson({ data: null, updatedAt: 0 }); }
+    }
+    if (method === "PUT") {
+      const body = await readJson(request);
+      const incoming = body && body.data && typeof body.data === "object" ? body.data : {};
+      // Only persist known keys, and cap value sizes so KV can't be abused.
+      const data = {};
+      for (const k of Object.keys(incoming)) {
+        if (SYNC_KEYS.has(k) && typeof incoming[k] === "string" && incoming[k].length <= 20000) data[k] = incoming[k];
+      }
+      const updatedAt = Date.now();
+      await store.put("d:" + user.id, JSON.stringify({ data, updatedAt }));
+      return acctJson({ ok: true, updatedAt });
+    }
+    return acctJson({ error: "Method not allowed." }, 405);
+  }
+
+  return acctJson({ error: "Not found." }, 404);
+}
+
+// Same-origin JSON (no wildcard CORS — these routes use credentialed cookies).
+function acctJson(obj, status = 200) {
+  return new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json" } });
+}
+async function readJson(request) { try { return await request.json(); } catch { return {}; } }
+function publicUser(u) { return { email: u.email, name: u.name || "", google: !!u.googleSub }; }
+async function getUser(store, id) {
+  const raw = await store.get("u:i:" + id);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+// Create a session + set the cookie, returning the public user record.
+async function sessionResponse(store, user) {
+  const token = bufToHex(crypto.getRandomValues(new Uint8Array(32)));
+  await store.put("s:" + token, JSON.stringify({ uid: user.id, created: Date.now() }), { expirationTtl: SESSION_TTL });
+  return new Response(JSON.stringify({ user: publicUser(user) }), {
+    status: 200,
+    headers: { "content-type": "application/json", "set-cookie": sessionCookie(token, SESSION_TTL) },
+  });
+}
+async function sessionUser(request, store) {
+  const token = getCookie(request, "afw_sess");
+  if (!token) return null;
+  const raw = await store.get("s:" + token);
+  if (!raw) return null;
+  let sess; try { sess = JSON.parse(raw); } catch { return null; }
+  return sess && sess.uid ? getUser(store, sess.uid) : null;
+}
+function sessionCookie(token, maxAge) {
+  return `afw_sess=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${maxAge}`;
+}
+function clearCookie() {
+  return "afw_sess=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0";
+}
+function getCookie(request, name) {
+  const c = request.headers.get("cookie") || "";
+  const m = c.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+// ── password hashing (PBKDF2-SHA256 via WebCrypto) ──
+async function hashPassword(password, saltHex, iterations = PBKDF2_ITERS) {
+  const salt = saltHex ? hexToBuf(saltHex) : crypto.getRandomValues(new Uint8Array(16));
+  const keyMat = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations, hash: "SHA-256" }, keyMat, 256);
+  return { hash: bufToHex(bits), salt: bufToHex(salt), iterations };
+}
+async function verifyPassword(password, stored) {
+  if (!stored || !stored.salt) return false;
+  const got = await hashPassword(password, stored.salt, stored.iterations || PBKDF2_ITERS);
+  return timingSafeEqual(got.hash, stored.hash);
+}
+function timingSafeEqual(a, b) {
+  if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+// ── Google ID-token verification (RS256 against Google's JWKS) ──
+let _googleCerts = null;      // { keys: [...jwk], exp: epochMs }
+async function fetchGoogleCerts() {
+  if (_googleCerts && _googleCerts.exp > Date.now()) return _googleCerts.keys;
+  const r = await fetch("https://www.googleapis.com/oauth2/v3/certs");
+  const j = await r.json();
+  let ttl = 3600000;
+  const cc = r.headers.get("cache-control") || "";
+  const mm = cc.match(/max-age=(\d+)/);
+  if (mm) ttl = parseInt(mm[1], 10) * 1000;
+  _googleCerts = { keys: j.keys || [], exp: Date.now() + ttl };
+  return _googleCerts.keys;
+}
+async function verifyGoogleToken(idToken, clientId) {
+  const parts = idToken.split(".");
+  if (parts.length !== 3) throw new Error("malformed token");
+  const header = JSON.parse(b64urlToStr(parts[0]));
+  const payload = JSON.parse(b64urlToStr(parts[1]));
+  const keys = await fetchGoogleCerts();
+  const jwk = keys.find((k) => k.kid === header.kid);
+  if (!jwk) throw new Error("unknown signing key");
+  const key = await crypto.subtle.importKey(
+    "jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]
+  );
+  const data = new TextEncoder().encode(parts[0] + "." + parts[1]);
+  const sig = b64urlToBuf(parts[2]);
+  const ok = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, sig, data);
+  if (!ok) throw new Error("bad signature");
+  if (payload.aud !== clientId) throw new Error("aud mismatch");
+  if (payload.iss !== "https://accounts.google.com" && payload.iss !== "accounts.google.com") throw new Error("iss mismatch");
+  if (!payload.exp || payload.exp * 1000 < Date.now()) throw new Error("expired");
+  return payload;
+}
+
+// ── byte/string helpers ──
+function bufToHex(buf) {
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function hexToBuf(hex) {
+  const a = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < a.length; i++) a[i] = parseInt(hex.substr(i * 2, 2), 16);
+  return a;
+}
+function b64urlToBuf(s) {
+  s = s.replace(/-/g, "+").replace(/_/g, "/");
+  while (s.length % 4) s += "=";
+  const bin = atob(s);
+  const a = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+  return a;
+}
+function b64urlToStr(s) {
+  return new TextDecoder().decode(b64urlToBuf(s));
 }
