@@ -1,0 +1,48 @@
+name: Deploy to Cloudflare
+
+# Deploys the Worker + static shell to Cloudflare. Runs on Linux because
+# Cloudflare's `workerd` (bundled by wrangler) has no Windows-ARM64 build, so the
+# scraping machine can't run `wrangler deploy` itself.
+#
+# Only fires on CODE / app-shell changes — NOT on the ~5-min data commits from
+# auto_scrape. The app loads all dynamic data (players/news/dvp/tweets) from
+# GitHub raw, so Cloudflare only ever needs to serve the static shell; skipping
+# data commits also keeps us under Cloudflare's daily deployment limit.
+#
+# Requires one repo secret: CLOUDFLARE_API_TOKEN (Cloudflare dashboard ->
+# My Profile -> API Tokens -> "Edit Cloudflare Workers" template).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "worker.js"
+      - "auth.js"
+      - "wrangler.jsonc"
+      - "sw.js"
+      - "manifest.json"
+      - ".assetsignore"
+      - "**/*.svg"
+      - "**/*.png"
+      - "**/*.ico"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch: {}
+
+# One deploy at a time; a newer push cancels an in-flight run.
+concurrency:
+  group: deploy-cloudflare
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
