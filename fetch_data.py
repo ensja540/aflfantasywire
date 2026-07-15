@@ -988,6 +988,10 @@ CAL_CLAMP = (0.85, 1.15)
 # Current-round prediction accuracy ("win %") for the predict tab, set by
 # log_predictions and embedded in players.json by write_output.
 _ROUND_ACCURACY = None
+# Per-round accuracy for EVERY completed round {roundStr: {round,winPct,...}},
+# so the predict tab's round dropdown can show how past rounds hit. Set by
+# log_predictions, embedded in players.json (roundAccuracyByRound) by write_output.
+_ROUND_ACC_BY_ROUND = None
 # Stable "this week's matchups" (the in-progress round's full fixture), so the
 # box doesn't roll forward team-by-team as games finish.
 _THIS_WEEK_MATCHUPS = None
@@ -1009,6 +1013,44 @@ def _sigma(vals):
         return 0.0
     m = sum(vals) / n
     return (sum((v - m) ** 2 for v in vals) / n) ** 0.5
+
+
+_GRADE_SK = (("disposals", "dis"), ("kicks", "k"), ("handballs", "hb"),
+             ("marks", "mk"), ("tackles", "tk"), ("goals", "gl"))
+
+
+def _grade_player_round(p, sp, rnd, rs):
+    """Grade one player's logged prediction (sp) for round `rnd` against their
+    actual roundStats entry (rs). Returns (result, hits, tot) where result is the
+    per-stat graded dict the predict tab renders — {opp, round, stats:{sk:{p,low,
+    a,tier}}} — or None when nothing could be graded. Same deviation-band / tier
+    logic as the live-round grade, so past rounds shade identically."""
+    res = {}
+    hits = tot = 0
+    for sk, rk in _GRADE_SK:
+        pred, act = sp.get(sk), rs.get(rk)
+        if pred is None or act is None:
+            continue
+        tot += 1
+        # Pick a number (rounded prediction) and a low range one deviation below
+        # it (from the player's game-to-game spread for this stat). actual >=
+        # number -> strong green (beat it); in [low, number) -> light green;
+        # below -> red. Win% counts beating the number.
+        _num = round(pred)
+        _vals = [r.get(rk) for r in (p.get("roundStats") or []) if r.get(rk) is not None]
+        _dev = LOW_RANGE_K * _sigma(_vals) if len(_vals) >= 3 else max(0.8, pred * 0.15)
+        _low = max(0, min(int(math.floor(pred - _dev)), _num - 1))
+        if act >= _num:
+            _tier = 2
+            hits += 1
+        elif act >= _low:
+            _tier = 1
+        else:
+            _tier = 0
+        res[sk] = {"p": _num, "low": _low, "a": act, "tier": _tier}
+    if not res:
+        return None, 0, 0
+    return {"round": rnd, "opp": rs.get("opp"), "stats": res}, hits, tot
 
 
 def log_predictions(players, cur_round):
@@ -1083,58 +1125,51 @@ def log_predictions(players, cur_round):
             f = a["act"] / a["pred"]
             cal[sk] = round(max(CAL_CLAMP[0], min(CAL_CLAMP[1], f)), 3)
     plog["calibration"] = cal
-    # Current-round "win %": grade THIS round's predictions against actuals as
-    # games close. Updates each scrape, so it climbs/settles game by game.
-    global _ROUND_ACCURACY
-    cur_preds = plog.get("rounds", {}).get(str(cur_round)) or {}
-    _hits = _tot = _pl = 0
-    _teams = set()
-    # Grade EVERY player who played this round — use the locked logged prediction
-    # if we have one, else fall back to their current statPred so late inclusions
-    # / unpredicted players still get a shaded result instead of a blank cell.
-    for p in players:
-        name = p.get("name")
-        rs = next((r for r in (p.get("roundStats") or []) if r.get("r") == cur_round), None)
-        if not rs:
+    # Grade EVERY completed round (not just the live one): for each round we have
+    # logged predictions for, score them against actuals. This drives both the
+    # live "win %" banner and the predict tab's round dropdown (browse how past
+    # rounds hit). Each player gets a roundResults map {roundStr: gradedResult}
+    # and each round a win-%/games summary in _ROUND_ACC_BY_ROUND.
+    global _ROUND_ACCURACY, _ROUND_ACC_BY_ROUND
+    _by_round = {}
+    _logged = plog.get("rounds", {})
+    for _rnd_str in sorted(_logged.keys(), key=lambda s: int(s) if s.isdigit() else -1):
+        try:
+            _rnd = int(_rnd_str)
+        except Exception:
             continue
-        sp = cur_preds.get(name) or p.get("statPred")
-        if not sp:
+        if _rnd > cur_round:              # not played yet
             continue
-        _pl += 1
-        if p.get("team"):
-            _teams.add(p["team"])
-        # Per-player LOCKED result: the prediction we made for this round vs the
-        # actual, with a per-stat win flag — drives green/red shading + locks the
-        # row once the player's game is final.
-        _res = {}
-        for sk, rk in _SK:
-            pred, act = sp.get(sk), rs.get(rk)
-            if pred is None or act is None:
+        _preds = _logged.get(_rnd_str) or {}
+        _hits = _tot = _pl = 0
+        _teams = set()
+        for p in players:
+            name = p.get("name")
+            rs = next((r for r in (p.get("roundStats") or []) if r.get("r") == _rnd), None)
+            if not rs:
                 continue
-            _tot += 1
-            # Deviation band: pick a number (rounded prediction) and a low range
-            # one standard deviation below it (from the player's game-to-game
-            # spread for this stat). actual >= number -> strong green (beat it);
-            # in [low, number) -> light green (held the range); below low -> red.
-            # Win% counts beating the number.
-            _num = round(pred)
-            _vals = [r.get(rk) for r in (p.get("roundStats") or []) if r.get(rk) is not None]
-            _dev = LOW_RANGE_K * _sigma(_vals) if len(_vals) >= 3 else max(0.8, pred * 0.15)
-            _low = max(0, min(int(math.floor(pred - _dev)), _num - 1))
-            if act >= _num:
-                _tier = 2
-                _hits += 1
-            elif act >= _low:
-                _tier = 1
-            else:
-                _tier = 0
-            _res[sk] = {"p": _num, "low": _low, "a": act, "tier": _tier}
-        if _res:
-            p["roundResult"] = {"round": cur_round, "opp": rs.get("opp"), "stats": _res}
-    # Win = actual met or beat the predicted number; ~50% for an unbiased model.
-    _ROUND_ACCURACY = ({"round": cur_round, "winPct": round(100 * _hits / _tot),
-                        "target": 50, "predictions": _tot, "playersGraded": _pl,
-                        "gamesIn": len(_teams) // 2} if _tot else None)
+            # Prefer the locked logged prediction; for the live round fall back to
+            # the current statPred so late inclusions still get a shaded result.
+            sp = _preds.get(name) or (p.get("statPred") if _rnd == cur_round else None)
+            if not sp:
+                continue
+            res, h, t = _grade_player_round(p, sp, _rnd, rs)
+            if not res:
+                continue
+            _hits += h; _tot += t; _pl += 1
+            if p.get("team"):
+                _teams.add(p["team"])
+            p.setdefault("roundResults", {})[_rnd_str] = res
+            if _rnd == cur_round:
+                p["roundResult"] = res    # keep the existing live-round field
+        if _tot:
+            # Win = actual met or beat the predicted number; ~50% for an unbiased model.
+            _by_round[_rnd_str] = {"round": _rnd, "winPct": round(100 * _hits / _tot),
+                                   "target": 50, "predictions": _tot, "playersGraded": _pl,
+                                   "gamesIn": len(_teams) // 2}
+    _ROUND_ACC_BY_ROUND = _by_round or None
+    _ROUND_ACCURACY = _by_round.get(str(cur_round))
+    plog["by_round"] = _by_round
     plog["current_round"] = _ROUND_ACCURACY
     PREDICTIONS_LOG.write_text(json.dumps(plog, indent=2), encoding="utf-8")
     log.info(f"Predictions logged (per-team next round); accuracy: {plog['accuracy']}; "
@@ -2624,6 +2659,7 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
         "scraped_at":   datetime.now().isoformat(),
         "round":        _cur_rnd or "Current",
         "roundAccuracy": _ROUND_ACCURACY,
+        "roundAccuracyByRound": _ROUND_ACC_BY_ROUND,
         "thisWeekMatchups": _THIS_WEEK_MATCHUPS,
         "season":       2026,
         "player_count": len(players),
