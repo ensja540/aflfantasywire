@@ -144,15 +144,18 @@
 
   function injectStyles() {
     var css =
-      "#afw-acct-btn{position:fixed;left:12px;bottom:12px;z-index:2147483000;" +
-      "display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:999px;" +
-      "border:1px solid rgba(128,128,128,.35);background:#161a22;color:#e8ebf0;" +
-      "font:600 13px/1 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;cursor:pointer;" +
-      "box-shadow:0 4px 14px rgba(0,0,0,.28);transition:transform .12s ease,background .12s}" +
-      "#afw-acct-btn:hover{transform:translateY(-1px)}" +
+      // Header-integrated: matches the site's 32px icon buttons and themes via the
+      // app's CSS vars. .afw-fixed is the fallback if the header isn't found.
+      "#afw-acct-btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;" +
+      "border-radius:7px;border:1px solid var(--b2,rgba(128,128,128,.35));background:var(--s2,#161a22);" +
+      "color:var(--tx,#e8ebf0);font-family:inherit;font-size:13px;font-weight:600;line-height:1;" +
+      "cursor:pointer;flex-shrink:0;margin-right:8px;white-space:nowrap;box-sizing:border-box}" +
+      "#afw-acct-btn:hover{filter:brightness(1.08)}" +
+      "#afw-acct-btn.afw-in{width:32px;padding:0;justify-content:center}" +
+      "#afw-acct-btn.afw-fixed{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:10px;" +
+      "z-index:2147483000;box-shadow:0 4px 14px rgba(0,0,0,.28)}" +
       "#afw-acct-btn .afw-dot{width:22px;height:22px;border-radius:50%;display:flex;" +
       "align-items:center;justify-content:center;background:#3b6cf5;color:#fff;font-weight:700;font-size:11px}" +
-      "@media (prefers-color-scheme:light){#afw-acct-btn{background:#fff;color:#1a1d24}}" +
       "#afw-overlay{position:fixed;inset:0;z-index:2147483001;background:rgba(6,8,12,.62);" +
       "display:flex;align-items:center;justify-content:center;padding:16px;" +
       "backdrop-filter:blur(3px);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}" +
@@ -306,30 +309,61 @@
     reconcile();
   }
 
-  // ── floating account button ──
-  function renderButton() {
-    var existing = document.getElementById("afw-acct-btn");
-    if (existing) existing.remove();
-    var btn;
+  // ── account button, injected into the site header's top-right control cluster
+  //    (just left of the menu / theme icons). A MutationObserver re-places it so
+  //    it survives React re-renders; if the header can't be found it falls back
+  //    to a fixed top-right button. ──
+  var acctBtn = null, _moTimer = null;
+
+  function paintButton() {
+    if (!acctBtn) return;
+    var key = state.user ? "in:" + (state.user.email || "") : "out";
+    if (acctBtn.getAttribute("data-st") === key) return; // avoid needless repaint
+    acctBtn.setAttribute("data-st", key);
+    acctBtn.innerHTML = "";
     if (state.user) {
-      var initial = (state.user.email || "?").charAt(0).toUpperCase();
-      btn = el("button", { id: "afw-acct-btn", title: "Account" }, [
-        el("span", { class: "afw-dot", text: initial }),
-        el("span", { text: "Account" }),
-      ]);
+      acctBtn.classList.add("afw-in");
+      acctBtn.title = "Account";
+      acctBtn.appendChild(el("span", { class: "afw-dot", text: (state.user.email || "?").charAt(0).toUpperCase() }));
     } else {
-      btn = el("button", { id: "afw-acct-btn", title: "Sign in" }, [
-        el("span", { text: "Sign in" }),
-      ]);
+      acctBtn.classList.remove("afw-in");
+      acctBtn.title = "Sign in";
+      acctBtn.appendChild(el("span", { text: "Sign in" }));
     }
-    btn.addEventListener("click", function () { openModal("login"); });
-    document.body.appendChild(btn);
+  }
+
+  function renderButton() {
+    if (!acctBtn) {
+      acctBtn = el("button", { id: "afw-acct-btn", type: "button" });
+      acctBtn.addEventListener("click", function () { state.user ? openAccount() : openModal("login"); });
+    }
+    paintButton();
+    var menu = document.querySelector(".mobile-menu-btn"); // last icon in the header cluster
+    if (menu && menu.parentNode) {
+      acctBtn.classList.remove("afw-fixed");
+      if (acctBtn.parentNode !== menu.parentNode || acctBtn.nextSibling !== menu) {
+        menu.parentNode.insertBefore(acctBtn, menu);
+      }
+    } else if (!acctBtn.parentNode) {
+      acctBtn.classList.add("afw-fixed");
+      document.body.appendChild(acctBtn);
+    }
+  }
+
+  // Re-place the button whenever the app re-renders the header (debounced).
+  function watchHeader() {
+    var mo = new MutationObserver(function () {
+      if (_moTimer) return;
+      _moTimer = setTimeout(function () { _moTimer = null; renderButton(); }, 200);
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
   }
 
   // ── boot ──
   function boot() {
     injectStyles();
     renderButton();
+    watchHeader();
     startSyncLoop();
     api("/api/auth/config", { method: "GET" }).then(function (r) {
       if (r.ok && r.body) state.googleClientId = r.body.googleClientId || "";
