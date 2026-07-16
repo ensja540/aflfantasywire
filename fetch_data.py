@@ -2519,68 +2519,104 @@ def reconcile_predictions(players):
     return fixed
 
 
-# Gold "high-conviction" flag per stat for the predict tab. A gold pick is one
-# whose LOW prediction band clears the season average by a real margin AND whose
-# recent form is consistent, trending and facing a favourable matchup — i.e. a
-# floor you can bank on, not just "predicted above average". Refined 2026-06-15
-# (was a bare low>=avg, which flagged ~50 players) so the predict tab's
-# gold-only view is genuinely the highest-conviction set. Stored as
-# statGold {stat: true} + a hasGold convenience flag for the UI to read/filter.
-GOLD_MARGIN      = 1.08   # low band must clear the season avg by >=8%
-GOLD_CONSISTENCY = 0.55   # no game in the last 3 below 55% of the season avg
-# Goals are low-count and spiky (blanks are normal), so the accumulation-stat
-# floors above (low>=avg*1.08, no-bust>=0.55*avg, pred>=3) can NEVER be met — no
-# forward would ever be gold for goals. Goals get their own rule: a genuine
-# multi-goal threat, in form, in a favourable matchup, that hasn't blanked lately.
-GOAL_GOLD_PRED   = 2.0    # projected 2+ goals
-GOAL_GOLD_LOW    = 1.5    # floor of >=1.5 goals (won't blank)
-GOAL_GOLD_MATCH  = 1.05   # clearly favourable goal matchup for the position
+# Gold "locks" — the highest-CONFIDENCE picks, not the highest-ceiling ones.
+# Backtested over rounds 11-18: the old spike-based rule (flag a player predicted
+# well ABOVE their average) hit only ~26%, because elevated projections regress
+# to the mean. The reliable signal is the opposite — a premium, consistent player
+# clearing a CONSERVATIVE floor. So a gold pick is now an elite accumulator or
+# goal threat with no recent bust, advertised at a floor they clear ~85%+ of the
+# time. statGold[stat] holds that FLOOR value (a number, still truthy for the
+# UI's existing gold checks); hasGold stays the convenience flag.
+GOLD_DISPOSAL_AVG = 27.0   # elite midfielder (season disposal average)
+GOLD_FLOOR_K      = 0.80   # advertised floor = 80% of the season average
+GOLD_MIN3_K       = 0.70   # no game in the last 3 below 70% of the average
+GOLD_GOAL_AVG     = 1.7    # in-form multi-goal threat (season goal average)
 
 
 def compute_gold(players):
-    """Set p['statGold'] = {stat: True, ...} and p['hasGold'] for the predict UI.
-    All criteria must hold per stat: prediction>=3, >=3 recent games, low band
-    >= avg*GOLD_MARGIN, low >= recent-3 avg, recent-3 avg >= season avg (trend),
-    no recent game below avg*GOLD_CONSISTENCY (consistency), and a favourable
-    matchup (statMatch >= 1)."""
+    """Flag high-confidence 'lock' picks for the predict tab. Two kinds, each
+    advertised at a floor the player reliably clears (backtested ~85%+):
+      • disposals — elite mid (avg>=27), no recent bust; floor = round(0.8*avg)
+      • goals     — in-form threat (avg>=1.7, last-3 avg>=season, kicked >=1 in
+                    each of the last 3); floor = 1 goal
+    statGold[stat] = the floor value (a number); hasGold = whether any is set."""
     for p in players:
-        sp = p.get("statPred") or {}
-        splow = p.get("statPredLow") or {}
-        sm = p.get("statMatch") or {}
         rstats = p.get("roundStats") or []
         gold = {}
-        for sk, rk in (("disposals", "dis"), ("kicks", "k"), ("handballs", "hb"),
-                       ("marks", "mk"), ("tackles", "tk"), ("goals", "gl")):
-            avg = p.get(sk) or 0
-            pr, lo = sp.get(sk), splow.get(sk)
-            if pr is None or lo is None or avg <= 0:
-                continue
-            rv = [r.get(rk) for r in rstats if r.get(rk) is not None][-3:]
-            if len(rv) < 3:
-                continue
-            rec = sum(rv) / len(rv)
-            if sk == "goals":                          # goals use their own rule
-                if (pr >= GOAL_GOLD_PRED               # genuine multi-goal threat
-                        and lo >= GOAL_GOLD_LOW         # floor won't blank
-                        and rec >= avg                  # in form
-                        and min(rv) >= 1                # kicked >=1 each of last 3
-                        and sm.get(sk, 1) >= GOAL_GOLD_MATCH):  # favourable matchup
-                    gold[sk] = True
-                continue
-            if pr < 3:                                 # accumulation stats: volume floor
-                continue
-            if (lo >= avg * GOLD_MARGIN              # floor clears avg by a margin
-                    and lo >= rec                     # floor >= recent form
-                    and rec >= avg                    # form trending up / stable
-                    and min(rv) >= avg * GOLD_CONSISTENCY  # no recent bust
-                    and sm.get(sk, 1) >= 1.0):         # favourable matchup
-                gold[sk] = True
+        # Disposals: premium, consistent accumulator -> conservative floor.
+        avg = p.get("disposals") or 0
+        rv = [r.get("dis") for r in rstats if r.get("dis") is not None][-3:]
+        if avg >= GOLD_DISPOSAL_AVG and len(rv) >= 3 and min(rv) >= GOLD_MIN3_K * avg:
+            floor = round(GOLD_FLOOR_K * avg)
+            if floor >= 3:
+                gold["disposals"] = floor
+        # Goals: in-form multi-goal threat that hasn't blanked lately.
+        gavg = p.get("goals") or 0
+        grv = [r.get("gl") for r in rstats if r.get("gl") is not None][-3:]
+        if gavg >= GOLD_GOAL_AVG and len(grv) >= 3 and sum(grv) / len(grv) >= gavg and min(grv) >= 1:
+            gold["goals"] = 1
         if gold:
             p["statGold"] = gold
             p["hasGold"] = True
         else:
             p.pop("statGold", None)
             p["hasGold"] = False
+
+
+# Season-long hit rates for the two pick tiers the predict tab highlights, so the
+# UI can show how often each actually lands. Reconstructed from the graded
+# per-round history (roundResults) + each player's game log (roundStats), with NO
+# lookahead — season avg / recent form use only rounds BEFORE the graded round.
+#   • green = a prediction shaded green (low band above the season avg); a hit is
+#             the actual clearing that low band.
+#   • gold  = the floor-lock rule above, reconstructed per round; a hit is the
+#             actual clearing the advertised floor.
+_GREEN_PICK_ACC = None
+_GOLD_PICK_ACC = None
+
+
+def compute_pick_accuracy(players):
+    global _GREEN_PICK_ACC, _GOLD_PICK_ACC
+    _SK = (("disposals", "dis"), ("kicks", "k"), ("handballs", "hb"),
+           ("marks", "mk"), ("tackles", "tk"), ("goals", "gl"))
+    green_n = green_hit = gold_n = gold_hit = 0
+    for p in players:
+        rr = p.get("roundResults") or {}
+        by_round = {r.get("r"): r for r in (p.get("roundStats") or []) if r.get("r") is not None}
+        for rstr, res in rr.items():
+            try:
+                rnd = int(rstr)
+            except Exception:
+                continue
+            stats = res.get("stats") or {}
+            for sk, rk in _SK:
+                cell = stats.get(sk)
+                if not cell:
+                    continue
+                hist = [by_round[q].get(rk) for q in sorted(by_round)
+                        if q < rnd and by_round[q].get(rk) is not None]
+                if len(hist) < 4:
+                    continue
+                avg = sum(hist) / len(hist)
+                if avg <= 0:
+                    continue
+                a, low = cell.get("a"), cell.get("low")
+                if a is None or low is None:
+                    continue
+                if sk != "goals" and low >= avg:          # green: floor above avg
+                    green_n += 1
+                    green_hit += (a >= low)
+                last3 = hist[-3:]
+                if sk == "disposals" and avg >= GOLD_DISPOSAL_AVG and min(last3) >= GOLD_MIN3_K * avg:
+                    floor = round(GOLD_FLOOR_K * avg)
+                    if floor >= 3:
+                        gold_n += 1
+                        gold_hit += (a >= floor)
+                elif sk == "goals" and avg >= GOLD_GOAL_AVG and sum(last3) / 3 >= avg and min(last3) >= 1:
+                    gold_n += 1
+                    gold_hit += (a >= 1)
+    _GREEN_PICK_ACC = {"hitPct": round(100 * green_hit / green_n), "n": green_n} if green_n else None
+    _GOLD_PICK_ACC = {"hitPct": round(100 * gold_hit / gold_n), "n": gold_n} if gold_n else None
 
 
 def write_output(players, sc_players=None, dt_players=None, injuries=None, selections=None):
@@ -2603,6 +2639,11 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
         compute_gold(players)
     except Exception as _e:
         log.warning(f"Gold flag computation skipped: {_e}")
+    # Season-long hit rates for the green + gold pick tiers (predict-tab badges).
+    try:
+        compute_pick_accuracy(players)
+    except Exception as _e:
+        log.warning(f"Pick accuracy computation skipped: {_e}")
     # Backend sub-category (role) for every player, from position + profile:
     #   DEF >15 disposals -> Half Back (else Key Defender)
     #   FWD >15 disposals -> Half Forward (else Key Forward)
@@ -2660,6 +2701,8 @@ def write_output(players, sc_players=None, dt_players=None, injuries=None, selec
         "round":        _cur_rnd or "Current",
         "roundAccuracy": _ROUND_ACCURACY,
         "roundAccuracyByRound": _ROUND_ACC_BY_ROUND,
+        "greenPickAccuracy": _GREEN_PICK_ACC,
+        "goldPickAccuracy": _GOLD_PICK_ACC,
         "thisWeekMatchups": _THIS_WEEK_MATCHUPS,
         "season":       2026,
         "player_count": len(players),
