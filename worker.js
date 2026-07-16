@@ -66,6 +66,93 @@ function anthropicBlockResponse(route) {
   }, 503);
 }
 
+// ── Per-route SEO ──────────────────────────────────────────────────────────
+// The app is a client-rendered SPA that never sets document.title, so every
+// route would otherwise serve the homepage's <title>/description to crawlers
+// AND to social scrapers (which don't run JS). We rewrite the shell's metadata
+// per pathname with HTMLRewriter (streaming, no parsing cost) so each route is
+// independently crawlable and shareable.
+const SITE = "https://aflfantasywire.com";
+const SEO_ROUTES = {
+  "/": {
+    title: "AFL Fantasy & SuperCoach Hub 2026 — News, Prices & Predictions | AFLFantasyWire",
+    description: "Live AFL Fantasy and SuperCoach news, prices, breakevens, score predictions, form guide, waiver targets and injury updates. Your edge for Classic and Draft.",
+  },
+  "/rankings": {
+    title: "AFL Fantasy & SuperCoach Player Rankings | AFLFantasyWire",
+    description: "Live AFL Fantasy and SuperCoach player rankings by average, price and value. Compare every player's scores, breakevens and ownership in one place.",
+  },
+  "/prices": {
+    title: "AFL Fantasy & SuperCoach Prices, Risers & Fallers | AFLFantasyWire",
+    description: "Track AFL Fantasy and SuperCoach prices and breakevens, plus the biggest projected price risers and fallers each round to time your trades.",
+  },
+  "/predict": {
+    title: "AFL Fantasy Score Predictions & Projections | AFLFantasyWire",
+    description: "Round-by-round AFL Fantasy and SuperCoach score predictions — projected numbers, value picks and matchup-based upside for every player.",
+  },
+  "/feed": {
+    title: "AFL Fantasy News Feed — Injuries, Team News & Rumours | AFLFantasyWire",
+    description: "The latest AFL Fantasy and SuperCoach news: injuries, late outs, role changes, team selection and rumours, updated through the day.",
+  },
+  "/formguide": {
+    title: "AFL Fantasy Form Guide | AFLFantasyWire",
+    description: "AFL Fantasy and SuperCoach form guide — recent scores, three-round averages and trends to spot who's hot and who's cooling before you trade.",
+  },
+  "/waiver": {
+    title: "AFL Fantasy Waiver Wire & Trade Targets | AFLFantasyWire",
+    description: "The best AFL Fantasy and SuperCoach waiver wire and trade targets — cash cows, breakout picks and value buys ranked for your team.",
+  },
+  "/tools": {
+    title: "AFL Fantasy Tools & Calculators | AFLFantasyWire",
+    description: "Free AFL Fantasy and SuperCoach tools — price projections, breakeven calculators and trade planners to build a better team.",
+  },
+  "/ai": {
+    title: "AI AFL Fantasy Analyst — Trade & Captain Advice | AFLFantasyWire",
+    description: "Ask the AI AFL Fantasy analyst for trade advice, captain picks and player comparisons, powered by live SuperCoach and AFL Fantasy data.",
+  },
+  "/watchlist": {
+    title: "My Watchlist | AFLFantasyWire",
+    description: "Your personal AFL Fantasy and SuperCoach watchlist.",
+    noindex: true,
+  },
+};
+// SEO-friendly aliases the app also accepts -> their canonical route.
+const SEO_ALIASES = {
+  "/players": "/rankings", "/top-200": "/rankings",
+  "/risers": "/prices", "/fallers": "/prices",
+  "/news": "/feed", "/news-feed": "/feed",
+  "/form": "/formguide",
+  "/wire": "/waiver", "/waiver-wire": "/waiver",
+};
+function seoForPath(pathname) {
+  let p = (pathname || "/").toLowerCase().replace(/\/+$/, "") || "/";
+  if (SEO_ALIASES[p]) p = SEO_ALIASES[p];
+  const meta = SEO_ROUTES[p];
+  // Unknown paths consolidate onto the homepage so junk URLs don't get indexed.
+  if (!meta) return { path: "/", ...SEO_ROUTES["/"] };
+  return { path: p, ...meta };
+}
+function injectSeo(response, url) {
+  const seo = seoForPath(url.pathname);
+  const canonical = SITE + (seo.path === "/" ? "/" : seo.path);
+  const setContent = (attr, val) => ({ element(e) { e.setAttribute(attr, val); } });
+  let rw = new HTMLRewriter()
+    .on("title", { element(e) { e.setInnerContent(seo.title); } })
+    .on('meta[name="description"]', setContent("content", seo.description))
+    .on('meta[property="og:title"]', setContent("content", seo.title))
+    .on('meta[property="og:description"]', setContent("content", seo.description))
+    .on('meta[name="twitter:title"]', setContent("content", seo.title))
+    .on('meta[name="twitter:description"]', setContent("content", seo.description))
+    .on('meta[property="og:url"]', setContent("content", canonical))
+    .on('link[rel="canonical"]', setContent("href", canonical));
+  if (seo.noindex) {
+    rw = rw.on("head", {
+      element(e) { e.append('<meta name="robots" content="noindex,follow">', { html: true }); },
+    });
+  }
+  return rw.transform(response);
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -340,9 +427,15 @@ export default {
     // Everything else: serve static assets, with an SPA fallback to index.html
     // for clean app routes (e.g. /predict, /risers) that are not real files,
     // so deep links and refreshes load the app instead of 404ing.
-    const assetRes = await env.ASSETS.fetch(request);
+    let assetRes = await env.ASSETS.fetch(request);
     if (assetRes.status === 404 && request.method === "GET" && !url.pathname.slice(1).includes(".")) {
-      return env.ASSETS.fetch(new Request(new URL("/", request.url), request));
+      assetRes = await env.ASSETS.fetch(new Request(new URL("/", request.url), request));
+    }
+    // Give each app route its own crawlable + shareable metadata by rewriting
+    // the served HTML shell per pathname (the SPA never sets it client-side).
+    const ct = assetRes.headers.get("content-type") || "";
+    if (request.method === "GET" && ct.includes("text/html") && assetRes.status === 200) {
+      return injectSeo(assetRes, url);
     }
     return assetRes;
   },
