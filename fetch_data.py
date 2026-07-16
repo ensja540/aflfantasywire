@@ -2519,74 +2519,133 @@ def reconcile_predictions(players):
     return fixed
 
 
-# Gold "locks" — the highest-CONFIDENCE picks, not the highest-ceiling ones.
-# Backtested over rounds 11-18: the old spike-based rule (flag a player predicted
-# well ABOVE their average) hit only ~26%, because elevated projections regress
-# to the mean. The reliable signal is the opposite — a premium, consistent player
-# clearing a CONSERVATIVE floor. So a gold pick is now an elite accumulator or
-# goal threat with no recent bust, advertised at a floor they clear ~85%+ of the
-# time. statGold[stat] holds that FLOOR value (a number, still truthy for the
-# UI's existing gold checks); hasGold stays the convenience flag.
-# Per-stat premium bar (season avg to qualify as elite in that stat) and the
-# floor fraction of that average we advertise. Spikier stats (marks/tackles) need
-# a more conservative floor to hold ~82%+; high-volume stats (disposals) hold at
-# 0.80. Backtested rounds 11-18 to ~83-88% per stat, ~85% combined.
-GOLD_PREMIUM  = {"disposals": 27.0, "kicks": 14.0, "handballs": 12.0,
-                 "marks": 6.0, "tackles": 5.0}
-GOLD_FLOOR_K  = {"disposals": 0.80, "kicks": 0.75, "handballs": 0.70,
-                 "marks": 0.63, "tackles": 0.63}
-GOLD_MIN3_K   = 0.70   # no game in the last 3 below 70% of the average
-GOLD_GOAL_AVG = 1.7    # in-form multi-goal threat (season goal average)
+# Gold = DEEP VALUE picks, surfaced by our advanced metrics — not chalk, not safe
+# floors. Backtesting the per-round history proved the DvP matchup metric (statMatch)
+# genuinely finds value with NO lookahead: in a GENEROUS matchup a player beats their
+# own season average ~54-57% (disposals/kicks/marks), vs ~41-45% in a hard one — a
+# 12-17pt swing from matchup alone. Crucially that edge SURVIVES on under-owned players
+# (owned <25% -> same ~55%), so the market is NOT pricing the matchup in. Deep value =
+# an under-owned producer whose DvP matchup says smash, projected above their baseline
+# (and often below breakeven, so they also make cash). statGold[stat] holds the
+# matchup-boosted PROJECTION (the value target, a number); hasGold stays the flag;
+# goldMeta[stat] carries the "why" (owned / breakeven / matchup) for the UI.
+# Per-stat favourable-matchup bar (statMatch multiplier, 0.85-1.15 scale) — spikier,
+# more matchup-driven stats (marks) need a higher bar to stay exclusive.
+GOLD_MATCH_K  = {"disposals": 1.06, "kicks": 1.06, "handballs": 1.08,
+                 "marks": 1.12, "tackles": 1.07, "goals": 1.07}
+# Season-avg floor so the stat is actually relevant (don't flag a 9-disposal player).
+GOLD_RELV     = {"disposals": 18.0, "kicks": 10.0, "handballs": 8.0,
+                 "marks": 4.0, "tackles": 3.5, "goals": 1.0}
+GOLD_MARGIN   = 1.04   # projection must beat the season avg by >=4% (matchup lifting)
+GOLD_OWN_MAX  = 20.0   # differential only — excludes chalk (a 50%-owned gun isn't value)
+GOLD_DVP_K    = 1.06   # historical-badge DvP ratio for "favourable" (no-lookahead recon)
 _GOLD_RK = {"disposals": "dis", "kicks": "k", "handballs": "hb",
-            "marks": "mk", "tackles": "tk"}
+            "marks": "mk", "tackles": "tk", "goals": "gl"}
 
 
 def compute_gold(players):
-    """Flag high-confidence 'lock' picks for the predict tab — a premium, consistent
-    player advertised at a conservative floor they clear ~85%+ of the time. Every
-    accumulation stat (per-stat premium bar + floor) plus goals (floor = 1 goal).
-    statGold[stat] = the floor value (a number); hasGold = whether any is set."""
+    """Flag DEEP VALUE picks for the predict tab — under-owned producers whose DvP
+    matchup says smash. Per stat, a player is value gold when: the matchup is
+    favourable (statMatch >= GOLD_MATCH_K), the stat is relevant (season avg >=
+    GOLD_RELV), the matchup is genuinely lifting them (projection >= GOLD_MARGIN x avg),
+    and they're a differential (owned <= GOLD_OWN_MAX). statGold[stat] = the boosted
+    projection (the value target, a number); goldMeta[stat] carries the why; hasGold =
+    whether any is set."""
     for p in players:
-        rstats = p.get("roundStats") or []
-        gold = {}
-        for sk, rk in _GOLD_RK.items():
-            avg = p.get(sk) or 0
-            rv = [r.get(rk) for r in rstats if r.get(rk) is not None][-3:]
-            if avg >= GOLD_PREMIUM[sk] and len(rv) >= 3 and min(rv) >= GOLD_MIN3_K * avg:
-                floor = round(GOLD_FLOOR_K[sk] * avg)
-                if floor >= 2:
-                    gold[sk] = floor
-        # Goals: in-form multi-goal threat that hasn't blanked lately.
-        gavg = p.get("goals") or 0
-        grv = [r.get("gl") for r in rstats if r.get("gl") is not None][-3:]
-        if gavg >= GOLD_GOAL_AVG and len(grv) >= 3 and sum(grv) / len(grv) >= gavg and min(grv) >= 1:
-            gold["goals"] = 1
+        sm = p.get("statMatch") or {}
+        sp = p.get("statPred") or {}
+        own = p.get("owned")
+        if own is None:
+            own = p.get("classicOwned") or 0
+        be = p.get("breakeven")
+        gold, meta = {}, {}
+        if own <= GOLD_OWN_MAX:
+            for sk in _GOLD_RK:
+                avg = p.get(sk) or 0
+                m = sm.get(sk)
+                pr = sp.get(sk)
+                if m is None or pr is None:
+                    continue
+                tgt = round(pr)
+                if sk == "goals" and tgt < 2:   # only genuine multi-goal value plays
+                    continue
+                if (m >= GOLD_MATCH_K[sk] and avg >= GOLD_RELV[sk]
+                        and pr >= GOLD_MARGIN * avg):
+                    gold[sk] = tgt
+                    meta[sk] = {
+                        "own": round(own, 1),
+                        "match": round(m, 3),
+                        # projection clears breakeven -> also a price riser (cash value)
+                        "cash": bool(be is not None and (p.get("scProj") or 0) > be),
+                    }
         if gold:
             p["statGold"] = gold
+            p["goldMeta"] = meta
             p["hasGold"] = True
         else:
             p.pop("statGold", None)
+            p.pop("goldMeta", None)
             p["hasGold"] = False
 
 
 # Season-long hit rates for the two pick tiers the predict tab highlights, so the
 # UI can show how often each actually lands. Reconstructed from the graded
 # per-round history (roundResults) + each player's game log (roundStats), with NO
-# lookahead — season avg / recent form use only rounds BEFORE the graded round.
+# lookahead — season avg / matchup use only rounds BEFORE the graded round.
 #   • green = a prediction shaded green (low band above the season avg); a hit is
 #             the actual clearing that low band.
-#   • gold  = the floor-lock rule above, reconstructed per round; a hit is the
-#             actual clearing the advertised floor.
+#   • gold  = the deep-value rule above, reconstructed per round via DvP (the same
+#             favourable-matchup signal statMatch encodes live); the "hit" a value
+#             pick is judged on is beating the player's own season average — the
+#             matchup edge is precisely a bet that they will.
 _GREEN_PICK_ACC = None
 _GOLD_PICK_ACC = None
+
+
+def _build_dvp_index(players, sk, rk):
+    """Round-sorted (rnd, prefix-sum) arrays for league-by-position and
+    opponent-by-position stat means, so a no-lookahead DvP can be read off in
+    O(log n) per graded row. Returns (league_idx, opp_idx) keyed by pos / (pos,opp)."""
+    from collections import defaultdict
+    league = defaultdict(list)   # pos -> [(rnd, val)]
+    opp = defaultdict(list)      # (pos, opp) -> [(rnd, val)]
+    for p in players:
+        pos = (p.get("pos") or "MID")
+        for r in (p.get("roundStats") or []):
+            rn, v, o = r.get("r"), r.get(rk), r.get("opp")
+            if rn is None or v is None or not o or o == "Unknown":
+                continue
+            league[pos].append((rn, v))
+            opp[(pos, o)].append((rn, v))
+
+    def _prefix(pairs):
+        pairs.sort()
+        rnds = [x[0] for x in pairs]
+        ps = [0]
+        for _, v in pairs:
+            ps.append(ps[-1] + v)
+        return rnds, ps
+    return ({k: _prefix(v) for k, v in league.items()},
+            {k: _prefix(v) for k, v in opp.items()})
+
+
+def _mean_before(idx, rnd):
+    import bisect
+    if not idx:
+        return None
+    rnds, ps = idx
+    k = bisect.bisect_left(rnds, rnd)
+    return (ps[k] / k) if k > 0 else None
 
 
 def compute_pick_accuracy(players):
     global _GREEN_PICK_ACC, _GOLD_PICK_ACC
     _SK = (("disposals", "dis"), ("kicks", "k"), ("handballs", "hb"),
            ("marks", "mk"), ("tackles", "tk"), ("goals", "gl"))
+    dvp = {sk: _build_dvp_index(players, sk, rk) for sk, rk in _SK}
     green_n = green_hit = gold_n = gold_hit = 0
     for p in players:
+        pos = (p.get("pos") or "MID")
         rr = p.get("roundResults") or {}
         by_round = {r.get("r"): r for r in (p.get("roundStats") or []) if r.get("r") is not None}
         for rstr, res in rr.items():
@@ -2594,6 +2653,7 @@ def compute_pick_accuracy(players):
                 rnd = int(rstr)
             except Exception:
                 continue
+            opp = (by_round.get(rnd) or {}).get("opp")
             stats = res.get("stats") or {}
             for sk, rk in _SK:
                 cell = stats.get(sk)
@@ -2612,16 +2672,17 @@ def compute_pick_accuracy(players):
                 if sk != "goals" and low >= avg:          # green: floor above avg
                     green_n += 1
                     green_hit += (a >= low)
-                last3 = hist[-3:]
-                if sk == "goals":
-                    if avg >= GOLD_GOAL_AVG and sum(last3) / 3 >= avg and min(last3) >= 1:
-                        gold_n += 1
-                        gold_hit += (a >= 1)
-                elif avg >= GOLD_PREMIUM.get(sk, 1e9) and min(last3) >= GOLD_MIN3_K * avg:
-                    floor = round(GOLD_FLOOR_K[sk] * avg)
-                    if floor >= 2:
-                        gold_n += 1
-                        gold_hit += (a >= floor)
+                # gold = deep value: favourable DvP matchup on a relevant stat.
+                if avg < GOLD_RELV.get(sk, 1e9) or not opp:
+                    continue
+                league_idx, opp_idx = dvp[sk]
+                lpa = _mean_before(league_idx.get(pos), rnd)
+                coa = _mean_before(opp_idx.get((pos, opp)), rnd)
+                if not lpa or coa is None:
+                    continue
+                if coa / lpa >= GOLD_DVP_K:
+                    gold_n += 1
+                    gold_hit += (a >= avg)   # value = an above-baseline game
     _GREEN_PICK_ACC = {"hitPct": round(100 * green_hit / green_n), "n": green_n} if green_n else None
     _GOLD_PICK_ACC = {"hitPct": round(100 * gold_hit / gold_n), "n": gold_n} if gold_n else None
 
