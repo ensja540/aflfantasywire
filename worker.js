@@ -150,7 +150,16 @@ function injectSeo(response, url) {
       element(e) { e.append('<meta name="robots" content="noindex,follow">', { html: true }); },
     });
   }
-  return rw.transform(response);
+  const out = rw.transform(response);
+  // The shell is rewritten per route, but every route shares index.html's ETag,
+  // so a CDN keyed on that ETag would pin one route's rendered <head> for all of
+  // them. Drop the ETag and don't store the HTML at the edge so each request
+  // reflects its own route. The (fingerprinted) JS/CSS/image assets are separate
+  // responses and keep their own long-lived caching.
+  const headers = new Headers(out.headers);
+  headers.set("cache-control", "no-store");
+  headers.delete("etag");
+  return new Response(out.body, { status: out.status, statusText: out.statusText, headers });
 }
 
 export default {
