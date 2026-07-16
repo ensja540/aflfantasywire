@@ -2527,29 +2527,35 @@ def reconcile_predictions(players):
 # goal threat with no recent bust, advertised at a floor they clear ~85%+ of the
 # time. statGold[stat] holds that FLOOR value (a number, still truthy for the
 # UI's existing gold checks); hasGold stays the convenience flag.
-GOLD_DISPOSAL_AVG = 27.0   # elite midfielder (season disposal average)
-GOLD_FLOOR_K      = 0.80   # advertised floor = 80% of the season average
-GOLD_MIN3_K       = 0.70   # no game in the last 3 below 70% of the average
-GOLD_GOAL_AVG     = 1.7    # in-form multi-goal threat (season goal average)
+# Per-stat premium bar (season avg to qualify as elite in that stat) and the
+# floor fraction of that average we advertise. Spikier stats (marks/tackles) need
+# a more conservative floor to hold ~82%+; high-volume stats (disposals) hold at
+# 0.80. Backtested rounds 11-18 to ~83-88% per stat, ~85% combined.
+GOLD_PREMIUM  = {"disposals": 27.0, "kicks": 14.0, "handballs": 12.0,
+                 "marks": 6.0, "tackles": 5.0}
+GOLD_FLOOR_K  = {"disposals": 0.80, "kicks": 0.75, "handballs": 0.70,
+                 "marks": 0.63, "tackles": 0.63}
+GOLD_MIN3_K   = 0.70   # no game in the last 3 below 70% of the average
+GOLD_GOAL_AVG = 1.7    # in-form multi-goal threat (season goal average)
+_GOLD_RK = {"disposals": "dis", "kicks": "k", "handballs": "hb",
+            "marks": "mk", "tackles": "tk"}
 
 
 def compute_gold(players):
-    """Flag high-confidence 'lock' picks for the predict tab. Two kinds, each
-    advertised at a floor the player reliably clears (backtested ~85%+):
-      • disposals — elite mid (avg>=27), no recent bust; floor = round(0.8*avg)
-      • goals     — in-form threat (avg>=1.7, last-3 avg>=season, kicked >=1 in
-                    each of the last 3); floor = 1 goal
+    """Flag high-confidence 'lock' picks for the predict tab — a premium, consistent
+    player advertised at a conservative floor they clear ~85%+ of the time. Every
+    accumulation stat (per-stat premium bar + floor) plus goals (floor = 1 goal).
     statGold[stat] = the floor value (a number); hasGold = whether any is set."""
     for p in players:
         rstats = p.get("roundStats") or []
         gold = {}
-        # Disposals: premium, consistent accumulator -> conservative floor.
-        avg = p.get("disposals") or 0
-        rv = [r.get("dis") for r in rstats if r.get("dis") is not None][-3:]
-        if avg >= GOLD_DISPOSAL_AVG and len(rv) >= 3 and min(rv) >= GOLD_MIN3_K * avg:
-            floor = round(GOLD_FLOOR_K * avg)
-            if floor >= 3:
-                gold["disposals"] = floor
+        for sk, rk in _GOLD_RK.items():
+            avg = p.get(sk) or 0
+            rv = [r.get(rk) for r in rstats if r.get(rk) is not None][-3:]
+            if avg >= GOLD_PREMIUM[sk] and len(rv) >= 3 and min(rv) >= GOLD_MIN3_K * avg:
+                floor = round(GOLD_FLOOR_K[sk] * avg)
+                if floor >= 2:
+                    gold[sk] = floor
         # Goals: in-form multi-goal threat that hasn't blanked lately.
         gavg = p.get("goals") or 0
         grv = [r.get("gl") for r in rstats if r.get("gl") is not None][-3:]
@@ -2607,14 +2613,15 @@ def compute_pick_accuracy(players):
                     green_n += 1
                     green_hit += (a >= low)
                 last3 = hist[-3:]
-                if sk == "disposals" and avg >= GOLD_DISPOSAL_AVG and min(last3) >= GOLD_MIN3_K * avg:
-                    floor = round(GOLD_FLOOR_K * avg)
-                    if floor >= 3:
+                if sk == "goals":
+                    if avg >= GOLD_GOAL_AVG and sum(last3) / 3 >= avg and min(last3) >= 1:
+                        gold_n += 1
+                        gold_hit += (a >= 1)
+                elif avg >= GOLD_PREMIUM.get(sk, 1e9) and min(last3) >= GOLD_MIN3_K * avg:
+                    floor = round(GOLD_FLOOR_K[sk] * avg)
+                    if floor >= 2:
                         gold_n += 1
                         gold_hit += (a >= floor)
-                elif sk == "goals" and avg >= GOLD_GOAL_AVG and sum(last3) / 3 >= avg and min(last3) >= 1:
-                    gold_n += 1
-                    gold_hit += (a >= 1)
     _GREEN_PICK_ACC = {"hitPct": round(100 * green_hit / green_n), "n": green_n} if green_n else None
     _GOLD_PICK_ACC = {"hitPct": round(100 * gold_hit / gold_n), "n": gold_n} if gold_n else None
 
