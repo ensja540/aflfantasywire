@@ -1,6 +1,6 @@
 {
-  "scraped_at": "2026-07-20T21:52:35.828686",
-  "item_count": 67,
+  "scraped_at": "2026-07-20T22:09:00.610129",
+  "item_count": 52,
   "news": [
     {
       "id": 1,
@@ -15,7 +15,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-20T09:51:30.447731+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "17m ago",
       "headline": "Justin McInerney \u2014 OUT: Hamstring (4-5 weeks)",
       "body": "Justin McInerney has been ruled OUT with a hamstring Estimated return: 4-5 weeks. Status updated: Status NEWS \u2192 OUT; Sydney \u2192 Hamstring.",
       "signal": "sell",
@@ -77,7 +77,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-20T09:51:30.447731+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "17m ago",
       "headline": "Zak Butters \u2014 TBC: Ankle (TBC)",
       "body": "Zak Butters is in doubt with a ankle. Status updated: Status INJURY TBC \u2192 TBC; Port Adelaide \u2192 Ankle.",
       "signal": "hold",
@@ -428,6 +428,10 @@
         {
           "pid": 4140351725,
           "name": "Isaac Heeney"
+        },
+        {
+          "pid": 3884094693,
+          "name": "Harry Dean"
         }
       ],
       "teams": [
@@ -1408,201 +1412,6 @@
     },
     {
       "id": 32,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Isaac Cumming",
-      "pid": 195460597,
-      "team": "Adelaide",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Isaac Cumming under an injury cloud",
-      "body": "Isaac Cumming is in doubt after a hamstring complaint.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Hamstring"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Adelaide"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 195460597,
-          "name": "Isaac Cumming"
-        }
-      ],
-      "teams": [
-        "Adelaide"
-      ]
-    },
-    {
-      "id": 33,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Sid Draper",
-      "pid": 1763452386,
-      "team": "Adelaide",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Watch: Sid Draper",
-      "body": "Whispers Sid Draper is racing the clock on a jaw injury ahead of the weekend.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Jaw"
-        },
-        {
-          "l": "ETA",
-          "v": "TBC"
-        },
-        {
-          "l": "Club",
-          "v": "Adelaide"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 1763452386,
-          "name": "Sid Draper"
-        }
-      ],
-      "teams": [
-        "Adelaide"
-      ]
-    },
-    {
-      "id": 34,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Jarrod Berry",
-      "pid": 2269888017,
-      "team": "Brisbane",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Watch: Jarrod Berry",
-      "body": "Whispers Jarrod Berry is racing the clock on a calf injury ahead of the weekend.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Calf"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Brisbane"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 2269888017,
-          "name": "Jarrod Berry"
-        }
-      ],
-      "teams": [
-        "Brisbane"
-      ]
-    },
-    {
-      "id": 35,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1644,202 +1453,7 @@
       ]
     },
     {
-      "id": 36,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Ty Gallop",
-      "pid": 4067852004,
-      "team": "Brisbane",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Doubt over Ty Gallop",
-      "body": "Ty Gallop pulled up sore with a hamstring injury and is in doubt for this week.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Hamstring"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Brisbane"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 4067852004,
-          "name": "Ty Gallop"
-        }
-      ],
-      "teams": [
-        "Brisbane"
-      ]
-    },
-    {
-      "id": 37,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Jack Payne",
-      "pid": 2842891525,
-      "team": "Brisbane",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Watch: Jack Payne",
-      "body": "Whispers Jack Payne is racing the clock on a knee injury ahead of the weekend.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Knee"
-        },
-        {
-          "l": "ETA",
-          "v": "TBC"
-        },
-        {
-          "l": "Club",
-          "v": "Brisbane"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 2842891525,
-          "name": "Jack Payne"
-        }
-      ],
-      "teams": [
-        "Brisbane"
-      ]
-    },
-    {
-      "id": 38,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Dayne Zorko",
-      "pid": 3705830931,
-      "team": "Brisbane",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Watch: Dayne Zorko",
-      "body": "Whispers Dayne Zorko is racing the clock on a soreness ahead of the weekend.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Soreness"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Brisbane"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 3705830931,
-          "name": "Dayne Zorko"
-        }
-      ],
-      "teams": [
-        "Brisbane"
-      ]
-    },
-    {
-      "id": 39,
+      "id": 33,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -1882,202 +1496,7 @@
       ]
     },
     {
-      "id": 40,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Lucas Camporeale",
-      "pid": 1935357943,
-      "team": "Carlton",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Lucas Camporeale under an injury cloud",
-      "body": "Lucas Camporeale is in doubt after a kidney complaint.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Kidney"
-        },
-        {
-          "l": "ETA",
-          "v": "TBC"
-        },
-        {
-          "l": "Club",
-          "v": "Carlton"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 1935357943,
-          "name": "Lucas Camporeale"
-        }
-      ],
-      "teams": [
-        "Carlton"
-      ]
-    },
-    {
-      "id": 41,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Adam Saad",
-      "pid": 659211956,
-      "team": "Carlton",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Doubt over Adam Saad",
-      "body": "Adam Saad pulled up sore with a hamstring injury and is in doubt for this week.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Hamstring"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Carlton"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 659211956,
-          "name": "Adam Saad"
-        }
-      ],
-      "teams": [
-        "Carlton"
-      ]
-    },
-    {
-      "id": 42,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Tim Membrey",
-      "pid": 574744857,
-      "team": "Collingwood",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Tim Membrey on the watchlist",
-      "body": "Tim Membrey flagged with a hamstring injury.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Hamstring"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Collingwood"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 574744857,
-          "name": "Tim Membrey"
-        }
-      ],
-      "teams": [
-        "Collingwood"
-      ]
-    },
-    {
-      "id": 43,
+      "id": 34,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -2126,202 +1545,7 @@
       ]
     },
     {
-      "id": 44,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Darcy Moore",
-      "pid": 28813437,
-      "team": "Collingwood",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Darcy Moore under an injury cloud",
-      "body": "Darcy Moore is in doubt after a concussion complaint.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Concussion"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Collingwood"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 28813437,
-          "name": "Darcy Moore"
-        }
-      ],
-      "teams": [
-        "Collingwood"
-      ]
-    },
-    {
-      "id": 45,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Lachie Sullivan",
-      "pid": 526528273,
-      "team": "Collingwood",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Doubt over Lachie Sullivan",
-      "body": "Lachie Sullivan pulled up sore with a concussion and is in doubt for this week.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Concussion"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Collingwood"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 526528273,
-          "name": "Lachie Sullivan"
-        }
-      ],
-      "teams": [
-        "Collingwood"
-      ]
-    },
-    {
-      "id": 46,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Brayden Fiorini",
-      "pid": 630434660,
-      "team": "Essendon",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Brayden Fiorini under an injury cloud",
-      "body": "Brayden Fiorini is in doubt after a back complaint.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Back"
-        },
-        {
-          "l": "ETA",
-          "v": "TBC"
-        },
-        {
-          "l": "Club",
-          "v": "Essendon"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 630434660,
-          "name": "Brayden Fiorini"
-        }
-      ],
-      "teams": [
-        "Essendon"
-      ]
-    },
-    {
-      "id": 47,
+      "id": 35,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -2370,202 +1594,7 @@
       ]
     },
     {
-      "id": 48,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Zak Johnson",
-      "pid": 2343133454,
-      "team": "Essendon",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Zak Johnson under an injury cloud",
-      "body": "Zak Johnson is in doubt after a foot complaint.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Foot"
-        },
-        {
-          "l": "ETA",
-          "v": "TBC"
-        },
-        {
-          "l": "Club",
-          "v": "Essendon"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 2343133454,
-          "name": "Zak Johnson"
-        }
-      ],
-      "teams": [
-        "Essendon"
-      ]
-    },
-    {
-      "id": 49,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Peter Wright",
-      "pid": 2776733382,
-      "team": "Essendon",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Peter Wright under an injury cloud",
-      "body": "Peter Wright is in doubt after a knee complaint.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Knee"
-        },
-        {
-          "l": "ETA",
-          "v": "TBC"
-        },
-        {
-          "l": "Club",
-          "v": "Essendon"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 2776733382,
-          "name": "Peter Wright"
-        }
-      ],
-      "teams": [
-        "Essendon"
-      ]
-    },
-    {
-      "id": 50,
-      "type": "injury",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Corey Wagner",
-      "pid": 1135202499,
-      "team": "Fremantle",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "2d ago",
-      "headline": "Watch: Corey Wagner",
-      "body": "Whispers Corey Wagner is racing the clock on an adductor injury ahead of the weekend.",
-      "signal": "hold",
-      "signalConf": 88,
-      "tags": [
-        "Rumour",
-        "Watch"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Adductor"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Fremantle"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": true,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "2d ongoing",
-      "seen_count": 39,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "ongoing",
-      "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
-      "stale_after_days": 2,
-      "confirmed": false,
-      "_seen": "2026-07-20T09:51:30.505028+00:00",
-      "_padded": true,
-      "scrapedAt": "2026-07-20T09:51:30.507816+00:00",
-      "players": [
-        {
-          "pid": 1135202499,
-          "name": "Corey Wagner"
-        }
-      ],
-      "teams": [
-        "Fremantle"
-      ]
-    },
-    {
-      "id": 51,
+      "id": 36,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -2614,7 +1643,7 @@
       ]
     },
     {
-      "id": 52,
+      "id": 37,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -2657,7 +1686,7 @@
       ]
     },
     {
-      "id": 53,
+      "id": 38,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -2700,7 +1729,7 @@
       ]
     },
     {
-      "id": 54,
+      "id": 39,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -2743,7 +1772,7 @@
       ]
     },
     {
-      "id": 55,
+      "id": 40,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -2792,7 +1821,7 @@
       ]
     },
     {
-      "id": 56,
+      "id": 41,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -2841,7 +1870,7 @@
       ]
     },
     {
-      "id": 57,
+      "id": 42,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -2884,7 +1913,7 @@
       ]
     },
     {
-      "id": 58,
+      "id": 43,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -2927,7 +1956,7 @@
       ]
     },
     {
-      "id": 59,
+      "id": 44,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -2976,7 +2005,7 @@
       ]
     },
     {
-      "id": 60,
+      "id": 45,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -3019,7 +2048,7 @@
       ]
     },
     {
-      "id": 61,
+      "id": 46,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -3068,7 +2097,7 @@
       ]
     },
     {
-      "id": 62,
+      "id": 47,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -3117,7 +2146,7 @@
       ]
     },
     {
-      "id": 63,
+      "id": 48,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -3166,7 +2195,7 @@
       ]
     },
     {
-      "id": 64,
+      "id": 49,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -3209,7 +2238,7 @@
       ]
     },
     {
-      "id": 65,
+      "id": 50,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -3258,7 +2287,7 @@
       ]
     },
     {
-      "id": 66,
+      "id": 51,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -3307,7 +2336,7 @@
       ]
     },
     {
-      "id": 67,
+      "id": 52,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
