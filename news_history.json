@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-07-22T07:13:48.920197+00:00",
+  "updated": "2026-07-23T02:35:40.630756+00:00",
   "items": {
     "noPlayer_team_news_5ae9ff3e": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
@@ -10715,7 +10715,7 @@
     },
     "n_zak_butters_injury_tbc": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "3af08049a022",
       "last_status": "test",
       "last_item": {
@@ -10745,15 +10745,15 @@
         "relevance": 60,
         "_source": "club_port-adelaide",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "test",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 2
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "n_mitch_georgiades_injury_tbc": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
@@ -11541,59 +11541,48 @@
     },
     "n_justin_mcinerney_injury_out": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
-      "last_fp": "c1a912c133b3",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
+      "last_fp": "84ed10d5ed97",
       "last_status": "out",
       "last_item": {
         "id": null,
         "type": "injury",
         "category": "injury_out",
-        "urgent": true,
+        "urgent": false,
         "player": "Justin McInerney",
         "pid": 4225978163,
-        "team": null,
+        "team": "Sydney",
         "pos": null,
-        "source": "AFL.com.au",
-        "sourceHandle": "@aflcomau",
-        "reliability": 96,
-        "time": "2026-07-18T08:30:56.537997+00:00",
-        "timeLabel": "Latest",
-        "headline": "Justin McInerney \u2014 OUT: Hamstring (3-4 weeks)",
-        "body": "Justin McInerney has been ruled OUT with a hamstring Estimated return: 3-4 weeks.",
-        "signal": "sell",
-        "signalConf": 88,
+        "source": "Sydney FC",
+        "sourceHandle": "@sydneyswans",
+        "reliability": 90,
+        "time": "2026-07-23T02:35:40.389628+00:00",
+        "timeLabel": "recent",
+        "headline": "Hamstrung Swan reaches key rehab mark, eyes late-season return",
+        "body": "Justin McInerney hopes to return from a long injury layoff in round 23. Status updated: Status OUT \u2192 NEWS; Hamstring \u2192 Sydney.",
+        "link": "https://www.afl.com.au/news/1561165/hamstrung-sydney-swan-justin-mcinerney-reaches-key-rehab-milestone-eyes-late-season-return",
+        "signal": null,
+        "signalConf": 75,
         "tags": [
-          "Injury Out",
-          "Hamstring",
-          "3-4 weeks"
+          "News",
+          "Sydney"
         ],
-        "stats": [
-          {
-            "l": "Status",
-            "v": "OUT"
-          },
-          {
-            "l": "Injury",
-            "v": "Hamstring"
-          },
-          {
-            "l": "ETA",
-            "v": "3-4 weeks"
-          }
-        ],
-        "relevance": 100,
-        "_source": "afl_injury_page",
-        "is_rumour": false,
+        "stats": [],
+        "relevance": 25,
+        "_source": "club_sydney-swans",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "out",
-        "status_changed": false,
-        "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
-        "stale_after_days": 5
+        "status_changed": true,
+        "status": "update",
+        "status_label": "\ud83d\udfe1 Update",
+        "prev_status": "OUT",
+        "curr_status": "NEWS",
+        "change_desc": "Status OUT \u2192 NEWS; Hamstring \u2192 Sydney",
+        "stale_after_days": 1
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "n_sam_wicks_injury_out": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
@@ -11877,8 +11866,8 @@
     },
     "n_connor_budarick_injury_out": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
-      "last_fp": "e165a1c37a61",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
+      "last_fp": "2b51481e3236",
       "last_status": "out",
       "last_item": {
         "id": null,
@@ -11887,49 +11876,35 @@
         "urgent": true,
         "player": "Connor Budarick",
         "pid": 573454860,
-        "team": null,
+        "team": "Western Bulldogs",
         "pos": null,
-        "source": "AFL.com.au",
-        "sourceHandle": "@aflcomau",
-        "reliability": 96,
+        "source": "Western Bulldogs FC",
+        "sourceHandle": "@westernbulldogs",
+        "reliability": 90,
         "time": "2026-07-18T08:30:56.537997+00:00",
-        "timeLabel": "Latest",
-        "headline": "Connor Budarick \u2014 OUT: Ankle (4-6 weeks)",
-        "body": "Connor Budarick has been ruled OUT with a ankle Estimated return: 4-6 weeks.",
+        "timeLabel": "recent",
+        "headline": "Surgery puts impressive new Dog's season in doubt",
+        "body": "An ankle injury may sideline Connor Budarick past the home and away season",
+        "link": "https://www.afl.com.au/news/1555803/surgery-puts-new-western-bulldogs-dog-connor-budaricks-season-in-doubt",
         "signal": "sell",
-        "signalConf": 88,
+        "signalConf": 75,
         "tags": [
           "Injury Out",
-          "Ankle",
-          "4-6 weeks"
+          "Western Bulldogs"
         ],
-        "stats": [
-          {
-            "l": "Status",
-            "v": "OUT"
-          },
-          {
-            "l": "Injury",
-            "v": "Ankle"
-          },
-          {
-            "l": "ETA",
-            "v": "4-6 weeks"
-          }
-        ],
-        "relevance": 100,
-        "_source": "afl_injury_page",
-        "is_rumour": false,
+        "stats": [],
+        "relevance": 75,
+        "_source": "club_western-bulldogs",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "out",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
-        "stale_after_days": 3
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
+        "stale_after_days": 1
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "n_bailey_dale_injury_out": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
@@ -12417,7 +12392,7 @@
     },
     "n_isaac_heeney_injury_tbc": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "6396ea0cba31",
       "last_status": "test",
       "last_item": {
@@ -12447,15 +12422,15 @@
         "relevance": 25,
         "_source": "club_sydney-swans",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "test",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 2
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "noPlayer_general_b0aceee4": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
@@ -12848,7 +12823,7 @@
     },
     "n_kane_farrell_injury_out": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "37fef681f5d7",
       "last_status": "out",
       "last_item": {
@@ -12878,19 +12853,19 @@
         "relevance": 75,
         "_source": "club_port-adelaide",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "out",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 1
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "n_max_holmes_injury_tbc": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "fc15a07f2e58",
       "last_status": "test",
       "last_item": {
@@ -12920,20 +12895,20 @@
         "relevance": 35,
         "_source": "club_st-kilda",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "test",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 2
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "n_nick_haynes_team_news": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
-      "last_fp": "849919b1b636",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
+      "last_fp": "f46c9a52769a",
       "last_status": "named",
       "last_item": {
         "id": null,
@@ -12942,10 +12917,10 @@
         "urgent": false,
         "player": "Nick Haynes",
         "pid": 923467759,
-        "team": "Carlton",
+        "team": "Richmond",
         "pos": null,
-        "source": "Carlton FC",
-        "sourceHandle": "@carlton",
+        "source": "Richmond FC",
+        "sourceHandle": "@richmond",
         "reliability": 90,
         "time": "2026-07-18T08:30:56.537997+00:00",
         "timeLabel": "recent",
@@ -12956,21 +12931,21 @@
         "signalConf": 75,
         "tags": [
           "Named",
-          "Carlton"
+          "Richmond"
         ],
         "stats": [],
         "relevance": 35,
-        "_source": "club_carlton",
+        "_source": "club_richmond",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "named",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 7
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "n_scott_pendlebury_team_news": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
@@ -13226,7 +13201,7 @@
     },
     "n_jack_viney_injury_out": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "8121118f720b",
       "last_status": "out",
       "last_item": {
@@ -13256,19 +13231,19 @@
         "relevance": 35,
         "_source": "club_melbourne",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "out",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 1
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "noPlayer_general_a99068f9": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "d77c65199648",
       "last_status": "",
       "last_item": {
@@ -13298,15 +13273,15 @@
         "relevance": 30,
         "_source": "club_melbourne",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": null,
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 7
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "noPlayer_general_90a32b65": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
@@ -13352,7 +13327,7 @@
     },
     "n_george_wardlaw_injury_tbc": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "d554fa71b212",
       "last_status": "test",
       "last_item": {
@@ -13382,20 +13357,20 @@
         "relevance": 25,
         "_source": "club_north-melbourne",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "test",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 2
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "n_zak_butters_injury_out": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
-      "last_fp": "cf7f9b137c4a",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
+      "last_fp": "4fa1e7009af0",
       "last_status": "out",
       "last_item": {
         "id": null,
@@ -13404,53 +13379,39 @@
         "urgent": true,
         "player": "Zak Butters",
         "pid": 1280976323,
-        "team": null,
+        "team": "Port Adelaide",
         "pos": null,
-        "source": "AFL.com.au",
-        "sourceHandle": "@aflcomau",
-        "reliability": 96,
+        "source": "Port Adelaide FC",
+        "sourceHandle": "@portadelaide",
+        "reliability": 90,
         "time": "2026-07-18T08:30:56.537997+00:00",
-        "timeLabel": "Latest",
-        "headline": "Zak Butters \u2014 OUT: Ankle (4-5 weeks)",
-        "body": "Zak Butters has been ruled OUT with a ankle Estimated return: 4-5 weeks.",
+        "timeLabel": "recent",
+        "headline": "Star 'itching' to return as Port left with midfield holes to fill",
+        "body": "Zak Butters is eager to return for the Power this season despite his serious ankle injury",
+        "link": "https://www.afl.com.au/news/1561044/star-zak-butters-itching-to-return-as-port-adelaide-power-left-with-midfield-holes-to-fill",
         "signal": "sell",
-        "signalConf": 88,
+        "signalConf": 75,
         "tags": [
           "Injury Out",
-          "Ankle",
-          "4-5 weeks"
+          "Port Adelaide"
         ],
-        "stats": [
-          {
-            "l": "Status",
-            "v": "OUT"
-          },
-          {
-            "l": "Injury",
-            "v": "Ankle"
-          },
-          {
-            "l": "ETA",
-            "v": "4-5 weeks"
-          }
-        ],
-        "relevance": 100,
-        "_source": "afl_injury_page",
-        "is_rumour": false,
+        "stats": [],
+        "relevance": 60,
+        "_source": "club_port-adelaide",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "out",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
-        "stale_after_days": 3
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
+        "stale_after_days": 1
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "noPlayer_injury_tbc_f58f659e": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "ed77eb66e138",
       "last_status": "test",
       "last_item": {
@@ -13480,19 +13441,19 @@
         "relevance": 25,
         "_source": "club_port-adelaide",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "test",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 2
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "noPlayer_injury_tbc_d664f6b6": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "f50ae95cbc86",
       "last_status": "test",
       "last_item": {
@@ -13522,19 +13483,19 @@
         "relevance": 25,
         "_source": "club_richmond",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "test",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 2
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "noPlayer_injury_out_86b4899f": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "42cfed408815",
       "last_status": "out",
       "last_item": {
@@ -13564,19 +13525,19 @@
         "relevance": 60,
         "_source": "club_st-kilda",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "out",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 1
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "noPlayer_team_news_b44030b7": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "4f3c18c65715",
       "last_status": "named",
       "last_item": {
@@ -13606,15 +13567,15 @@
         "relevance": 50,
         "_source": "club_st-kilda",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "named",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 7
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "n_oliver_francou_team_news": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
@@ -13660,7 +13621,7 @@
     },
     "n_joel_freijah_general": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "cfa6c9a56e2f",
       "last_status": "",
       "last_item": {
@@ -13690,19 +13651,19 @@
         "relevance": 30,
         "_source": "club_western-bulldogs",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": null,
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 7
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "noPlayer_injury_tbc_5e600e1e": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "f143234bfb9d",
       "last_status": "test",
       "last_item": {
@@ -13732,19 +13693,19 @@
         "relevance": 60,
         "_source": "club_western-bulldogs",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "test",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 2
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "n_sam_darcy_injury_tbc": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "7e11204be909",
       "last_status": "test",
       "last_item": {
@@ -13774,15 +13735,15 @@
         "relevance": 60,
         "_source": "club_western-bulldogs",
         "first_seen": "2026-07-18T08:30:56.537997+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 65,
+        "age_label": "4d ongoing",
+        "seen_count": 66,
         "last_status": "test",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 2
       },
-      "seen_count": 65
+      "seen_count": 66
     },
     "n_jayden_short_named": {
       "first_seen": "2026-07-18T08:53:22.314372+00:00",
@@ -15246,7 +15207,7 @@
     },
     "noPlayer_injury_tbc_6a7ce4b1": {
       "first_seen": "2026-07-18T21:27:55.036696+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "last_fp": "704811a507ff",
       "last_status": "test",
       "last_item": {
@@ -15276,15 +15237,15 @@
         "relevance": 25,
         "_source": "club_melbourne",
         "first_seen": "2026-07-18T21:27:55.036696+00:00",
-        "age_label": "3d ongoing",
-        "seen_count": 52,
+        "age_label": "4d ongoing",
+        "seen_count": 53,
         "last_status": "test",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 4d ongoing",
         "stale_after_days": 2
       },
-      "seen_count": 52
+      "seen_count": 53
     },
     "n_harry_mckay_injury_tbc": {
       "first_seen": "2026-07-18T21:45:27.428699+00:00",
@@ -15558,8 +15519,8 @@
     },
     "n_taj_hotton_injury_tbc": {
       "first_seen": "2026-07-19T22:51:24.522589+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
-      "last_fp": "378ee2a35ff9",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
+      "last_fp": "82c2f323dea6",
       "last_status": "test",
       "last_item": {
         "id": null,
@@ -15568,10 +15529,10 @@
         "urgent": false,
         "player": "Taj Hotton",
         "pid": 2167700086,
-        "team": "Hawthorn",
+        "team": "Richmond",
         "pos": null,
-        "source": "Hawthorn FC",
-        "sourceHandle": "@hawthorn",
+        "source": "Richmond FC",
+        "sourceHandle": "@richmond",
         "reliability": 90,
         "time": "2026-07-19T22:51:24.522589+00:00",
         "timeLabel": "recent",
@@ -15582,21 +15543,21 @@
         "signalConf": 75,
         "tags": [
           "News",
-          "Hawthorn"
+          "Richmond"
         ],
         "stats": [],
         "relevance": 25,
-        "_source": "club_hawthorn",
+        "_source": "club_richmond",
         "first_seen": "2026-07-19T22:51:24.522589+00:00",
-        "age_label": "2d ongoing",
-        "seen_count": 46,
+        "age_label": "3d ongoing",
+        "seen_count": 47,
         "last_status": "test",
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 2d ongoing",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 3d ongoing",
         "stale_after_days": 2
       },
-      "seen_count": 46
+      "seen_count": 47
     },
     "n_nate_caddy_general": {
       "first_seen": "2026-07-19T22:51:24.522589+00:00",
@@ -19479,8 +19440,8 @@
     },
     "n_finn_o_sullivan_team_news": {
       "first_seen": "2026-07-21T22:46:27.804700+00:00",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
-      "last_fp": "64976351533c",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
+      "last_fp": "913fb9a0a0cc",
       "last_status": "",
       "last_item": {
         "id": null,
@@ -19489,36 +19450,35 @@
         "urgent": false,
         "player": "Finn O'Sullivan",
         "pid": 311630073,
-        "team": null,
+        "team": "North Melbourne",
         "pos": null,
-        "source": "AFL.com.au",
-        "sourceHandle": "@afl.com.au",
-        "reliability": 96,
+        "source": "North Melbourne FC",
+        "sourceHandle": "@northmelbourne",
+        "reliability": 90,
         "time": "2026-07-21T22:46:27.804700+00:00",
-        "timeLabel": "19h ago",
+        "timeLabel": "recent",
         "headline": "Roos young gun set to make big contract call as Tassie looms",
         "body": "Finn O'Sullivan is set to sign a new deal at North Melbourne",
         "link": "https://www.afl.com.au/news/1566209/north-melbourne-kangaroos-young-gun-finn-osullivan-set-to-make-big-contract-call-as-tasmania-devils-loom",
         "signal": null,
-        "signalConf": 80,
+        "signalConf": 75,
         "tags": [
-          "General"
+          "News",
+          "North Melbourne"
         ],
         "stats": [],
         "relevance": 30,
-        "_source": "rss_afl.com.au",
-        "pubISO": "2026-07-21T11:30:00+00:00",
-        "is_rumour": false,
+        "_source": "club_north-melbourne",
         "first_seen": "2026-07-21T22:46:27.804700+00:00",
-        "age_label": "8h ago",
-        "seen_count": 25,
+        "age_label": "1d ongoing",
+        "seen_count": 26,
         "last_status": null,
         "status_changed": false,
         "status": "ongoing",
-        "status_label": "\ud83d\udd01 Ongoing \u00b7 8h ago",
+        "status_label": "\ud83d\udd01 Ongoing \u00b7 1d ongoing",
         "stale_after_days": 7
       },
-      "seen_count": 25
+      "seen_count": 26
     },
     "n_benny_barrett_general": {
       "first_seen": "2026-07-21T22:46:27.804700+00:00",
@@ -19948,6 +19908,48 @@
         "last_status": null,
         "status_changed": false,
         "stale_after_days": 7
+      },
+      "seen_count": 1
+    },
+    "noPlayer_injury_tbc_6a2a2362": {
+      "first_seen": "2026-07-23T02:35:40.389628+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
+      "last_fp": "4c74b33b4a3d",
+      "last_status": "test",
+      "last_item": {
+        "id": null,
+        "type": "injury",
+        "category": "injury_tbc",
+        "urgent": false,
+        "player": "",
+        "pid": null,
+        "team": "North Melbourne",
+        "pos": null,
+        "source": "North Melbourne FC",
+        "sourceHandle": "@northmelbourne",
+        "reliability": 90,
+        "time": "2026-07-23T02:35:40.389628+00:00",
+        "timeLabel": "recent",
+        "headline": "Pies forward set for absence as all-time record faces biggest threat",
+        "body": "Collingwood is preparing to be without Lachie Schultz for an extended period of time after the livewire suffered a syndesmosis injury against the Kangaroos",
+        "link": "https://www.afl.com.au/news/1557320/collingwood-magpies-prepping-for-lachie-schultz-to-be-sidelined-by-syndesmosis-injury",
+        "signal": null,
+        "signalConf": 75,
+        "tags": [
+          "News",
+          "North Melbourne"
+        ],
+        "stats": [],
+        "relevance": 25,
+        "_source": "club_north-melbourne",
+        "status": "new",
+        "status_label": "\ud83d\udd34 New",
+        "first_seen": "2026-07-23T02:35:40.389628+00:00",
+        "age_label": "Just in",
+        "seen_count": 1,
+        "last_status": null,
+        "status_changed": true,
+        "stale_after_days": 2
       },
       "seen_count": 1
     }
@@ -23573,7 +23575,7 @@
       "status": "out",
       "prev_status": "test",
       "team": "Melbourne",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "source": "Melbourne FC"
     },
     "2597298081": {
@@ -23726,9 +23728,9 @@
     "2167700086": {
       "status": "test",
       "prev_status": "out",
-      "team": "Hawthorn",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
-      "source": "Hawthorn FC"
+      "team": "Richmond",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
+      "source": "Richmond FC"
     },
     "1996825427": {
       "status": "out",
@@ -23993,7 +23995,7 @@
       "status": "test",
       "prev_status": "out",
       "team": "Western Bulldogs",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "source": "Western Bulldogs FC"
     },
     "3995315370": {
@@ -24336,14 +24338,14 @@
       "status": "test",
       "prev_status": "out",
       "team": "North Melbourne",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "source": "North Melbourne FC"
     },
     "1280976323": {
       "status": "test",
       "prev_status": "out",
       "team": "Port Adelaide",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "source": "Port Adelaide FC"
     },
     "1242658255": {
@@ -24490,8 +24492,8 @@
       "status": "out",
       "prev_status": "",
       "team": "Sydney",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
-      "source": "AFL.com.au"
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
+      "source": "Sydney FC"
     },
     "3164821551": {
       "status": "test",
@@ -24539,8 +24541,8 @@
       "status": "out",
       "prev_status": "",
       "team": "Western Bulldogs",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
-      "source": "AFL.com.au"
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
+      "source": "Western Bulldogs FC"
     },
     "4083262921": {
       "status": "test",
@@ -24567,29 +24569,29 @@
       "status": "test",
       "prev_status": "",
       "team": "Sydney",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "source": "Sydney FC"
     },
     "4098135166": {
       "status": "out",
       "prev_status": "test",
       "team": "Port Adelaide",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "source": "Port Adelaide FC"
     },
     "3659969030": {
       "status": "test",
       "prev_status": "out",
       "team": "St Kilda",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
       "source": "St Kilda FC"
     },
     "923467759": {
       "status": "named",
       "prev_status": "",
-      "team": "Carlton",
-      "last_seen": "2026-07-22T07:13:48.906100+00:00",
-      "source": "Carlton FC"
+      "team": "Richmond",
+      "last_seen": "2026-07-23T02:35:40.389628+00:00",
+      "source": "Richmond FC"
     },
     "2272573343": {
       "status": "test",
@@ -24865,6 +24867,12 @@
         "status": "named",
         "role": "",
         "last_seen": "2026-07-18T08:53:22.314372+00:00"
+      },
+      "923467759": {
+        "named": true,
+        "status": "named",
+        "role": "",
+        "last_seen": "2026-07-23T02:35:40.389628+00:00"
       }
     },
     "Hawthorn": {
