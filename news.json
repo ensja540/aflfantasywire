@@ -1,9 +1,122 @@
 {
-  "scraped_at": "2026-07-26T19:03:45.184509",
-  "item_count": 441,
+  "scraped_at": "2026-07-26T19:25:26.358025",
+  "item_count": 445,
   "news": [
     {
       "id": 1,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Cody Weightman",
+      "pid": 542850771,
+      "team": "Western Bulldogs",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T07:21:42.207940+00:00",
+      "timeLabel": "1m ago",
+      "headline": "Cody Weightman \u2014 OUT: Knee (1-3 weeks)",
+      "body": "Cody Weightman (Western Bulldogs) has been ruled OUT with a knee Estimated return: 1-3 weeks. Status updated: Status INJURED \u2192 OUT.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Knee",
+        "1-3 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Knee"
+        },
+        {
+          "l": "ETA",
+          "v": "1-3 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Western Bulldogs"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": false,
+      "first_seen": "2026-07-26T07:21:42.207940+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "out",
+      "status_changed": true,
+      "status": "update",
+      "status_label": "\ud83d\udfe1 Update",
+      "prev_status": "INJURED",
+      "curr_status": "OUT",
+      "change_desc": "Status INJURED \u2192 OUT",
+      "stale_after_days": 5,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 542850771,
+          "name": "Cody Weightman"
+        }
+      ],
+      "teams": [
+        "Western Bulldogs"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "news",
+      "category": "general",
+      "urgent": false,
+      "player": "Harley Reid",
+      "pid": 1813220653,
+      "team": "West Coast",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 70,
+      "time": "2026-07-26T07:21:42.207940+00:00",
+      "timeLabel": "1m ago",
+      "headline": "Harley Reid: MATCH REVIEW: Reid learns fate for Johnson whack",
+      "body": "MATCH REVIEW: Reid learns fate for Johnson whack.",
+      "link": "https://www.afl.com.au/news/1568363/match-review-harley-reid-learns-fate-for-matthew-johnson-whack",
+      "signal": null,
+      "signalConf": 60,
+      "tags": [
+        "General",
+        "Harley Reid"
+      ],
+      "stats": [],
+      "is_rumour": false,
+      "relevance": 65,
+      "_source": "url_slug",
+      "pubISO": null,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-07-26T07:21:42.207940+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": false,
+      "stale_after_days": 7,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 1813220653,
+          "name": "Harley Reid"
+        }
+      ],
+      "teams": [
+        "West Coast"
+      ]
+    },
+    {
+      "id": 3,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -15,7 +128,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-26T06:59:35.089644+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "22m ago",
       "headline": "Mitch Hinge \u2014 OUT: Hamstring (1-2 weeks)",
       "body": "Mitch Hinge has been ruled OUT with a hamstring Estimated return: 1-2 weeks.",
       "signal": "sell",
@@ -59,7 +172,7 @@
       ]
     },
     {
-      "id": 2,
+      "id": 4,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -71,7 +184,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-26T06:59:35.089644+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "22m ago",
       "headline": "Darcy Gardiner \u2014 OUT: Hamstring (2-3 weeks)",
       "body": "Darcy Gardiner has been ruled OUT with a hamstring Estimated return: 2-3 weeks.",
       "signal": "sell",
@@ -115,7 +228,7 @@
       ]
     },
     {
-      "id": 3,
+      "id": 5,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -127,7 +240,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-26T06:59:35.089644+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "22m ago",
       "headline": "Jacob Weitering \u2014 OUT: Calf (3-4 weeks)",
       "body": "Jacob Weitering has been ruled OUT with a calf Estimated return: 3-4 weeks.",
       "signal": "sell",
@@ -171,7 +284,7 @@
       ]
     },
     {
-      "id": 4,
+      "id": 6,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -183,7 +296,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 70,
       "time": "2026-07-26T06:59:35.089644+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "22m ago",
       "headline": "Jordan Ridley: Bombers await next steps after scan results for key duo",
       "body": "Bombers await next steps after scan results for key duo.",
       "link": "https://www.afl.com.au/news/1570534/scan-reveal-extent-of-essendon-bomber-pairs-sullivan-robey-and-jordan-ridley-injuries",
@@ -218,7 +331,7 @@
       ]
     },
     {
-      "id": 5,
+      "id": 7,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -230,7 +343,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-26T06:59:35.089644+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "22m ago",
       "headline": "Lachie Schultz \u2014 OUT: Ankle (1-3 weeks)",
       "body": "Lachie Schultz has been ruled OUT with a ankle Estimated return: 1-3 weeks.",
       "signal": "sell",
@@ -274,7 +387,7 @@
       ]
     },
     {
-      "id": 6,
+      "id": 8,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -286,7 +399,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-26T06:59:35.089644+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "22m ago",
       "headline": "Tom Edwards \u2014 OUT: Hamstring (1 week)",
       "body": "Tom Edwards has been ruled OUT with a hamstring Estimated return: 1 week.",
       "signal": "sell",
@@ -330,7 +443,7 @@
       ]
     },
     {
-      "id": 7,
+      "id": 9,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -342,7 +455,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-26T06:59:35.089644+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "22m ago",
       "headline": "Kayle Gerreyn \u2014 OUT: Knee (2 weeks)",
       "body": "Kayle Gerreyn has been ruled OUT with a knee Estimated return: 2 weeks.",
       "signal": "sell",
@@ -386,7 +499,7 @@
       ]
     },
     {
-      "id": 8,
+      "id": 10,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -398,7 +511,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-07-26T06:30:00+00:00",
-      "timeLabel": "29m ago",
+      "timeLabel": "51m ago",
       "headline": "MATCH REVIEW: Bombers facing yet another fine for ump contact",
       "body": "The Match Review findings from Saturday's round 20 matches are in.",
       "link": "https://www.afl.com.au/news/1570579/match-review-essendon-bombers-facing-yet-another-fine-for-ump-contact",
@@ -426,148 +539,202 @@
       ]
     },
     {
-      "id": 9,
-      "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Rowan Marshall",
-      "pid": 755077307,
-      "team": "",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-26T05:13:00+00:00",
-      "timeLabel": "1h ago",
-      "pubISO": "2026-07-26T05:13:00+00:00",
-      "headline": "Rowan Marshall \u2014 OUT: this round",
-      "body": "Follow us on social media Follow all the action from Sunday's round 20 games ST KILDA has made a change minutes before the first bounce against North Melbourne with Rowan Marshall ruled out.",
-      "link": "https://www.afl.com.au/news/1566080/follow-it-live-brisbane-lions-v-port-adelaide-power-north-melbourne-kangaroos-v-st-kilda-saints-afl-round-20-2026",
-      "signal": "sell",
-      "signalConf": 85,
-      "tags": [
-        "OUT"
-      ],
-      "stats": [],
-      "relevance": 78,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-07-26T05:13:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 7,
-      "scrapedAt": "2026-07-26T06:59:35.255968+00:00",
-      "players": [
-        {
-          "pid": 755077307,
-          "name": "Rowan Marshall"
-        }
-      ],
-      "teams": [
-        "North Melbourne",
-        "St Kilda"
-      ]
-    },
-    {
-      "id": 10,
-      "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Anthony Caminiti",
-      "pid": 3921550519,
-      "team": "",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-26T05:13:00+00:00",
-      "timeLabel": "1h ago",
-      "pubISO": "2026-07-26T05:13:00+00:00",
-      "headline": "Anthony Caminiti \u2014 OUT: this round",
-      "body": "Marshall will miss with a back spasm and has been replaced by Anthony Caminiti.",
-      "link": "https://www.afl.com.au/news/1566080/follow-it-live-brisbane-lions-v-port-adelaide-power-north-melbourne-kangaroos-v-st-kilda-saints-afl-round-20-2026",
-      "signal": "sell",
-      "signalConf": 85,
-      "tags": [
-        "OUT"
-      ],
-      "stats": [],
-      "relevance": 78,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-07-26T05:13:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": "out",
-      "status_changed": false,
-      "stale_after_days": 7,
-      "scrapedAt": "2026-07-26T06:59:35.255968+00:00",
-      "players": [
-        {
-          "pid": 3921550519,
-          "name": "Anthony Caminiti"
-        }
-      ]
-    },
-    {
       "id": 11,
       "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Cooper Sharman",
-      "pid": 332595130,
-      "team": "",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Isaac Cumming",
+      "pid": 195460597,
+      "team": "Adelaide",
       "pos": null,
       "source": "AFL.com.au",
       "sourceHandle": "@aflcomau",
       "reliability": 96,
-      "time": "2026-07-26T05:13:00+00:00",
-      "timeLabel": "1h ago",
-      "pubISO": "2026-07-26T05:13:00+00:00",
-      "headline": "Cooper Sharman \u2014 OUT: this round",
-      "body": "KANGAROOS v SAINTS Full match coverage and stats It came after Cooper Sharman was ruled out an hour before the bounce and replaced by Dan Butler.",
-      "link": "https://www.afl.com.au/news/1566080/follow-it-live-brisbane-lions-v-port-adelaide-power-north-melbourne-kangaroos-v-st-kilda-saints-afl-round-20-2026",
-      "signal": "sell",
-      "signalConf": 85,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Isaac Cumming under an injury cloud",
+      "body": "Isaac Cumming is in doubt after a hamstring complaint.",
+      "signal": "hold",
+      "signalConf": 88,
       "tags": [
-        "OUT"
+        "Rumour",
+        "Watch"
       ],
-      "stats": [],
-      "relevance": 78,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-07-26T05:13:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 7,
-      "scrapedAt": "2026-07-26T06:59:35.255968+00:00",
-      "players": [
+      "stats": [
         {
-          "pid": 332595130,
-          "name": "Cooper Sharman"
+          "l": "Status",
+          "v": "TEST"
         },
         {
-          "pid": 989937385,
-          "name": "Dan Butler"
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Adelaide"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 195460597,
+          "name": "Isaac Cumming"
         }
       ],
       "teams": [
-        "North Melbourne",
-        "St Kilda"
+        "Adelaide"
       ]
     },
     {
       "id": 12,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Sid Draper",
+      "pid": 1763452386,
+      "team": "Adelaide",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Watch: Sid Draper",
+      "body": "Whispers Sid Draper is racing the clock on a jaw injury ahead of the weekend.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Jaw"
+        },
+        {
+          "l": "ETA",
+          "v": "TBC"
+        },
+        {
+          "l": "Club",
+          "v": "Adelaide"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 1763452386,
+          "name": "Sid Draper"
+        }
+      ],
+      "teams": [
+        "Adelaide"
+      ]
+    },
+    {
+      "id": 13,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Jarrod Berry",
+      "pid": 2269888017,
+      "team": "Brisbane",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Watch: Jarrod Berry",
+      "body": "Whispers Jarrod Berry is racing the clock on a calf injury ahead of the weekend.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Calf"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Brisbane"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 2269888017,
+          "name": "Jarrod Berry"
+        }
+      ],
+      "teams": [
+        "Brisbane"
+      ]
+    },
+    {
+      "id": 14,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -579,7 +746,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-26T05:13:00+00:00",
-      "timeLabel": "1h ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-07-26T05:13:00+00:00",
       "headline": "Tom De Koning \u2014 IN: this round",
       "body": "St Kilda fans will be excited with the return of Max King to play his first AFL game in over two years, and Tom De Koning coming back into the side after missing three games with fractured ribs and a punctured lung.",
@@ -617,62 +784,202 @@
       ]
     },
     {
-      "id": 13,
+      "id": 15,
       "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Riley Hardeman",
-      "pid": 2439256107,
-      "team": "",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Ty Gallop",
+      "pid": 4067852004,
+      "team": "Brisbane",
       "pos": null,
       "source": "AFL.com.au",
       "sourceHandle": "@aflcomau",
       "reliability": 96,
-      "time": "2026-07-26T05:13:00+00:00",
-      "timeLabel": "1h ago",
-      "pubISO": "2026-07-26T05:13:00+00:00",
-      "headline": "Riley Hardeman \u2014 OUT: this round",
-      "body": "North has lost Luke McDonald to a calf injury with the seasoned defender replaced by Griffin Logue, while Zac Banch has replaced the omitted Riley Hardeman.",
-      "link": "https://www.afl.com.au/news/1566080/follow-it-live-brisbane-lions-v-port-adelaide-power-north-melbourne-kangaroos-v-st-kilda-saints-afl-round-20-2026",
-      "signal": "sell",
-      "signalConf": 85,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Doubt over Ty Gallop",
+      "body": "Ty Gallop pulled up sore with a hamstring injury and is in doubt for this week.",
+      "signal": "hold",
+      "signalConf": 88,
       "tags": [
-        "OUT"
+        "Rumour",
+        "Watch"
       ],
-      "stats": [],
-      "relevance": 78,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-07-26T05:13:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": "out",
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Brisbane"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
       "status_changed": false,
-      "stale_after_days": 7,
-      "scrapedAt": "2026-07-26T06:59:35.255968+00:00",
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
       "players": [
         {
-          "pid": 1877465299,
-          "name": "Luke McDonald"
-        },
-        {
-          "pid": 898870361,
-          "name": "Griffin Logue"
-        },
-        {
-          "pid": 715950779,
-          "name": "Zac Banch"
-        },
-        {
-          "pid": 2439256107,
-          "name": "Riley Hardeman"
+          "pid": 4067852004,
+          "name": "Ty Gallop"
         }
+      ],
+      "teams": [
+        "Brisbane"
       ]
     },
     {
-      "id": 14,
+      "id": 16,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Jack Payne",
+      "pid": 2842891525,
+      "team": "Brisbane",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Watch: Jack Payne",
+      "body": "Whispers Jack Payne is racing the clock on a knee injury ahead of the weekend.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Knee"
+        },
+        {
+          "l": "ETA",
+          "v": "TBC"
+        },
+        {
+          "l": "Club",
+          "v": "Brisbane"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 2842891525,
+          "name": "Jack Payne"
+        }
+      ],
+      "teams": [
+        "Brisbane"
+      ]
+    },
+    {
+      "id": 17,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Dayne Zorko",
+      "pid": 3705830931,
+      "team": "Brisbane",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Watch: Dayne Zorko",
+      "body": "Whispers Dayne Zorko is racing the clock on a soreness ahead of the weekend.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Soreness"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Brisbane"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 3705830931,
+          "name": "Dayne Zorko"
+        }
+      ],
+      "teams": [
+        "Brisbane"
+      ]
+    },
+    {
+      "id": 18,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -684,7 +991,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-26T05:13:00+00:00",
-      "timeLabel": "1h ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-07-26T05:13:00+00:00",
       "headline": "Saints make late, late change for Roos clash. Follow LIVE",
       "body": "Australia's best network. Follow us on social media Follow all the action from Sunday's round 20 games ST KILDA has made a change minutes before the first bounce against North Melbourne with Rowan Mar.",
@@ -713,7 +1020,202 @@
       ]
     },
     {
-      "id": 15,
+      "id": 19,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Lucas Camporeale",
+      "pid": 1935357943,
+      "team": "Carlton",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Lucas Camporeale under an injury cloud",
+      "body": "Lucas Camporeale is in doubt after a kidney complaint.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Kidney"
+        },
+        {
+          "l": "ETA",
+          "v": "TBC"
+        },
+        {
+          "l": "Club",
+          "v": "Carlton"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 1935357943,
+          "name": "Lucas Camporeale"
+        }
+      ],
+      "teams": [
+        "Carlton"
+      ]
+    },
+    {
+      "id": 20,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Adam Saad",
+      "pid": 659211956,
+      "team": "Carlton",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Doubt over Adam Saad",
+      "body": "Adam Saad pulled up sore with a hamstring injury and is in doubt for this week.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Carlton"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 659211956,
+          "name": "Adam Saad"
+        }
+      ],
+      "teams": [
+        "Carlton"
+      ]
+    },
+    {
+      "id": 21,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Tim Membrey",
+      "pid": 574744857,
+      "team": "Collingwood",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Tim Membrey on the watchlist",
+      "body": "Tim Membrey flagged with a hamstring injury.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Collingwood"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 574744857,
+          "name": "Tim Membrey"
+        }
+      ],
+      "teams": [
+        "Collingwood"
+      ]
+    },
+    {
+      "id": 22,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -725,7 +1227,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-26T05:13:00+00:00",
-      "timeLabel": "1h ago",
+      "timeLabel": "2h ago",
       "pubISO": "2026-07-26T05:13:00+00:00",
       "headline": "Hugh Boxshall \u2014 IN: this round",
       "body": "Hugh Boxshall has also been named.",
@@ -757,7 +1259,202 @@
       ]
     },
     {
-      "id": 16,
+      "id": 23,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Darcy Moore",
+      "pid": 28813437,
+      "team": "Collingwood",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Darcy Moore under an injury cloud",
+      "body": "Darcy Moore is in doubt after a concussion complaint.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Concussion"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Collingwood"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 28813437,
+          "name": "Darcy Moore"
+        }
+      ],
+      "teams": [
+        "Collingwood"
+      ]
+    },
+    {
+      "id": 24,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Lachie Sullivan",
+      "pid": 526528273,
+      "team": "Collingwood",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Doubt over Lachie Sullivan",
+      "body": "Lachie Sullivan pulled up sore with a concussion and is in doubt for this week.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Concussion"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Collingwood"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 526528273,
+          "name": "Lachie Sullivan"
+        }
+      ],
+      "teams": [
+        "Collingwood"
+      ]
+    },
+    {
+      "id": 25,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Brayden Fiorini",
+      "pid": 630434660,
+      "team": "Essendon",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Brayden Fiorini under an injury cloud",
+      "body": "Brayden Fiorini is in doubt after a back complaint.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Back"
+        },
+        {
+          "l": "ETA",
+          "v": "TBC"
+        },
+        {
+          "l": "Club",
+          "v": "Essendon"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 630434660,
+          "name": "Brayden Fiorini"
+        }
+      ],
+      "teams": [
+        "Essendon"
+      ]
+    },
+    {
+      "id": 26,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -804,7 +1501,384 @@
       ]
     },
     {
-      "id": 17,
+      "id": 27,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Zak Johnson",
+      "pid": 2343133454,
+      "team": "Essendon",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Zak Johnson under an injury cloud",
+      "body": "Zak Johnson is in doubt after a foot complaint.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Foot"
+        },
+        {
+          "l": "ETA",
+          "v": "TBC"
+        },
+        {
+          "l": "Club",
+          "v": "Essendon"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 2343133454,
+          "name": "Zak Johnson"
+        }
+      ],
+      "teams": [
+        "Essendon"
+      ]
+    },
+    {
+      "id": 28,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Peter Wright",
+      "pid": 2776733382,
+      "team": "Essendon",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Peter Wright under an injury cloud",
+      "body": "Peter Wright is in doubt after a knee complaint.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Knee"
+        },
+        {
+          "l": "ETA",
+          "v": "TBC"
+        },
+        {
+          "l": "Club",
+          "v": "Essendon"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 2776733382,
+          "name": "Peter Wright"
+        }
+      ],
+      "teams": [
+        "Essendon"
+      ]
+    },
+    {
+      "id": 29,
+      "type": "injury",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "Corey Wagner",
+      "pid": 1135202499,
+      "team": "Fremantle",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T06:59:35.089644+00:00",
+      "timeLabel": "22m ago",
+      "headline": "Watch: Corey Wagner",
+      "body": "Whispers Corey Wagner is racing the clock on an adductor injury ahead of the weekend.",
+      "signal": "hold",
+      "signalConf": 88,
+      "tags": [
+        "Rumour",
+        "Watch"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "TEST"
+        },
+        {
+          "l": "Injury",
+          "v": "Adductor"
+        },
+        {
+          "l": "ETA",
+          "v": "Test"
+        },
+        {
+          "l": "Club",
+          "v": "Fremantle"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": true,
+      "first_seen": "2026-07-26T06:59:35.089644+00:00",
+      "age_label": "22m ago",
+      "seen_count": 2,
+      "last_status": "test",
+      "status_changed": false,
+      "status": "ongoing",
+      "status_label": "\ud83d\udd01 Ongoing \u00b7 22m ago",
+      "stale_after_days": 2,
+      "confirmed": false,
+      "_seen": "2026-07-26T07:21:42.264898+00:00",
+      "_padded": true,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "players": [
+        {
+          "pid": 1135202499,
+          "name": "Corey Wagner"
+        }
+      ],
+      "teams": [
+        "Fremantle"
+      ]
+    },
+    {
+      "id": 30,
+      "type": "news",
+      "category": "general",
+      "urgent": false,
+      "player": "",
+      "pid": null,
+      "team": null,
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@afl.com.au",
+      "reliability": 96,
+      "time": "2026-07-26T02:10:00+00:00",
+      "timeLabel": "5h ago",
+      "headline": "Final teams in as Lions look to continue winning run as Power visit. Follow LIVE",
+      "body": "Follow all the action from Sunday's round 20 games.",
+      "link": "https://www.afl.com.au/news/1566080/follow-it-live-brisbane-lions-v-port-adelaide-power-north-melbourne-kangaroos-v-st-kilda-saints-afl-round-20-2026",
+      "signal": null,
+      "signalConf": 80,
+      "tags": [
+        "General"
+      ],
+      "stats": [],
+      "relevance": 45,
+      "_source": "rss_afl.com.au",
+      "pubISO": "2026-07-26T02:10:00+00:00",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-07-26T02:10:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": false,
+      "stale_after_days": 7,
+      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
+      "teams": [
+        "Port Adelaide",
+        "Brisbane"
+      ]
+    },
+    {
+      "id": 31,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Rowan Marshall",
+      "pid": 755077307,
+      "team": "",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T05:13:00+00:00",
+      "timeLabel": "2h ago",
+      "pubISO": "2026-07-26T05:13:00+00:00",
+      "headline": "Rowan Marshall \u2014 OUT: this round",
+      "body": "Follow us on social media Follow all the action from Sunday's round 20 games ST KILDA has made a change minutes before the first bounce against North Melbourne with Rowan Marshall ruled out.",
+      "link": "https://www.afl.com.au/news/1566080/follow-it-live-brisbane-lions-v-port-adelaide-power-north-melbourne-kangaroos-v-st-kilda-saints-afl-round-20-2026",
+      "signal": "sell",
+      "signalConf": 85,
+      "tags": [
+        "OUT"
+      ],
+      "stats": [],
+      "relevance": 78,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-07-26T05:13:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": true,
+      "stale_after_days": 7,
+      "scrapedAt": "2026-07-26T06:59:35.255968+00:00",
+      "players": [
+        {
+          "pid": 755077307,
+          "name": "Rowan Marshall"
+        }
+      ],
+      "teams": [
+        "North Melbourne",
+        "St Kilda"
+      ]
+    },
+    {
+      "id": 32,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Anthony Caminiti",
+      "pid": 3921550519,
+      "team": "",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T05:13:00+00:00",
+      "timeLabel": "2h ago",
+      "pubISO": "2026-07-26T05:13:00+00:00",
+      "headline": "Anthony Caminiti \u2014 OUT: this round",
+      "body": "Marshall will miss with a back spasm and has been replaced by Anthony Caminiti.",
+      "link": "https://www.afl.com.au/news/1566080/follow-it-live-brisbane-lions-v-port-adelaide-power-north-melbourne-kangaroos-v-st-kilda-saints-afl-round-20-2026",
+      "signal": "sell",
+      "signalConf": 85,
+      "tags": [
+        "OUT"
+      ],
+      "stats": [],
+      "relevance": 78,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-07-26T05:13:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": "out",
+      "status_changed": false,
+      "stale_after_days": 7,
+      "scrapedAt": "2026-07-26T06:59:35.255968+00:00",
+      "players": [
+        {
+          "pid": 3921550519,
+          "name": "Anthony Caminiti"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Cooper Sharman",
+      "pid": 332595130,
+      "team": "",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T05:13:00+00:00",
+      "timeLabel": "2h ago",
+      "pubISO": "2026-07-26T05:13:00+00:00",
+      "headline": "Cooper Sharman \u2014 OUT: this round",
+      "body": "KANGAROOS v SAINTS Full match coverage and stats It came after Cooper Sharman was ruled out an hour before the bounce and replaced by Dan Butler.",
+      "link": "https://www.afl.com.au/news/1566080/follow-it-live-brisbane-lions-v-port-adelaide-power-north-melbourne-kangaroos-v-st-kilda-saints-afl-round-20-2026",
+      "signal": "sell",
+      "signalConf": 85,
+      "tags": [
+        "OUT"
+      ],
+      "stats": [],
+      "relevance": 78,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-07-26T05:13:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": true,
+      "stale_after_days": 7,
+      "scrapedAt": "2026-07-26T06:59:35.255968+00:00",
+      "players": [
+        {
+          "pid": 332595130,
+          "name": "Cooper Sharman"
+        },
+        {
+          "pid": 989937385,
+          "name": "Dan Butler"
+        }
+      ],
+      "teams": [
+        "North Melbourne",
+        "St Kilda"
+      ]
+    },
+    {
+      "id": 34,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -816,7 +1890,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-07-25T20:00:00+00:00",
-      "timeLabel": "10h ago",
+      "timeLabel": "11h ago",
       "headline": "Leave it to Levi: Why young Lion's content to bide his time",
       "body": "Despite rarely playing in his preferred position, Levi Ashcroft is taking whatever challenge Brisbane throws at him.",
       "link": "https://www.afl.com.au/news/1568868/leave-it-to-levi-why-young-brisbane-lion-ashcroft-is-content-to-bide-his-time",
@@ -850,7 +1924,62 @@
       ]
     },
     {
-      "id": 18,
+      "id": 35,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Riley Hardeman",
+      "pid": 2439256107,
+      "team": "",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-07-26T05:13:00+00:00",
+      "timeLabel": "2h ago",
+      "pubISO": "2026-07-26T05:13:00+00:00",
+      "headline": "Riley Hardeman \u2014 OUT: this round",
+      "body": "North has lost Luke McDonald to a calf injury with the seasoned defender replaced by Griffin Logue, while Zac Banch has replaced the omitted Riley Hardeman.",
+      "link": "https://www.afl.com.au/news/1566080/follow-it-live-brisbane-lions-v-port-adelaide-power-north-melbourne-kangaroos-v-st-kilda-saints-afl-round-20-2026",
+      "signal": "sell",
+      "signalConf": 85,
+      "tags": [
+        "OUT"
+      ],
+      "stats": [],
+      "relevance": 78,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-07-26T05:13:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": "out",
+      "status_changed": false,
+      "stale_after_days": 7,
+      "scrapedAt": "2026-07-26T06:59:35.255968+00:00",
+      "players": [
+        {
+          "pid": 1877465299,
+          "name": "Luke McDonald"
+        },
+        {
+          "pid": 898870361,
+          "name": "Griffin Logue"
+        },
+        {
+          "pid": 715950779,
+          "name": "Zac Banch"
+        },
+        {
+          "pid": 2439256107,
+          "name": "Riley Hardeman"
+        }
+      ]
+    },
+    {
+      "id": 36,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -862,7 +1991,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-07-25T20:00:00+00:00",
-      "timeLabel": "10h ago",
+      "timeLabel": "11h ago",
       "headline": "One year on: Re-live the full report and highlights from Nasiah's magic day",
       "body": "On the Sunday if round 20, 2025, Nasiah Wanganeen-Milera produced one of the most extraordinary individual performances of all time. Re-live the magic here.",
       "link": "https://www.afl.com.auhttps://www.afl.com.au/news/1375643",
@@ -893,7 +2022,7 @@
       ]
     },
     {
-      "id": 19,
+      "id": 37,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -905,7 +2034,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-07-25T12:12:00+00:00",
-      "timeLabel": "18h ago",
+      "timeLabel": "19h ago",
       "headline": "Bulldogs get a sniff of September after cruising past tired Tigers",
       "body": "Richmond challenged early but couldn't keep up with the Western Bulldogs as they hunt a spot in the top six.",
       "link": "https://www.afl.com.au/news/1568346/western-bulldogs-get-a-sniff-of-september-after-cruising-past-tired-richmond-tigers",
@@ -940,7 +2069,7 @@
       ]
     },
     {
-      "id": 20,
+      "id": 38,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -991,7 +2120,7 @@
       ]
     },
     {
-      "id": 21,
+      "id": 39,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1032,7 +2161,7 @@
       ]
     },
     {
-      "id": 22,
+      "id": 40,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -1094,7 +2223,7 @@
       ]
     },
     {
-      "id": 23,
+      "id": 41,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1137,7 +2266,7 @@
       ]
     },
     {
-      "id": 24,
+      "id": 42,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1149,7 +2278,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-07-24T07:20:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "headline": "Hawks great locked in, Swan set for talks, clubs to trial US prospects",
       "body": "Check out all the latest trade news from around the League.",
       "link": "https://www.afl.com.au/news/1566216/hawks-great-locked-in-swan-set-for-talks-big-call-looms-for-port-star",
@@ -1177,7 +2306,7 @@
       ]
     },
     {
-      "id": 25,
+      "id": 43,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -1189,7 +2318,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-24T07:00:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "pubISO": "2026-07-24T07:00:00+00:00",
       "headline": "C.Lake OUT: St Kilda \u2014 Calf",
       "body": "C.Lake has been ruled OUT for St Kilda in this round. Reason: calf.",
@@ -1225,7 +2354,7 @@
       ]
     },
     {
-      "id": 26,
+      "id": 44,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -1237,7 +2366,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-24T07:00:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "pubISO": "2026-07-24T07:00:00+00:00",
       "headline": "J.Mead OUT: Port Adelaide \u2014 Omitted",
       "body": "J.Mead has been ruled OUT for Port Adelaide in this round. Reason: omitted.",
@@ -1273,7 +2402,7 @@
       ]
     },
     {
-      "id": 27,
+      "id": 45,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1285,7 +2414,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-24T07:00:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "pubISO": "2026-07-24T07:00:00+00:00",
       "headline": "Z.Banch IN: Named for North Melbourne",
       "body": "Z.Banch has been named in North Melbourne's this round lineup. Coming in this week.",
@@ -1321,7 +2450,7 @@
       ]
     },
     {
-      "id": 28,
+      "id": 46,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1333,7 +2462,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-24T07:00:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "pubISO": "2026-07-24T07:00:00+00:00",
       "headline": "TEAMS: Key Saint back, big guns in for Port, Lions make Allen call",
       "body": "Australia's best network. Follow us on social media The teams for Sunday's round 20 matches are in ST KILDA has received a massive double boost ahead of its crucial clash with North Melbourne on Sunda.",
@@ -1363,7 +2492,7 @@
       ]
     },
     {
-      "id": 29,
+      "id": 47,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -1375,7 +2504,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-24T07:00:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "pubISO": "2026-07-24T07:00:00+00:00",
       "headline": "Jackson Mead \u2014 cleared / returned to play",
       "body": "Jackson Mead no longer appearing on injury/selection watch. Assumed fit.",
@@ -1412,7 +2541,7 @@
       ]
     },
     {
-      "id": 30,
+      "id": 48,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -1424,7 +2553,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-24T07:00:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "pubISO": "2026-07-24T07:00:00+00:00",
       "headline": "Riley Hardeman \u2014 cleared / returned to play",
       "body": "Riley Hardeman no longer appearing on injury/selection watch. Assumed fit.",
@@ -1461,7 +2590,7 @@
       ]
     },
     {
-      "id": 31,
+      "id": 49,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -1473,7 +2602,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-24T07:00:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "pubISO": "2026-07-24T07:00:00+00:00",
       "headline": "J.Richards \u2014 cleared / returned to play",
       "body": "J.Richards no longer appearing on injury/selection watch. Assumed fit.",
@@ -1504,7 +2633,7 @@
       ]
     },
     {
-      "id": 32,
+      "id": 50,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -1516,7 +2645,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-24T07:00:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "pubISO": "2026-07-24T07:00:00+00:00",
       "headline": "Jacob Wehr \u2014 cleared / returned to play",
       "body": "Jacob Wehr no longer appearing on injury/selection watch. Assumed fit.",
@@ -1553,7 +2682,7 @@
       ]
     },
     {
-      "id": 33,
+      "id": 51,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -1565,7 +2694,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-24T07:00:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "pubISO": "2026-07-24T07:00:00+00:00",
       "headline": "L.McDonald \u2014 cleared / returned to play",
       "body": "L.McDonald no longer appearing on injury/selection watch. Assumed fit.",
@@ -1596,7 +2725,7 @@
       ]
     },
     {
-      "id": 34,
+      "id": 52,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -1608,7 +2737,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-24T07:00:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "pubISO": "2026-07-24T07:00:00+00:00",
       "headline": "Anthony Caminiti \u2014 cleared / returned to play",
       "body": "Anthony Caminiti no longer appearing on injury/selection watch. Assumed fit.",
@@ -1645,7 +2774,7 @@
       ]
     },
     {
-      "id": 35,
+      "id": 53,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -1657,7 +2786,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-07-24T07:00:00+00:00",
-      "timeLabel": "1d ago",
+      "timeLabel": "2d ago",
       "pubISO": "2026-07-24T07:00:00+00:00",
       "headline": "L.Henry \u2014 cleared / returned to play",
       "body": "L.Henry no longer appearing on injury/selection watch. Assumed fit.",
@@ -1688,7 +2817,7 @@
       ]
     },
     {
-      "id": 36,
+      "id": 54,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1729,7 +2858,7 @@
       ]
     },
     {
-      "id": 37,
+      "id": 55,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1770,7 +2899,7 @@
       ]
     },
     {
-      "id": 38,
+      "id": 56,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1811,7 +2940,7 @@
       ]
     },
     {
-      "id": 39,
+      "id": 57,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1857,7 +2986,7 @@
       ]
     },
     {
-      "id": 40,
+      "id": 58,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1898,7 +3027,7 @@
       ]
     },
     {
-      "id": 41,
+      "id": 59,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1938,7 +3067,7 @@
       ]
     },
     {
-      "id": 42,
+      "id": 60,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1984,7 +3113,7 @@
       ]
     },
     {
-      "id": 43,
+      "id": 61,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2025,7 +3154,7 @@
       ]
     },
     {
-      "id": 44,
+      "id": 62,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -2091,7 +3220,7 @@
       ]
     },
     {
-      "id": 45,
+      "id": 63,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2137,7 +3266,7 @@
       ]
     },
     {
-      "id": 46,
+      "id": 64,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -2178,7 +3307,7 @@
       ]
     },
     {
-      "id": 47,
+      "id": 65,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -2226,7 +3355,7 @@
       ]
     },
     {
-      "id": 48,
+      "id": 66,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -2268,7 +3397,7 @@
       ]
     },
     {
-      "id": 49,
+      "id": 67,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -2310,7 +3439,7 @@
       ]
     },
     {
-      "id": 50,
+      "id": 68,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -2352,7 +3481,7 @@
       ]
     },
     {
-      "id": 51,
+      "id": 69,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -2400,7 +3529,7 @@
       ]
     },
     {
-      "id": 52,
+      "id": 70,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -2442,7 +3571,7 @@
       ]
     },
     {
-      "id": 53,
+      "id": 71,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -2484,7 +3613,7 @@
       ]
     },
     {
-      "id": 54,
+      "id": 72,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -2526,7 +3655,7 @@
       ]
     },
     {
-      "id": 55,
+      "id": 73,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -2568,7 +3697,7 @@
       ]
     },
     {
-      "id": 56,
+      "id": 74,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -2610,7 +3739,7 @@
       ]
     },
     {
-      "id": 57,
+      "id": 75,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -2658,7 +3787,7 @@
       ]
     },
     {
-      "id": 58,
+      "id": 76,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -2706,7 +3835,7 @@
       ]
     },
     {
-      "id": 59,
+      "id": 77,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -2748,7 +3877,7 @@
       ]
     },
     {
-      "id": 60,
+      "id": 78,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -2796,7 +3925,7 @@
       ]
     },
     {
-      "id": 61,
+      "id": 79,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -2838,7 +3967,7 @@
       ]
     },
     {
-      "id": 62,
+      "id": 80,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2886,7 +4015,7 @@
       ]
     },
     {
-      "id": 63,
+      "id": 81,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2934,7 +4063,7 @@
       ]
     },
     {
-      "id": 64,
+      "id": 82,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2982,7 +4111,7 @@
       ]
     },
     {
-      "id": 65,
+      "id": 83,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3024,7 +4153,7 @@
       ]
     },
     {
-      "id": 66,
+      "id": 84,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3072,7 +4201,7 @@
       ]
     },
     {
-      "id": 67,
+      "id": 85,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -3114,7 +4243,7 @@
       ]
     },
     {
-      "id": 68,
+      "id": 86,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -3162,7 +4291,7 @@
       ]
     },
     {
-      "id": 69,
+      "id": 87,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -3210,7 +4339,7 @@
       ]
     },
     {
-      "id": 70,
+      "id": 88,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -3258,7 +4387,7 @@
       ]
     },
     {
-      "id": 71,
+      "id": 89,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3306,7 +4435,7 @@
       ]
     },
     {
-      "id": 72,
+      "id": 90,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3354,7 +4483,7 @@
       ]
     },
     {
-      "id": 73,
+      "id": 91,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3396,7 +4525,7 @@
       ]
     },
     {
-      "id": 74,
+      "id": 92,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3444,7 +4573,7 @@
       ]
     },
     {
-      "id": 75,
+      "id": 93,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3492,7 +4621,7 @@
       ]
     },
     {
-      "id": 76,
+      "id": 94,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3540,7 +4669,7 @@
       ]
     },
     {
-      "id": 77,
+      "id": 95,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3588,7 +4717,7 @@
       ]
     },
     {
-      "id": 78,
+      "id": 96,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3636,7 +4765,7 @@
       ]
     },
     {
-      "id": 79,
+      "id": 97,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3684,7 +4813,7 @@
       ]
     },
     {
-      "id": 80,
+      "id": 98,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3726,7 +4855,7 @@
       ]
     },
     {
-      "id": 81,
+      "id": 99,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -3774,7 +4903,7 @@
       ]
     },
     {
-      "id": 82,
+      "id": 100,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3822,7 +4951,7 @@
       ]
     },
     {
-      "id": 83,
+      "id": 101,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -3864,7 +4993,7 @@
       ]
     },
     {
-      "id": 84,
+      "id": 102,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3906,7 +5035,7 @@
       ]
     },
     {
-      "id": 85,
+      "id": 103,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -3954,7 +5083,7 @@
       ]
     },
     {
-      "id": 86,
+      "id": 104,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3996,7 +5125,7 @@
       ]
     },
     {
-      "id": 87,
+      "id": 105,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4044,7 +5173,7 @@
       ]
     },
     {
-      "id": 88,
+      "id": 106,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4092,7 +5221,7 @@
       ]
     },
     {
-      "id": 89,
+      "id": 107,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4134,7 +5263,7 @@
       ]
     },
     {
-      "id": 90,
+      "id": 108,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4176,7 +5305,7 @@
       ]
     },
     {
-      "id": 91,
+      "id": 109,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4224,7 +5353,7 @@
       ]
     },
     {
-      "id": 92,
+      "id": 110,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4272,7 +5401,7 @@
       ]
     },
     {
-      "id": 93,
+      "id": 111,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -4320,7 +5449,7 @@
       ]
     },
     {
-      "id": 94,
+      "id": 112,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4368,7 +5497,7 @@
       ]
     },
     {
-      "id": 95,
+      "id": 113,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -4416,7 +5545,7 @@
       ]
     },
     {
-      "id": 96,
+      "id": 114,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4464,7 +5593,7 @@
       ]
     },
     {
-      "id": 97,
+      "id": 115,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4512,7 +5641,7 @@
       ]
     },
     {
-      "id": 98,
+      "id": 116,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4560,7 +5689,7 @@
       ]
     },
     {
-      "id": 99,
+      "id": 117,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4608,7 +5737,7 @@
       ]
     },
     {
-      "id": 100,
+      "id": 118,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -4656,7 +5785,7 @@
       ]
     },
     {
-      "id": 101,
+      "id": 119,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -4704,7 +5833,7 @@
       ]
     },
     {
-      "id": 102,
+      "id": 120,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -4752,7 +5881,7 @@
       ]
     },
     {
-      "id": 103,
+      "id": 121,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4794,7 +5923,7 @@
       ]
     },
     {
-      "id": 104,
+      "id": 122,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4842,7 +5971,7 @@
       ]
     },
     {
-      "id": 105,
+      "id": 123,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4884,7 +6013,7 @@
       ]
     },
     {
-      "id": 106,
+      "id": 124,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4936,7 +6065,7 @@
       ]
     },
     {
-      "id": 107,
+      "id": 125,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4984,7 +6113,7 @@
       ]
     },
     {
-      "id": 108,
+      "id": 126,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -5032,7 +6161,7 @@
       ]
     },
     {
-      "id": 109,
+      "id": 127,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -5080,7 +6209,7 @@
       ]
     },
     {
-      "id": 110,
+      "id": 128,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -5128,7 +6257,7 @@
       ]
     },
     {
-      "id": 111,
+      "id": 129,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -5176,7 +6305,7 @@
       ]
     },
     {
-      "id": 112,
+      "id": 130,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -5224,7 +6353,7 @@
       ]
     },
     {
-      "id": 113,
+      "id": 131,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -5272,7 +6401,7 @@
       ]
     },
     {
-      "id": 114,
+      "id": 132,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -5320,7 +6449,7 @@
       ]
     },
     {
-      "id": 115,
+      "id": 133,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -5368,7 +6497,7 @@
       ]
     },
     {
-      "id": 116,
+      "id": 134,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -5410,7 +6539,7 @@
       ]
     },
     {
-      "id": 117,
+      "id": 135,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -5452,7 +6581,7 @@
       ]
     },
     {
-      "id": 118,
+      "id": 136,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -5494,7 +6623,7 @@
       ]
     },
     {
-      "id": 119,
+      "id": 137,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -5542,7 +6671,7 @@
       ]
     },
     {
-      "id": 120,
+      "id": 138,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -5584,7 +6713,7 @@
       ]
     },
     {
-      "id": 121,
+      "id": 139,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5627,7 +6756,7 @@
       ]
     },
     {
-      "id": 122,
+      "id": 140,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5676,7 +6805,7 @@
       ]
     },
     {
-      "id": 123,
+      "id": 141,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5725,7 +6854,7 @@
       ]
     },
     {
-      "id": 124,
+      "id": 142,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -5768,7 +6897,7 @@
       ]
     },
     {
-      "id": 125,
+      "id": 143,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -5811,7 +6940,7 @@
       ]
     },
     {
-      "id": 126,
+      "id": 144,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -5854,7 +6983,7 @@
       ]
     },
     {
-      "id": 127,
+      "id": 145,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -5897,7 +7026,7 @@
       ]
     },
     {
-      "id": 128,
+      "id": 146,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -5940,7 +7069,7 @@
       ]
     },
     {
-      "id": 129,
+      "id": 147,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -5983,7 +7112,7 @@
       ]
     },
     {
-      "id": 130,
+      "id": 148,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -6026,7 +7155,7 @@
       ]
     },
     {
-      "id": 131,
+      "id": 149,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -6075,7 +7204,7 @@
       ]
     },
     {
-      "id": 132,
+      "id": 150,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -6118,7 +7247,7 @@
       ]
     },
     {
-      "id": 133,
+      "id": 151,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -6167,7 +7296,7 @@
       ]
     },
     {
-      "id": 134,
+      "id": 152,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -6210,7 +7339,7 @@
       ]
     },
     {
-      "id": 135,
+      "id": 153,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -6259,7 +7388,7 @@
       ]
     },
     {
-      "id": 136,
+      "id": 154,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -6308,7 +7437,7 @@
       ]
     },
     {
-      "id": 137,
+      "id": 155,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -6357,7 +7486,7 @@
       ]
     },
     {
-      "id": 138,
+      "id": 156,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -6406,7 +7535,7 @@
       ]
     },
     {
-      "id": 139,
+      "id": 157,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -6455,7 +7584,7 @@
       ]
     },
     {
-      "id": 140,
+      "id": 158,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -6498,7 +7627,7 @@
       ]
     },
     {
-      "id": 141,
+      "id": 159,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6539,7 +7668,7 @@
       ]
     },
     {
-      "id": 142,
+      "id": 160,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6586,7 +7715,7 @@
       ]
     },
     {
-      "id": 143,
+      "id": 161,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6626,7 +7755,7 @@
       ]
     },
     {
-      "id": 144,
+      "id": 162,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6666,7 +7795,7 @@
       ]
     },
     {
-      "id": 145,
+      "id": 163,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -6732,7 +7861,7 @@
       ]
     },
     {
-      "id": 146,
+      "id": 164,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6778,7 +7907,7 @@
       ]
     },
     {
-      "id": 147,
+      "id": 165,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -6824,7 +7953,7 @@
       ]
     },
     {
-      "id": 148,
+      "id": 166,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6870,7 +7999,7 @@
       ]
     },
     {
-      "id": 149,
+      "id": 167,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6917,7 +8046,7 @@
       ]
     },
     {
-      "id": 150,
+      "id": 168,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -6958,7 +8087,7 @@
       ]
     },
     {
-      "id": 151,
+      "id": 169,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -7006,7 +8135,7 @@
       ]
     },
     {
-      "id": 152,
+      "id": 170,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -7048,7 +8177,7 @@
       ]
     },
     {
-      "id": 153,
+      "id": 171,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -7090,7 +8219,7 @@
       ]
     },
     {
-      "id": 154,
+      "id": 172,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -7132,7 +8261,7 @@
       ]
     },
     {
-      "id": 155,
+      "id": 173,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -7180,7 +8309,7 @@
       ]
     },
     {
-      "id": 156,
+      "id": 174,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -7228,7 +8357,7 @@
       ]
     },
     {
-      "id": 157,
+      "id": 175,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -7276,7 +8405,7 @@
       ]
     },
     {
-      "id": 158,
+      "id": 176,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -7323,7 +8452,7 @@
       ]
     },
     {
-      "id": 159,
+      "id": 177,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -7366,7 +8495,7 @@
       ]
     },
     {
-      "id": 160,
+      "id": 178,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -7415,7 +8544,7 @@
       ]
     },
     {
-      "id": 161,
+      "id": 179,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -7458,7 +8587,7 @@
       ]
     },
     {
-      "id": 162,
+      "id": 180,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7498,7 +8627,7 @@
       ]
     },
     {
-      "id": 163,
+      "id": 181,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7545,7 +8674,7 @@
       ]
     },
     {
-      "id": 164,
+      "id": 182,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7591,7 +8720,7 @@
       ]
     },
     {
-      "id": 165,
+      "id": 183,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7634,7 +8763,7 @@
       ]
     },
     {
-      "id": 166,
+      "id": 184,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7680,7 +8809,7 @@
       ]
     },
     {
-      "id": 167,
+      "id": 185,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -7726,7 +8855,7 @@
       ]
     },
     {
-      "id": 168,
+      "id": 186,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7772,7 +8901,7 @@
       ]
     },
     {
-      "id": 169,
+      "id": 187,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -7828,7 +8957,7 @@
       ]
     },
     {
-      "id": 170,
+      "id": 188,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -7884,7 +9013,7 @@
       ]
     },
     {
-      "id": 171,
+      "id": 189,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7931,7 +9060,7 @@
       ]
     },
     {
-      "id": 172,
+      "id": 190,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -7987,7 +9116,7 @@
       ]
     },
     {
-      "id": 173,
+      "id": 191,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -8043,7 +9172,7 @@
       ]
     },
     {
-      "id": 174,
+      "id": 192,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -8099,7 +9228,7 @@
       ]
     },
     {
-      "id": 175,
+      "id": 193,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -8157,7 +9286,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 176,
+      "id": 194,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -8213,7 +9342,7 @@
       ]
     },
     {
-      "id": 177,
+      "id": 195,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -8269,7 +9398,7 @@
       ]
     },
     {
-      "id": 178,
+      "id": 196,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -8327,7 +9456,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 179,
+      "id": 197,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -8383,7 +9512,7 @@
       ]
     },
     {
-      "id": 180,
+      "id": 198,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -8441,7 +9570,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 181,
+      "id": 199,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -8499,7 +9628,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 182,
+      "id": 200,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -8557,7 +9686,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 183,
+      "id": 201,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -8615,7 +9744,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 184,
+      "id": 202,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -8673,7 +9802,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 185,
+      "id": 203,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -8731,7 +9860,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 186,
+      "id": 204,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -8789,7 +9918,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 187,
+      "id": 205,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -8847,7 +9976,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 188,
+      "id": 206,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -8905,7 +10034,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 189,
+      "id": 207,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -8963,7 +10092,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 190,
+      "id": 208,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -9021,7 +10150,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 191,
+      "id": 209,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -9079,7 +10208,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 192,
+      "id": 210,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -9137,7 +10266,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 193,
+      "id": 211,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -9195,7 +10324,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 194,
+      "id": 212,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -9253,7 +10382,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 195,
+      "id": 213,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -9311,7 +10440,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 196,
+      "id": 214,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -9369,7 +10498,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 197,
+      "id": 215,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9415,7 +10544,7 @@
       ]
     },
     {
-      "id": 198,
+      "id": 216,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9456,7 +10585,7 @@
       ]
     },
     {
-      "id": 199,
+      "id": 217,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -9500,7 +10629,7 @@
       ]
     },
     {
-      "id": 200,
+      "id": 218,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9546,54 +10675,7 @@
       ]
     },
     {
-      "id": 201,
-      "type": "news",
-      "category": "general",
-      "urgent": false,
-      "player": "Jayden Hunt",
-      "pid": null,
-      "team": null,
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@afl.com.au",
-      "reliability": 96,
-      "time": "2026-07-21T02:59:00+00:00",
-      "timeLabel": "5d ago",
-      "headline": "Longmuir has Dockers preparing for a scrap as Eagles hunt a 'scalp'",
-      "body": "This Friday's Western Derby is going to be as fierce as any despite Fremantle's dominant ladder position.",
-      "link": "https://www.afl.com.au/news/1566212/longmuir-has-fremantle-dockers-preparing-for-a-scrap-as-west-coast-eagles-hunt-a-scalp",
-      "signal": null,
-      "signalConf": 80,
-      "tags": [
-        "General"
-      ],
-      "stats": [],
-      "relevance": 45,
-      "_source": "rss_afl.com.au",
-      "pubISO": "2026-07-21T02:59:00+00:00",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-07-21T02:59:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": false,
-      "stale_after_days": 7,
-      "scrapedAt": "2026-07-21T10:02:23.827442+00:00",
-      "players": [
-        {
-          "pid": null,
-          "name": "Jayden Hunt"
-        }
-      ],
-      "teams": [
-        "West Coast",
-        "Fremantle"
-      ]
-    },
-    {
-      "id": 202,
+      "id": 219,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -9637,7 +10719,7 @@
       ]
     },
     {
-      "id": 203,
+      "id": 220,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -9684,7 +10766,7 @@
       ]
     },
     {
-      "id": 204,
+      "id": 221,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9724,7 +10806,7 @@
       ]
     },
     {
-      "id": 205,
+      "id": 222,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9770,7 +10852,7 @@
       ]
     },
     {
-      "id": 206,
+      "id": 223,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9816,7 +10898,7 @@
       ]
     },
     {
-      "id": 207,
+      "id": 224,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -9878,7 +10960,7 @@
       ]
     },
     {
-      "id": 208,
+      "id": 225,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -9940,7 +11022,7 @@
       ]
     },
     {
-      "id": 209,
+      "id": 226,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9980,7 +11062,7 @@
       ]
     },
     {
-      "id": 210,
+      "id": 227,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10026,7 +11108,7 @@
       ]
     },
     {
-      "id": 211,
+      "id": 228,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10066,7 +11148,7 @@
       ]
     },
     {
-      "id": 212,
+      "id": 229,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10112,7 +11194,7 @@
       ]
     },
     {
-      "id": 213,
+      "id": 230,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10160,7 +11242,7 @@
       ]
     },
     {
-      "id": 214,
+      "id": 231,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -10208,7 +11290,7 @@
       ]
     },
     {
-      "id": 215,
+      "id": 232,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10249,7 +11331,7 @@
       ]
     },
     {
-      "id": 216,
+      "id": 233,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10296,7 +11378,7 @@
       ]
     },
     {
-      "id": 217,
+      "id": 234,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10342,7 +11424,7 @@
       ]
     },
     {
-      "id": 218,
+      "id": 235,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10382,7 +11464,7 @@
       ]
     },
     {
-      "id": 219,
+      "id": 236,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10423,7 +11505,7 @@
       ]
     },
     {
-      "id": 220,
+      "id": 237,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -10474,7 +11556,7 @@
       ]
     },
     {
-      "id": 221,
+      "id": 238,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10515,7 +11597,7 @@
       ]
     },
     {
-      "id": 222,
+      "id": 239,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10566,7 +11648,7 @@
       ]
     },
     {
-      "id": 223,
+      "id": 240,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10607,7 +11689,7 @@
       ]
     },
     {
-      "id": 224,
+      "id": 241,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -10648,7 +11730,7 @@
       ]
     },
     {
-      "id": 225,
+      "id": 242,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10688,7 +11770,7 @@
       ]
     },
     {
-      "id": 226,
+      "id": 243,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10735,7 +11817,7 @@
       ]
     },
     {
-      "id": 227,
+      "id": 244,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10776,7 +11858,7 @@
       ]
     },
     {
-      "id": 228,
+      "id": 245,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10817,7 +11899,7 @@
       ]
     },
     {
-      "id": 229,
+      "id": 246,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10858,7 +11940,7 @@
       ]
     },
     {
-      "id": 230,
+      "id": 247,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -10898,7 +11980,7 @@
       ]
     },
     {
-      "id": 231,
+      "id": 248,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -10944,7 +12026,7 @@
       ]
     },
     {
-      "id": 232,
+      "id": 249,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -10990,7 +12072,7 @@
       ]
     },
     {
-      "id": 233,
+      "id": 250,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11036,7 +12118,7 @@
       ]
     },
     {
-      "id": 234,
+      "id": 251,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11082,7 +12164,7 @@
       ]
     },
     {
-      "id": 235,
+      "id": 252,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11140,7 +12222,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 236,
+      "id": 253,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11198,7 +12280,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 237,
+      "id": 254,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -11256,7 +12338,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 238,
+      "id": 255,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11314,7 +12396,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 239,
+      "id": 256,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11372,7 +12454,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 240,
+      "id": 257,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11430,7 +12512,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 241,
+      "id": 258,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11488,7 +12570,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 242,
+      "id": 259,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11546,7 +12628,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 243,
+      "id": 260,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11604,7 +12686,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 244,
+      "id": 261,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11662,7 +12744,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 245,
+      "id": 262,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11720,7 +12802,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 246,
+      "id": 263,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -11778,7 +12860,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 247,
+      "id": 264,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11836,7 +12918,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 248,
+      "id": 265,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11894,7 +12976,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 249,
+      "id": 266,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -11952,7 +13034,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 250,
+      "id": 267,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12010,7 +13092,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 251,
+      "id": 268,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12068,7 +13150,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 252,
+      "id": 269,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12126,7 +13208,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 253,
+      "id": 270,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12184,7 +13266,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 254,
+      "id": 271,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12242,7 +13324,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 255,
+      "id": 272,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -12300,7 +13382,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 256,
+      "id": 273,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12358,7 +13440,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 257,
+      "id": 274,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12416,7 +13498,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 258,
+      "id": 275,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12474,7 +13556,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 259,
+      "id": 276,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12532,7 +13614,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 260,
+      "id": 277,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12590,7 +13672,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 261,
+      "id": 278,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12648,7 +13730,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 262,
+      "id": 279,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12706,7 +13788,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 263,
+      "id": 280,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12764,7 +13846,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 264,
+      "id": 281,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12822,7 +13904,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 265,
+      "id": 282,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -12880,7 +13962,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 266,
+      "id": 283,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -12938,7 +14020,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 267,
+      "id": 284,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -12996,7 +14078,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 268,
+      "id": 285,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -13054,7 +14136,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 269,
+      "id": 286,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -13112,7 +14194,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 270,
+      "id": 287,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -13170,7 +14252,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 271,
+      "id": 288,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -13228,7 +14310,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 272,
+      "id": 289,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -13274,7 +14356,7 @@
       ]
     },
     {
-      "id": 273,
+      "id": 290,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -13332,7 +14414,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 274,
+      "id": 291,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -13390,7 +14472,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 275,
+      "id": 292,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -13448,7 +14530,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 276,
+      "id": 293,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -13506,7 +14588,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 277,
+      "id": 294,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -13564,7 +14646,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 278,
+      "id": 295,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -13622,7 +14704,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 279,
+      "id": 296,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -13680,7 +14762,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 280,
+      "id": 297,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -13738,7 +14820,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 281,
+      "id": 298,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -13796,7 +14878,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 282,
+      "id": 299,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -13854,7 +14936,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 283,
+      "id": 300,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -13912,7 +14994,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 284,
+      "id": 301,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -13970,7 +15052,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 285,
+      "id": 302,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14028,7 +15110,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 286,
+      "id": 303,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -14086,7 +15168,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 287,
+      "id": 304,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14144,7 +15226,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 288,
+      "id": 305,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14202,7 +15284,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 289,
+      "id": 306,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14260,7 +15342,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 290,
+      "id": 307,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14318,7 +15400,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 291,
+      "id": 308,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14376,7 +15458,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 292,
+      "id": 309,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -14434,7 +15516,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 293,
+      "id": 310,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14492,7 +15574,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 294,
+      "id": 311,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14550,7 +15632,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 295,
+      "id": 312,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14608,7 +15690,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 296,
+      "id": 313,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14666,7 +15748,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 297,
+      "id": 314,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14724,7 +15806,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 298,
+      "id": 315,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14782,7 +15864,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 299,
+      "id": 316,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -14840,7 +15922,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 300,
+      "id": 317,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14898,7 +15980,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 301,
+      "id": 318,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14956,7 +16038,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 302,
+      "id": 319,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -15014,7 +16096,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 303,
+      "id": 320,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15072,7 +16154,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 304,
+      "id": 321,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15130,7 +16212,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 305,
+      "id": 322,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -15188,7 +16270,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 306,
+      "id": 323,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15246,7 +16328,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 307,
+      "id": 324,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15304,7 +16386,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 308,
+      "id": 325,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15362,7 +16444,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 309,
+      "id": 326,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15420,7 +16502,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 310,
+      "id": 327,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15478,7 +16560,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 311,
+      "id": 328,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15536,7 +16618,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 312,
+      "id": 329,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15594,7 +16676,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 313,
+      "id": 330,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15652,137 +16734,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 314,
-      "type": "selection",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Isaac Cumming",
-      "pid": 195460597,
-      "team": "Adelaide",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "18 Jul",
-      "headline": "Isaac Cumming \u2014 cleared / returned to play",
-      "body": "Isaac Cumming no longer appearing on injury/selection watch. Assumed fit.",
-      "signal": "buy",
-      "signalConf": 88,
-      "tags": [
-        "TEST",
-        "Hamstring",
-        "Test"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Hamstring"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Adelaide"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "6d ongoing",
-      "seen_count": 87,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "resolved",
-      "status_label": "\u2705 Resolved",
-      "stale_after_days": 7,
-      "resolved_at": "2026-07-26T06:37:07.118144+00:00",
-      "scrapedAt": "2026-07-26T06:37:07.176089+00:00",
-      "players": [
-        {
-          "pid": 195460597,
-          "name": "Isaac Cumming"
-        }
-      ],
-      "teams": [
-        "Adelaide"
-      ],
-      "link": "https://www.afl.com.au/matches/team-selection"
-    },
-    {
-      "id": 315,
-      "type": "selection",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Sid Draper",
-      "pid": 1763452386,
-      "team": "Adelaide",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "18 Jul",
-      "headline": "Sid Draper \u2014 cleared / returned to play",
-      "body": "Sid Draper no longer appearing on injury/selection watch. Assumed fit.",
-      "signal": "buy",
-      "signalConf": 88,
-      "tags": [
-        "TEST",
-        "Jaw",
-        "TBC"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Jaw"
-        },
-        {
-          "l": "ETA",
-          "v": "TBC"
-        },
-        {
-          "l": "Club",
-          "v": "Adelaide"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "6d ongoing",
-      "seen_count": 87,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "resolved",
-      "status_label": "\u2705 Resolved",
-      "stale_after_days": 7,
-      "resolved_at": "2026-07-26T06:37:07.118144+00:00",
-      "scrapedAt": "2026-07-26T06:37:07.176089+00:00",
-      "players": [
-        {
-          "pid": 1763452386,
-          "name": "Sid Draper"
-        }
-      ],
-      "teams": [
-        "Adelaide"
-      ],
-      "link": "https://www.afl.com.au/matches/team-selection"
-    },
-    {
-      "id": 316,
+      "id": 331,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15847,7 +16799,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 317,
+      "id": 332,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15912,137 +16864,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 318,
-      "type": "selection",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Jarrod Berry",
-      "pid": 2269888017,
-      "team": "Brisbane",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "18 Jul",
-      "headline": "Jarrod Berry \u2014 cleared / returned to play",
-      "body": "Jarrod Berry no longer appearing on injury/selection watch. Assumed fit.",
-      "signal": "buy",
-      "signalConf": 88,
-      "tags": [
-        "TEST",
-        "Calf",
-        "Test"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Calf"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Brisbane"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "6d ongoing",
-      "seen_count": 87,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "resolved",
-      "status_label": "\u2705 Resolved",
-      "stale_after_days": 7,
-      "resolved_at": "2026-07-26T06:37:07.118144+00:00",
-      "scrapedAt": "2026-07-26T06:37:07.176089+00:00",
-      "players": [
-        {
-          "pid": 2269888017,
-          "name": "Jarrod Berry"
-        }
-      ],
-      "teams": [
-        "Brisbane"
-      ],
-      "link": "https://www.afl.com.au/matches/team-selection"
-    },
-    {
-      "id": 319,
-      "type": "selection",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Ty Gallop",
-      "pid": 4067852004,
-      "team": "Brisbane",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "18 Jul",
-      "headline": "Ty Gallop \u2014 cleared / returned to play",
-      "body": "Ty Gallop no longer appearing on injury/selection watch. Assumed fit.",
-      "signal": "buy",
-      "signalConf": 88,
-      "tags": [
-        "TEST",
-        "Hamstring",
-        "Test"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Hamstring"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Brisbane"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "6d ongoing",
-      "seen_count": 87,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "resolved",
-      "status_label": "\u2705 Resolved",
-      "stale_after_days": 7,
-      "resolved_at": "2026-07-26T06:37:07.118144+00:00",
-      "scrapedAt": "2026-07-26T06:37:07.176089+00:00",
-      "players": [
-        {
-          "pid": 4067852004,
-          "name": "Ty Gallop"
-        }
-      ],
-      "teams": [
-        "Brisbane"
-      ],
-      "link": "https://www.afl.com.au/matches/team-selection"
-    },
-    {
-      "id": 320,
+      "id": 333,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16107,7 +16929,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 321,
+      "id": 334,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16172,7 +16994,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 322,
+      "id": 335,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16237,7 +17059,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 323,
+      "id": 336,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16302,137 +17124,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 324,
-      "type": "selection",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Dayne Zorko",
-      "pid": 3705830931,
-      "team": "Brisbane",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "18 Jul",
-      "headline": "Dayne Zorko \u2014 cleared / returned to play",
-      "body": "Dayne Zorko no longer appearing on injury/selection watch. Assumed fit.",
-      "signal": "buy",
-      "signalConf": 88,
-      "tags": [
-        "TEST",
-        "Soreness",
-        "Test"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Soreness"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Brisbane"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "6d ongoing",
-      "seen_count": 87,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "resolved",
-      "status_label": "\u2705 Resolved",
-      "stale_after_days": 7,
-      "resolved_at": "2026-07-26T06:37:07.118144+00:00",
-      "scrapedAt": "2026-07-26T06:37:07.176089+00:00",
-      "players": [
-        {
-          "pid": 3705830931,
-          "name": "Dayne Zorko"
-        }
-      ],
-      "teams": [
-        "Brisbane"
-      ],
-      "link": "https://www.afl.com.au/matches/team-selection"
-    },
-    {
-      "id": 325,
-      "type": "selection",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Lucas Camporeale",
-      "pid": 1935357943,
-      "team": "Carlton",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "18 Jul",
-      "headline": "Lucas Camporeale \u2014 cleared / returned to play",
-      "body": "Lucas Camporeale no longer appearing on injury/selection watch. Assumed fit.",
-      "signal": "buy",
-      "signalConf": 88,
-      "tags": [
-        "TEST",
-        "Kidney",
-        "TBC"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Kidney"
-        },
-        {
-          "l": "ETA",
-          "v": "TBC"
-        },
-        {
-          "l": "Club",
-          "v": "Carlton"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "6d ongoing",
-      "seen_count": 87,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "resolved",
-      "status_label": "\u2705 Resolved",
-      "stale_after_days": 7,
-      "resolved_at": "2026-07-26T06:37:07.118144+00:00",
-      "scrapedAt": "2026-07-26T06:37:07.176089+00:00",
-      "players": [
-        {
-          "pid": 1935357943,
-          "name": "Lucas Camporeale"
-        }
-      ],
-      "teams": [
-        "Carlton"
-      ],
-      "link": "https://www.afl.com.au/matches/team-selection"
-    },
-    {
-      "id": 326,
+      "id": 337,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16497,7 +17189,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 327,
+      "id": 338,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16562,7 +17254,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 328,
+      "id": 339,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16627,72 +17319,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 329,
-      "type": "selection",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Adam Saad",
-      "pid": 659211956,
-      "team": "Carlton",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "18 Jul",
-      "headline": "Adam Saad \u2014 cleared / returned to play",
-      "body": "Adam Saad no longer appearing on injury/selection watch. Assumed fit.",
-      "signal": "buy",
-      "signalConf": 88,
-      "tags": [
-        "TEST",
-        "Hamstring",
-        "Test"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Hamstring"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Carlton"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "6d ongoing",
-      "seen_count": 87,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "resolved",
-      "status_label": "\u2705 Resolved",
-      "stale_after_days": 7,
-      "resolved_at": "2026-07-26T06:37:07.118144+00:00",
-      "scrapedAt": "2026-07-26T06:37:07.176089+00:00",
-      "players": [
-        {
-          "pid": 659211956,
-          "name": "Adam Saad"
-        }
-      ],
-      "teams": [
-        "Carlton"
-      ],
-      "link": "https://www.afl.com.au/matches/team-selection"
-    },
-    {
-      "id": 330,
+      "id": 340,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16757,7 +17384,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 331,
+      "id": 341,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16822,72 +17449,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 332,
-      "type": "selection",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Tim Membrey",
-      "pid": 574744857,
-      "team": "Collingwood",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "18 Jul",
-      "headline": "Tim Membrey \u2014 cleared / returned to play",
-      "body": "Tim Membrey no longer appearing on injury/selection watch. Assumed fit.",
-      "signal": "buy",
-      "signalConf": 88,
-      "tags": [
-        "TEST",
-        "Hamstring",
-        "Test"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Hamstring"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Collingwood"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "6d ongoing",
-      "seen_count": 87,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "resolved",
-      "status_label": "\u2705 Resolved",
-      "stale_after_days": 7,
-      "resolved_at": "2026-07-26T06:37:07.118144+00:00",
-      "scrapedAt": "2026-07-26T06:37:07.176089+00:00",
-      "players": [
-        {
-          "pid": 574744857,
-          "name": "Tim Membrey"
-        }
-      ],
-      "teams": [
-        "Collingwood"
-      ],
-      "link": "https://www.afl.com.au/matches/team-selection"
-    },
-    {
-      "id": 333,
+      "id": 342,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16952,7 +17514,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 334,
+      "id": 343,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -17017,72 +17579,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 335,
-      "type": "selection",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Lachie Sullivan",
-      "pid": 526528273,
-      "team": "Collingwood",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "18 Jul",
-      "headline": "Lachie Sullivan \u2014 cleared / returned to play",
-      "body": "Lachie Sullivan no longer appearing on injury/selection watch. Assumed fit.",
-      "signal": "buy",
-      "signalConf": 88,
-      "tags": [
-        "TEST",
-        "Concussion",
-        "Test"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Concussion"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Collingwood"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "6d ongoing",
-      "seen_count": 87,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "resolved",
-      "status_label": "\u2705 Resolved",
-      "stale_after_days": 7,
-      "resolved_at": "2026-07-26T06:37:07.118144+00:00",
-      "scrapedAt": "2026-07-26T06:37:07.176089+00:00",
-      "players": [
-        {
-          "pid": 526528273,
-          "name": "Lachie Sullivan"
-        }
-      ],
-      "teams": [
-        "Collingwood"
-      ],
-      "link": "https://www.afl.com.au/matches/team-selection"
-    },
-    {
-      "id": 336,
+      "id": 344,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -17147,7 +17644,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 337,
+      "id": 345,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -17212,72 +17709,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 338,
-      "type": "selection",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Zak Johnson",
-      "pid": 2343133454,
-      "team": "Essendon",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "18 Jul",
-      "headline": "Zak Johnson \u2014 cleared / returned to play",
-      "body": "Zak Johnson no longer appearing on injury/selection watch. Assumed fit.",
-      "signal": "buy",
-      "signalConf": 88,
-      "tags": [
-        "TEST",
-        "Foot",
-        "TBC"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Foot"
-        },
-        {
-          "l": "ETA",
-          "v": "TBC"
-        },
-        {
-          "l": "Club",
-          "v": "Essendon"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "6d ongoing",
-      "seen_count": 87,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "resolved",
-      "status_label": "\u2705 Resolved",
-      "stale_after_days": 7,
-      "resolved_at": "2026-07-26T06:37:07.118144+00:00",
-      "scrapedAt": "2026-07-26T06:37:07.176089+00:00",
-      "players": [
-        {
-          "pid": 2343133454,
-          "name": "Zak Johnson"
-        }
-      ],
-      "teams": [
-        "Essendon"
-      ],
-      "link": "https://www.afl.com.au/matches/team-selection"
-    },
-    {
-      "id": 339,
+      "id": 346,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -17342,7 +17774,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 340,
+      "id": 347,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -17407,7 +17839,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 341,
+      "id": 348,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -17472,7 +17904,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 342,
+      "id": 349,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -17537,7 +17969,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 343,
+      "id": 350,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -17602,72 +18034,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 344,
-      "type": "selection",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Peter Wright",
-      "pid": 2776733382,
-      "team": "Essendon",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "18 Jul",
-      "headline": "Peter Wright \u2014 cleared / returned to play",
-      "body": "Peter Wright no longer appearing on injury/selection watch. Assumed fit.",
-      "signal": "buy",
-      "signalConf": 88,
-      "tags": [
-        "TEST",
-        "Knee",
-        "TBC"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Knee"
-        },
-        {
-          "l": "ETA",
-          "v": "TBC"
-        },
-        {
-          "l": "Club",
-          "v": "Essendon"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "6d ongoing",
-      "seen_count": 87,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "resolved",
-      "status_label": "\u2705 Resolved",
-      "stale_after_days": 7,
-      "resolved_at": "2026-07-26T06:37:07.118144+00:00",
-      "scrapedAt": "2026-07-26T06:37:07.176089+00:00",
-      "players": [
-        {
-          "pid": 2776733382,
-          "name": "Peter Wright"
-        }
-      ],
-      "teams": [
-        "Essendon"
-      ],
-      "link": "https://www.afl.com.au/matches/team-selection"
-    },
-    {
-      "id": 345,
+      "id": 351,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -17732,7 +18099,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 346,
+      "id": 352,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -17797,7 +18164,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 347,
+      "id": 353,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -17862,72 +18229,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 348,
-      "type": "selection",
-      "category": "injury_tbc",
-      "urgent": false,
-      "player": "Corey Wagner",
-      "pid": 1135202499,
-      "team": "Fremantle",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "18 Jul",
-      "headline": "Corey Wagner \u2014 cleared / returned to play",
-      "body": "Corey Wagner no longer appearing on injury/selection watch. Assumed fit.",
-      "signal": "buy",
-      "signalConf": 88,
-      "tags": [
-        "TEST",
-        "Adductor",
-        "Test"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "TEST"
-        },
-        {
-          "l": "Injury",
-          "v": "Adductor"
-        },
-        {
-          "l": "ETA",
-          "v": "Test"
-        },
-        {
-          "l": "Club",
-          "v": "Fremantle"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "6d ongoing",
-      "seen_count": 87,
-      "last_status": "test",
-      "status_changed": false,
-      "status": "resolved",
-      "status_label": "\u2705 Resolved",
-      "stale_after_days": 7,
-      "resolved_at": "2026-07-26T06:37:07.118144+00:00",
-      "scrapedAt": "2026-07-26T06:37:07.176089+00:00",
-      "players": [
-        {
-          "pid": 1135202499,
-          "name": "Corey Wagner"
-        }
-      ],
-      "teams": [
-        "Fremantle"
-      ],
-      "link": "https://www.afl.com.au/matches/team-selection"
-    },
-    {
-      "id": 349,
+      "id": 354,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -17992,7 +18294,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 350,
+      "id": 355,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -18057,7 +18359,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 351,
+      "id": 356,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -18122,7 +18424,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 352,
+      "id": 357,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -18187,7 +18489,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 353,
+      "id": 358,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -18252,7 +18554,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 354,
+      "id": 359,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -18317,7 +18619,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 355,
+      "id": 360,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -18382,7 +18684,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 356,
+      "id": 361,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -18447,7 +18749,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 357,
+      "id": 362,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -18512,7 +18814,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 358,
+      "id": 363,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -18577,7 +18879,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 359,
+      "id": 364,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -18642,7 +18944,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 360,
+      "id": 365,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -18707,7 +19009,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 361,
+      "id": 366,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -18772,7 +19074,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 362,
+      "id": 367,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -18837,7 +19139,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 363,
+      "id": 368,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -18902,7 +19204,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 364,
+      "id": 369,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -18967,7 +19269,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 365,
+      "id": 370,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -19032,7 +19334,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 366,
+      "id": 371,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -19097,7 +19399,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 367,
+      "id": 372,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -19162,7 +19464,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 368,
+      "id": 373,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -19227,7 +19529,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 369,
+      "id": 374,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -19292,7 +19594,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 370,
+      "id": 375,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -19357,7 +19659,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 371,
+      "id": 376,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -19422,7 +19724,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 372,
+      "id": 377,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -19487,7 +19789,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 373,
+      "id": 378,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -19552,7 +19854,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 374,
+      "id": 379,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -19617,7 +19919,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 375,
+      "id": 380,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -19682,7 +19984,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 376,
+      "id": 381,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -19747,7 +20049,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 377,
+      "id": 382,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -19812,7 +20114,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 378,
+      "id": 383,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -19877,7 +20179,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 379,
+      "id": 384,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -19942,7 +20244,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 380,
+      "id": 385,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20007,7 +20309,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 381,
+      "id": 386,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20072,7 +20374,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 382,
+      "id": 387,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -20137,7 +20439,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 383,
+      "id": 388,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20202,7 +20504,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 384,
+      "id": 389,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20267,7 +20569,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 385,
+      "id": 390,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20332,7 +20634,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 386,
+      "id": 391,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20397,7 +20699,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 387,
+      "id": 392,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20462,7 +20764,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 388,
+      "id": 393,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20527,7 +20829,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 389,
+      "id": 394,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20592,7 +20894,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 390,
+      "id": 395,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20657,7 +20959,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 391,
+      "id": 396,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -20722,7 +21024,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 392,
+      "id": 397,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20787,7 +21089,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 393,
+      "id": 398,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20852,7 +21154,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 394,
+      "id": 399,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20917,7 +21219,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 395,
+      "id": 400,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -20982,7 +21284,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 396,
+      "id": 401,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -21047,7 +21349,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 397,
+      "id": 402,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -21112,7 +21414,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 398,
+      "id": 403,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -21177,7 +21479,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 399,
+      "id": 404,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -21242,7 +21544,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 400,
+      "id": 405,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -21307,7 +21609,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 401,
+      "id": 406,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -21372,7 +21674,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 402,
+      "id": 407,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -21437,7 +21739,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 403,
+      "id": 408,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -21502,7 +21804,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 404,
+      "id": 409,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -21567,7 +21869,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 405,
+      "id": 410,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -21632,7 +21934,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 406,
+      "id": 411,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -21697,7 +21999,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 407,
+      "id": 412,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -21762,7 +22064,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 408,
+      "id": 413,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -21827,7 +22129,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 409,
+      "id": 414,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -21892,7 +22194,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 410,
+      "id": 415,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -21957,7 +22259,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 411,
+      "id": 416,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -22022,7 +22324,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 412,
+      "id": 417,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -22087,7 +22389,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 413,
+      "id": 418,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -22152,7 +22454,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 414,
+      "id": 419,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -22217,7 +22519,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 415,
+      "id": 420,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -22282,7 +22584,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 416,
+      "id": 421,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -22347,7 +22649,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 417,
+      "id": 422,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -22412,7 +22714,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 418,
+      "id": 423,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -22477,7 +22779,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 419,
+      "id": 424,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -22542,7 +22844,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 420,
+      "id": 425,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -22607,72 +22909,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 421,
-      "type": "selection",
-      "category": "injury_out",
-      "urgent": false,
-      "player": "Cody Weightman",
-      "pid": 542850771,
-      "team": "Western Bulldogs",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-18T08:30:56.537997+00:00",
-      "timeLabel": "18 Jul",
-      "headline": "Cody Weightman \u2014 cleared / returned to play",
-      "body": "Cody Weightman no longer appearing on injury/selection watch. Assumed fit.",
-      "signal": "buy",
-      "signalConf": 88,
-      "tags": [
-        "OUT",
-        "Knee",
-        "1-3 weeks"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "OUT"
-        },
-        {
-          "l": "Injury",
-          "v": "Knee"
-        },
-        {
-          "l": "ETA",
-          "v": "1-3 weeks"
-        },
-        {
-          "l": "Club",
-          "v": "Western Bulldogs"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-18T08:30:56.537997+00:00",
-      "age_label": "6d ongoing",
-      "seen_count": 87,
-      "last_status": "out",
-      "status_changed": false,
-      "status": "resolved",
-      "status_label": "\u2705 Resolved",
-      "stale_after_days": 7,
-      "resolved_at": "2026-07-26T06:37:07.118144+00:00",
-      "scrapedAt": "2026-07-26T06:37:07.176089+00:00",
-      "players": [
-        {
-          "pid": 542850771,
-          "name": "Cody Weightman"
-        }
-      ],
-      "teams": [
-        "Western Bulldogs"
-      ],
-      "link": "https://www.afl.com.au/matches/team-selection"
-    },
-    {
-      "id": 422,
+      "id": 426,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -22737,7 +22974,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 423,
+      "id": 427,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -22802,7 +23039,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 424,
+      "id": 428,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -22844,7 +23081,7 @@
       ]
     },
     {
-      "id": 425,
+      "id": 429,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -22887,7 +23124,7 @@
       ]
     },
     {
-      "id": 426,
+      "id": 430,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -22936,7 +23173,7 @@
       ]
     },
     {
-      "id": 427,
+      "id": 431,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -22985,7 +23222,7 @@
       ]
     },
     {
-      "id": 428,
+      "id": 432,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -23028,7 +23265,7 @@
       ]
     },
     {
-      "id": 429,
+      "id": 433,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -23071,7 +23308,7 @@
       ]
     },
     {
-      "id": 430,
+      "id": 434,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -23120,7 +23357,7 @@
       ]
     },
     {
-      "id": 431,
+      "id": 435,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -23169,7 +23406,7 @@
       ]
     },
     {
-      "id": 432,
+      "id": 436,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -23212,7 +23449,7 @@
       ]
     },
     {
-      "id": 433,
+      "id": 437,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -23255,7 +23492,7 @@
       ]
     },
     {
-      "id": 434,
+      "id": 438,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -23304,7 +23541,7 @@
       ]
     },
     {
-      "id": 435,
+      "id": 439,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -23347,7 +23584,7 @@
       ]
     },
     {
-      "id": 436,
+      "id": 440,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -23396,7 +23633,7 @@
       ]
     },
     {
-      "id": 437,
+      "id": 441,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -23445,7 +23682,7 @@
       ]
     },
     {
-      "id": 438,
+      "id": 442,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -23494,7 +23731,7 @@
       ]
     },
     {
-      "id": 439,
+      "id": 443,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -23537,7 +23774,7 @@
       ]
     },
     {
-      "id": 440,
+      "id": 444,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -23586,7 +23823,7 @@
       ]
     },
     {
-      "id": 441,
+      "id": 445,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
