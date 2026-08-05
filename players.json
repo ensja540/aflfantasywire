@@ -104,8 +104,8 @@
     "n": 1099
   },
   "goldPickAccuracy": {
-    "hitPct": 49,
-    "n": 1340
+    "hitPct": 40,
+    "n": 40
   },
   "thisWeekMatchups": {
     "round": 22,
@@ -15583,17 +15583,7 @@
       "injuryRisk": 40,
       "injuryRiskLabel": "Medium",
       "injuryMissed": 2.7,
-      "statGold": {
-        "tackles": 6
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 15.4,
-          "match": 1.126,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Midfielder",
       "injuryRating": 90
     },
@@ -17867,17 +17857,7 @@
       "injuryRisk": 87,
       "injuryRiskLabel": "High",
       "injuryMissed": 6.7,
-      "statGold": {
-        "tackles": 4
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 14.1,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Midfielder",
       "injuryRating": 90
     },
@@ -25920,26 +25900,7 @@
       "injuryRiskLabel": "High",
       "injuryMissed": 9.0,
       "statGold": {
-        "disposals": 28,
-        "kicks": 21,
-        "marks": 9
-      },
-      "goldMeta": {
-        "disposals": {
-          "own": 1.2,
-          "match": 1.073,
-          "cash": false
-        },
-        "kicks": {
-          "own": 1.2,
-          "match": 1.082,
-          "cash": false
-        },
-        "marks": {
-          "own": 1.2,
-          "match": 1.144,
-          "cash": false
-        }
+        "kicks": true
       },
       "hasGold": true,
       "role": "Half Back",
@@ -30871,9 +30832,12 @@
       "injuryRisk": 77,
       "injuryRiskLabel": "High",
       "injuryMissed": 5.7,
-      "hasGold": false,
+      "hasGold": true,
       "role": "Midfielder",
-      "injuryRating": 74
+      "injuryRating": 74,
+      "statGold": {
+        "disposals": true
+      }
     },
     {
       "id": 137068746,
@@ -35926,17 +35890,7 @@
       "injuryRisk": 44,
       "injuryRiskLabel": "Medium",
       "injuryMissed": 3.0,
-      "statGold": {
-        "tackles": 5
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 10.6,
-          "match": 1.126,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Midfielder",
       "injuryRating": 85
     },
@@ -43345,23 +43299,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "disposals": 22,
-        "kicks": 13
-      },
-      "goldMeta": {
-        "disposals": {
-          "own": 0.3,
-          "match": 1.073,
-          "cash": false
-        },
-        "kicks": {
-          "own": 0.3,
-          "match": 1.082,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Back"
     },
     {
@@ -44212,17 +44150,7 @@
       "injuryRisk": 49,
       "injuryRiskLabel": "Medium",
       "injuryMissed": 3.3,
-      "statGold": {
-        "goals": 2
-      },
-      "goldMeta": {
-        "goals": {
-          "own": 1.9,
-          "match": 1.077,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward",
       "injuryRating": 86
     },
@@ -46490,17 +46418,7 @@
       "injuryRisk": 80,
       "injuryRiskLabel": "High",
       "injuryMissed": 6.0,
-      "statGold": {
-        "marks": 6
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 1.4,
-          "match": 1.144,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Back",
       "injuryRating": 83
     },
@@ -50471,29 +50389,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "disposals": 25,
-        "kicks": 17,
-        "marks": 7
-      },
-      "goldMeta": {
-        "disposals": {
-          "own": 4.6,
-          "match": 1.103,
-          "cash": false
-        },
-        "kicks": {
-          "own": 4.6,
-          "match": 1.066,
-          "cash": false
-        },
-        "marks": {
-          "own": 4.6,
-          "match": 1.15,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Back"
     },
     {
@@ -54924,17 +54820,7 @@
       "injuryRisk": 60,
       "injuryRiskLabel": "High",
       "injuryMissed": 4.0,
-      "statGold": {
-        "kicks": 14
-      },
-      "goldMeta": {
-        "kicks": {
-          "own": 5.7,
-          "match": 1.061,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Winger",
       "injuryRating": 81
     },
@@ -57431,17 +57317,7 @@
       "injuryRisk": 40,
       "injuryRiskLabel": "Medium",
       "injuryMissed": 2.7,
-      "statGold": {
-        "handballs": 10
-      },
-      "goldMeta": {
-        "handballs": {
-          "own": 10.2,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Ruck",
       "injuryRating": 88
     },
@@ -64840,17 +64716,7 @@
       "injuryRisk": 63,
       "injuryRiskLabel": "High",
       "injuryMissed": 4.3,
-      "statGold": {
-        "kicks": 13
-      },
-      "goldMeta": {
-        "kicks": {
-          "own": 1.4,
-          "match": 1.061,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Midfielder",
       "injuryRating": 79
     },
@@ -69567,23 +69433,7 @@
       "injuryRisk": 54,
       "injuryRiskLabel": "Medium",
       "injuryMissed": 3.7,
-      "statGold": {
-        "kicks": 16,
-        "marks": 8
-      },
-      "goldMeta": {
-        "kicks": {
-          "own": 1.5,
-          "match": 1.082,
-          "cash": false
-        },
-        "marks": {
-          "own": 1.5,
-          "match": 1.144,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Back",
       "injuryRating": 79
     },
@@ -74088,17 +73938,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "tackles": 6
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 0.5,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Ruck"
     },
     {
@@ -75493,17 +75333,7 @@
       "injuryRisk": 63,
       "injuryRiskLabel": "High",
       "injuryMissed": 4.3,
-      "statGold": {
-        "tackles": 4
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 2.2,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Ruck",
       "injuryRating": 76
     },
@@ -91078,29 +90908,7 @@
       "injuryRisk": 35,
       "injuryRiskLabel": "Medium",
       "injuryMissed": 2.3,
-      "statGold": {
-        "disposals": 23,
-        "handballs": 11,
-        "marks": 7
-      },
-      "goldMeta": {
-        "disposals": {
-          "own": 1.4,
-          "match": 1.079,
-          "cash": true
-        },
-        "handballs": {
-          "own": 1.4,
-          "match": 1.097,
-          "cash": true
-        },
-        "marks": {
-          "own": 1.4,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Midfielder",
       "injuryRating": 90
     },
@@ -100981,35 +100789,7 @@
       "injuryRisk": 80,
       "injuryRiskLabel": "High",
       "injuryMissed": 6.0,
-      "statGold": {
-        "disposals": 24,
-        "kicks": 14,
-        "handballs": 10,
-        "marks": 5
-      },
-      "goldMeta": {
-        "disposals": {
-          "own": 0.1,
-          "match": 1.103,
-          "cash": true
-        },
-        "kicks": {
-          "own": 0.1,
-          "match": 1.066,
-          "cash": true
-        },
-        "handballs": {
-          "own": 0.1,
-          "match": 1.15,
-          "cash": true
-        },
-        "marks": {
-          "own": 0.1,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Back",
       "injuryRating": 74
     },
@@ -101801,29 +101581,7 @@
       "injuryRisk": 90,
       "injuryRiskLabel": "High",
       "injuryMissed": 7.0,
-      "statGold": {
-        "disposals": 22,
-        "kicks": 16,
-        "marks": 8
-      },
-      "goldMeta": {
-        "disposals": {
-          "own": 2.9,
-          "match": 1.103,
-          "cash": false
-        },
-        "kicks": {
-          "own": 2.9,
-          "match": 1.066,
-          "cash": false
-        },
-        "marks": {
-          "own": 2.9,
-          "match": 1.15,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Back",
       "injuryRating": 88
     },
@@ -102682,23 +102440,7 @@
       "injuryRisk": 44,
       "injuryRiskLabel": "Medium",
       "injuryMissed": 3.0,
-      "statGold": {
-        "disposals": 22,
-        "handballs": 13
-      },
-      "goldMeta": {
-        "disposals": {
-          "own": 0.9,
-          "match": 1.079,
-          "cash": false
-        },
-        "handballs": {
-          "own": 0.9,
-          "match": 1.097,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Midfielder",
       "injuryRating": 90
     },
@@ -108555,17 +108297,7 @@
         "FRE"
       ],
       "calibrated": true,
-      "statGold": {
-        "tackles": 6
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 1.5,
-          "match": 1.081,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Ruck"
     },
     {
@@ -112129,23 +111861,7 @@
       "injuryRisk": 63,
       "injuryRiskLabel": "High",
       "injuryMissed": 4.3,
-      "statGold": {
-        "disposals": 23,
-        "kicks": 15
-      },
-      "goldMeta": {
-        "disposals": {
-          "own": 18.1,
-          "match": 1.088,
-          "cash": true
-        },
-        "kicks": {
-          "own": 18.1,
-          "match": 1.114,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Forward",
       "injuryRating": 88
     },
@@ -113699,17 +113415,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 9.3,
-      "statGold": {
-        "tackles": 6
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 8.8,
-          "match": 1.15,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Forward",
       "injuryRating": 39
     },
@@ -116467,23 +116173,7 @@
       "injuryRisk": 73,
       "injuryRiskLabel": "High",
       "injuryMissed": 5.3,
-      "statGold": {
-        "marks": 6,
-        "goals": 3
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.6,
-          "match": 1.15,
-          "cash": true
-        },
-        "goals": {
-          "own": 0.6,
-          "match": 1.166,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Ruck/Forward",
       "injuryRating": 90
     },
@@ -117964,23 +117654,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 8.0,
-      "statGold": {
-        "marks": 8,
-        "goals": 3
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 4.5,
-          "match": 1.15,
-          "cash": true
-        },
-        "goals": {
-          "own": 4.5,
-          "match": 1.165,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Ruck/Forward",
       "injuryRating": 83
     },
@@ -120303,17 +119977,7 @@
       "injuryRisk": 73,
       "injuryRiskLabel": "High",
       "injuryMissed": 5.3,
-      "statGold": {
-        "goals": 2
-      },
-      "goldMeta": {
-        "goals": {
-          "own": 0.8,
-          "match": 1.165,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Forward",
       "injuryRating": 67
     },
@@ -123045,14 +122709,7 @@
       "injuryRiskLabel": "High",
       "injuryMissed": 4.3,
       "statGold": {
-        "marks": 8
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 2.2,
-          "match": 1.131,
-          "cash": true
-        }
+        "marks": true
       },
       "hasGold": true,
       "role": "Key Defender",
@@ -125407,23 +125064,7 @@
       "injuryRisk": 87,
       "injuryRiskLabel": "High",
       "injuryMissed": 6.7,
-      "statGold": {
-        "disposals": 22,
-        "kicks": 14
-      },
-      "goldMeta": {
-        "disposals": {
-          "own": 1.8,
-          "match": 1.079,
-          "cash": false
-        },
-        "kicks": {
-          "own": 1.8,
-          "match": 1.063,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Midfielder",
       "injuryRating": 59
     },
@@ -131793,23 +131434,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "marks": 8,
-        "goals": 2
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.1,
-          "match": 1.137,
-          "cash": true
-        },
-        "goals": {
-          "own": 0.1,
-          "match": 1.17,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Forward"
     },
     {
@@ -133421,23 +133046,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "disposals": 21,
-        "marks": 5
-      },
-      "goldMeta": {
-        "disposals": {
-          "own": 16.7,
-          "match": 1.088,
-          "cash": false
-        },
-        "marks": {
-          "own": 16.7,
-          "match": 1.15,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Back"
     },
     {
@@ -136281,17 +135890,7 @@
       "injuryRisk": 77,
       "injuryRiskLabel": "High",
       "injuryMissed": 5.7,
-      "statGold": {
-        "tackles": 5
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 0.5,
-          "match": 1.126,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward",
       "injuryRating": 71
     },
@@ -141058,17 +140657,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 9.3,
-      "statGold": {
-        "marks": 8
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 5.9,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 90
     },
@@ -148193,17 +147782,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "marks": 7
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 10.5,
-          "match": 1.131,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Back"
     },
     {
@@ -148853,20 +148432,7 @@
       "injuryRiskLabel": "High",
       "injuryMissed": 4.3,
       "statGold": {
-        "marks": 6,
-        "goals": 3
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 1.1,
-          "match": 1.15,
-          "cash": true
-        },
-        "goals": {
-          "own": 1.1,
-          "match": 1.165,
-          "cash": true
-        }
+        "marks": true
       },
       "hasGold": true,
       "role": "Key Forward",
@@ -151149,17 +150715,7 @@
       "injuryRisk": 90,
       "injuryRiskLabel": "High",
       "injuryMissed": 7.0,
-      "statGold": {
-        "kicks": 12
-      },
-      "goldMeta": {
-        "kicks": {
-          "own": 7.5,
-          "match": 1.101,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Forward",
       "injuryRating": 85
     },
@@ -154579,17 +154135,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 8.3,
-      "statGold": {
-        "marks": 10
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 1.0,
-          "match": 1.131,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 80
     },
@@ -162958,17 +162504,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 11.0,
-      "statGold": {
-        "marks": 6
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.1,
-          "match": 1.137,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Winger",
       "injuryRating": 43
     },
@@ -170045,9 +169581,12 @@
       "injuryRisk": 40,
       "injuryRiskLabel": "Medium",
       "injuryMissed": 2.7,
-      "hasGold": false,
+      "hasGold": true,
       "role": "Half Forward",
-      "injuryRating": 86
+      "injuryRating": 86,
+      "statGold": {
+        "disposals": true
+      }
     },
     {
       "id": 2262498069,
@@ -174119,20 +173658,7 @@
       "injuryRiskLabel": "High",
       "injuryMissed": 5.7,
       "statGold": {
-        "marks": 7,
-        "goals": 3
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.9,
-          "match": 1.15,
-          "cash": true
-        },
-        "goals": {
-          "own": 0.9,
-          "match": 1.165,
-          "cash": true
-        }
+        "marks": true
       },
       "hasGold": true,
       "role": "Key Forward",
@@ -178251,17 +177777,7 @@
       "injuryRisk": 63,
       "injuryRiskLabel": "High",
       "injuryMissed": 4.3,
-      "statGold": {
-        "marks": 6
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 2.7,
-          "match": 1.131,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 76
     },
@@ -179055,17 +178571,7 @@
       "injuryRisk": 54,
       "injuryRiskLabel": "Medium",
       "injuryMissed": 3.7,
-      "statGold": {
-        "tackles": 6
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 6.0,
-          "match": 1.126,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward",
       "injuryRating": 80
     },
@@ -182785,23 +182291,7 @@
       "injuryRisk": 35,
       "injuryRiskLabel": "Medium",
       "injuryMissed": 2.3,
-      "statGold": {
-        "kicks": 12,
-        "marks": 7
-      },
-      "goldMeta": {
-        "kicks": {
-          "own": 2.0,
-          "match": 1.066,
-          "cash": false
-        },
-        "marks": {
-          "own": 2.0,
-          "match": 1.15,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 90
     },
@@ -184125,17 +183615,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 9.7,
-      "statGold": {
-        "marks": 6
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 12.8,
-          "match": 1.137,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Midfielder",
       "injuryRating": 71
     },
@@ -184994,17 +184474,7 @@
       "injuryRisk": 35,
       "injuryRiskLabel": "Medium",
       "injuryMissed": 2.3,
-      "statGold": {
-        "goals": 3
-      },
-      "goldMeta": {
-        "goals": {
-          "own": 1.1,
-          "match": 1.077,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward",
       "injuryRating": 88
     },
@@ -187604,17 +187074,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 12.3,
-      "statGold": {
-        "marks": 6
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.4,
-          "match": 1.144,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 48
     },
@@ -190865,17 +190325,7 @@
       "injuryRisk": 35,
       "injuryRiskLabel": "Medium",
       "injuryMissed": 2.3,
-      "statGold": {
-        "goals": 2
-      },
-      "goldMeta": {
-        "goals": {
-          "own": 3.0,
-          "match": 1.165,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward",
       "injuryRating": 88
     },
@@ -191742,9 +191192,12 @@
       "injuryRisk": 44,
       "injuryRiskLabel": "Medium",
       "injuryMissed": 3.0,
-      "hasGold": false,
+      "hasGold": true,
       "role": "Half Forward",
-      "injuryRating": 83
+      "injuryRating": 83,
+      "statGold": {
+        "handballs": true
+      }
     },
     {
       "id": 2619724704,
@@ -204250,17 +203703,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 8.0,
-      "statGold": {
-        "tackles": 6
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 3.6,
-          "match": 1.126,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Half Forward",
       "injuryRating": 85
     },
@@ -205977,17 +205420,7 @@
         "FRE"
       ],
       "calibrated": true,
-      "statGold": {
-        "marks": 5
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.2,
-          "match": 1.131,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender"
     },
     {
@@ -208251,17 +207684,7 @@
       "injuryRisk": 63,
       "injuryRiskLabel": "High",
       "injuryMissed": 4.3,
-      "statGold": {
-        "handballs": 10
-      },
-      "goldMeta": {
-        "handballs": {
-          "own": 10.8,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Ruck/Forward",
       "injuryRating": 83
     },
@@ -211441,17 +210864,7 @@
       "injuryRisk": 80,
       "injuryRiskLabel": "High",
       "injuryMissed": 6.0,
-      "statGold": {
-        "marks": 6
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 1.0,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 85
     },
@@ -212506,17 +211919,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 9.3,
-      "statGold": {
-        "goals": 2
-      },
-      "goldMeta": {
-        "goals": {
-          "own": 1.1,
-          "match": 1.139,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Ruck/Forward",
       "injuryRating": 80
     },
@@ -214583,17 +213986,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 10.0,
-      "statGold": {
-        "marks": 5
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 2.1,
-          "match": 1.137,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Midfielder",
       "injuryRating": 76
     },
@@ -217699,17 +217092,7 @@
       "injuryRisk": 70,
       "injuryRiskLabel": "High",
       "injuryMissed": 5.0,
-      "statGold": {
-        "marks": 6
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.2,
-          "match": 1.15,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 69
     },
@@ -218187,17 +217570,7 @@
       "injuryRisk": 90,
       "injuryRiskLabel": "High",
       "injuryMissed": 7.0,
-      "statGold": {
-        "marks": 5
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.6,
-          "match": 1.144,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 57
     },
@@ -219610,17 +218983,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "tackles": 5
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 0.5,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward"
     },
     {
@@ -221157,17 +220520,7 @@
       "injuryRisk": 93,
       "injuryRiskLabel": "High",
       "injuryMissed": 7.3,
-      "statGold": {
-        "marks": 7
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.6,
-          "match": 1.131,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 68
     },
@@ -224501,17 +223854,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 14.0,
-      "statGold": {
-        "marks": 6
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.1,
-          "match": 1.131,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 12
     },
@@ -229874,17 +229217,7 @@
       "injuryRisk": 87,
       "injuryRiskLabel": "High",
       "injuryMissed": 6.7,
-      "statGold": {
-        "kicks": 11
-      },
-      "goldMeta": {
-        "kicks": {
-          "own": 0.4,
-          "match": 1.063,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Winger",
       "injuryRating": 63
     },
@@ -233074,17 +232407,7 @@
       "injuryRisk": 77,
       "injuryRiskLabel": "High",
       "injuryMissed": 5.7,
-      "statGold": {
-        "marks": 5
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.6,
-          "match": 1.131,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward",
       "injuryRating": 78
     },
@@ -238896,17 +238219,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 20.0,
-      "statGold": {
-        "tackles": 4
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 2.2,
-          "match": 1.081,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Ruck/Forward",
       "injuryRating": 10
     },
@@ -239343,17 +238656,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 13.7,
-      "statGold": {
-        "marks": 6
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.4,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Midfielder",
       "injuryRating": 24
     },
@@ -245001,17 +244304,7 @@
       "injuryRisk": 80,
       "injuryRiskLabel": "High",
       "injuryMissed": 6.0,
-      "statGold": {
-        "tackles": 5
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 0.9,
-          "match": 1.126,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward",
       "injuryRating": 76
     },
@@ -254387,17 +253680,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 14.7,
-      "statGold": {
-        "marks": 5
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.1,
-          "match": 1.144,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 29
     },
@@ -258044,17 +257327,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "handballs": 10
-      },
-      "goldMeta": {
-        "handballs": {
-          "own": 11.0,
-          "match": 1.097,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Midfielder"
     },
     {
@@ -266242,17 +265515,7 @@
       "injuryRisk": 80,
       "injuryRiskLabel": "High",
       "injuryMissed": 6.0,
-      "statGold": {
-        "goals": 2
-      },
-      "goldMeta": {
-        "goals": {
-          "own": 2.9,
-          "match": 1.139,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward",
       "injuryRating": 80
     },
@@ -269583,17 +268846,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "tackles": 4
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 4.3,
-          "match": 1.08,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward"
     },
     {
@@ -271419,17 +270672,7 @@
       "injuryRisk": 73,
       "injuryRiskLabel": "High",
       "injuryMissed": 5.3,
-      "statGold": {
-        "goals": 3
-      },
-      "goldMeta": {
-        "goals": {
-          "own": 1.2,
-          "match": 1.166,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward",
       "injuryRating": 71
     },
@@ -272867,17 +272110,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "marks": 6
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 5.5,
-          "match": 1.131,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender"
     },
     {
@@ -274895,17 +274128,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 9.7,
-      "statGold": {
-        "marks": 6
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.5,
-          "match": 1.15,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 52
     },
@@ -276309,9 +275532,12 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 9.7,
-      "hasGold": false,
+      "hasGold": true,
       "role": "Key Forward",
-      "injuryRating": 67
+      "injuryRating": 67,
+      "statGold": {
+        "handballs": true
+      }
     },
     {
       "id": 71383857,
@@ -277984,14 +277210,9 @@
       "injuryRiskLabel": "High",
       "injuryMissed": 6.0,
       "statGold": {
-        "goals": 2
-      },
-      "goldMeta": {
-        "goals": {
-          "own": 0.9,
-          "match": 1.165,
-          "cash": false
-        }
+        "disposals": true,
+        "handballs": true,
+        "marks": true
       },
       "hasGold": true,
       "role": "Key Forward",
@@ -284634,17 +283855,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "marks": 8
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.4,
-          "match": 1.131,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender"
     },
     {
@@ -286250,17 +285461,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "marks": 6
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.2,
-          "match": 1.15,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward"
     },
     {
@@ -287017,17 +286218,7 @@
       "injuryRisk": 70,
       "injuryRiskLabel": "High",
       "injuryMissed": 5.0,
-      "statGold": {
-        "marks": 7
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 1.0,
-          "match": 1.15,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 71
     },
@@ -290079,17 +289270,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 18.0,
-      "statGold": {
-        "marks": 5
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.0,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 5
     },
@@ -291871,17 +291052,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 20.7,
-      "statGold": {
-        "tackles": 4
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 6.5,
-          "match": 1.099,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 5
     },
@@ -307661,17 +306832,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 10.7,
-      "statGold": {
-        "marks": 5
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.6,
-          "match": 1.144,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 45
     },
@@ -312226,23 +311387,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "marks": 7,
-        "goals": 3
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.7,
-          "match": 1.15,
-          "cash": true
-        },
-        "goals": {
-          "own": 0.7,
-          "match": 1.166,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward"
     },
     {
@@ -315400,17 +314545,7 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 12.3,
-      "statGold": {
-        "marks": 6
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.5,
-          "match": 1.15,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 64
     },
@@ -335093,17 +334228,7 @@
       "injuryRisk": 73,
       "injuryRiskLabel": "High",
       "injuryMissed": 5.3,
-      "statGold": {
-        "marks": 4
-      },
-      "goldMeta": {
-        "marks": {
-          "own": 0.1,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender",
       "injuryRating": 47
     },
@@ -340212,17 +339337,7 @@
         "GWS"
       ],
       "calibrated": true,
-      "statGold": {
-        "kicks": 12
-      },
-      "goldMeta": {
-        "kicks": {
-          "own": 3.3,
-          "match": 1.082,
-          "cash": false
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Defender"
     },
     {
@@ -366820,17 +365935,7 @@
         }
       },
       "calibrated": true,
-      "statGold": {
-        "tackles": 5
-      },
-      "goldMeta": {
-        "tackles": {
-          "own": 2.9,
-          "match": 1.15,
-          "cash": true
-        }
-      },
-      "hasGold": true,
+      "hasGold": false,
       "role": "Key Forward"
     },
     {
