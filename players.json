@@ -100,12 +100,12 @@
     }
   },
   "greenPickAccuracy": {
-    "hitPct": 52,
-    "n": 1099
+    "hitPct": 56,
+    "n": 557
   },
   "goldPickAccuracy": {
-    "hitPct": 40,
-    "n": 40
+    "hitPct": 48,
+    "n": 64
   },
   "thisWeekMatchups": {
     "round": 22,
@@ -50389,8 +50389,11 @@
         }
       },
       "calibrated": true,
-      "hasGold": false,
-      "role": "Half Back"
+      "hasGold": true,
+      "role": "Half Back",
+      "statGold": {
+        "disposals": true
+      }
     },
     {
       "id": 2013866036,
@@ -87132,9 +87135,12 @@
       "injuryRisk": 63,
       "injuryRiskLabel": "High",
       "injuryMissed": 4.3,
-      "hasGold": false,
+      "hasGold": true,
       "role": "Midfielder",
-      "injuryRating": 86
+      "injuryRating": 86,
+      "statGold": {
+        "handballs": true
+      }
     },
     {
       "id": 3766612391,
@@ -90050,8 +90056,11 @@
         }
       },
       "calibrated": true,
-      "hasGold": false,
-      "role": "Ruck"
+      "hasGold": true,
+      "role": "Ruck",
+      "statGold": {
+        "marks": true
+      }
     },
     {
       "id": 2747156770,
@@ -117654,9 +117663,13 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 8.0,
-      "hasGold": false,
+      "hasGold": true,
       "role": "Ruck/Forward",
-      "injuryRating": 83
+      "injuryRating": 83,
+      "statGold": {
+        "kicks": true,
+        "marks": true
+      }
     },
     {
       "id": 1137741875,
@@ -148432,6 +148445,8 @@
       "injuryRiskLabel": "High",
       "injuryMissed": 4.3,
       "statGold": {
+        "disposals": true,
+        "handballs": true,
         "marks": true
       },
       "hasGold": true,
@@ -169585,7 +169600,8 @@
       "role": "Half Forward",
       "injuryRating": 86,
       "statGold": {
-        "disposals": true
+        "disposals": true,
+        "handballs": true
       }
     },
     {
@@ -183615,9 +183631,12 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 9.7,
-      "hasGold": false,
+      "hasGold": true,
       "role": "Midfielder",
-      "injuryRating": 71
+      "injuryRating": 71,
+      "statGold": {
+        "marks": true
+      }
     },
     {
       "id": 4165921592,
@@ -187074,9 +187093,12 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 12.3,
-      "hasGold": false,
+      "hasGold": true,
       "role": "Key Defender",
-      "injuryRating": 48
+      "injuryRating": 48,
+      "statGold": {
+        "disposals": true
+      }
     },
     {
       "id": 931222617,
@@ -191196,6 +191218,7 @@
       "role": "Half Forward",
       "injuryRating": 83,
       "statGold": {
+        "disposals": true,
         "handballs": true
       }
     },
@@ -210864,9 +210887,12 @@
       "injuryRisk": 80,
       "injuryRiskLabel": "High",
       "injuryMissed": 6.0,
-      "hasGold": false,
+      "hasGold": true,
       "role": "Key Defender",
-      "injuryRating": 85
+      "injuryRating": 85,
+      "statGold": {
+        "disposals": true
+      }
     },
     {
       "id": 738567011,
@@ -219741,9 +219767,12 @@
       "injuryRisk": 100,
       "injuryRiskLabel": "High",
       "injuryMissed": 10.0,
-      "hasGold": false,
+      "hasGold": true,
       "role": "Key Defender",
-      "injuryRating": 38
+      "injuryRating": 38,
+      "statGold": {
+        "disposals": true
+      }
     },
     {
       "id": 283910529,
@@ -277211,6 +277240,7 @@
       "injuryMissed": 6.0,
       "statGold": {
         "disposals": true,
+        "kicks": true,
         "handballs": true,
         "marks": true
       },

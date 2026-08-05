@@ -2519,68 +2519,54 @@ def reconcile_predictions(players):
     return fixed
 
 
-# Gold = DEEP VALUE picks, surfaced by our advanced metrics — not chalk, not safe
-# floors. Backtesting the per-round history proved the DvP matchup metric (statMatch)
-# genuinely finds value with NO lookahead: in a GENEROUS matchup a player beats their
-# own season average ~54-57% (disposals/kicks/marks), vs ~41-45% in a hard one — a
-# 12-17pt swing from matchup alone. Crucially that edge SURVIVES on under-owned players
-# (owned <25% -> same ~55%), so the market is NOT pricing the matchup in. Deep value =
-# an under-owned producer whose DvP matchup says smash, projected above their baseline
-# (and often below breakeven, so they also make cash). statGold[stat] holds the
-# matchup-boosted PROJECTION (the value target, a number); hasGold stays the flag;
-# goldMeta[stat] carries the "why" (owned / breakeven / matchup) for the UI.
-# Per-stat favourable-matchup bar (statMatch multiplier, 0.85-1.15 scale) — spikier,
-# more matchup-driven stats (marks) need a higher bar to stay exclusive.
-GOLD_MATCH_K  = {"disposals": 1.06, "kicks": 1.06, "handballs": 1.08,
-                 "marks": 1.12, "tackles": 1.07, "goals": 1.07}
-# Season-avg floor so the stat is actually relevant (don't flag a 9-disposal player).
-GOLD_RELV     = {"disposals": 18.0, "kicks": 10.0, "handballs": 8.0,
-                 "marks": 4.0, "tackles": 3.5, "goals": 1.0}
-GOLD_MARGIN   = 1.04   # projection must beat the season avg by >=4% (matchup lifting)
-GOLD_OWN_MAX  = 20.0   # differential only — excludes chalk (a 50%-owned gun isn't value)
-GOLD_DVP_K    = 1.06   # historical-badge DvP ratio for "favourable" (no-lookahead recon)
-_GOLD_RK = {"disposals": "dis", "kicks": "k", "handballs": "hb",
-            "marks": "mk", "tackles": "tk", "goals": "gl"}
+# Gold "high-conviction" flag per stat for the predict tab. A gold pick is one
+# whose LOW prediction band clears the season average by a real margin AND whose
+# recent form is consistent, trending and facing a favourable matchup — i.e. a
+# floor you can bank on, not just "predicted above average". Stored as
+# statGold {stat: True} + a hasGold convenience flag for the UI to read/filter.
+GOLD_MARGIN      = 1.08   # low band must clear the season avg by >=8%
+GOLD_REC_K       = 0.95   # low band must sit within 5% of recent-3 form (relaxed
+                          # from the pure 1.0 so gold doesn't collapse onto one game
+                          # when a single in-form team owns the round's soft matchups)
+GOLD_CONSISTENCY = 0.55   # no game in the last 3 below 55% of the season avg
+# Green = a lighter conviction tier: the model's floor sits above the season
+# average by a real margin, so we expect an above-average game. Its honest edge
+# is BEATING that average (~55% vs a ~45% base rate), not "holding a floor".
+GREEN_MARGIN     = 1.05   # low band clears the season avg by >=5% (was a bare >=avg,
+                          # which was too loose and made the tier look weak)
 
 
 def compute_gold(players):
-    """Flag DEEP VALUE picks for the predict tab — under-owned producers whose DvP
-    matchup says smash. Per stat, a player is value gold when: the matchup is
-    favourable (statMatch >= GOLD_MATCH_K), the stat is relevant (season avg >=
-    GOLD_RELV), the matchup is genuinely lifting them (projection >= GOLD_MARGIN x avg),
-    and they're a differential (owned <= GOLD_OWN_MAX). statGold[stat] = the boosted
-    projection (the value target, a number); goldMeta[stat] carries the why; hasGold =
-    whether any is set."""
+    """Set p['statGold'] = {stat: True, ...} and p['hasGold'] for the predict UI.
+    All criteria must hold per stat: prediction>=3, >=3 recent games, low band
+    >= avg*GOLD_MARGIN, low >= recent-3 avg, recent-3 avg >= season avg (trend),
+    no recent game below avg*GOLD_CONSISTENCY (consistency), and a favourable
+    matchup (statMatch >= 1)."""
     for p in players:
-        sm = p.get("statMatch") or {}
         sp = p.get("statPred") or {}
-        own = p.get("owned")
-        if own is None:
-            own = p.get("classicOwned") or 0
-        be = p.get("breakeven")
-        gold, meta = {}, {}
-        if own <= GOLD_OWN_MAX:
-            for sk in _GOLD_RK:
-                avg = p.get(sk) or 0
-                m = sm.get(sk)
-                pr = sp.get(sk)
-                if m is None or pr is None:
-                    continue
-                tgt = round(pr)
-                if sk == "goals" and tgt < 2:   # only genuine multi-goal value plays
-                    continue
-                if (m >= GOLD_MATCH_K[sk] and avg >= GOLD_RELV[sk]
-                        and pr >= GOLD_MARGIN * avg):
-                    gold[sk] = tgt
-                    meta[sk] = {
-                        "own": round(own, 1),
-                        "match": round(m, 3),
-                        # projection clears breakeven -> also a price riser (cash value)
-                        "cash": bool(be is not None and (p.get("scProj") or 0) > be),
-                    }
+        splow = p.get("statPredLow") or {}
+        sm = p.get("statMatch") or {}
+        rstats = p.get("roundStats") or []
+        gold = {}
+        for sk, rk in (("disposals", "dis"), ("kicks", "k"), ("handballs", "hb"),
+                       ("marks", "mk"), ("tackles", "tk"), ("goals", "gl")):
+            avg = p.get(sk) or 0
+            pr, lo = sp.get(sk), splow.get(sk)
+            if pr is None or lo is None or avg <= 0 or pr < 3:
+                continue
+            rv = [r.get(rk) for r in rstats if r.get(rk) is not None][-3:]
+            if len(rv) < 3:
+                continue
+            rec = sum(rv) / len(rv)
+            if (lo >= avg * GOLD_MARGIN              # floor clears avg by a margin
+                    and lo >= GOLD_REC_K * rec        # floor ~>= recent form
+                    and rec >= avg                    # form trending up / stable
+                    and min(rv) >= avg * GOLD_CONSISTENCY  # no recent bust
+                    and sm.get(sk, 1) >= 1.0):         # favourable matchup
+                gold[sk] = True
         if gold:
             p["statGold"] = gold
-            p["goldMeta"] = meta
+            p.pop("goldMeta", None)   # legacy deep-value field; no longer emitted
             p["hasGold"] = True
         else:
             p.pop("statGold", None)
@@ -2592,12 +2578,13 @@ def compute_gold(players):
 # UI can show how often each actually lands. Reconstructed from the graded
 # per-round history (roundResults) + each player's game log (roundStats), with NO
 # lookahead — season avg / matchup use only rounds BEFORE the graded round.
-#   • green = a prediction shaded green (low band above the season avg); a hit is
-#             the actual clearing that low band.
-#   • gold  = the deep-value rule above, reconstructed per round via DvP (the same
-#             favourable-matchup signal statMatch encodes live); the "hit" a value
-#             pick is judged on is beating the player's own season average — the
-#             matchup edge is precisely a bet that they will.
+#   • green = a bullish pick (low band clears the pre-round avg by GREEN_MARGIN);
+#             its edge is an ABOVE-AVERAGE game, so a hit is the actual beating
+#             the player's own average (~55% vs a ~45% base rate).
+#   • gold  = the high-conviction floor-lock rule above, reconstructed per round:
+#             the low band clears the pre-round average by GOLD_MARGIN with the
+#             form/consistency gates and a favourable matchup (DvP >= league, the
+#             no-lookahead proxy for statMatch >= 1); a hit is the floor holding.
 _GREEN_PICK_ACC = None
 _GOLD_PICK_ACC = None
 
@@ -2669,20 +2656,30 @@ def compute_pick_accuracy(players):
                 a, low = cell.get("a"), cell.get("low")
                 if a is None or low is None:
                     continue
-                if sk != "goals" and low >= avg:          # green: floor above avg
+                if sk != "goals" and low >= avg * GREEN_MARGIN:   # green: bullish floor
                     green_n += 1
-                    green_hit += (a >= low)
-                # gold = deep value: favourable DvP matchup on a relevant stat.
-                if avg < GOLD_RELV.get(sk, 1e9) or not opp:
+                    green_hit += (a >= avg)   # edge = an above-average game
+                # gold = high-conviction floor-lock: low band clears the pre-round
+                # avg by GOLD_MARGIN, form trending, no recent bust, favourable
+                # matchup (DvP proxy for statMatch >= 1). A hit is the floor holding.
+                if sk == "goals" or not opp:
+                    continue
+                pred = cell.get("p")
+                if pred is not None and pred < 3:
+                    continue
+                rec3 = hist[-3:]
+                rec = sum(rec3) / len(rec3)
+                if not (low >= avg * GOLD_MARGIN and low >= GOLD_REC_K * rec
+                        and rec >= avg and min(rec3) >= avg * GOLD_CONSISTENCY):
                     continue
                 league_idx, opp_idx = dvp[sk]
                 lpa = _mean_before(league_idx.get(pos), rnd)
                 coa = _mean_before(opp_idx.get((pos, opp)), rnd)
                 if not lpa or coa is None:
                     continue
-                if coa / lpa >= GOLD_DVP_K:
+                if coa / lpa >= 1.0:                       # favourable-or-neutral matchup
                     gold_n += 1
-                    gold_hit += (a >= avg)   # value = an above-baseline game
+                    gold_hit += (a >= low)   # floor-lock hit = the floor held
     _GREEN_PICK_ACC = {"hitPct": round(100 * green_hit / green_n), "n": green_n} if green_n else None
     _GOLD_PICK_ACC = {"hitPct": round(100 * gold_hit / gold_n), "n": gold_n} if gold_n else None
 
