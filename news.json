@@ -1,42 +1,50 @@
 {
-  "scraped_at": "2026-08-06T19:09:50.704166",
+  "scraped_at": "2026-08-06T19:30:13.207546",
   "item_count": 339,
   "news": [
     {
       "id": 1,
-      "type": "news",
-      "category": "general",
+      "type": "injury",
+      "category": "injury_tbc",
       "urgent": false,
-      "player": "",
-      "pid": null,
+      "player": "Max King",
+      "pid": 2226820547,
       "team": "St Kilda",
       "pos": null,
-      "source": "St Kilda FC",
-      "sourceHandle": "@stkilda",
-      "reliability": 90,
-      "time": "2026-08-06T07:06:32.387237+00:00",
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 70,
+      "time": "2026-08-06T07:27:06.500467+00:00",
       "timeLabel": "1m ago",
-      "headline": "'Nothing untoward here': Lyon plays down King surgery, injury not tendon related",
-      "body": "The St Kilda coach expects his star forward to be back in full training before season's end.",
+      "headline": "Max King: 'Nothing untoward here': Lyon plays down King surgery, injury not tendon related",
+      "body": "'Nothing untoward here': Lyon plays down King surgery, injury not tendon related.",
       "link": "https://www.afl.com.au/news/1577564/nothing-untoward-here-ross-lyon-plays-down-max-king-injury-not-tendon-related",
-      "signal": null,
-      "signalConf": 75,
+      "signal": "hold",
+      "signalConf": 60,
       "tags": [
-        "News",
-        "St Kilda"
+        "Injury Tbc",
+        "Max King"
       ],
       "stats": [],
-      "relevance": 25,
-      "_source": "club_st-kilda",
+      "is_rumour": false,
+      "relevance": 65,
+      "_source": "url_slug",
+      "pubISO": null,
       "status": "new",
       "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-08-06T07:06:32.387237+00:00",
+      "first_seen": "2026-08-06T07:27:06.500467+00:00",
       "age_label": "Just in",
       "seen_count": 1,
-      "last_status": null,
+      "last_status": "out",
       "status_changed": true,
-      "stale_after_days": 1,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "stale_after_days": 2,
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
+      "players": [
+        {
+          "pid": 2226820547,
+          "name": "Max King"
+        }
+      ],
       "teams": [
         "St Kilda"
       ]
@@ -54,7 +62,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 70,
       "time": "2026-08-06T06:46:04.121884+00:00",
-      "timeLabel": "20m ago",
+      "timeLabel": "41m ago",
       "headline": "Max Gawn: Longmuir enters AA ruck debate ahead of superstar showdown",
       "body": "Longmuir enters AA ruck debate ahead of superstar showdown.",
       "link": "https://www.afl.com.au/news/1577493/justin-longmuir-enters-aa-ruck-debate-ahead-of-superstar-showdown-between-fremantle-dockers-luke-jackson-and-melbourne-demons-max-gawn",
@@ -100,8 +108,51 @@
       "source": "AFL.com.au",
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
+      "time": "2026-08-06T06:43:00+00:00",
+      "timeLabel": "44m ago",
+      "headline": "'Nothing untoward here': Lyon plays down King surgery, injury not tendon related",
+      "body": "The St Kilda coach expects his star forward to be back in full training before season's end. Status updated: Status NEWS \u2192 INJURY TBC.",
+      "link": "https://www.afl.com.au/news/1577564/nothing-untoward-here-ross-lyon-plays-down-max-king-injury-not-tendon-related",
+      "signal": "hold",
+      "signalConf": 80,
+      "tags": [
+        "Injury Tbc"
+      ],
+      "stats": [],
+      "relevance": 25,
+      "_source": "rss_afl.com.au",
+      "pubISO": "2026-08-06T06:43:00+00:00",
+      "is_rumour": false,
+      "first_seen": "2026-08-06T06:43:00+00:00",
+      "age_label": "20m ago",
+      "seen_count": 2,
+      "last_status": "out",
+      "status_changed": true,
+      "status": "update",
+      "status_label": "\ud83d\udfe1 Update",
+      "prev_status": "NEWS",
+      "curr_status": "INJURY TBC",
+      "change_desc": "Status NEWS \u2192 INJURY TBC",
+      "stale_after_days": 1,
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
+      "teams": [
+        "St Kilda"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "news",
+      "category": "general",
+      "urgent": false,
+      "player": "",
+      "pid": null,
+      "team": null,
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@afl.com.au",
+      "reliability": 96,
       "time": "2026-08-06T06:07:00+00:00",
-      "timeLabel": "59m ago",
+      "timeLabel": "1h ago",
       "headline": "Saints superstar misses training, Pies name debutant, key Demon to return",
       "body": "Stay up to date with all the latest teams news ahead of round 22.",
       "link": "https://www.afl.com.au/news/1576888/team-whispers-all-the-latest-selection-news-ahead-of-round-22",
@@ -130,7 +181,7 @@
       ]
     },
     {
-      "id": 4,
+      "id": 5,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -177,7 +228,7 @@
       ]
     },
     {
-      "id": 5,
+      "id": 6,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -218,7 +269,7 @@
       ]
     },
     {
-      "id": 6,
+      "id": 7,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -265,7 +316,7 @@
       ]
     },
     {
-      "id": 7,
+      "id": 8,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -445,7 +496,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-08-05T08:20:00+00:00",
-      "timeLabel": "22h ago",
+      "timeLabel": "23h ago",
       "pubISO": "2026-08-05T08:20:00+00:00",
       "headline": "G.Wardlaw IN: Named for North Melbourne",
       "body": "G.Wardlaw has been named in North Melbourne's this round lineup. Coming in this week.",
@@ -493,7 +544,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-08-05T08:20:00+00:00",
-      "timeLabel": "22h ago",
+      "timeLabel": "23h ago",
       "pubISO": "2026-08-05T08:20:00+00:00",
       "headline": "A.Naughton IN: Named for Western Bulldogs",
       "body": "A.Naughton has been named in Western Bulldogs's this round lineup. Coming in this week.",
@@ -541,7 +592,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-08-05T08:20:00+00:00",
-      "timeLabel": "22h ago",
+      "timeLabel": "23h ago",
       "pubISO": "2026-08-05T08:20:00+00:00",
       "headline": "J.Goater OUT: North Melbourne \u2014 Managed",
       "body": "J.Goater has been ruled OUT for North Melbourne in this round. Reason: managed.",
@@ -589,7 +640,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-08-05T08:20:00+00:00",
-      "timeLabel": "22h ago",
+      "timeLabel": "23h ago",
       "pubISO": "2026-08-05T08:20:00+00:00",
       "headline": "C.Weightman IN: Named for Western Bulldogs",
       "body": "C.Weightman has been named in Western Bulldogs's this round lineup. Coming in this week.",
@@ -637,7 +688,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-08-05T08:20:00+00:00",
-      "timeLabel": "22h ago",
+      "timeLabel": "23h ago",
       "pubISO": "2026-08-05T08:20:00+00:00",
       "headline": "L.Jaques IN: Named for Western Bulldogs",
       "body": "L.Jaques has been named in Western Bulldogs's this round lineup. Coming in this week.",
@@ -685,7 +736,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-08-05T08:20:00+00:00",
-      "timeLabel": "22h ago",
+      "timeLabel": "23h ago",
       "pubISO": "2026-08-05T08:20:00+00:00",
       "headline": "L.Emmett OUT: Western Bulldogs \u2014 Omitted",
       "body": "L.Emmett has been ruled OUT for Western Bulldogs in this round. Reason: omitted.",
@@ -733,7 +784,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-08-05T08:20:00+00:00",
-      "timeLabel": "22h ago",
+      "timeLabel": "23h ago",
       "pubISO": "2026-08-05T08:20:00+00:00",
       "headline": "J.Busslinger OUT: Western Bulldogs \u2014 Omitted",
       "body": "J.Busslinger has been ruled OUT for Western Bulldogs in this round. Reason: omitted.",
@@ -781,7 +832,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-08-05T08:20:00+00:00",
-      "timeLabel": "22h ago",
+      "timeLabel": "23h ago",
       "pubISO": "2026-08-05T08:20:00+00:00",
       "headline": "L.Vandermeer OUT: Western Bulldogs \u2014 Omitted",
       "body": "L.Vandermeer has been ruled OUT for Western Bulldogs in this round. Reason: omitted.",
@@ -829,7 +880,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-08-05T08:20:00+00:00",
-      "timeLabel": "22h ago",
+      "timeLabel": "23h ago",
       "pubISO": "2026-08-05T08:20:00+00:00",
       "headline": "R.Hardeman IN: Named for North Melbourne",
       "body": "R.Hardeman has been named in North Melbourne's this round lineup. Coming in this week.",
@@ -877,7 +928,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-08-05T08:20:00+00:00",
-      "timeLabel": "22h ago",
+      "timeLabel": "23h ago",
       "pubISO": "2026-08-05T08:20:00+00:00",
       "headline": "B.Scott OUT: North Melbourne \u2014 Omitted",
       "body": "B.Scott has been ruled OUT for North Melbourne in this round. Reason: omitted.",
@@ -11325,16 +11376,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 195460597,
@@ -11390,16 +11441,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 1763452386,
@@ -11455,16 +11506,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 2269888017,
@@ -11566,16 +11617,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 4067852004,
@@ -11631,16 +11682,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 2842891525,
@@ -11696,16 +11747,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 3705830931,
@@ -11811,16 +11862,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 1935357943,
@@ -11876,16 +11927,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 659211956,
@@ -11941,16 +11992,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 574744857,
@@ -12049,16 +12100,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 28813437,
@@ -12114,16 +12165,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 526528273,
@@ -12179,16 +12230,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 630434660,
@@ -12294,16 +12345,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 2343133454,
@@ -12359,16 +12410,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 2776733382,
@@ -12424,16 +12475,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 94,
+      "seen_count": 95,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-06T07:06:32.414852+00:00",
+      "_seen": "2026-08-06T07:27:06.539185+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-06T07:06:32.416180+00:00",
+      "scrapedAt": "2026-08-06T07:27:06.541096+00:00",
       "players": [
         {
           "pid": 1135202499,
@@ -13224,72 +13275,6 @@
     },
     {
       "id": 275,
-      "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Cody Weightman",
-      "pid": 542850771,
-      "team": "Western Bulldogs",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-07-26T07:21:42.207940+00:00",
-      "timeLabel": "26 Jul",
-      "headline": "Cody Weightman \u2014 OUT: Knee (1-3 weeks)",
-      "body": "Cody Weightman (Western Bulldogs) has been ruled OUT with a knee Estimated return: 1-3 weeks. Status updated: Status INJURED \u2192 OUT.",
-      "signal": "sell",
-      "signalConf": 88,
-      "tags": [
-        "OUT",
-        "Knee",
-        "1-3 weeks"
-      ],
-      "stats": [
-        {
-          "l": "Status",
-          "v": "OUT"
-        },
-        {
-          "l": "Injury",
-          "v": "Knee"
-        },
-        {
-          "l": "ETA",
-          "v": "1-3 weeks"
-        },
-        {
-          "l": "Club",
-          "v": "Western Bulldogs"
-        }
-      ],
-      "relevance": 80,
-      "_source": "afl_medical_room",
-      "is_rumour": false,
-      "first_seen": "2026-07-26T07:21:42.207940+00:00",
-      "age_label": "22m ago",
-      "seen_count": 2,
-      "last_status": "out",
-      "status_changed": true,
-      "status": "update",
-      "status_label": "\ud83d\udfe1 Update",
-      "prev_status": "INJURED",
-      "curr_status": "OUT",
-      "change_desc": "Status INJURED \u2192 OUT",
-      "stale_after_days": 5,
-      "scrapedAt": "2026-07-26T07:21:42.268134+00:00",
-      "players": [
-        {
-          "pid": 542850771,
-          "name": "Cody Weightman"
-        }
-      ],
-      "teams": [
-        "Western Bulldogs"
-      ]
-    },
-    {
-      "id": 276,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13336,7 +13321,7 @@
       ]
     },
     {
-      "id": 277,
+      "id": 276,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13383,7 +13368,7 @@
       ]
     },
     {
-      "id": 278,
+      "id": 277,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13423,7 +13408,7 @@
       ]
     },
     {
-      "id": 279,
+      "id": 278,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13470,7 +13455,7 @@
       ]
     },
     {
-      "id": 280,
+      "id": 279,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13511,7 +13496,7 @@
       ]
     },
     {
-      "id": 281,
+      "id": 280,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13557,7 +13542,7 @@
       ]
     },
     {
-      "id": 282,
+      "id": 281,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13600,7 +13585,7 @@
       ]
     },
     {
-      "id": 283,
+      "id": 282,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13647,7 +13632,7 @@
       ]
     },
     {
-      "id": 284,
+      "id": 283,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13698,7 +13683,7 @@
       ]
     },
     {
-      "id": 285,
+      "id": 284,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13738,7 +13723,7 @@
       ]
     },
     {
-      "id": 286,
+      "id": 285,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13779,7 +13764,7 @@
       ]
     },
     {
-      "id": 287,
+      "id": 286,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13820,7 +13805,7 @@
       ]
     },
     {
-      "id": 288,
+      "id": 287,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13860,7 +13845,7 @@
       ]
     },
     {
-      "id": 289,
+      "id": 288,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13901,7 +13886,7 @@
       ]
     },
     {
-      "id": 290,
+      "id": 289,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13947,7 +13932,7 @@
       ]
     },
     {
-      "id": 291,
+      "id": 290,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13988,7 +13973,7 @@
       ]
     },
     {
-      "id": 292,
+      "id": 291,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -14030,7 +14015,7 @@
       ]
     },
     {
-      "id": 293,
+      "id": 292,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -14072,7 +14057,7 @@
       ]
     },
     {
-      "id": 294,
+      "id": 293,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -14114,7 +14099,7 @@
       ]
     },
     {
-      "id": 295,
+      "id": 294,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -14156,7 +14141,7 @@
       ]
     },
     {
-      "id": 296,
+      "id": 295,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -14198,7 +14183,7 @@
       ]
     },
     {
-      "id": 297,
+      "id": 296,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -14240,7 +14225,7 @@
       ]
     },
     {
-      "id": 298,
+      "id": 297,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -14282,7 +14267,7 @@
       ]
     },
     {
-      "id": 299,
+      "id": 298,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -14324,7 +14309,7 @@
       ]
     },
     {
-      "id": 300,
+      "id": 299,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -14366,7 +14351,7 @@
       ]
     },
     {
-      "id": 301,
+      "id": 300,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14408,7 +14393,7 @@
       ]
     },
     {
-      "id": 302,
+      "id": 301,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14450,7 +14435,7 @@
       ]
     },
     {
-      "id": 303,
+      "id": 302,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14492,7 +14477,7 @@
       ]
     },
     {
-      "id": 304,
+      "id": 303,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14533,7 +14518,7 @@
       ]
     },
     {
-      "id": 305,
+      "id": 304,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14580,7 +14565,7 @@
       ]
     },
     {
-      "id": 306,
+      "id": 305,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14620,7 +14605,7 @@
       ]
     },
     {
-      "id": 307,
+      "id": 306,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14660,7 +14645,7 @@
       ]
     },
     {
-      "id": 308,
+      "id": 307,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14706,7 +14691,7 @@
       ]
     },
     {
-      "id": 309,
+      "id": 308,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -14748,7 +14733,7 @@
       ]
     },
     {
-      "id": 310,
+      "id": 309,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14788,7 +14773,7 @@
       ]
     },
     {
-      "id": 311,
+      "id": 310,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14835,7 +14820,7 @@
       ]
     },
     {
-      "id": 312,
+      "id": 311,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14881,7 +14866,7 @@
       ]
     },
     {
-      "id": 313,
+      "id": 312,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14924,7 +14909,7 @@
       ]
     },
     {
-      "id": 314,
+      "id": 313,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14970,7 +14955,7 @@
       ]
     },
     {
-      "id": 315,
+      "id": 314,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15016,7 +15001,7 @@
       ]
     },
     {
-      "id": 316,
+      "id": 315,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15063,7 +15048,7 @@
       ]
     },
     {
-      "id": 317,
+      "id": 316,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15109,7 +15094,7 @@
       ]
     },
     {
-      "id": 318,
+      "id": 317,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15150,7 +15135,7 @@
       ]
     },
     {
-      "id": 319,
+      "id": 318,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15196,7 +15181,7 @@
       ]
     },
     {
-      "id": 320,
+      "id": 319,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15236,7 +15221,7 @@
       ]
     },
     {
-      "id": 321,
+      "id": 320,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15282,7 +15267,7 @@
       ]
     },
     {
-      "id": 322,
+      "id": 321,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15328,7 +15313,7 @@
       ]
     },
     {
-      "id": 323,
+      "id": 322,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15368,7 +15353,7 @@
       ]
     },
     {
-      "id": 324,
+      "id": 323,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15414,7 +15399,7 @@
       ]
     },
     {
-      "id": 325,
+      "id": 324,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15454,7 +15439,7 @@
       ]
     },
     {
-      "id": 326,
+      "id": 325,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15500,7 +15485,7 @@
       ]
     },
     {
-      "id": 327,
+      "id": 326,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15541,7 +15526,7 @@
       ]
     },
     {
-      "id": 328,
+      "id": 327,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15588,7 +15573,7 @@
       ]
     },
     {
-      "id": 329,
+      "id": 328,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15634,7 +15619,7 @@
       ]
     },
     {
-      "id": 330,
+      "id": 329,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15674,7 +15659,7 @@
       ]
     },
     {
-      "id": 331,
+      "id": 330,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15715,7 +15700,7 @@
       ]
     },
     {
-      "id": 332,
+      "id": 331,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15756,7 +15741,7 @@
       ]
     },
     {
-      "id": 333,
+      "id": 332,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15807,7 +15792,7 @@
       ]
     },
     {
-      "id": 334,
+      "id": 333,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15848,7 +15833,7 @@
       ]
     },
     {
-      "id": 335,
+      "id": 334,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15888,7 +15873,7 @@
       ]
     },
     {
-      "id": 336,
+      "id": 335,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15935,7 +15920,7 @@
       ]
     },
     {
-      "id": 337,
+      "id": 336,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15976,7 +15961,7 @@
       ]
     },
     {
-      "id": 338,
+      "id": 337,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -16017,7 +16002,7 @@
       ]
     },
     {
-      "id": 339,
+      "id": 338,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -16058,7 +16043,7 @@
       ]
     },
     {
-      "id": 340,
+      "id": 339,
       "type": "news",
       "category": "general",
       "urgent": false,
