@@ -1,9 +1,75 @@
 {
-  "scraped_at": "2026-08-08T21:56:13.364725",
-  "item_count": 460,
+  "scraped_at": "2026-08-08T22:18:02.191082",
+  "item_count": 457,
   "news": [
     {
       "id": 1,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Harry Perryman",
+      "pid": 1311987179,
+      "team": "Collingwood",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-08-08T10:13:34.643394+00:00",
+      "timeLabel": "1m ago",
+      "headline": "Harry Perryman \u2014 OUT: Hamstring (2-3 weeks)",
+      "body": "Harry Perryman (Collingwood) has been ruled OUT with a hamstring Estimated return: 2-3 weeks. Status updated: ETA Collingwood \u2192 2-3 weeks.",
+      "signal": "sell",
+      "signalConf": 88,
+      "tags": [
+        "OUT",
+        "Hamstring",
+        "2-3 weeks"
+      ],
+      "stats": [
+        {
+          "l": "Status",
+          "v": "OUT"
+        },
+        {
+          "l": "Injury",
+          "v": "Hamstring"
+        },
+        {
+          "l": "ETA",
+          "v": "2-3 weeks"
+        },
+        {
+          "l": "Club",
+          "v": "Collingwood"
+        }
+      ],
+      "relevance": 80,
+      "_source": "afl_medical_room",
+      "is_rumour": false,
+      "first_seen": "2026-08-08T10:13:34.643394+00:00",
+      "age_label": "1w ongoing",
+      "seen_count": 119,
+      "last_status": "out",
+      "status_changed": true,
+      "status": "update",
+      "status_label": "\ud83d\udfe1 Update",
+      "prev_status": "OUT",
+      "curr_status": "OUT",
+      "change_desc": "ETA Collingwood \u2192 2-3 weeks",
+      "stale_after_days": 5,
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
+      "players": [
+        {
+          "pid": 1311987179,
+          "name": "Harry Perryman"
+        }
+      ],
+      "teams": [
+        "Collingwood"
+      ]
+    },
+    {
+      "id": 2,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -15,7 +81,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 96,
       "time": "2026-08-08T09:51:40.501809+00:00",
-      "timeLabel": "1m ago",
+      "timeLabel": "21m ago",
       "headline": "Lachie Weller \u2014 OUT: Hamstring (1-3 weeks)",
       "body": "Lachie Weller has been ruled OUT with a hamstring Estimated return: 1-3 weeks.",
       "signal": "sell",
@@ -59,7 +125,7 @@
       ]
     },
     {
-      "id": 2,
+      "id": 3,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -71,7 +137,7 @@
       "sourceHandle": "@aflcomau",
       "reliability": 70,
       "time": "2026-08-08T09:27:56.507482+00:00",
-      "timeLabel": "23m ago",
+      "timeLabel": "45m ago",
       "headline": "Logan Morris: Lohmann and Morris lead Lions' fierce response against humbled Hawks",
       "body": "Lohmann and Morris lead Lions' fierce response against humbled Hawks.",
       "link": "https://www.afl.com.au/news/1578402/kai-lohmann-and-logan-morris-lead-brisbane-lions-fierce-response-against-humbled-hawthorn-hawks",
@@ -111,7 +177,7 @@
       ]
     },
     {
-      "id": 3,
+      "id": 4,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -123,7 +189,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-08-08T09:17:00+00:00",
-      "timeLabel": "34m ago",
+      "timeLabel": "56m ago",
       "headline": "Pair of Ollies push Cats into top six with win over improved Bombers",
       "body": "Geelong proved too strong for a plucky Essendon side.",
       "link": "https://www.afl.com.au/news/1579025/geelong-cats-continue-top-six-push-with-win-over-improved-essendon-bombers",
@@ -152,7 +218,7 @@
       ]
     },
     {
-      "id": 4,
+      "id": 5,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -164,7 +230,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-08-08T09:00:00+00:00",
-      "timeLabel": "51m ago",
+      "timeLabel": "1h ago",
       "headline": "Scintillating Swans move clear in second with Power thrashing",
       "body": "The Swans have cruised to a convincing win over the Power.",
       "link": "https://www.afl.com.au/news/1579021/scintillating-sydney-swans-move-clear-in-second-with-port-adelaide-power-thrashing",
@@ -193,7 +259,7 @@
       ]
     },
     {
-      "id": 5,
+      "id": 6,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -239,7 +305,7 @@
       ]
     },
     {
-      "id": 6,
+      "id": 7,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -251,7 +317,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-08-08T06:00:00+00:00",
-      "timeLabel": "3h ago",
+      "timeLabel": "4h ago",
       "headline": "Dees stun flag-favourite Dockers in high-scoring shootout",
       "body": "Melbourne has delivered a shock scalp of Fremantle.",
       "link": "https://www.afl.com.au/news/1579018/match-report-melbourne-demons-v-fremantle-dockers",
@@ -280,7 +346,7 @@
       ]
     },
     {
-      "id": 7,
+      "id": 8,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -319,9 +385,7 @@
         "Port Adelaide",
         "Sydney",
         "Essendon",
-        "Geelong",
-        "Adelaide",
-        "Richmond"
+        "Geelong"
       ]
     },
     {
@@ -337,7 +401,7 @@
       "sourceHandle": "@abcsport",
       "reliability": 88,
       "time": "2026-08-08T03:08:42+00:00",
-      "timeLabel": "6h ago",
+      "timeLabel": "7h ago",
       "headline": "Live: Sydney thrash Port amid injury fears for Power star, Cats ease past Dons",
       "body": "Jason Horne-Francis hobbles off the field in Port's 97-point loss to Sydney, as Geelong makes light work of Essendon. Follow live.",
       "link": "https://www.abc.net.au/news/2026-08-08/afl-rd-22-live-melb-frem-syd-ptad-geel-ess-adel-rich/107007960",
@@ -430,7 +494,7 @@
       "sourceHandle": "@afl.com.au",
       "reliability": 96,
       "time": "2026-08-08T01:01:00+00:00",
-      "timeLabel": "8h ago",
+      "timeLabel": "9h ago",
       "headline": "'I apologise for the mistakes made': AFL Chair concedes Kolodjashnij waiver went 'too far'",
       "body": "AFL Chair Craig Drummond releases a statement about the waiver signed by Geelong defender Jake Kolodjashnij.",
       "link": "https://www.afl.com.au/news/1578906/i-apologise-for-the-mistakes-made-afl-chair-craig-drummond-sorry-for-jake-kolodjashnij-affair-while-he-was-president-of-geelong-cats",
@@ -898,57 +962,6 @@
     },
     {
       "id": 22,
-      "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Harry Perryman",
-      "pid": 1311987179,
-      "team": "Collingwood",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-08-07T07:00:00+00:00",
-      "timeLabel": "1d ago",
-      "pubISO": "2026-08-07T07:00:00+00:00",
-      "headline": "H.Perryman OUT: Collingwood \u2014 Hamstring",
-      "body": "H.Perryman has been ruled OUT for Collingwood in this round. Reason: hamstring. Status updated: ETA 2-3 weeks \u2192 Collingwood.",
-      "link": "https://www.afl.com.au/news/1578406/teams-saints-make-nas-call-boost-for-giants-pies-change-five",
-      "signal": "sell",
-      "signalConf": 85,
-      "tags": [
-        "OUT",
-        "Hamstring",
-        "Collingwood"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "first_seen": "2026-08-07T07:00:00+00:00",
-      "age_label": "1w ongoing",
-      "seen_count": 118,
-      "last_status": "out",
-      "status_changed": true,
-      "status": "update",
-      "status_label": "\ud83d\udfe1 Update",
-      "prev_status": "OUT",
-      "curr_status": "OUT",
-      "change_desc": "ETA 2-3 weeks \u2192 Collingwood",
-      "stale_after_days": 5,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
-      "players": [
-        {
-          "pid": 1311987179,
-          "name": "Harry Perryman"
-        }
-      ],
-      "teams": [
-        "Collingwood"
-      ]
-    },
-    {
-      "id": 23,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -990,7 +1003,7 @@
       ]
     },
     {
-      "id": 24,
+      "id": 23,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -1038,7 +1051,7 @@
       ]
     },
     {
-      "id": 25,
+      "id": 24,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -1086,7 +1099,7 @@
       ]
     },
     {
-      "id": 26,
+      "id": 25,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1134,7 +1147,7 @@
       ]
     },
     {
-      "id": 27,
+      "id": 26,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -1182,7 +1195,7 @@
       ]
     },
     {
-      "id": 28,
+      "id": 27,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1222,7 +1235,7 @@
       ]
     },
     {
-      "id": 29,
+      "id": 28,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1262,7 +1275,7 @@
       ]
     },
     {
-      "id": 30,
+      "id": 29,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1302,7 +1315,7 @@
       ]
     },
     {
-      "id": 31,
+      "id": 30,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1348,7 +1361,7 @@
       ]
     },
     {
-      "id": 32,
+      "id": 31,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1388,7 +1401,7 @@
       ]
     },
     {
-      "id": 33,
+      "id": 32,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1429,7 +1442,7 @@
       ]
     },
     {
-      "id": 34,
+      "id": 33,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -1495,7 +1508,7 @@
       ]
     },
     {
-      "id": 35,
+      "id": 34,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -1561,7 +1574,7 @@
       ]
     },
     {
-      "id": 36,
+      "id": 35,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1602,7 +1615,7 @@
       ]
     },
     {
-      "id": 37,
+      "id": 36,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -1643,7 +1656,7 @@
       ]
     },
     {
-      "id": 38,
+      "id": 37,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -1685,7 +1698,7 @@
       ]
     },
     {
-      "id": 39,
+      "id": 38,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -1733,7 +1746,7 @@
       ]
     },
     {
-      "id": 40,
+      "id": 39,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -1781,7 +1794,7 @@
       ]
     },
     {
-      "id": 41,
+      "id": 40,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -1823,7 +1836,7 @@
       ]
     },
     {
-      "id": 42,
+      "id": 41,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -1871,7 +1884,7 @@
       ]
     },
     {
-      "id": 43,
+      "id": 42,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -1913,7 +1926,7 @@
       ]
     },
     {
-      "id": 44,
+      "id": 43,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -1955,7 +1968,7 @@
       ]
     },
     {
-      "id": 45,
+      "id": 44,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -2003,7 +2016,7 @@
       ]
     },
     {
-      "id": 46,
+      "id": 45,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -2051,7 +2064,7 @@
       ]
     },
     {
-      "id": 47,
+      "id": 46,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -2099,7 +2112,7 @@
       ]
     },
     {
-      "id": 48,
+      "id": 47,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -2141,7 +2154,7 @@
       ]
     },
     {
-      "id": 49,
+      "id": 48,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -2189,7 +2202,7 @@
       ]
     },
     {
-      "id": 50,
+      "id": 49,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -2237,49 +2250,7 @@
       ]
     },
     {
-      "id": 51,
-      "type": "news",
-      "category": "general",
-      "urgent": true,
-      "player": "Jai Murray",
-      "pid": null,
-      "team": "Gold Coast",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-08-06T08:20:00+00:00",
-      "timeLabel": "2d ago",
-      "pubISO": "2026-08-06T08:20:00+00:00",
-      "headline": "J.Murray OUT: Gold Coast \u2014 Managed",
-      "body": "J.Murray has been ruled OUT for Gold Coast in this round. Reason: managed.",
-      "link": "https://www.afl.com.au/news/1577448/teams-dockers-rest-skipper-lions-lose-stars-pies-champ-injured",
-      "signal": "sell",
-      "signalConf": 85,
-      "tags": [
-        "OUT",
-        "Managed",
-        "Gold Coast"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-08-06T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 5,
-      "scrapedAt": "2026-08-06T08:53:14.544123+00:00",
-      "teams": [
-        "Gold Coast"
-      ]
-    },
-    {
-      "id": 52,
+      "id": 50,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -2327,55 +2298,7 @@
       ]
     },
     {
-      "id": 53,
-      "type": "injury",
-      "category": "injury_out",
-      "urgent": true,
-      "player": "Beau Addinsall",
-      "pid": 3700003815,
-      "team": "Gold Coast",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-08-06T08:20:00+00:00",
-      "timeLabel": "2d ago",
-      "pubISO": "2026-08-06T08:20:00+00:00",
-      "headline": "B.Addinsall OUT: Gold Coast \u2014 Managed",
-      "body": "B.Addinsall has been ruled OUT for Gold Coast in this round. Reason: managed.",
-      "link": "https://www.afl.com.au/news/1577448/teams-dockers-rest-skipper-lions-lose-stars-pies-champ-injured",
-      "signal": "sell",
-      "signalConf": 85,
-      "tags": [
-        "OUT",
-        "Managed",
-        "Gold Coast"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-08-06T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 5,
-      "scrapedAt": "2026-08-06T08:53:14.544123+00:00",
-      "players": [
-        {
-          "pid": 3700003815,
-          "name": "Beau Addinsall"
-        }
-      ],
-      "teams": [
-        "Gold Coast"
-      ]
-    },
-    {
-      "id": 54,
+      "id": 51,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2423,7 +2346,55 @@
       ]
     },
     {
-      "id": 55,
+      "id": 52,
+      "type": "injury",
+      "category": "injury_out",
+      "urgent": true,
+      "player": "Beau Addinsall",
+      "pid": 3700003815,
+      "team": "Gold Coast",
+      "pos": null,
+      "source": "AFL.com.au",
+      "sourceHandle": "@aflcomau",
+      "reliability": 96,
+      "time": "2026-08-06T08:20:00+00:00",
+      "timeLabel": "2d ago",
+      "pubISO": "2026-08-06T08:20:00+00:00",
+      "headline": "B.Addinsall OUT: Gold Coast \u2014 Managed",
+      "body": "B.Addinsall has been ruled OUT for Gold Coast in this round. Reason: managed.",
+      "link": "https://www.afl.com.au/news/1577448/teams-dockers-rest-skipper-lions-lose-stars-pies-champ-injured",
+      "signal": "sell",
+      "signalConf": 85,
+      "tags": [
+        "OUT",
+        "Managed",
+        "Gold Coast"
+      ],
+      "stats": [],
+      "relevance": 80,
+      "_source": "team_announcements",
+      "is_rumour": false,
+      "status": "new",
+      "status_label": "\ud83d\udd34 New",
+      "first_seen": "2026-08-06T08:20:00+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": true,
+      "stale_after_days": 5,
+      "scrapedAt": "2026-08-06T08:53:14.544123+00:00",
+      "players": [
+        {
+          "pid": 3700003815,
+          "name": "Beau Addinsall"
+        }
+      ],
+      "teams": [
+        "Gold Coast"
+      ]
+    },
+    {
+      "id": 53,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2471,7 +2442,7 @@
       ]
     },
     {
-      "id": 56,
+      "id": 54,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2519,7 +2490,7 @@
       ]
     },
     {
-      "id": 57,
+      "id": 55,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -2567,7 +2538,7 @@
       ]
     },
     {
-      "id": 58,
+      "id": 56,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2615,7 +2586,7 @@
       ]
     },
     {
-      "id": 59,
+      "id": 57,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2657,7 +2628,7 @@
       ]
     },
     {
-      "id": 60,
+      "id": 58,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2699,7 +2670,7 @@
       ]
     },
     {
-      "id": 61,
+      "id": 59,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2747,7 +2718,7 @@
       ]
     },
     {
-      "id": 62,
+      "id": 60,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -2795,7 +2766,7 @@
       ]
     },
     {
-      "id": 63,
+      "id": 61,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -2843,7 +2814,7 @@
       ]
     },
     {
-      "id": 64,
+      "id": 62,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -2891,7 +2862,7 @@
       ]
     },
     {
-      "id": 65,
+      "id": 63,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2939,7 +2910,7 @@
       ]
     },
     {
-      "id": 66,
+      "id": 64,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -2987,7 +2958,7 @@
       ]
     },
     {
-      "id": 67,
+      "id": 65,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -3029,7 +3000,7 @@
       ]
     },
     {
-      "id": 68,
+      "id": 66,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -3077,7 +3048,7 @@
       ]
     },
     {
-      "id": 69,
+      "id": 67,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3119,7 +3090,7 @@
       ]
     },
     {
-      "id": 70,
+      "id": 68,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3167,7 +3138,7 @@
       ]
     },
     {
-      "id": 71,
+      "id": 69,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3215,7 +3186,7 @@
       ]
     },
     {
-      "id": 72,
+      "id": 70,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3263,7 +3234,7 @@
       ]
     },
     {
-      "id": 73,
+      "id": 71,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3311,7 +3282,7 @@
       ]
     },
     {
-      "id": 74,
+      "id": 72,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -3353,7 +3324,7 @@
       ]
     },
     {
-      "id": 75,
+      "id": 73,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -3401,7 +3372,7 @@
       ]
     },
     {
-      "id": 76,
+      "id": 74,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -3449,7 +3420,7 @@
       ]
     },
     {
-      "id": 77,
+      "id": 75,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3497,7 +3468,7 @@
       ]
     },
     {
-      "id": 78,
+      "id": 76,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3539,7 +3510,7 @@
       ]
     },
     {
-      "id": 79,
+      "id": 77,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3587,7 +3558,7 @@
       ]
     },
     {
-      "id": 80,
+      "id": 78,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -3629,7 +3600,7 @@
       ]
     },
     {
-      "id": 81,
+      "id": 79,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3677,7 +3648,7 @@
       ]
     },
     {
-      "id": 82,
+      "id": 80,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3725,7 +3696,7 @@
       ]
     },
     {
-      "id": 83,
+      "id": 81,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3767,7 +3738,7 @@
       ]
     },
     {
-      "id": 84,
+      "id": 82,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3809,7 +3780,7 @@
       ]
     },
     {
-      "id": 85,
+      "id": 83,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -3851,7 +3822,7 @@
       ]
     },
     {
-      "id": 86,
+      "id": 84,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3899,7 +3870,7 @@
       ]
     },
     {
-      "id": 87,
+      "id": 85,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3947,7 +3918,7 @@
       ]
     },
     {
-      "id": 88,
+      "id": 86,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -3989,7 +3960,7 @@
       ]
     },
     {
-      "id": 89,
+      "id": 87,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4031,7 +4002,7 @@
       ]
     },
     {
-      "id": 90,
+      "id": 88,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4079,7 +4050,7 @@
       ]
     },
     {
-      "id": 91,
+      "id": 89,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4127,7 +4098,7 @@
       ]
     },
     {
-      "id": 92,
+      "id": 90,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4169,7 +4140,7 @@
       ]
     },
     {
-      "id": 93,
+      "id": 91,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4211,7 +4182,7 @@
       ]
     },
     {
-      "id": 94,
+      "id": 92,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4253,7 +4224,7 @@
       ]
     },
     {
-      "id": 95,
+      "id": 93,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4295,7 +4266,7 @@
       ]
     },
     {
-      "id": 96,
+      "id": 94,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -4343,55 +4314,7 @@
       ]
     },
     {
-      "id": 97,
-      "type": "news",
-      "category": "general",
-      "urgent": false,
-      "player": "Harvey Johnston",
-      "pid": 3170353916,
-      "team": "West Coast",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-08-06T08:20:00+00:00",
-      "timeLabel": "2d ago",
-      "pubISO": "2026-08-06T08:20:00+00:00",
-      "headline": "H.Johnston OUT: West Coast \u2014 Omitted",
-      "body": "H.Johnston has been ruled OUT for West Coast in this round. Reason: omitted.",
-      "link": "https://www.afl.com.au/news/1577448/teams-dockers-rest-skipper-lions-lose-stars-pies-champ-injured",
-      "signal": null,
-      "signalConf": 85,
-      "tags": [
-        "OUT",
-        "Omitted",
-        "West Coast"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-08-06T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 7,
-      "scrapedAt": "2026-08-06T08:53:14.544123+00:00",
-      "teams": [
-        "West Coast"
-      ],
-      "players": [
-        {
-          "pid": 3170353916,
-          "name": "Harvey Johnston"
-        }
-      ]
-    },
-    {
-      "id": 98,
+      "id": 95,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4433,7 +4356,7 @@
       ]
     },
     {
-      "id": 99,
+      "id": 96,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4481,7 +4404,7 @@
       ]
     },
     {
-      "id": 100,
+      "id": 97,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4523,7 +4446,7 @@
       ]
     },
     {
-      "id": 101,
+      "id": 98,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4565,7 +4488,7 @@
       ]
     },
     {
-      "id": 102,
+      "id": 99,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4613,7 +4536,7 @@
       ]
     },
     {
-      "id": 103,
+      "id": 100,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4661,7 +4584,7 @@
       ]
     },
     {
-      "id": 104,
+      "id": 101,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4703,7 +4626,7 @@
       ]
     },
     {
-      "id": 105,
+      "id": 102,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4745,7 +4668,7 @@
       ]
     },
     {
-      "id": 106,
+      "id": 103,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -4793,55 +4716,7 @@
       ]
     },
     {
-      "id": 107,
-      "type": "news",
-      "category": "general",
-      "urgent": false,
-      "player": "Jordan De Goey",
-      "pid": 3456673507,
-      "team": "Collingwood",
-      "pos": null,
-      "source": "AFL.com.au",
-      "sourceHandle": "@aflcomau",
-      "reliability": 96,
-      "time": "2026-08-06T08:20:00+00:00",
-      "timeLabel": "2d ago",
-      "pubISO": "2026-08-06T08:20:00+00:00",
-      "headline": "J.De Goey OUT: Collingwood \u2014 Glute",
-      "body": "J.De Goey has been ruled OUT for Collingwood in this round. Reason: glute.",
-      "link": "https://www.afl.com.au/news/1577448/teams-dockers-rest-skipper-lions-lose-stars-pies-champ-injured",
-      "signal": null,
-      "signalConf": 85,
-      "tags": [
-        "OUT",
-        "Glute",
-        "Collingwood"
-      ],
-      "stats": [],
-      "relevance": 80,
-      "_source": "team_announcements",
-      "is_rumour": false,
-      "status": "new",
-      "status_label": "\ud83d\udd34 New",
-      "first_seen": "2026-08-06T08:20:00+00:00",
-      "age_label": "Just in",
-      "seen_count": 1,
-      "last_status": null,
-      "status_changed": true,
-      "stale_after_days": 7,
-      "scrapedAt": "2026-08-06T08:53:14.544123+00:00",
-      "players": [
-        {
-          "pid": 3456673507,
-          "name": "Jordan De Goey"
-        }
-      ],
-      "teams": [
-        "Collingwood"
-      ]
-    },
-    {
-      "id": 108,
+      "id": 104,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4883,7 +4758,7 @@
       ]
     },
     {
-      "id": 109,
+      "id": 105,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4931,7 +4806,7 @@
       ]
     },
     {
-      "id": 110,
+      "id": 106,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -4979,7 +4854,7 @@
       ]
     },
     {
-      "id": 111,
+      "id": 107,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -5021,7 +4896,7 @@
       ]
     },
     {
-      "id": 112,
+      "id": 108,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -5063,7 +4938,7 @@
       ]
     },
     {
-      "id": 113,
+      "id": 109,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5112,7 +4987,7 @@
       ]
     },
     {
-      "id": 114,
+      "id": 110,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5161,7 +5036,7 @@
       ]
     },
     {
-      "id": 115,
+      "id": 111,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -5204,7 +5079,7 @@
       ]
     },
     {
-      "id": 116,
+      "id": 112,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5253,7 +5128,7 @@
       ]
     },
     {
-      "id": 117,
+      "id": 113,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5302,7 +5177,7 @@
       ]
     },
     {
-      "id": 118,
+      "id": 114,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5345,7 +5220,7 @@
       ]
     },
     {
-      "id": 119,
+      "id": 115,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5394,7 +5269,7 @@
       ]
     },
     {
-      "id": 120,
+      "id": 116,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5437,7 +5312,7 @@
       ]
     },
     {
-      "id": 121,
+      "id": 117,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5486,7 +5361,7 @@
       ]
     },
     {
-      "id": 122,
+      "id": 118,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5535,7 +5410,7 @@
       ]
     },
     {
-      "id": 123,
+      "id": 119,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -5578,7 +5453,7 @@
       ]
     },
     {
-      "id": 124,
+      "id": 120,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -5621,7 +5496,7 @@
       ]
     },
     {
-      "id": 125,
+      "id": 121,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5664,7 +5539,7 @@
       ]
     },
     {
-      "id": 126,
+      "id": 122,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5707,7 +5582,7 @@
       ]
     },
     {
-      "id": 127,
+      "id": 123,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -5750,7 +5625,7 @@
       ]
     },
     {
-      "id": 128,
+      "id": 124,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -5793,7 +5668,7 @@
       ]
     },
     {
-      "id": 129,
+      "id": 125,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5842,7 +5717,7 @@
       ]
     },
     {
-      "id": 130,
+      "id": 126,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5891,7 +5766,7 @@
       ]
     },
     {
-      "id": 131,
+      "id": 127,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5940,7 +5815,7 @@
       ]
     },
     {
-      "id": 132,
+      "id": 128,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -5989,7 +5864,7 @@
       ]
     },
     {
-      "id": 133,
+      "id": 129,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6029,7 +5904,7 @@
       ]
     },
     {
-      "id": 134,
+      "id": 130,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -6076,7 +5951,7 @@
       ]
     },
     {
-      "id": 135,
+      "id": 131,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6123,7 +5998,7 @@
       ]
     },
     {
-      "id": 136,
+      "id": 132,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6166,7 +6041,7 @@
       ]
     },
     {
-      "id": 137,
+      "id": 133,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -6213,7 +6088,7 @@
       ]
     },
     {
-      "id": 138,
+      "id": 134,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6254,7 +6129,7 @@
       ]
     },
     {
-      "id": 139,
+      "id": 135,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6301,7 +6176,7 @@
       ]
     },
     {
-      "id": 140,
+      "id": 136,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6340,7 +6215,7 @@
       ]
     },
     {
-      "id": 141,
+      "id": 137,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -6380,7 +6255,7 @@
       ]
     },
     {
-      "id": 142,
+      "id": 138,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6426,7 +6301,7 @@
       ]
     },
     {
-      "id": 143,
+      "id": 139,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -6469,7 +6344,7 @@
       ]
     },
     {
-      "id": 144,
+      "id": 140,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -6517,7 +6392,7 @@
       ]
     },
     {
-      "id": 145,
+      "id": 141,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -6565,7 +6440,7 @@
       ]
     },
     {
-      "id": 146,
+      "id": 142,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -6613,7 +6488,7 @@
       ]
     },
     {
-      "id": 147,
+      "id": 143,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -6661,7 +6536,7 @@
       ]
     },
     {
-      "id": 148,
+      "id": 144,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -6709,7 +6584,7 @@
       ]
     },
     {
-      "id": 149,
+      "id": 145,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -6757,7 +6632,7 @@
       ]
     },
     {
-      "id": 150,
+      "id": 146,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -6805,7 +6680,7 @@
       ]
     },
     {
-      "id": 151,
+      "id": 147,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -6853,7 +6728,7 @@
       ]
     },
     {
-      "id": 152,
+      "id": 148,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -6901,7 +6776,7 @@
       ]
     },
     {
-      "id": 153,
+      "id": 149,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -6949,7 +6824,7 @@
       ]
     },
     {
-      "id": 154,
+      "id": 150,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -6998,7 +6873,7 @@
       ]
     },
     {
-      "id": 155,
+      "id": 151,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -7047,7 +6922,7 @@
       ]
     },
     {
-      "id": 156,
+      "id": 152,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -7096,7 +6971,7 @@
       ]
     },
     {
-      "id": 157,
+      "id": 153,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -7145,7 +7020,7 @@
       ]
     },
     {
-      "id": 158,
+      "id": 154,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7199,7 +7074,7 @@
       ]
     },
     {
-      "id": 159,
+      "id": 155,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7239,7 +7114,7 @@
       ]
     },
     {
-      "id": 160,
+      "id": 156,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -7285,7 +7160,7 @@
       ]
     },
     {
-      "id": 161,
+      "id": 157,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7325,7 +7200,7 @@
       ]
     },
     {
-      "id": 162,
+      "id": 158,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7375,7 +7250,7 @@
       ]
     },
     {
-      "id": 163,
+      "id": 159,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7426,7 +7301,7 @@
       ]
     },
     {
-      "id": 164,
+      "id": 160,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7476,7 +7351,7 @@
       ]
     },
     {
-      "id": 165,
+      "id": 161,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -7532,7 +7407,7 @@
       ]
     },
     {
-      "id": 166,
+      "id": 162,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -7588,7 +7463,7 @@
       ]
     },
     {
-      "id": 167,
+      "id": 163,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -7644,7 +7519,7 @@
       ]
     },
     {
-      "id": 168,
+      "id": 164,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7685,7 +7560,7 @@
       ]
     },
     {
-      "id": 169,
+      "id": 165,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -7741,7 +7616,7 @@
       ]
     },
     {
-      "id": 170,
+      "id": 166,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -7797,7 +7672,7 @@
       ]
     },
     {
-      "id": 171,
+      "id": 167,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -7853,7 +7728,7 @@
       ]
     },
     {
-      "id": 172,
+      "id": 168,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -7893,7 +7768,7 @@
       ]
     },
     {
-      "id": 173,
+      "id": 169,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -7949,7 +7824,7 @@
       ]
     },
     {
-      "id": 174,
+      "id": 170,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -8005,7 +7880,7 @@
       ]
     },
     {
-      "id": 175,
+      "id": 171,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -8061,7 +7936,7 @@
       ]
     },
     {
-      "id": 176,
+      "id": 172,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8101,7 +7976,7 @@
       ]
     },
     {
-      "id": 177,
+      "id": 173,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -8147,7 +8022,7 @@
       ]
     },
     {
-      "id": 178,
+      "id": 174,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8187,7 +8062,7 @@
       ]
     },
     {
-      "id": 179,
+      "id": 175,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8233,7 +8108,7 @@
       ]
     },
     {
-      "id": 180,
+      "id": 176,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8279,7 +8154,7 @@
       ]
     },
     {
-      "id": 181,
+      "id": 177,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8320,7 +8195,7 @@
       ]
     },
     {
-      "id": 182,
+      "id": 178,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8371,7 +8246,7 @@
       ]
     },
     {
-      "id": 183,
+      "id": 179,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8420,7 +8295,7 @@
       ]
     },
     {
-      "id": 184,
+      "id": 180,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8467,7 +8342,7 @@
       ]
     },
     {
-      "id": 185,
+      "id": 181,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8508,7 +8383,7 @@
       ]
     },
     {
-      "id": 186,
+      "id": 182,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -8551,7 +8426,7 @@
       ]
     },
     {
-      "id": 187,
+      "id": 183,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8591,7 +8466,7 @@
       ]
     },
     {
-      "id": 188,
+      "id": 184,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8637,7 +8512,7 @@
       ]
     },
     {
-      "id": 189,
+      "id": 185,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8684,7 +8559,7 @@
       ]
     },
     {
-      "id": 190,
+      "id": 186,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -8730,7 +8605,7 @@
       ]
     },
     {
-      "id": 191,
+      "id": 187,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8776,7 +8651,7 @@
       ]
     },
     {
-      "id": 192,
+      "id": 188,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8823,7 +8698,7 @@
       ]
     },
     {
-      "id": 193,
+      "id": 189,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8864,7 +8739,7 @@
       ]
     },
     {
-      "id": 194,
+      "id": 190,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -8910,7 +8785,7 @@
       ]
     },
     {
-      "id": 195,
+      "id": 191,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -8957,7 +8832,7 @@
       ]
     },
     {
-      "id": 196,
+      "id": 192,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9004,7 +8879,7 @@
       ]
     },
     {
-      "id": 197,
+      "id": 193,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9044,7 +8919,7 @@
       ]
     },
     {
-      "id": 198,
+      "id": 194,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9084,7 +8959,7 @@
       ]
     },
     {
-      "id": 199,
+      "id": 195,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9125,7 +9000,7 @@
       ]
     },
     {
-      "id": 200,
+      "id": 196,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9171,7 +9046,7 @@
       ]
     },
     {
-      "id": 201,
+      "id": 197,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9212,7 +9087,7 @@
       ]
     },
     {
-      "id": 202,
+      "id": 198,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9260,7 +9135,7 @@
       ]
     },
     {
-      "id": 203,
+      "id": 199,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -9326,7 +9201,7 @@
       ]
     },
     {
-      "id": 204,
+      "id": 200,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -9388,7 +9263,7 @@
       ]
     },
     {
-      "id": 205,
+      "id": 201,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -9450,7 +9325,7 @@
       ]
     },
     {
-      "id": 206,
+      "id": 202,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9490,7 +9365,7 @@
       ]
     },
     {
-      "id": 207,
+      "id": 203,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -9531,7 +9406,7 @@
       ]
     },
     {
-      "id": 208,
+      "id": 204,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9572,7 +9447,7 @@
       ]
     },
     {
-      "id": 209,
+      "id": 205,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9613,7 +9488,7 @@
       ]
     },
     {
-      "id": 210,
+      "id": 206,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9654,7 +9529,7 @@
       ]
     },
     {
-      "id": 211,
+      "id": 207,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9698,7 +9573,7 @@
       ]
     },
     {
-      "id": 212,
+      "id": 208,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9738,7 +9613,7 @@
       ]
     },
     {
-      "id": 213,
+      "id": 209,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9779,7 +9654,7 @@
       ]
     },
     {
-      "id": 214,
+      "id": 210,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9820,7 +9695,7 @@
       ]
     },
     {
-      "id": 215,
+      "id": 211,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -9886,7 +9761,7 @@
       ]
     },
     {
-      "id": 216,
+      "id": 212,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9936,7 +9811,7 @@
       ]
     },
     {
-      "id": 217,
+      "id": 213,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -9976,7 +9851,7 @@
       ]
     },
     {
-      "id": 218,
+      "id": 214,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10017,7 +9892,7 @@
       ]
     },
     {
-      "id": 219,
+      "id": 215,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10058,7 +9933,7 @@
       ]
     },
     {
-      "id": 220,
+      "id": 216,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -10100,7 +9975,7 @@
       ]
     },
     {
-      "id": 221,
+      "id": 217,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -10148,7 +10023,7 @@
       ]
     },
     {
-      "id": 222,
+      "id": 218,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10190,7 +10065,7 @@
       ]
     },
     {
-      "id": 223,
+      "id": 219,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10232,7 +10107,7 @@
       ]
     },
     {
-      "id": 224,
+      "id": 220,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10274,7 +10149,7 @@
       ]
     },
     {
-      "id": 225,
+      "id": 221,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -10316,7 +10191,7 @@
       ]
     },
     {
-      "id": 226,
+      "id": 222,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -10364,7 +10239,7 @@
       ]
     },
     {
-      "id": 227,
+      "id": 223,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -10413,7 +10288,7 @@
       ]
     },
     {
-      "id": 228,
+      "id": 224,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -10456,7 +10331,7 @@
       ]
     },
     {
-      "id": 229,
+      "id": 225,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -10499,7 +10374,7 @@
       ]
     },
     {
-      "id": 230,
+      "id": 226,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -10542,7 +10417,7 @@
       ]
     },
     {
-      "id": 231,
+      "id": 227,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -10585,7 +10460,7 @@
       ]
     },
     {
-      "id": 232,
+      "id": 228,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -10628,7 +10503,7 @@
       ]
     },
     {
-      "id": 233,
+      "id": 229,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -10671,7 +10546,7 @@
       ]
     },
     {
-      "id": 234,
+      "id": 230,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -10720,7 +10595,7 @@
       ]
     },
     {
-      "id": 235,
+      "id": 231,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -10769,7 +10644,7 @@
       ]
     },
     {
-      "id": 236,
+      "id": 232,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -10812,7 +10687,7 @@
       ]
     },
     {
-      "id": 237,
+      "id": 233,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -10855,7 +10730,7 @@
       ]
     },
     {
-      "id": 238,
+      "id": 234,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -10904,7 +10779,7 @@
       ]
     },
     {
-      "id": 239,
+      "id": 235,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -10947,7 +10822,7 @@
       ]
     },
     {
-      "id": 240,
+      "id": 236,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -10996,7 +10871,7 @@
       ]
     },
     {
-      "id": 241,
+      "id": 237,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -11045,7 +10920,7 @@
       ]
     },
     {
-      "id": 242,
+      "id": 238,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -11092,7 +10967,7 @@
       ]
     },
     {
-      "id": 243,
+      "id": 239,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -11133,7 +11008,7 @@
       ]
     },
     {
-      "id": 244,
+      "id": 240,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -11180,7 +11055,7 @@
       ]
     },
     {
-      "id": 245,
+      "id": 241,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -11227,7 +11102,7 @@
       ]
     },
     {
-      "id": 246,
+      "id": 242,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -11267,7 +11142,7 @@
       ]
     },
     {
-      "id": 247,
+      "id": 243,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -11317,7 +11192,7 @@
       ]
     },
     {
-      "id": 248,
+      "id": 244,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -11360,7 +11235,7 @@
       ]
     },
     {
-      "id": 249,
+      "id": 245,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -11401,7 +11276,7 @@
       ]
     },
     {
-      "id": 250,
+      "id": 246,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -11441,7 +11316,7 @@
       ]
     },
     {
-      "id": 251,
+      "id": 247,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -11488,7 +11363,7 @@
       ]
     },
     {
-      "id": 252,
+      "id": 248,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -11536,7 +11411,7 @@
       ]
     },
     {
-      "id": 253,
+      "id": 249,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -11584,7 +11459,7 @@
       ]
     },
     {
-      "id": 254,
+      "id": 250,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -11626,7 +11501,7 @@
       ]
     },
     {
-      "id": 255,
+      "id": 251,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -11668,7 +11543,7 @@
       ]
     },
     {
-      "id": 256,
+      "id": 252,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -11710,7 +11585,7 @@
       ]
     },
     {
-      "id": 257,
+      "id": 253,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -11752,7 +11627,7 @@
       ]
     },
     {
-      "id": 258,
+      "id": 254,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -11800,7 +11675,7 @@
       ]
     },
     {
-      "id": 259,
+      "id": 255,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -11848,7 +11723,7 @@
       ]
     },
     {
-      "id": 260,
+      "id": 256,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -11890,7 +11765,7 @@
       ]
     },
     {
-      "id": 261,
+      "id": 257,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -11932,7 +11807,7 @@
       ]
     },
     {
-      "id": 262,
+      "id": 258,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -11980,7 +11855,7 @@
       ]
     },
     {
-      "id": 263,
+      "id": 259,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12028,7 +11903,7 @@
       ]
     },
     {
-      "id": 264,
+      "id": 260,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12070,7 +11945,7 @@
       ]
     },
     {
-      "id": 265,
+      "id": 261,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12118,7 +11993,7 @@
       ]
     },
     {
-      "id": 266,
+      "id": 262,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12166,7 +12041,7 @@
       ]
     },
     {
-      "id": 267,
+      "id": 263,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12214,7 +12089,7 @@
       ]
     },
     {
-      "id": 268,
+      "id": 264,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12256,7 +12131,7 @@
       ]
     },
     {
-      "id": 269,
+      "id": 265,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -12298,7 +12173,7 @@
       ]
     },
     {
-      "id": 270,
+      "id": 266,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -12346,7 +12221,7 @@
       ]
     },
     {
-      "id": 271,
+      "id": 267,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -12394,7 +12269,7 @@
       ]
     },
     {
-      "id": 272,
+      "id": 268,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12442,7 +12317,7 @@
       ]
     },
     {
-      "id": 273,
+      "id": 269,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12490,7 +12365,7 @@
       ]
     },
     {
-      "id": 274,
+      "id": 270,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -12538,7 +12413,7 @@
       ]
     },
     {
-      "id": 275,
+      "id": 271,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12580,7 +12455,7 @@
       ]
     },
     {
-      "id": 276,
+      "id": 272,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12628,7 +12503,7 @@
       ]
     },
     {
-      "id": 277,
+      "id": 273,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -12676,7 +12551,7 @@
       ]
     },
     {
-      "id": 278,
+      "id": 274,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12718,7 +12593,7 @@
       ]
     },
     {
-      "id": 279,
+      "id": 275,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12760,7 +12635,7 @@
       ]
     },
     {
-      "id": 280,
+      "id": 276,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12802,7 +12677,7 @@
       ]
     },
     {
-      "id": 281,
+      "id": 277,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12844,7 +12719,7 @@
       ]
     },
     {
-      "id": 282,
+      "id": 278,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12892,7 +12767,7 @@
       ]
     },
     {
-      "id": 283,
+      "id": 279,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12940,7 +12815,7 @@
       ]
     },
     {
-      "id": 284,
+      "id": 280,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -12988,7 +12863,7 @@
       ]
     },
     {
-      "id": 285,
+      "id": 281,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13036,7 +12911,7 @@
       ]
     },
     {
-      "id": 286,
+      "id": 282,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13084,7 +12959,7 @@
       ]
     },
     {
-      "id": 287,
+      "id": 283,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13132,7 +13007,7 @@
       ]
     },
     {
-      "id": 288,
+      "id": 284,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13180,7 +13055,7 @@
       ]
     },
     {
-      "id": 289,
+      "id": 285,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13222,7 +13097,7 @@
       ]
     },
     {
-      "id": 290,
+      "id": 286,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13270,7 +13145,7 @@
       ]
     },
     {
-      "id": 291,
+      "id": 287,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13312,7 +13187,7 @@
       ]
     },
     {
-      "id": 292,
+      "id": 288,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13360,7 +13235,7 @@
       ]
     },
     {
-      "id": 293,
+      "id": 289,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13402,7 +13277,7 @@
       ]
     },
     {
-      "id": 294,
+      "id": 290,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13450,7 +13325,7 @@
       ]
     },
     {
-      "id": 295,
+      "id": 291,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -13498,7 +13373,7 @@
       ]
     },
     {
-      "id": 296,
+      "id": 292,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -13546,7 +13421,7 @@
       ]
     },
     {
-      "id": 297,
+      "id": 293,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13588,7 +13463,7 @@
       ]
     },
     {
-      "id": 298,
+      "id": 294,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13636,7 +13511,7 @@
       ]
     },
     {
-      "id": 299,
+      "id": 295,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13684,7 +13559,7 @@
       ]
     },
     {
-      "id": 300,
+      "id": 296,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13732,7 +13607,7 @@
       ]
     },
     {
-      "id": 301,
+      "id": 297,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13774,7 +13649,7 @@
       ]
     },
     {
-      "id": 302,
+      "id": 298,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13816,7 +13691,7 @@
       ]
     },
     {
-      "id": 303,
+      "id": 299,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -13864,7 +13739,7 @@
       ]
     },
     {
-      "id": 304,
+      "id": 300,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13906,7 +13781,7 @@
       ]
     },
     {
-      "id": 305,
+      "id": 301,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -13954,7 +13829,7 @@
       ]
     },
     {
-      "id": 306,
+      "id": 302,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -13996,7 +13871,7 @@
       ]
     },
     {
-      "id": 307,
+      "id": 303,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -14044,7 +13919,7 @@
       ]
     },
     {
-      "id": 308,
+      "id": 304,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -14086,7 +13961,7 @@
       ]
     },
     {
-      "id": 309,
+      "id": 305,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -14134,7 +14009,7 @@
       ]
     },
     {
-      "id": 310,
+      "id": 306,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -14182,7 +14057,7 @@
       ]
     },
     {
-      "id": 311,
+      "id": 307,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -14230,7 +14105,7 @@
       ]
     },
     {
-      "id": 312,
+      "id": 308,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -14278,7 +14153,7 @@
       ]
     },
     {
-      "id": 313,
+      "id": 309,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -14326,7 +14201,7 @@
       ]
     },
     {
-      "id": 314,
+      "id": 310,
       "type": "injury",
       "category": "injury_out",
       "urgent": false,
@@ -14374,7 +14249,7 @@
       ]
     },
     {
-      "id": 315,
+      "id": 311,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14417,7 +14292,7 @@
       ]
     },
     {
-      "id": 316,
+      "id": 312,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14460,7 +14335,7 @@
       ]
     },
     {
-      "id": 317,
+      "id": 313,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14503,7 +14378,7 @@
       ]
     },
     {
-      "id": 318,
+      "id": 314,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -14552,7 +14427,7 @@
       ]
     },
     {
-      "id": 319,
+      "id": 315,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -14595,7 +14470,7 @@
       ]
     },
     {
-      "id": 320,
+      "id": 316,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -14644,7 +14519,7 @@
       ]
     },
     {
-      "id": 321,
+      "id": 317,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -14687,7 +14562,7 @@
       ]
     },
     {
-      "id": 322,
+      "id": 318,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -14736,7 +14611,7 @@
       ]
     },
     {
-      "id": 323,
+      "id": 319,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -14785,7 +14660,7 @@
       ]
     },
     {
-      "id": 324,
+      "id": 320,
       "type": "selection",
       "category": "dropped",
       "urgent": false,
@@ -14834,7 +14709,7 @@
       ]
     },
     {
-      "id": 325,
+      "id": 321,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -14880,7 +14755,7 @@
       ]
     },
     {
-      "id": 326,
+      "id": 322,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -14920,7 +14795,7 @@
       ]
     },
     {
-      "id": 327,
+      "id": 323,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -14960,7 +14835,7 @@
       ]
     },
     {
-      "id": 328,
+      "id": 324,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15007,7 +14882,7 @@
       ]
     },
     {
-      "id": 329,
+      "id": 325,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -15047,7 +14922,7 @@
       ]
     },
     {
-      "id": 330,
+      "id": 326,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -15109,7 +14984,7 @@
       ]
     },
     {
-      "id": 331,
+      "id": 327,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -15149,7 +15024,7 @@
       ]
     },
     {
-      "id": 332,
+      "id": 328,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -15197,7 +15072,7 @@
       ]
     },
     {
-      "id": 333,
+      "id": 329,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -15245,7 +15120,7 @@
       ]
     },
     {
-      "id": 334,
+      "id": 330,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -15287,7 +15162,7 @@
       ]
     },
     {
-      "id": 335,
+      "id": 331,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -15334,7 +15209,7 @@
       ]
     },
     {
-      "id": 336,
+      "id": 332,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -15390,7 +15265,7 @@
       ]
     },
     {
-      "id": 337,
+      "id": 333,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -15446,7 +15321,7 @@
       ]
     },
     {
-      "id": 338,
+      "id": 334,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -15502,7 +15377,7 @@
       ]
     },
     {
-      "id": 339,
+      "id": 335,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15542,7 +15417,7 @@
       ]
     },
     {
-      "id": 340,
+      "id": 336,
       "type": "injury",
       "category": "injury_out",
       "urgent": true,
@@ -15598,7 +15473,7 @@
       ]
     },
     {
-      "id": 341,
+      "id": 337,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -15644,7 +15519,7 @@
       ]
     },
     {
-      "id": 342,
+      "id": 338,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15690,7 +15565,7 @@
       ]
     },
     {
-      "id": 343,
+      "id": 339,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -15748,7 +15623,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 344,
+      "id": 340,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15806,7 +15681,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 345,
+      "id": 341,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -15864,7 +15739,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 346,
+      "id": 342,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -15922,7 +15797,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 347,
+      "id": 343,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -15980,7 +15855,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 348,
+      "id": 344,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16038,7 +15913,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 349,
+      "id": 345,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -16096,7 +15971,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 350,
+      "id": 346,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16154,7 +16029,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 351,
+      "id": 347,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -16212,7 +16087,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 352,
+      "id": 348,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -16270,7 +16145,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 353,
+      "id": 349,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -16328,7 +16203,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 354,
+      "id": 350,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -16386,7 +16261,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 355,
+      "id": 351,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16444,7 +16319,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 356,
+      "id": 352,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -16502,7 +16377,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 357,
+      "id": 353,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -16560,7 +16435,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 358,
+      "id": 354,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -16618,7 +16493,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 359,
+      "id": 355,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16676,7 +16551,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 360,
+      "id": 356,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -16734,7 +16609,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 361,
+      "id": 357,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -16792,7 +16667,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 362,
+      "id": 358,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -16850,7 +16725,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 363,
+      "id": 359,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -16908,7 +16783,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 364,
+      "id": 360,
       "type": "selection",
       "category": "injury_out",
       "urgent": false,
@@ -16966,7 +16841,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 365,
+      "id": 361,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -17024,7 +16899,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 366,
+      "id": 362,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -17082,7 +16957,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 367,
+      "id": 363,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -17140,7 +17015,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 368,
+      "id": 364,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -17198,7 +17073,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 369,
+      "id": 365,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -17256,7 +17131,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 370,
+      "id": 366,
       "type": "selection",
       "category": "injury_tbc",
       "urgent": false,
@@ -17314,7 +17189,7 @@
       "link": "https://www.afl.com.au/matches/team-selection"
     },
     {
-      "id": 371,
+      "id": 367,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -17358,16 +17233,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 195460597,
@@ -17379,7 +17254,7 @@
       ]
     },
     {
-      "id": 372,
+      "id": 368,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -17423,16 +17298,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 1763452386,
@@ -17444,7 +17319,7 @@
       ]
     },
     {
-      "id": 373,
+      "id": 369,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -17488,16 +17363,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 2269888017,
@@ -17509,7 +17384,7 @@
       ]
     },
     {
-      "id": 374,
+      "id": 370,
       "type": "selection",
       "category": "team_news",
       "urgent": false,
@@ -17555,7 +17430,7 @@
       ]
     },
     {
-      "id": 375,
+      "id": 371,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -17599,16 +17474,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 4067852004,
@@ -17620,7 +17495,7 @@
       ]
     },
     {
-      "id": 376,
+      "id": 372,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -17664,16 +17539,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 2842891525,
@@ -17685,7 +17560,7 @@
       ]
     },
     {
-      "id": 377,
+      "id": 373,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -17729,16 +17604,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 3705830931,
@@ -17750,7 +17625,7 @@
       ]
     },
     {
-      "id": 378,
+      "id": 374,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -17800,7 +17675,7 @@
       ]
     },
     {
-      "id": 379,
+      "id": 375,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -17844,16 +17719,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 1935357943,
@@ -17865,7 +17740,7 @@
       ]
     },
     {
-      "id": 380,
+      "id": 376,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -17909,16 +17784,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 659211956,
@@ -17930,7 +17805,7 @@
       ]
     },
     {
-      "id": 381,
+      "id": 377,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -17974,16 +17849,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 574744857,
@@ -17995,7 +17870,7 @@
       ]
     },
     {
-      "id": 382,
+      "id": 378,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -18038,7 +17913,7 @@
       ]
     },
     {
-      "id": 383,
+      "id": 379,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -18082,16 +17957,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 28813437,
@@ -18103,7 +17978,7 @@
       ]
     },
     {
-      "id": 384,
+      "id": 380,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -18147,16 +18022,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 526528273,
@@ -18168,7 +18043,7 @@
       ]
     },
     {
-      "id": 385,
+      "id": 381,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -18212,16 +18087,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 630434660,
@@ -18233,7 +18108,7 @@
       ]
     },
     {
-      "id": 386,
+      "id": 382,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -18283,7 +18158,7 @@
       ]
     },
     {
-      "id": 387,
+      "id": 383,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -18327,16 +18202,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 2343133454,
@@ -18348,7 +18223,7 @@
       ]
     },
     {
-      "id": 388,
+      "id": 384,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -18392,16 +18267,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 2776733382,
@@ -18413,7 +18288,7 @@
       ]
     },
     {
-      "id": 389,
+      "id": 385,
       "type": "injury",
       "category": "injury_tbc",
       "urgent": false,
@@ -18457,16 +18332,16 @@
       "is_rumour": true,
       "first_seen": "2026-07-29T08:15:34.263504+00:00",
       "age_label": "1w ongoing",
-      "seen_count": 115,
+      "seen_count": 116,
       "last_status": "test",
       "status_changed": false,
       "status": "ongoing",
       "status_label": "\ud83d\udd01 Ongoing \u00b7 1w ongoing",
       "stale_after_days": 2,
       "confirmed": false,
-      "_seen": "2026-08-08T09:51:40.548822+00:00",
+      "_seen": "2026-08-08T10:13:34.692595+00:00",
       "_padded": true,
-      "scrapedAt": "2026-08-08T09:51:40.551180+00:00",
+      "scrapedAt": "2026-08-08T10:13:34.694176+00:00",
       "players": [
         {
           "pid": 1135202499,
@@ -18478,7 +18353,7 @@
       ]
     },
     {
-      "id": 390,
+      "id": 386,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -18525,7 +18400,7 @@
       ]
     },
     {
-      "id": 391,
+      "id": 387,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -18568,7 +18443,7 @@
       ]
     },
     {
-      "id": 392,
+      "id": 388,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -18611,7 +18486,7 @@
       ]
     },
     {
-      "id": 393,
+      "id": 389,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -18657,7 +18532,7 @@
       ]
     },
     {
-      "id": 394,
+      "id": 390,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -18697,7 +18572,7 @@
       ]
     },
     {
-      "id": 395,
+      "id": 391,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -18743,7 +18618,7 @@
       ]
     },
     {
-      "id": 396,
+      "id": 392,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -18786,7 +18661,7 @@
       ]
     },
     {
-      "id": 397,
+      "id": 393,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -18832,7 +18707,7 @@
       ]
     },
     {
-      "id": 398,
+      "id": 394,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -18879,7 +18754,7 @@
       ]
     },
     {
-      "id": 399,
+      "id": 395,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -18926,7 +18801,7 @@
       ]
     },
     {
-      "id": 400,
+      "id": 396,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -18966,7 +18841,7 @@
       ]
     },
     {
-      "id": 401,
+      "id": 397,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19013,7 +18888,7 @@
       ]
     },
     {
-      "id": 402,
+      "id": 398,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19054,7 +18929,7 @@
       ]
     },
     {
-      "id": 403,
+      "id": 399,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19100,7 +18975,7 @@
       ]
     },
     {
-      "id": 404,
+      "id": 400,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19143,7 +19018,7 @@
       ]
     },
     {
-      "id": 405,
+      "id": 401,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19190,7 +19065,7 @@
       ]
     },
     {
-      "id": 406,
+      "id": 402,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19241,7 +19116,7 @@
       ]
     },
     {
-      "id": 407,
+      "id": 403,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19281,7 +19156,7 @@
       ]
     },
     {
-      "id": 408,
+      "id": 404,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19322,7 +19197,7 @@
       ]
     },
     {
-      "id": 409,
+      "id": 405,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19363,7 +19238,7 @@
       ]
     },
     {
-      "id": 410,
+      "id": 406,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19403,7 +19278,7 @@
       ]
     },
     {
-      "id": 411,
+      "id": 407,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19444,7 +19319,7 @@
       ]
     },
     {
-      "id": 412,
+      "id": 408,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19490,7 +19365,7 @@
       ]
     },
     {
-      "id": 413,
+      "id": 409,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19531,7 +19406,7 @@
       ]
     },
     {
-      "id": 414,
+      "id": 410,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -19573,7 +19448,7 @@
       ]
     },
     {
-      "id": 415,
+      "id": 411,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -19615,7 +19490,7 @@
       ]
     },
     {
-      "id": 416,
+      "id": 412,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -19657,7 +19532,7 @@
       ]
     },
     {
-      "id": 417,
+      "id": 413,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -19699,7 +19574,7 @@
       ]
     },
     {
-      "id": 418,
+      "id": 414,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -19741,7 +19616,7 @@
       ]
     },
     {
-      "id": 419,
+      "id": 415,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -19783,7 +19658,7 @@
       ]
     },
     {
-      "id": 420,
+      "id": 416,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -19825,7 +19700,7 @@
       ]
     },
     {
-      "id": 421,
+      "id": 417,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -19867,7 +19742,7 @@
       ]
     },
     {
-      "id": 422,
+      "id": 418,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -19909,7 +19784,7 @@
       ]
     },
     {
-      "id": 423,
+      "id": 419,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19951,7 +19826,7 @@
       ]
     },
     {
-      "id": 424,
+      "id": 420,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -19993,7 +19868,7 @@
       ]
     },
     {
-      "id": 425,
+      "id": 421,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20035,7 +19910,7 @@
       ]
     },
     {
-      "id": 426,
+      "id": 422,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20076,7 +19951,7 @@
       ]
     },
     {
-      "id": 427,
+      "id": 423,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20123,7 +19998,7 @@
       ]
     },
     {
-      "id": 428,
+      "id": 424,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20163,7 +20038,7 @@
       ]
     },
     {
-      "id": 429,
+      "id": 425,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20203,7 +20078,7 @@
       ]
     },
     {
-      "id": 430,
+      "id": 426,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20249,7 +20124,7 @@
       ]
     },
     {
-      "id": 431,
+      "id": 427,
       "type": "news",
       "category": "general",
       "urgent": true,
@@ -20291,7 +20166,7 @@
       ]
     },
     {
-      "id": 432,
+      "id": 428,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20331,7 +20206,7 @@
       ]
     },
     {
-      "id": 433,
+      "id": 429,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20378,7 +20253,7 @@
       ]
     },
     {
-      "id": 434,
+      "id": 430,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20424,7 +20299,7 @@
       ]
     },
     {
-      "id": 435,
+      "id": 431,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20467,7 +20342,7 @@
       ]
     },
     {
-      "id": 436,
+      "id": 432,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20513,7 +20388,7 @@
       ]
     },
     {
-      "id": 437,
+      "id": 433,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20560,7 +20435,7 @@
       ]
     },
     {
-      "id": 438,
+      "id": 434,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20606,7 +20481,7 @@
       ]
     },
     {
-      "id": 439,
+      "id": 435,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20647,7 +20522,7 @@
       ]
     },
     {
-      "id": 440,
+      "id": 436,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20693,7 +20568,7 @@
       ]
     },
     {
-      "id": 441,
+      "id": 437,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20733,7 +20608,7 @@
       ]
     },
     {
-      "id": 442,
+      "id": 438,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20779,7 +20654,7 @@
       ]
     },
     {
-      "id": 443,
+      "id": 439,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20825,7 +20700,7 @@
       ]
     },
     {
-      "id": 444,
+      "id": 440,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20865,7 +20740,7 @@
       ]
     },
     {
-      "id": 445,
+      "id": 441,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20911,7 +20786,7 @@
       ]
     },
     {
-      "id": 446,
+      "id": 442,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20951,7 +20826,7 @@
       ]
     },
     {
-      "id": 447,
+      "id": 443,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -20997,7 +20872,7 @@
       ]
     },
     {
-      "id": 448,
+      "id": 444,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -21038,7 +20913,7 @@
       ]
     },
     {
-      "id": 449,
+      "id": 445,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -21085,7 +20960,7 @@
       ]
     },
     {
-      "id": 450,
+      "id": 446,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -21131,7 +21006,7 @@
       ]
     },
     {
-      "id": 451,
+      "id": 447,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -21171,7 +21046,7 @@
       ]
     },
     {
-      "id": 452,
+      "id": 448,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -21212,7 +21087,7 @@
       ]
     },
     {
-      "id": 453,
+      "id": 449,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -21253,7 +21128,7 @@
       ]
     },
     {
-      "id": 454,
+      "id": 450,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -21304,7 +21179,7 @@
       ]
     },
     {
-      "id": 455,
+      "id": 451,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -21345,7 +21220,7 @@
       ]
     },
     {
-      "id": 456,
+      "id": 452,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -21385,7 +21260,7 @@
       ]
     },
     {
-      "id": 457,
+      "id": 453,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -21432,7 +21307,7 @@
       ]
     },
     {
-      "id": 458,
+      "id": 454,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -21473,7 +21348,7 @@
       ]
     },
     {
-      "id": 459,
+      "id": 455,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -21514,7 +21389,7 @@
       ]
     },
     {
-      "id": 460,
+      "id": 456,
       "type": "news",
       "category": "general",
       "urgent": false,
@@ -21555,7 +21430,7 @@
       ]
     },
     {
-      "id": 461,
+      "id": 457,
       "type": "news",
       "category": "general",
       "urgent": false,
