@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-10T12:15:09.528973+00:00",
+  "updated": "2026-08-10T12:32:49.575508+00:00",
   "items": {
     "noPlayer_team_news_5ae9ff3e": {
       "first_seen": "2026-07-18T08:30:56.537997+00:00",
@@ -37089,48 +37089,6 @@
         "last_status": null,
         "status_changed": false,
         "stale_after_days": 7
-      },
-      "seen_count": 1
-    },
-    "noPlayer_injury_tbc_68adbb8d": {
-      "first_seen": "2026-08-09T12:23:28.094666+00:00",
-      "last_seen": "2026-08-09T12:23:28.094666+00:00",
-      "last_fp": "ae5db72cb59d",
-      "last_status": "test",
-      "last_item": {
-        "id": null,
-        "type": "injury",
-        "category": "injury_tbc",
-        "urgent": false,
-        "player": "",
-        "pid": null,
-        "team": null,
-        "pos": null,
-        "source": "ABC Sport",
-        "sourceHandle": "@abcsport",
-        "reliability": 88,
-        "time": "2026-08-09T12:23:28.094666+00:00",
-        "timeLabel": "9h ago",
-        "headline": "Live: Blues plant one foot in the AFL finals as Saints lose star to hamstring",
-        "body": "Carlton plants one foot in the AFL finals series with a statement victory over the Saints at Docklands. Follow live.",
-        "link": "https://www.abc.net.au/news/2026-08-09/afl-rd-22-live-gws-suns-wce-coll-stk-carl/107008342",
-        "signal": "hold",
-        "signalConf": 80,
-        "tags": [
-          "Injury Tbc"
-        ],
-        "stats": [],
-        "relevance": 45,
-        "_source": "rss_abcsport",
-        "pubISO": "2026-08-09T03:04:07+00:00",
-        "status": "new",
-        "status_label": "\ud83d\udd34 New",
-        "first_seen": "2026-08-09T12:23:28.094666+00:00",
-        "age_label": "Just in",
-        "seen_count": 1,
-        "last_status": null,
-        "status_changed": true,
-        "stale_after_days": 2
       },
       "seen_count": 1
     },
@@ -76615,6 +76573,42 @@
       "status_label": "\u2705 Resolved",
       "stale_after_days": 7,
       "resolved_at": "2026-08-10T12:15:09.525345+00:00"
+    },
+    {
+      "id": null,
+      "type": "selection",
+      "category": "injury_tbc",
+      "urgent": false,
+      "player": "",
+      "pid": null,
+      "team": null,
+      "pos": null,
+      "source": "ABC Sport",
+      "sourceHandle": "@abcsport",
+      "reliability": 88,
+      "time": "2026-08-09T12:23:28.094666+00:00",
+      "timeLabel": "9h ago",
+      "headline": " \u2014 cleared / returned to play",
+      "body": " no longer appearing on injury/selection watch. Assumed fit.",
+      "link": "https://www.abc.net.au/news/2026-08-09/afl-rd-22-live-gws-suns-wce-coll-stk-carl/107008342",
+      "signal": "buy",
+      "signalConf": 80,
+      "tags": [
+        "Injury Tbc"
+      ],
+      "stats": [],
+      "relevance": 45,
+      "_source": "rss_abcsport",
+      "pubISO": "2026-08-09T03:04:07+00:00",
+      "status": "resolved",
+      "status_label": "\u2705 Resolved",
+      "first_seen": "2026-08-09T12:23:28.094666+00:00",
+      "age_label": "Just in",
+      "seen_count": 1,
+      "last_status": null,
+      "status_changed": true,
+      "stale_after_days": 7,
+      "resolved_at": "2026-08-10T12:32:49.572736+00:00"
     }
   ],
   "player_status": {
