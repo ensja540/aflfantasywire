@@ -55,6 +55,14 @@ HASHTAGS = "#SuperCoach"
 TWEETED_LOG = BASE / "tweeted.json"
 DAILY_TARGET = 3
 
+# Master posting kill-switch. Turned OFF 2026-08-26 with the fantasy season done.
+# When False, every posting path (--post / --auto / --gold-auto) no-ops before
+# anything is sent, so tweeting stops on the next cycle without restarting the
+# auto_scrape loop (this file is re-executed fresh each cycle). auto_scrape.py has
+# a matching TWEETS_ENABLED guard that skips spawning us once IT is restarted.
+# Flip back to True to resume auto-posting next season.
+POSTING_ENABLED = False
+
 # Occasional account-growth nudge. Added to a linkless tweet (matchup / value
 # angles) now and then so the feed periodically points new readers at the
 # account, without ever stacking a second CTA onto a tweet that already links
@@ -145,6 +153,12 @@ def classic_tweets(players):
                 f"\U0001F4C8 {p['name']} is trending up",
                 f"\U0001F4C8 {p['name']} has found some form",
                 f"\U0001F4C8 Strong few weeks from {p['name']}",
+                f"\U0001F4C8 {p['name']}'s numbers are climbing",
+                f"\U0001F4C8 Form's on the up for {p['name']}",
+                f"\U0001F4C8 {p['name']} has been building nicely",
+                f"\U0001F4C8 {p['name']} is putting a run together",
+                f"\U0001F4C8 A strong stretch from {p['name']}",
+                f"\U0001F4C8 {p['name']} has quietly gone up a gear",
             ])
             out.append(("classic", p["id"], "crise",
                         f"{head}\n\n{_form_body(p, 'up')}{own_bit}\n\n{HASHTAGS}"))
@@ -153,6 +167,12 @@ def classic_tweets(players):
                 f"\U0001F4C9 {p['name']} has cooled off",
                 f"\U0001F4C9 {p['name']} is down on his usual output",
                 f"\U0001F4C9 Leaner few weeks for {p['name']}",
+                f"\U0001F4C9 {p['name']}'s numbers have dipped",
+                f"\U0001F4C9 A quieter stretch for {p['name']}",
+                f"\U0001F4C9 The scoring's tailed off for {p['name']}",
+                f"\U0001F4C9 {p['name']} has slipped below his usual level",
+                f"\U0001F4C9 Form's cooled for {p['name']}",
+                f"\U0001F4C9 A softer patch for {p['name']} lately",
             ])
             out.append(("classic", p["id"], "cfall",
                         f"{head}\n\n{_form_body(p, 'down')}\n\n{HASHTAGS}"))
@@ -180,6 +200,11 @@ def draft_tweets(players):
                 f"\U0001F4C8 {p['name']} is on the rise",
                 f"\U0001F4C8 {p['name']} has lifted in recent weeks",
                 f"\U0001F4C8 {p['name']} keeps building",
+                f"\U0001F4C8 {p['name']}'s form is heading north",
+                f"\U0001F4C8 A strong recent run from {p['name']}",
+                f"\U0001F4C8 {p['name']} has stepped up lately",
+                f"\U0001F4C8 Things are trending up for {p['name']}",
+                f"\U0001F4C8 {p['name']} has hit his stride",
             ])
             out.append(("draft", p["id"], "drise",
                         f"{head}\n\n{_form_body(p, 'up')}\n\n{HASHTAGS}"))
@@ -188,6 +213,11 @@ def draft_tweets(players):
                 f"\U0001F4C9 {p['name']}'s output has eased",
                 f"\U0001F4C9 {p['name']} has drifted in recent weeks",
                 f"\U0001F4C9 {p['name']} is scoring below his usual level",
+                f"\U0001F4C9 {p['name']}'s form has softened",
+                f"\U0001F4C9 A leaner patch for {p['name']}",
+                f"\U0001F4C9 {p['name']} has tapered off lately",
+                f"\U0001F4C9 The numbers have dipped for {p['name']}",
+                f"\U0001F4C9 {p['name']} has come off the boil",
             ])
             out.append(("draft", p["id"], "dfall",
                         f"{head}\n\n{_form_body(p, 'down')}\n\n{HASHTAGS}"))
@@ -205,19 +235,47 @@ ABBR_TO_TEAM = {
 
 def _form_body(p, direction):
     """Varied presentation of recent form vs season avg so tweets don't all read
-    identically. `direction` ('up'/'down') keeps the narrative correct. One
-    rotation keeps the classic windows block; the others are sentence-led."""
+    identically. `direction` ('up'/'down') keeps the narrative correct. Deliberately
+    a large pool with different sentence shapes (some lead with the scoreline, some
+    with the timeframe, some with the average) so the feed reads like a person wrote
+    it, not a template. Strictly factual: scores, three/five-game averages, season
+    average. No cause, no advice."""
     ps = played_scores(p)
     avg = round(p.get("scAvg") or 0)
     avg3 = round(p.get("scAvg3") or 0)
     avg5 = round(_avg_n(ps, 5))
     l3 = scoreline(ps, 3)
-    moved = "up from" if direction == "up" else "down from"
-    return random.choice([
-        f"He's gone {l3} over his past three, a {avg3} average against his season mark of {avg}.",
-        f"Last three weeks: {l3}. That's a {avg3} average, {moved} {avg} on the season.",
-        f"He's averaging {avg3} across his past three and {avg5} over five, {moved} a season average of {avg}.",
-    ])
+    if direction == "up":
+        pool = [
+            f"He's gone {l3} over his past three, a {avg3} average against his season mark of {avg}.",
+            f"Last three weeks: {l3}. That's a {avg3} average, up from {avg} on the season.",
+            f"He's averaging {avg3} across his past three and {avg5} over five, up from a season average of {avg}.",
+            f"The past three read {l3}, lifting his recent average to {avg3} against a season figure of {avg}.",
+            f"Three of {l3} lately has his three-game average at {avg3}, clear of his {avg} season number.",
+            f"His last three of {l3} put him at {avg3} over that stretch, up on the {avg} he's averaged all year.",
+            f"Recent form reads {l3}. His {avg3} three-game average is running ahead of a {avg} season mark.",
+            f"Over the past three he's scored at {avg3} a game, and {avg5} across five, both above his {avg} season figure.",
+            f"A {avg3} average over his past three ({l3}) has him well clear of his {avg} season number.",
+            f"He's put up {l3} in his last three, nudging his recent average to {avg3} from a season mark of {avg}.",
+            f"The three-game average sits at {avg3} after {l3}, comfortably north of his {avg} for the year.",
+            f"Scores of {l3} across the past three have his recent average at {avg3}, up from {avg} on the season.",
+        ]
+    else:
+        pool = [
+            f"He's gone {l3} over his past three, a {avg3} average against his season mark of {avg}.",
+            f"Last three weeks: {l3}. That's a {avg3} average, down from {avg} on the season.",
+            f"He's averaging {avg3} across his past three and {avg5} over five, down from a season average of {avg}.",
+            f"The past three read {l3}, pulling his recent average to {avg3} against a season figure of {avg}.",
+            f"Three of {l3} lately has his three-game average at {avg3}, short of his {avg} season number.",
+            f"His last three of {l3} leave him at {avg3} over that stretch, under the {avg} he's averaged all year.",
+            f"Recent form reads {l3}. His {avg3} three-game average is sitting below a {avg} season mark.",
+            f"Over the past three he's scored at {avg3} a game, and {avg5} across five, both below his {avg} season figure.",
+            f"A {avg3} average over his past three ({l3}) has him trailing his {avg} season number.",
+            f"He's managed {l3} in his last three, easing his recent average to {avg3} from a season mark of {avg}.",
+            f"The three-game average sits at {avg3} after {l3}, down on his {avg} for the year.",
+            f"Scores of {l3} across the past three have his recent average at {avg3}, down from {avg} on the season.",
+        ]
+    return random.choice(pool)
 
 
 def matchup_tweets(players):
@@ -239,12 +297,18 @@ def matchup_tweets(players):
                 f"{p['name']} gets {opp_full} next round, one of the friendlier matchups for {pos}s on our ratings.",
                 f"A kind draw for {p['name']}: {opp_full} next round rates among the easier {pos} matchups on our numbers.",
                 f"{p['name']} draws {opp_full} next round, which our ratings have among the softer {pos} matchups.",
+                f"The draw opens up for {p['name']} next round against {opp_full}, one of the gentler {pos} matchups on our ratings.",
+                f"{p['name']} lines up against {opp_full} next round, a matchup our numbers rate as favourable for {pos}s.",
+                f"Next round hands {p['name']} a soft one on our ratings: {opp_full}, among the easier {pos} matchups going.",
             ])
         elif r0 <= 4:
             head = random.choice([
                 f"{p['name']} gets {opp_full} next round, one of the tougher matchups for {pos}s on our ratings.",
                 f"A tricky draw for {p['name']}: {opp_full} next round rates among the harder {pos} matchups on our numbers.",
                 f"{p['name']} runs into {opp_full} next round, which our ratings have among the stingier {pos} matchups.",
+                f"The draw tightens for {p['name']} next round against {opp_full}, one of the harder {pos} matchups on our ratings.",
+                f"{p['name']} lines up against {opp_full} next round, a matchup our numbers rate as a tough one for {pos}s.",
+                f"Next round is no gift for {p['name']} on our ratings: {opp_full}, among the stingier {pos} matchups going.",
             ])
         else:
             continue
@@ -252,6 +316,9 @@ def matchup_tweets(players):
             f"He's averaged {avg3}SC over his past three.",
             f"He comes in averaging {avg3} across his past three.",
             f"He's been going at {avg3} a game over the past three rounds.",
+            f"His past three have him at {avg3} a game.",
+            f"He arrives on a {avg3} three-game average.",
+            f"Recent form has him at {avg3} across the past three rounds.",
         ])
         out.append(("matchup", p["id"], "mtup", f"{head}\n\n{body}\n\n{HASHTAGS}"))
     return out
@@ -273,12 +340,16 @@ def value_tweets(players):
             head = random.choice([
                 f"\U0001F4B0 {p['name']}'s breakeven sits at {be} and he's averaging {avg3} over his past three. His price should keep climbing if the form holds.",
                 f"\U0001F4B0 Cash watch: {p['name']} has a breakeven of just {be} against a three-game average of {avg3}.",
+                f"\U0001F4B0 {p['name']} needs only {be} to break even and he's been scoring {avg3} over his past three. Room for the price to keep rising while that gap holds.",
+                f"\U0001F4B0 With a breakeven of {be} and a {avg3} three-game average, {p['name']} has been comfortably clearing what he needs to make cash.",
             ])
             out.append(("value", p["id"], "val_rise", f"{head}\n\n{HASHTAGS}"))
         elif margin <= -18 and avg3 < 95:
             head = random.choice([
                 f"\U0001F4B0 {p['name']}'s breakeven has climbed to {be}, well above his {avg3} average over the past three. His price will slide unless the scoring lifts.",
                 f"\U0001F4B0 Cash watch: {p['name']}'s breakeven is {be} against a three-game average of {avg3}, putting his price under pressure.",
+                f"\U0001F4B0 {p['name']} needs {be} to hold his price but has managed {avg3} over his past three. The gap points to a drop unless the scoring picks up.",
+                f"\U0001F4B0 A breakeven of {be} against a {avg3} three-game average has {p['name']}'s price under pressure.",
             ])
             out.append(("value", p["id"], "val_fall", f"{head}\n\n{HASHTAGS}"))
     return out
@@ -609,6 +680,8 @@ def cta_tweets(players, log):
             f"\U0001F4C8 {p['name']} has been climbing",
             f"\U0001F4C8 Form watch: {p['name']}",
             f"\U0001F4C8 {p['name']} on the move up the rankings",
+            f"\U0001F4C8 {p['name']} is working his way up",
+            f"\U0001F4C8 {p['name']} keeps rising",
         ])
         body = random.choice([
             f"He's up to #{rank} in our live SuperCoach rankings, averaging {_a3} "
@@ -616,6 +689,10 @@ def cta_tweets(players, log):
             f"Up to #{rank} in our live rankings, averaging {_a3} across his past "
             f"three, well clear of his {_av} season mark.",
             f"Averaging {_a3} over his past three ({_av} for the season), now "
+            f"#{rank} in our live SuperCoach rankings.",
+            f"He's climbed to #{rank} in our live rankings on the back of a {_a3} "
+            f"three-game average, up from his {_av} season figure.",
+            f"A {_a3} average over his past three ({_av} on the season) has him "
             f"#{rank} in our live SuperCoach rankings.",
         ])
         return [(
@@ -1329,6 +1406,12 @@ def _normalise_names(players, news):
 
 
 def main():
+    # Off-season kill-switch: refuse every posting path before any tweet is built
+    # or sent. Preview-only invocations (no posting flag) still work for testing.
+    if not POSTING_ENABLED and any(f in sys.argv for f in ("--post", "--auto", "--gold-auto")):
+        print("[disabled] POSTING_ENABLED is off — no tweets posted (off-season).")
+        return
+
     # Gold pre-game cards run on their own path (separate cadence/cap), so they don't
     # interfere with the varied-tweet rotation. --gold previews; --gold-auto posts.
     if "--gold" in sys.argv or "--gold-auto" in sys.argv:

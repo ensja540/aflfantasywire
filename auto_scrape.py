@@ -31,6 +31,12 @@ LOG_PATH     = BASE_DIR / "scrape.log"
 SIG_PATH     = BASE_DIR / ".scrape_sig"
 INTERVAL_SEC = 15 * 60   # 15 minutes
 
+# Master switch for the X/Twitter posting steps (both the varied tweets and the
+# gold pre-game cards). Turned OFF 2026-08-26 with the fantasy season done —
+# flip back to True to resume auto-posting next season. Data scraping is
+# unaffected either way.
+TWEETS_ENABLED = False
+
 # Footywire's SuperCoach stats page is the source-of-truth for player
 # averages. We hash it once per cycle and only run fetch_data.py (which
 # pulls ~350 games-log pages) when the hash changes — i.e., when a new
@@ -639,37 +645,38 @@ def run_once() -> None:
 
     # Scheduled tweet — self-throttled to 5/day, spaced, 6am-11pm AEST. No-ops
     # outside the window / once today's quota is met, so it's safe to call here
-    # every cycle.
-    try:
-        tw = subprocess.run(
-            [sys.executable, str(BASE_DIR / "tweet_bot.py"), "--auto"],
-            cwd=str(BASE_DIR), capture_output=True, text=True,
-            encoding="utf-8", errors="replace", env=_UTF8_ENV, timeout=120,
-        )
-        tail = (tw.stdout or "").strip().splitlines()
-        if tail:
-            log.info("tweet_bot: " + tail[-1])
-            if any("[ok] posted" in ln for ln in tail):
-                bits.append("Tweeted.")
-    except Exception as e:
-        log.warning(f"tweet_bot --auto failed: {e}")
+    # every cycle. Skipped entirely while TWEETS_ENABLED is off (off-season).
+    if TWEETS_ENABLED:
+        try:
+            tw = subprocess.run(
+                [sys.executable, str(BASE_DIR / "tweet_bot.py"), "--auto"],
+                cwd=str(BASE_DIR), capture_output=True, text=True,
+                encoding="utf-8", errors="replace", env=_UTF8_ENV, timeout=120,
+            )
+            tail = (tw.stdout or "").strip().splitlines()
+            if tail:
+                log.info("tweet_bot: " + tail[-1])
+                if any("[ok] posted" in ln for ln in tail):
+                    bits.append("Tweeted.")
+        except Exception as e:
+            log.warning(f"tweet_bot --auto failed: {e}")
 
-    # Gold pre-game stat cards (+ success follow-ups). Own throttle/cap, and stays
-    # silent until a game's teams are officially named (FINAL_TEAM) within 24h, so
-    # it's safe to call every cycle.
-    try:
-        gw = subprocess.run(
-            [sys.executable, str(BASE_DIR / "tweet_bot.py"), "--gold-auto"],
-            cwd=str(BASE_DIR), capture_output=True, text=True,
-            encoding="utf-8", errors="replace", env=_UTF8_ENV, timeout=120,
-        )
-        gtail = (gw.stdout or "").strip().splitlines()
-        if gtail:
-            log.info("tweet_bot gold: " + gtail[-1])
-            if any("[ok] posted" in ln for ln in gtail):
-                bits.append("Gold card.")
-    except Exception as e:
-        log.warning(f"tweet_bot --gold-auto failed: {e}")
+        # Gold pre-game stat cards (+ success follow-ups). Own throttle/cap, and
+        # stays silent until a game's teams are officially named (FINAL_TEAM)
+        # within 24h, so it's safe to call every cycle.
+        try:
+            gw = subprocess.run(
+                [sys.executable, str(BASE_DIR / "tweet_bot.py"), "--gold-auto"],
+                cwd=str(BASE_DIR), capture_output=True, text=True,
+                encoding="utf-8", errors="replace", env=_UTF8_ENV, timeout=120,
+            )
+            gtail = (gw.stdout or "").strip().splitlines()
+            if gtail:
+                log.info("tweet_bot gold: " + gtail[-1])
+                if any("[ok] posted" in ln for ln in gtail):
+                    bits.append("Gold card.")
+        except Exception as e:
+            log.warning(f"tweet_bot --gold-auto failed: {e}")
 
     _status(f"Scraping... done. {' '.join(bits)} Next run in {INTERVAL_SEC // 60} min.")
     _endline()
