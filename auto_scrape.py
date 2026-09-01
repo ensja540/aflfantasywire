@@ -37,6 +37,15 @@ INTERVAL_SEC = 15 * 60   # 15 minutes
 # unaffected either way.
 TWEETS_ENABLED = False
 
+# Off-season cadence: run the heavy scrapers (player data via fetch_data.py AND
+# news via news_scraper.py) at most ONCE per calendar day (AEST) instead of every
+# cycle / on change-detection. The loop still spins on INTERVAL_SEC — the fixture
+# box still refreshes every cycle — but the two heavy pulls fire only on the first
+# cycle of each AEST day. Set ONCE_DAILY = False to restore in-season behaviour.
+# (2026-09-02)
+ONCE_DAILY       = True
+ONCE_DAILY_STATE = BASE_DIR / ".once_daily_state"   # gitignored; {task: "YYYY-MM-DD"}
+
 # Footywire's SuperCoach stats page is the source-of-truth for player
 # averages. We hash it once per cycle and only run fetch_data.py (which
 # pulls ~350 games-log pages) when the hash changes — i.e., when a new
@@ -525,6 +534,39 @@ def _count_news() -> int:
     return 0
 
 
+def _aest_today() -> str:
+    """Current calendar date in Melbourne (AEST/AEDT), 'YYYY-MM-DD'."""
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo("Australia/Melbourne")).strftime("%Y-%m-%d")
+    except Exception:
+        return (datetime.now(timezone.utc) + timedelta(hours=10)).strftime("%Y-%m-%d")
+
+
+def _once_daily_due(task: str) -> bool:
+    """True if `task` hasn't yet had a successful run today (AEST). Read-only."""
+    try:
+        state = json.loads(ONCE_DAILY_STATE.read_text(encoding="utf-8"))
+    except Exception:
+        state = {}
+    return state.get(task) != _aest_today()
+
+
+def _once_daily_mark(task: str) -> None:
+    """Record that `task` ran today, so later cycles skip it until tomorrow."""
+    try:
+        state = json.loads(ONCE_DAILY_STATE.read_text(encoding="utf-8"))
+        if not isinstance(state, dict):
+            state = {}
+    except Exception:
+        state = {}
+    state[task] = _aest_today()
+    try:
+        ONCE_DAILY_STATE.write_text(json.dumps(state), encoding="utf-8")
+    except Exception as e:
+        log.warning(f"could not persist once-daily state: {e}")
+
+
 def run_once() -> None:
     started = datetime.now()
     timestamp = started.strftime("%Y-%m-%d %H:%M:%S")
@@ -534,21 +576,39 @@ def run_once() -> None:
     # changed (i.e. a game has finished and scores are processed). Each run
     # of fetch_data.py hammers ~350 games-log pages over ~12 minutes; the
     # ~95% of cycles where nothing has changed get skipped here.
-    should_fetch, fetch_sig, fetch_reason = _fetch_data_check()
+    # Off-season: at most one player-data pull per AEST day. Otherwise, the
+    # in-season change-detection gate decides.
+    if ONCE_DAILY:
+        if _once_daily_due("fetch_data"):
+            should_fetch, fetch_sig, fetch_reason = True, None, "once-daily: due today"
+        else:
+            should_fetch, fetch_sig, fetch_reason = False, None, "once-daily: already ran today"
+    else:
+        should_fetch, fetch_sig, fetch_reason = _fetch_data_check()
     if should_fetch:
         _status("Scraping... fetch_data.py")
         fetch_ok, fetch_msg = run_script("fetch_data.py")
-        if fetch_ok and fetch_sig:
-            try:
-                FETCH_DATA_SIG_PATH.write_text(fetch_sig, encoding="utf-8")
-            except Exception as _e:
-                log.warning(f"Could not save fetch_data signature: {_e}")
+        if fetch_ok:
+            if ONCE_DAILY:
+                _once_daily_mark("fetch_data")   # mark only on success -> retries until one clean run/day
+            if fetch_sig:
+                try:
+                    FETCH_DATA_SIG_PATH.write_text(fetch_sig, encoding="utf-8")
+                except Exception as _e:
+                    log.warning(f"Could not save fetch_data signature: {_e}")
     else:
         log.info(f"fetch_data skipped: {fetch_reason}")
         fetch_ok, fetch_msg = True, f"skipped — {fetch_reason}"
 
-    _status("Scraping... news_scraper.py")
-    news_ok, news_msg = run_script("news_scraper.py")
+    # Off-season: at most one news pull per AEST day (else every cycle).
+    if (not ONCE_DAILY) or _once_daily_due("news"):
+        _status("Scraping... news_scraper.py")
+        news_ok, news_msg = run_script("news_scraper.py")
+        if news_ok and ONCE_DAILY:
+            _once_daily_mark("news")
+    else:
+        log.info("news skipped: once-daily — already ran today")
+        news_ok, news_msg = True, "skipped — once-daily"
 
     # Roll the predict tab's fixture box from the AFL API every cycle, even when
     # fetch_data was skipped above (so it never lags the live fixture). Patches
